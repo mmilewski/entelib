@@ -5,21 +5,27 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 admin.autodiscover()
 
+from django.http import HttpResponse, HttpResponseRedirect
+
+def get_redirect_function_to_url(url):
+    ''' Create response object which redirects client to given url. '''
+    return (lambda request: HttpResponseRedirect(url))
+
 def default(request):
     ''' This function is temporary here, in order to display sth else than admin page as default.'''
-    from django.http import HttpResponse
     return HttpResponse(u'<h1>Default page</h1> U can visit <a href="admin/">admin page</a> or <a href="admin/doc/">documentation</a> page, now.')
 
 
 urlpatterns = patterns(
     '',
-    # Example:
-    # (r'^entelib/', include('entelib.foo.urls')),
-    # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
-    (r'admin/doc/', include('django.contrib.admindocs.urls')),
 
-    # Uncomment the next line to enable the admin:
+    # admin docs urls
+    (r'admin/doc/', include('django.contrib.admindocs.urls')),
+    (r'admin/doc$', get_redirect_function_to_url('/entelib/admin/doc/')),
+
+    # admin panel urls
     (r'admin/', include(admin.site.urls)),
+    (r'admin$',  get_redirect_function_to_url('/entelib/admin/')),
 
     # REPLACE ME: default matcher - to be replaced in future
     (r'', default),
