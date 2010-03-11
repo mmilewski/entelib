@@ -7,7 +7,7 @@ from django.db import models
 
 class Book(models.Model):
     STATUS_CHOICES = (
-            ('a', 'availalble'),
+            ('a', 'available'),
             ('d',  'disabled'),
         )
     #TODO: jakie rzeczywiście chcemy stany?
