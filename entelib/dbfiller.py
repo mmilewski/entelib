@@ -33,13 +33,14 @@ def randdate():
 rentals = [Rental(book=random.choice(books),
                   person=random.choice(people),
                   started=randdate(),
-                  returned = randdate() 
+                  ended = randdate() 
                   ) for i in xrange(NR_OF_RENTALS)]
 
 
 # can't return before borrowing
 for rental in rentals:
-    if rental.started > rental.returned: rental.returned = None
+    if rental.started > rental.ended:
+        rental.ended = None
     rental.save()
 
 
