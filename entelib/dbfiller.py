@@ -49,7 +49,7 @@ rentals = [Rental(book=random.choice(books),
 # can't return before borrowing
 for rental in rentals:
     if rental.started > rental.ended:
-        rental.returned = None
+        rental.ended = None
     rental.save()
 
 
