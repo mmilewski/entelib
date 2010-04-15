@@ -5,24 +5,36 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+# telephone as a separate table: voip, mobile, phone
+# fields in location are probably: building, floor, room, name, telephone* (zero or more). Name is like 'Tweety' or 'Scooby'
+
 class Location(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30) #TODO maxlen
     remarks = models.CharField(max_length=50) #TODO potrzebne? jakie pole?
+
+    def __unicode__(self):
+        return self.name
 
 class State(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30) #TODO maxlen
     is_available = models.BooleanField()
 
+    def __unicode__(self):
+        return self.name
+
 class Publisher(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50) #TODO maxlen
+
+    def __unicode__(self):
+        return self.name
    
 class Picture(models.Model):
     id = models.AutoField(primary_key=True)
     file = models.ImageField(upload_to='book_pictures') #TODO: ograniczenia obrazka
-    
+
 class Author(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50) #TODO maxlen
@@ -33,10 +45,11 @@ class Author(models.Model):
 class Book(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=50)
-    author = models.ManyToManyField(Author)
+    author = models.ManyToManyField(Author)  # authors?
     
     def __unicode__(self):
-        return self.title
+        # return u'%s %s' % (self.title, unicode(self.author.all()))
+        return u'%s' % (self.title, )
 
 class BookCopy(models.Model):
     id = models.AutoField(primary_key=True)
@@ -46,8 +59,14 @@ class BookCopy(models.Model):
     publisher = models.ForeignKey(Publisher)
     year = models.IntegerField()
     publication_nr = models.IntegerField()
-    picture = models.ForeignKey(Picture) 
+    picture = models.ForeignKey(Picture, null=True, blank=True) 
     description = models.TextField()
+
+    def __unicode__(self):
+        return u'%s [copy]' % (self.book.title,)
+
+    class Meta:
+        verbose_name_plural = 'Book copies'
 
     class Admin: pass
 
