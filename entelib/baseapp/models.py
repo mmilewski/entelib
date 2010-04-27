@@ -33,7 +33,11 @@ class Publisher(models.Model):
    
 class Picture(models.Model):
     id = models.AutoField(primary_key=True)
+    description = models.CharField(max_length=50) #TODO maxlen
     file = models.ImageField(upload_to='book_pictures') #TODO: ograniczenia obrazka
+
+    def __unicode__(self):
+        return self.description
 
 class Author(models.Model):
     id = models.AutoField(primary_key=True)
@@ -43,6 +47,10 @@ class Author(models.Model):
         return self.name
 
 class Book(models.Model):
+    class Meta:
+        permissions = (
+            ("can_view", "Can view things"),
+            )
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=50)
     author = models.ManyToManyField(Author)  # authors?
@@ -95,6 +103,9 @@ class Rental(models.Model):
 
     def __unicode__(self):
         return u'id: ' + unicode(self.id) 
+
+
+
 
 
 

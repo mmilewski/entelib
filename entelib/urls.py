@@ -1,10 +1,11 @@
+#-*- coding: utf-8 -*-
 from django.conf.urls.defaults import *
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
 
-
+# Czy to jest do czegoś potrzebne?
 def quickhack(request):
     from entelib.baseapp.models import BookCopy
     from django.http import HttpResponse

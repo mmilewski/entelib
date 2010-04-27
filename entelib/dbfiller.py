@@ -1,4 +1,5 @@
 #-*- coding=utf-8 -*- 
+#COMPLETELY OUTDATED! DATABASE SCHEMA CHANGED TOTALLY, THE FILE, IN CURRENT FORM, IS COMPLETELY USELESS.
 import random
 import datetime
 from entelib.baseapp.models import *
