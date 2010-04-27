@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 class Location(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30) #TODO maxlen
-    remarks = models.CharField(max_length=50) #TODO potrzebne? jakie pole?
+    remarks = models.CharField(max_length=50,blank=True) #TODO potrzebne? jakie pole?
 
     def __unicode__(self):
         return self.name
@@ -68,7 +68,7 @@ class BookCopy(models.Model):
     year = models.IntegerField()
     publication_nr = models.IntegerField()
     picture = models.ForeignKey(Picture, null=True, blank=True) 
-    description = models.TextField()
+    description = models.TextField(blank=True)
 
     def __unicode__(self):
         return u'%s [copy]' % (self.book.title,)

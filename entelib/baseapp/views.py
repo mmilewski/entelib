@@ -1,8 +1,23 @@
 # Create your views here.
 from django.shortcuts import render_to_response
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from entelib.baseapp.models import Book, BookCopy
+from django.template import RequestContext
+from django.contrib import auth
 #from django.contrib.auth.decorators import permission_required
+
+def logout(request):
+    if request.user.is_authenticated():
+        auth.logout(request)
+    return HttpResponseRedirect('/entelib/')
+
+
+def default(request):
+    if request.user.is_authenticated():
+        return render_to_response('entelib.html', context_instance=RequestContext(request))
+    else:
+        return HttpResponseRedirect('/entelib/login/')
+
 
 #@permission_required('book.can_view')
 def list_books(request):
@@ -16,7 +31,8 @@ def list_books(request):
             })
     return render_to_response(
             'book.html',
-            {'books': books}
+            {'books': books},
+            context_instance=RequestContext(request)
            )
 
 def show_book(request, book_id):
@@ -43,7 +59,9 @@ def show_book(request, book_id):
         'bookcopies.html',
         {
             'book' : context,
-        })
+        },
+        context_instance=RequestContext(request)
+)
         
     
     
