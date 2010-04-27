@@ -1,0 +1,18 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"> 
+<html lang='en-uk'>
+<head>
+    <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+    <link rel='Stylesheet' type='text/css' href='/entelib{{ MEDIA_URL }}stylesheets/style.css'/>
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    <div id='top'>
+        <div id='header'>
+            <h1>{% block header %}{% endblock %}</h1>
+        </div>
+        {% block menu %}{% endblock %}
+        {% block rest %}{% endblock %}
+        <div id='footer'></div>
+    </div>
+</body>
+</html>

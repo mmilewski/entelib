@@ -1,0 +1,31 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block header %}{{ book.title }}{% endblock %}
+
+{% block content %}
+
+{% if book.authors %}
+<b>Authors: </b>
+{{ book.authors|join:', '}}
+{% else %}
+<b>No authors.</b>
+{% endif %}
+
+<ul>
+{% for item in book.items %}
+<li><b><a href='{{ item.url }}'>>></a></b>:
+    <ul>
+    <li>Location: {{ item.location }}</li>
+    <li>State: {{ item.state }}</li>
+    <li>Publisher: {{ item.publisher }}</li>
+    <li>Year: {{ item.year }}</li>
+    <li>Description: {{ item.description }}</li>
+    </ul>
+</li>
+{% empty %}
+<b>Sorry, no copies.</b>
+{% endfor %}
+</ul>
+{% endblock %}

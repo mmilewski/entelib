@@ -1,0 +1,21 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block title %}Book list{% endblock %}
+
+{% block header %}Book list{% endblock %}
+
+{% block content %}
+<ul class='books'>
+{% for book in books %}
+<li><b><a href='{{ book.url }}'>{{ book.title }}:</a></b>
+{% if book.authors %}
+ {{ book.authors|join:', '}}
+{% else %}
+ no authors
+{% endif %}
+</li>
+{% empty %}
+<b>Sorry, no books.</b>
+{% endfor %}
+</ul>
+{% endblock %}

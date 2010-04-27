@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Entelib{% endblock %}
+
+{% block header %}Entelib{% endblock %}
+
+{% block rest %}
+<div id='login'>
+<p>
+<form action='.' method='post'>
+    <table>
+        <tr>
+            <td>Username: </td>
+            <td><input type="text" name='username' value='' id='username' /></td>
+        </tr><tr>
+            <td>Password: </td>
+            <td><input type='password' name='password' value='' id='password' /></td>
+        </tr><tr>
+        <td></td><td>
+            <input type='submit' value='Login' />
+        </td></tr>
+    </table>
+    <input type="hidden" name="next" value="/entelib/" />
+</form></p>
+</div>
+{% endblock %}
