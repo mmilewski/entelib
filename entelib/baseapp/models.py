@@ -3,22 +3,23 @@
 from django.db import models
 # from django.db.models import User
 from django.contrib.auth.models import User
+import models_config as CFG
 
-
-# telephone as a separate table: voip, mobile, phone
-# fields in location are probably: building, floor, room, name, telephone* (zero or more). Name is like 'Tweety' or 'Scooby'
+# TODO:
+#   - telephone as a separate table: voip, mobile, phone
+#   - fields in location are probably: building, floor, room, name, telephone* (zero or more). Name is like 'Tweety' or 'Scooby'
 
 class Location(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=30) #TODO maxlen
-    remarks = models.CharField(max_length=50,blank=True) #TODO potrzebne? jakie pole?
+    name = models.CharField(max_length=CFG.location_name_len)
+    remarks = models.CharField(max_length=CFG.location_remarks_len, blank=True)
 
     def __unicode__(self):
         return self.name
 
 class State(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=30) #TODO maxlen
+    name = models.CharField(max_length=CFG.state_name_len)
     is_available = models.BooleanField()
 
     def __unicode__(self):
@@ -26,22 +27,22 @@ class State(models.Model):
 
 class Publisher(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50) #TODO maxlen
+    name = models.CharField(max_length=CFG.publisher_name_len)
 
     def __unicode__(self):
         return self.name
    
 class Picture(models.Model):
     id = models.AutoField(primary_key=True)
-    description = models.CharField(max_length=50) #TODO maxlen
-    file = models.ImageField(upload_to='book_pictures') #TODO: ograniczenia obrazka
+    description = models.CharField(max_length=CFG.picture_description_len)
+    file = models.ImageField(upload_to=CFG.picture_upload_to) #TODO: ograniczenia obrazka
 
     def __unicode__(self):
         return self.description
 
 class Author(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50) #TODO maxlen
+    name = models.CharField(max_length=CFG.author_name_len)
 
     def __unicode__(self):
         return self.name
@@ -52,7 +53,7 @@ class Book(models.Model):
             ("can_view", "Can view things"),
             )
     id = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=CFG.book_title_len)
     author = models.ManyToManyField(Author)  # authors?
     
     def __unicode__(self):
