@@ -191,14 +191,16 @@ for copy in copies:
 
 # here we add a superuser which is available right after filling db
 # src: http://docs.djangoproject.com/en/dev/topics/auth/#creating-users
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+from entelib.baseapp.models import CustomUser
+
 extra_user_name = 'admin'
 try:
-    user = User.objects.get(username=extra_user_name)  # get may throw DoesNotExist
+    user = CustomUser.objects.get(username=extra_user_name)  # get may throw DoesNotExist
     user.delete()
 except:
     pass
-user = User.objects.create_user(extra_user_name, 'iam@frog.com', 'admin')
+user = CustomUser.objects.create_user(extra_user_name, 'iam@frog.com', 'admin')
 user.first_name, user.last_name = 'Admino', 'Domino'
 user.is_staff = True
 user.is_superuser = True

@@ -2,12 +2,17 @@
 
 from django.db import models
 # from django.db.models import User
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, UserManager
 import models_config as CFG
 
 # TODO:
 #   - telephone as a separate table: voip, mobile, phone
 #   - fields in location are probably: building, floor, room, name, telephone* (zero or more). Name is like 'Tweety' or 'Scooby'
+
+class CustomUser(User):
+    """"""
+    shoe_size = models.PositiveIntegerField(null=True, blank=True)  # :)
+    objects = UserManager()
 
 class Location(models.Model):
     id = models.AutoField(primary_key=True)
@@ -82,11 +87,11 @@ class BookCopy(models.Model):
 class Reservation(models.Model):
     id = models.AutoField(primary_key=True)
     book_copy = models.ForeignKey(BookCopy)
-    for_whom = models.ForeignKey(User, related_name='user')
+    for_whom = models.ForeignKey(CustomUser, related_name='user')
     start_date = models.DateField()
     end_date = models.DateField()
-    who_reserved = models.ForeignKey(User, related_name='reserver')
-    who_cancelled = models.ForeignKey(User, related_name='canceller')
+    who_reserved = models.ForeignKey(CustomUser, related_name='reserver')
+    who_cancelled = models.ForeignKey(CustomUser, related_name='canceller')
     
     class Admin: pass
 
@@ -97,10 +102,10 @@ class Reservation(models.Model):
 class Rental(models.Model):
     id = models.AutoField(primary_key=True)
     reservation = models.ForeignKey(Reservation)
-    start_date = models.DateTimeField() #(auto_now_add=True)
+    start_date = models.DateTimeField()  #(auto_now_add=True)
     end_date = models.DateTimeField()
-    who_handed_out = models.ForeignKey(User, related_name='giver')
-    who_received = models.ForeignKey(User, related_name='receiver')
+    who_handed_out = models.ForeignKey(CustomUser, related_name='giver')
+    who_received = models.ForeignKey(CustomUser, related_name='receiver')
 
     def __unicode__(self):
         return u'id: ' + unicode(self.id) 

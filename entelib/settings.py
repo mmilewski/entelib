@@ -5,6 +5,8 @@ import os
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+CHECK_PASSWORD_ON_AUTH = True     # if True checks whether given password matches one in database.
+
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
@@ -83,4 +85,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'entelib.baseapp',
+)
+
+AUTHENTICATION_BACKENDS = (
+    'entelib.auth_backends.CustomUserModelBackend',
 )
