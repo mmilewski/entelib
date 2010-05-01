@@ -3,7 +3,7 @@
 from django.db import models
 # from django.db.models import User
 from django.contrib.auth.models import User, UserManager
-import models_config as CFG
+import config as CFG
 
 # TODO:
 #   - telephone as a separate table: voip, mobile, phone
@@ -68,7 +68,7 @@ class Book(models.Model):
 class BookCopy(models.Model):
     class Meta:
         permissions = (
-            ("can_view", "Can view books' copies"),
+            ("can_view", "Can view book copies"),
             )
     id = models.AutoField(primary_key=True)
     book = models.ForeignKey(Book)

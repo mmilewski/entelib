@@ -63,7 +63,6 @@ def show_book(request, book_id):
         book = Book.objects.get(id=book_id)
         copies = BookCopy.objects.filter(book=book_id)
         if request.method == 'POST':
-            print request.POST
             if request.POST.has_key('location'):
                 if not request.POST['location'] == u'0':
                     copies = copies.filter(location__exact=request.POST['location'])
