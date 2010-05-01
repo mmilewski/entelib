@@ -30,7 +30,7 @@ urlpatterns = patterns(
     # books
     (r'^books/$', list_books),
     (r'^books$',  get_redirect_function_to_url('/entelib/book/')),
-    (r'^books/(\d)/$', show_book),
+    (r'^books/(\d+)/$', show_book),
 
 
     # admin docs urls
@@ -41,12 +41,6 @@ urlpatterns = patterns(
     (r'^admin/', include(admin.site.urls)),
     (r'^admin$',  get_redirect_function_to_url('/entelib/admin/')),
 
-    # 
-    (r'^' + settings.MEDIA_URL[1:] + '(?P<path>.*)$', 
-        'django.views.static.serve',
-        { 'document_root': settings.MEDIA_ROOT, }
-    ),
-
     # REPLACE ME: default matcher - to be replaced in future
-    (r'', default),
+    (r'^$', default),     #
 )

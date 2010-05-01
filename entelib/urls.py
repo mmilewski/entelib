@@ -1,5 +1,6 @@
 #-*- coding: utf-8 -*-
 from django.conf.urls.defaults import *
+import settings
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -23,6 +24,7 @@ def quickhack(request):
 urlpatterns = patterns('',
     (r'^quickhack', 'entelib.urls.quickhack'),
     (r'^entelib/', include('entelib.baseapp.urls')),
+    (r'^' + settings.MEDIA_URL[1:] + '(?P<path>.*)$',  'django.views.static.serve',  { 'document_root': settings.MEDIA_ROOT, }),
     (r'^$', 'django.views.generic.simple.redirect_to', {'url': '/entelib/'}),
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
