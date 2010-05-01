@@ -28,9 +28,9 @@ urlpatterns = patterns(
     (r'^logout$',  get_redirect_function_to_url('/entelib/logout/')),
 
     # books
-    (r'^book/$', list_books),
-    (r'^book$',  get_redirect_function_to_url('/entelib/book/')),
-    (r'^book/(\d)/$', show_book),
+    (r'^books/$', list_books),
+    (r'^books$',  get_redirect_function_to_url('/entelib/book/')),
+    (r'^books/(\d)/$', show_book),
 
 
     # admin docs urls

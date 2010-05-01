@@ -1,0 +1,31 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block header %}User list{% endblock %}
+
+{% block content %}
+<div class='content_form'>
+<form action='.' method='post'>
+    <table>
+        <tr>
+            <td>Name: </td>
+            <td><input type='text' name='name' value=''></td>
+        </tr><tr>
+            <td>Surname: </td>
+            <td><input type='text' name='surname' value=''></td>
+        </tr><tr>
+            <td></td><td>
+                <input type='submit'  name='action' value='Search'>
+            </td></tr>
+    </table>
+</form>
+</div>
+<div style='margin-top: 1em'>
+<ul class='spaces'>
+{% for user in users %}
+<li><b><a href='{{ user.url }}'>{{ user.name }} {{ user.surname }}</a></b></li>
+{% empty %}
+<b>Sorry, no users.</b>
+{% endfor %}
+</ul>
+</div>
+{% endblock %}

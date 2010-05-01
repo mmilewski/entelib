@@ -1,0 +1,17 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block header %}User profile{% endblock %}
+
+{% block content %}
+<ul class='spaces'>
+    <li>Name: {{ user.name }}</li>
+    <li>Surname: {{ user.surname }}</li>
+    <li>E-mail: {{ user.mail }}</li>
+</ul>
+<div class='content_form'>
+<b>
+| <a href='reservations/'>Reservations</a> |
+ <a href='rentals/'>Rentals</a> |
+ <a href='books/'>Books</a> |</b>
+</div>
+{% endblock %}

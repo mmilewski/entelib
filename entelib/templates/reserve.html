@@ -1,0 +1,39 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block header %}Book reservation{% endblock %}
+
+{% block content %}
+<h2>Title: {{ book.title }}</h2>
+<div class='content_form', style='margin-top: 1em'>
+<form action='.' method='post'>
+    <table>
+        <tr>
+            <td></td>
+            <td style='text-align: center'>Day</td>
+            <td></td>
+            <td style='text-align: center'>Month</td>
+            <td></td>
+            <td style='text-align: center'>Year</td>
+        </tr><tr>
+        <tr>
+            <td>From: </td>
+            <td><input type='text' maxlength='2' size='2' name='day_from' value=''></td>
+            <td>-</td>
+            <td><input type='text' maxlength='2' size='2' name='month_from' value=''></td>
+            <td>-</td>
+            <td><input type='text' maxlength='4' size='4' name='year_from' value=''></td>
+        </tr><tr>
+            <td>To: </td>
+            <td><input type='text' maxlength='2' size='2' name='day_from' value=''></td>
+            <td>-</td>
+            <td><input type='text' maxlength='2' size='2' name='month_from' value=''></td>
+            <td>-</td>
+            <td><input type='text' maxlength='4' size='4' name='year_from' value=''></td>
+        </tr><tr>
+        <td></td><td colspan='5'>
+            <input type='submit' name='action' value='Reserve'>
+        </td></tr>
+    </table>
+</form>
+</div>
+{% endblock %}

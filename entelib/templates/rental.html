@@ -1,0 +1,9 @@
+{% extends 'bookcopy_base.html' %}
+
+{% block forms %}
+<div>
+<form action='.' method='post'>
+<b>Rental from: {{ from }} to: {{ to }} | </b><input type='submit' name='action' value='Return'>
+</form>
+</div>
+{% endblock %}

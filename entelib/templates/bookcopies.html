@@ -5,15 +5,41 @@
 {% block header %}{{ book.title }}{% endblock %}
 
 {% block content %}
-
+<div class='content_form'>
+<form action='.' method='post'>
+    <table>
+        <tr>
+            <td>Title: </td>
+            <td><input type='text' name='search' value=''></td>
+        </tr><tr>
+            <td>Location: </td>
+            <td>
+                <select name='location'>
+                    {% for location in book.locations %}
+                        <option value='{{ location.id }}'>{{ location.name }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr><tr>
+            <td>Only available: </td>
+            <td>
+                <input type='checkbox' name='available' value='available' >
+            </td>
+        </tr><tr>
+            <td></td><td>
+                <input type='submit'  name='action' value='Search'>
+            </td></tr>
+    </table>
+</form>
+</div>
+<div style='margin-top: 1em'>
 {% if book.authors %}
 <b>Authors: </b>
 {{ book.authors|join:', '}}
 {% else %}
 <b>No authors.</b>
 {% endif %}
-
-<ul>
+<ul class='spaces'>
 {% for item in book.items %}
 <li><b><a href='{{ item.url }}'>>></a></b>:
     <ul>
@@ -28,4 +54,5 @@
 <b>Sorry, no copies.</b>
 {% endfor %}
 </ul>
+</div>
 {% endblock %}

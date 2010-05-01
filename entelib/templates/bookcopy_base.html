@@ -1,0 +1,27 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block header %}{{ book.title }}{% endblock %}
+
+{% block content %}
+<div class='picture'>
+<img src='{{ book.picture_url }}'>
+</div>
+<div>
+{{ book.description }}
+</div>
+<div class='clear' style='padding-top: 1em;'>
+<ul class='books'>
+    <li>{% if book.authors %}
+            <b>Authors: </b>{{ book.authors|join:', '}}
+        {% else %}
+            <b>No authors.</b>
+        {% endif %}</li>
+    <li>Location: {{ book.location }}</li>
+    <li>State: {{ book.state }}</li>
+    <li>Publisher: {{ book.publisher }}</li>
+    <li>Year: {{ book.year }}</li>
+</ul>
+{% block forms %}
+{% endblock %}
+</div>
+{% endblock %}

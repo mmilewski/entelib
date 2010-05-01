@@ -1,0 +1,12 @@
+{% extends 'bookcopy_base.html' %}
+
+{% block forms %}
+<div>
+<form action='.' method='post'>
+<b>Reservation from: {{ from }} to: {{ to }} | </b>
+{% if rental_possible %}
+<input type='submit' name='action' value='Rent'>
+{% endif %}
+</form>
+</div>
+{% endblock %}

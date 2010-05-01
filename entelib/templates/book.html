@@ -5,7 +5,21 @@
 {% block header %}Book list{% endblock %}
 
 {% block content %}
-<ul class='books'>
+<div class='content_form'>
+<form action='.' method='post'>
+    <table>
+        <tr>
+            <td>Title: </td>
+            <td><input type='text' name='search' value=''></td>
+        </tr><tr>
+            <td></td><td>
+                <input type='submit' name='action' value='Search'>
+            </td></tr>
+    </table>
+</form>
+</div>
+<div>
+<ul class='spaces'>
 {% for book in books %}
 <li><b><a href='{{ book.url }}'>{{ book.title }}:</a></b>
 {% if book.authors %}
@@ -15,7 +29,7 @@
 {% endif %}
 </li>
 {% empty %}
-<b>Sorry, no books.</b>
 {% endfor %}
 </ul>
+</div>
 {% endblock %}

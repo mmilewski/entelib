@@ -55,7 +55,7 @@ class Author(models.Model):
 class Book(models.Model):
     class Meta:
         permissions = (
-            ("can_view", "Can view things"),
+            ("can_view", "Can view books"),
             )
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=CFG.book_title_len)
@@ -66,6 +66,10 @@ class Book(models.Model):
         return u'%s' % (self.title, )
 
 class BookCopy(models.Model):
+    class Meta:
+        permissions = (
+            ("can_view", "Can view books' copies"),
+            )
     id = models.AutoField(primary_key=True)
     book = models.ForeignKey(Book)
     location = models.ForeignKey(Location)
