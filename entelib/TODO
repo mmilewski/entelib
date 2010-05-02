@@ -1,3 +1,6 @@
 od mbr:
-    marcin: ja nie wiem jak sobie radzić z tym custom user. Trzeba na pewno trochę usprawnić panel admina, żeby lepiej sobie z tym radził. Nie wiem jak mam się dobierać do uprawnień. request.user.has_perm nie działa...
-    adi: css przestał działać jak wkleiłem twoje szablony. Naprawisz?
+ *  marcin: ja nie wiem jak sobie radzić z tym custom user. Trzeba na pewno trochę usprawnić panel admina, żeby lepiej sobie z tym radził. Nie wiem jak mam się dobierać do uprawnień. request.user.has_perm nie działa...
+    <marcin>: Ok, sprawdzę to
+
+ *  adi: css przestał działać jak wkleiłem twoje szablony. Naprawisz?
+   <marcin>: Poprawiłem to wczoraj --> r141
