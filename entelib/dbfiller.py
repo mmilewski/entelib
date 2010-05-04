@@ -21,6 +21,8 @@ Publisher.objects.all().delete()
 Author.objects.all().delete()
 BookCopy.objects.all().delete()
 Book.objects.all().delete()
+Phone.objects.all().delete()
+PhoneType.objects.all().delete()
 # NOTE: Users are not deleted. Only admin is.
 
 
@@ -205,3 +207,14 @@ user.first_name, user.last_name = 'Admino', 'Domino'
 user.is_staff = True
 user.is_superuser = True
 user.save()
+
+
+# add telephone types
+phone_types = [ ('Mobile', '(\+?\d{2,3})?.?\d{3}-\d{3}-\d{3}', 'For mobiles'),
+                ('Skype', '[\d\w\-_.]+', 'Skype identifiers'),
+                ('Morse decoder', '', ''),
+                ]
+for (name, re, desc) in phone_types:
+    pt = PhoneType(name=name, verify_re=re, description=desc)
+    pt.save()
+

@@ -6,13 +6,40 @@ from django.contrib.auth.models import User, UserManager
 import config as CFG
 
 # TODO:
-#   - telephone as a separate table: voip, mobile, phone
 #   - fields in location are probably: building, floor, room, name, telephone* (zero or more). Name is like 'Tweety' or 'Scooby'
+
+
+class PhoneType(models.Model):
+    '''
+    Phone type description.
+    '''
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=CFG.phonetype_name_len)
+    verify_re = models.CharField(max_length=CFG.phonetype_verify_re_len, blank=True)
+    description = models.CharField(max_length=CFG.phonetype_description_len, blank=True)
+
+    def __unicode__(self):
+        return unicode(self.name)
+
+
+class Phone(models.Model):
+    '''
+    A broadly defined telephone: VoIP, mobile, fax, ...
+    '''
+    id = models.AutoField(primary_key=True)
+    type = models.ForeignKey(PhoneType)
+    value = models.CharField(max_length=CFG.phone_value_len)
+
+    def __unicode__(self):
+        return u"%s: %s" % (unicode(self.type), unicode(self.value))
+
 
 class CustomUser(User):
     """"""
     shoe_size = models.PositiveIntegerField(null=True, blank=True)  # :)
     objects = UserManager()
+    phone = models.ManyToManyField(Phone)
+
 
 class Location(models.Model):
     id = models.AutoField(primary_key=True)
