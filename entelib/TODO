@@ -1,7 +1,2 @@
-od mbr:
- *  marcin: ja nie wiem jak sobie radzić z tym custom user. Trzeba na pewno trochę usprawnić panel admina, żeby lepiej sobie z tym radził. Nie wiem jak mam się dobierać do uprawnień. request.user.has_perm nie działa...
-    <marcin>: Ok, sprawdzę to
-    <marcin>: Sprawdziłem.  http://code.google.com/p/entelib/issues/detail?id=3  http://code.google.com/p/entelib/issues/detail?id=2
-
- *  adi: css przestał działać jak wkleiłem twoje szablony. Naprawisz?
-   <marcin>: Poprawiłem to wczoraj --> r141
+<mbr> [views.py:book_copy, bookcopy.html] filtrowanie egzemplarzy: przesyłać POSTem jakie filtrowanie zostało zaaplikowane i uwzględnić to w templacie
+<mbr> na przyszłość: trzeba zrobić jakieś bardziej zaawansowane wyszukiwanie. Na razie szuka książek, które zawierają wszystkie podane frazy.

@@ -7,7 +7,7 @@ from entelib.baseapp.models import * #Book, BookCopy
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
-from view_functions import forbidden
+from views_aux import forbidden
 #from django.contrib.auth.decorators import permission_required
 
 def logout(request):
@@ -24,17 +24,15 @@ def default(request):
 
 
 #TODO jakieś bardziej zaawansowane wyszukiwanie
-#TODO sprawdzanie uprawnień
 def list_books(request):
     url = u'/entelib/books/'
     books = []
-    if request.user.has_perm('book.can_view'):
+    if request.user.is_authenticated():
         if request.method == 'POST':
             search_words = request.POST['search'].split()
             if search_words:
                 def format_search_request(keywords):
                     return reduce(lambda x,y: Q(title__icontains=x) and Q(title__icontains=y), keywords, Q(title__contains=u''))
-                #for  elem in Book.objects.filter(format_search_request(search_words)):
                 for elem in Book.objects.filter(format_search_request(search_words)):
                     books.append({
                         'title':elem.title, 
@@ -58,7 +56,7 @@ def list_books(request):
 
 
 def show_book(request, book_id):
-    if request.user.has_perm('bookcopy.can_view'):
+    if request.user.is_authenticated():
         url = u'/entelib/bookcopy/'
         book = Book.objects.get(id=book_id)
         copies = BookCopy.objects.filter(book=book_id)
@@ -67,7 +65,7 @@ def show_book(request, book_id):
                 if not request.POST['location'] == u'0':
                     copies = copies.filter(location__exact=request.POST['location'])
             if request.POST.has_key('available'):
-                if request.POST['available'] == u'available':
+                if request.POST['available'] == 'available':
                     copies = copies.filter(state__is_available__exact=True)
                     print request.POST
         book_copies = []
@@ -78,7 +76,7 @@ def show_book(request, book_id):
                 'state': elem.state.name,
                 'publisher': elem.publisher.name,
                 'year' : elem.year,
-                'description': elem.description[:50], #TODO  poprawić przycięcie
+                'description': elem.description[50], #TODO
                 })
         book_desc = {
             'title' : book.title,
@@ -95,33 +93,38 @@ def show_book(request, book_id):
         )
     else:
         return forbidden(request)
-'''
 #TODO wszystko poniżej jest draftem z czasu zanim adi zamieścił templaty
 #     Ja to dokończę
 #     mbr
 def book_copy(request, bookcopy_id):
-    book_copy = BookCopy.objects.get(id=1)
-    book = book_copy.book
-    book_desc = {
-        'title' : book.title,
-        'authors' : [a.name for a in book.author.all()],
-        'location': book_copy.location.name,
-        'state': book_copy.state.name,
-        'publisher': book_copy.publisher.name,
-        'year' : book_copy.year,
-        'description': book_copy.description,
-        'picture' : book_copy.picture,
-        }
-    return render_to_response(
-        'bookcopy.html',
-        {
-            'book' : book_desc,
-            'can_reserve' : True,
-            'can_rent' : True,
-            'can_return' : True,
-        },
-        context_instance=RequestContext(request)
-    )
+    if request.user.is_authenticated():
+        book_copy = BookCopy.objects.get(id=bookcopy_id)
+        book = book_copy.book
+        book_desc = {
+            'title' : book.title,
+            'authors' : [a.name for a in book.author.all()],
+            'location': book_copy.location.name,
+            'state': book_copy.state.name,
+            'publisher': book_copy.publisher.name,
+            'year' : book_copy.year,
+            'description': book_copy.description,
+            'picture' : book_copy.picture,
+            }
+        return render_to_response(
+            'bookcopy.html',
+            {
+                'book' : book_desc,
+                'can_reserve' : request.user.has_perm('basapp.add_reservation'),
+                #'can_rent' : request.user.has_perm('baseapp.add_rental'), and  #TODO
+                #'can_return' : request.user.has_perm('baseapp.change_rental'), #TODO
+            },
+            context_instance=RequestContext(request)
+        )
+    else:
+        return forbidden(request)
+        
+
+'''
    
 def users(request):
     user_request = request.POST['request']

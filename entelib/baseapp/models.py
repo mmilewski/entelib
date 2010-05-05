@@ -36,6 +36,10 @@ class Phone(models.Model):
 
 class CustomUser(User):
     """"""
+    class Meta:
+        permissions = (
+            ("list_users", "Can list users"),
+            )
     shoe_size = models.PositiveIntegerField(null=True, blank=True)  # :)
     objects = UserManager()
     phone = models.ManyToManyField(Phone)
@@ -80,23 +84,15 @@ class Author(models.Model):
         return self.name
 
 class Book(models.Model):
-    class Meta:
-        permissions = (
-            ("can_view", "Can view books"),
-            )
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=CFG.book_title_len)
-    author = models.ManyToManyField(Author)  # authors?
+    author = models.ManyToManyField(Author)
     
     def __unicode__(self):
         # return u'%s %s' % (self.title, unicode(self.author.all()))
         return u'%s' % (self.title, )
 
 class BookCopy(models.Model):
-    class Meta:
-        permissions = (
-            ("can_view", "Can view book copies"),
-            )
     id = models.AutoField(primary_key=True)
     book = models.ForeignKey(Book)
     location = models.ForeignKey(Location)

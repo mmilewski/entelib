@@ -2,6 +2,7 @@
 from django.conf.urls.defaults import *
 from django.contrib.auth.views import login
 from entelib.baseapp.views import list_books, show_book, logout, default
+import entelib.baseapp.views as view
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 import settings
@@ -24,13 +25,16 @@ urlpatterns = patterns(
     (r'^login$',  get_redirect_function_to_url('/entelib/login/')),
     (r'^accounts/login/',  get_redirect_function_to_url('/entelib/login/')),
     (r'^accounts/login$',  get_redirect_function_to_url('/entelib/login/')),
-    (r'^logout/', logout),
+    (r'^logout/', view.logout),
     (r'^logout$',  get_redirect_function_to_url('/entelib/logout/')),
 
     # books
-    (r'^books/$', list_books),
+    (r'^books/$', view.list_books),
     (r'^books$',  get_redirect_function_to_url('/entelib/book/')),
-    (r'^books/(\d+)/$', show_book),
+    (r'^books/(\d+)/$', view.show_book),
+
+    # book copies
+    (r'^bookcopy/(\d+)/$', view.book_copy),
 
 
     # admin docs urls
@@ -42,5 +46,5 @@ urlpatterns = patterns(
     (r'^admin$',  get_redirect_function_to_url('/entelib/admin/')),
 
     # REPLACE ME: default matcher - to be replaced in future
-    (r'^$', default),     #
+    (r'^$', view.default),     #
 )

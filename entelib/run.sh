@@ -18,5 +18,6 @@ if [ $# -gt 0 ]; then
     fi
 else
     python dbcreator.py
-    python manage.py runserver 8484
 fi
+python manage.py runserver 8484
+
