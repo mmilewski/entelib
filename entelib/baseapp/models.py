@@ -42,7 +42,7 @@ class CustomUser(User):
             )
     shoe_size = models.PositiveIntegerField(null=True, blank=True)  # :)
     objects = UserManager()
-    phone = models.ManyToManyField(Phone)
+    phone = models.ManyToManyField(Phone, null=True, blank=True)
 
 
 class Location(models.Model):
