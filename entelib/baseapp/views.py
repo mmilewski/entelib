@@ -8,6 +8,7 @@ from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
 from views_aux import forbidden
+from config import Config
 #from django.contrib.auth.decorators import permission_required
 
 def logout(request):
@@ -69,6 +70,7 @@ def show_book(request, book_id):
                     copies = copies.filter(state__is_available__exact=True)
                     print request.POST
         book_copies = []
+        max_desc_len = Config().get_int('truncated_description_len')
         for elem in copies:
             book_copies.append({
                 'url': url + unicode(elem.id) + '/',
@@ -76,7 +78,7 @@ def show_book(request, book_id):
                 'state': elem.state.name,
                 'publisher': elem.publisher.name,
                 'year' : elem.year,
-                'description': elem.description[50], #TODO
+                'description': elem.description[:max_desc_len],
                 })
         book_desc = {
             'title' : book.title,

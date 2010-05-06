@@ -6,6 +6,9 @@ Settings for baseapp models and views. Constants and so on.
 '''
 
 # for models
+configuration_key_len = 20
+configuration_value_len = 256
+
 location_name_len = 30
 location_remarks_len = 50
 
@@ -26,6 +29,5 @@ author_name_len = 50
 book_title_len = 50
 
 
-#for views
-truncated_description_len = 80
+# for views
 

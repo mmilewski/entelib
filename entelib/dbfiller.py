@@ -218,3 +218,9 @@ for (name, re, desc) in phone_types:
     pt = PhoneType(name=name, verify_re=re, description=desc)
     pt.save()
 
+
+
+# Config filler
+from baseapp.config import Config
+config = Config()
+config['truncated_description_len'] = 80

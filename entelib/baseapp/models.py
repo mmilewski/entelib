@@ -3,12 +3,18 @@
 from django.db import models
 # from django.db.models import User
 from django.contrib.auth.models import User, UserManager
-import config as CFG
+import models_config as CFG
 
 # TODO:
 #   - fields in location are probably: building, floor, room, name, telephone* (zero or more). Name is like 'Tweety' or 'Scooby'
 
-
+class Configuration(models.Model):
+    '''
+    Key,Value pairs.
+    '''
+    key = models.CharField(max_length=CFG.configuration_key_len, primary_key=True)
+    value = models.CharField(max_length=CFG.configuration_value_len)
+    
 class PhoneType(models.Model):
     '''
     Phone type description.
