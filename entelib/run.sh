@@ -9,7 +9,6 @@
 if [ $# -gt 0 ]; then
     if [ $1 = "new" ]; then
         python dbcreator.py new
-        python manage.py runserver 8484
     else
         echo -e "Given ARGUMENT is INCORRECT. Possible commands:"
         echo -e "\tnew - recreate database"
