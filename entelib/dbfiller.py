@@ -1,4 +1,5 @@
 #-*- coding=utf-8 -*- 
+print '---  Running dbfiller  ---'
 
 #
 # TODO:
@@ -12,6 +13,7 @@ from datetime import datetime, timedelta
 from entelib.baseapp.models import *
 
 # clear database
+print 'Clearing database'
 Location.objects.all().delete()
 Reservation.objects.all().delete()
 Rental.objects.all().delete()
@@ -53,6 +55,7 @@ def get_random_text(max_len):
 
 
 # locations
+print 'Adding %d locations' % locations_count
 loc_names = ['Budynek A', 'Budynek B', 'Namiot', 'Szafa w przedpokoju', 'Półka specjalna']
 loc_names += [ get_random_text(18).capitalize() for i in range(len(loc_names), locations_count) ]
 loc_remarks = ['', 'W remoncie', 'Chwilowo niedostępna z powodu rozlania soku malinowego', 'Klucz na portierni A', 'Kto ma klusz?']
@@ -65,6 +68,7 @@ for loc in locs:
 
 
 # publishers
+print 'Adding %d publishers' % publishers_count
 publishers = [ Publisher(name = get_random_text(15).upper())
                for i in range(publishers_count) ]
 for publisher in publishers:
@@ -72,6 +76,7 @@ for publisher in publishers:
 
 
 # authors
+print 'Adding %d authors' % authors_count
 author_names = [u'Adam Mickiewicz', u'Heniu Sienkiewicz', u'Stanisław Lem']
 author_names += [ (get_random_string(4,10) + ' ' + get_random_string(6,12)).title()
                   for i in range(len(author_names),authors_count) ]  # fill up to limit
@@ -97,6 +102,7 @@ for author in authors:
 
 
 # states
+print 'Adding %d states' % states_count
 state_names = [ get_random_string(7,20) for i in range(states_count) ]
 state_availability = [ True, False ]
 states = [ State(name = state_names[i],
@@ -107,6 +113,7 @@ for state in states:
 
 
 # books
+print 'Adding %d books' % books_count
 book_titles = [u'Ogniem i mieczem', u'Księga robotów', u'Bomba megabitowa', u'Liryki lozeńskie']
 book_titles += [ get_random_text(30) for i in range(len(book_titles), books_count) ]  # fill up to books_count
 books = []
@@ -122,6 +129,7 @@ for book in books:
 
 
 # copies
+print 'Adding %d copies' % copies_count
 copies = [ BookCopy(book           = choice(books),
                     year           = randint(1900,2010),
                     state          = choice(states),
@@ -194,6 +202,8 @@ for copy in copies:
 # here we add a superuser which is available right after filling db
 # src: http://docs.djangoproject.com/en/dev/topics/auth/#creating-users
 # from django.contrib.auth.models import User
+    
+print "Adding 'admin' user"
 from entelib.baseapp.models import CustomUser
 
 extra_user_name = 'admin'
@@ -210,6 +220,7 @@ user.save()
 
 
 # add telephone types
+print "Adding phone types"
 phone_types = [ ('Mobile', '(\+?\d{2,3})?.?\d{3}-\d{3}-\d{3}', 'For mobiles'),
                 ('Skype', '[\d\w\-_.]+', 'Skype identifiers'),
                 ('Morse decoder', '', ''),
@@ -221,6 +232,7 @@ for (name, re, desc) in phone_types:
 
 
 # Config filler
+print "Adding config pairs"
 from baseapp.config import Config
 config = Config()
 config['truncated_description_len'] = 80
