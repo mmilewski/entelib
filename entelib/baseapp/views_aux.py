@@ -5,7 +5,7 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse #TODO usunąć ten wiersz kiedy forbidden będzie gotowe
 
 
-def forbidden(request):
+def render_forbidden(request):
     return HttpResponse("Forbidden")
 
 '''

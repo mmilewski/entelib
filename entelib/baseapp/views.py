@@ -7,7 +7,7 @@ from entelib.baseapp.models import * #Book, BookCopy
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
-from views_aux import forbidden
+from views_aux import render_forbidden
 from config import Config
 #from django.contrib.auth.decorators import permission_required
 
@@ -46,13 +46,8 @@ def list_books(request):
                 context_instance=RequestContext(request)
                )
     else:
-        return forbidden(request)
+        return render_forbidden(request)
 
-        return render_to_response(
-                'forbidden.html',
-                {},
-                context_instance=RequestContext(request)
-               )
 
 
 
@@ -94,7 +89,7 @@ def show_book(request, book_id):
             context_instance=RequestContext(request)
         )
     else:
-        return forbidden(request)
+        return render_forbidden(request)
 #TODO wszystko poniżej jest draftem z czasu zanim adi zamieścił templaty
 #     Ja to dokończę
 #     mbr
@@ -123,7 +118,7 @@ def book_copy(request, bookcopy_id):
             context_instance=RequestContext(request)
         )
     else:
-        return forbidden(request)
+        return render_forbidden(request)
         
 
 '''
