@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
 
-# from django.contrib.auth.models import User    # don't !!
+# from django.contrib.auth.models import User as CustomUser  # don't !!
 from entelib.baseapp.models import CustomUser
 
 
@@ -15,7 +15,7 @@ class CustomUserModelBackend(ModelBackend):
             else:
                 return None     # None means auth failed
         except CustomUser.DoesNotExist:
-            print 'User %s doesnt exist' % username
+            print "User %s doesn't exist" % username
             return None
 
 

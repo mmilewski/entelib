@@ -1,0 +1,4 @@
+[
+{"pk": 1, "model": "auth.user", "fields": {"username": "testname", "first_name": "MyFirstName", "last_name": "MyLastName", "is_active": true, "is_superuser": true, "is_staff": true, "last_login": "2010-05-07 20:10:00", "groups": [], "user_permissions": [1], "password": "sha1$e19f4$7f4f1c3a1d96dbe207fc9dfcc021b74c99736b22", "email": "My@cool.email", "date_joined": "2010-05-07 20:10:00"}},
+{"pk": 1, "model": "baseapp.customuser", "fields": {"user_permissions": [1], "phone": [], "groups": [], "shoe_size": 44}}
+]

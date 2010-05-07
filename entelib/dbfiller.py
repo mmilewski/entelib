@@ -42,8 +42,8 @@ users_count = 50
 
 
 def get_random_date():
-    return datetime.datetime(randint(1990,2010), randint(1,12), randint(1,28),
-                             randint(0,23),      randint(0,59), randint(0,59))
+    return datetime(randint(1990,2010), randint(1,12), randint(1,28),
+                    randint(0,23),      randint(0,59), randint(0,59))
 
 def get_random_string(min_len, max_len):
     ''' Returns alpha string s, that  min_len <= len(s) < max_len. '''

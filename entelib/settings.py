@@ -29,7 +29,7 @@ TIME_ZONE = 'Europe/Warsaw'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'pl'
+LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
 
@@ -51,6 +51,12 @@ MEDIA_URL = '/media/'
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
 ADMIN_MEDIA_PREFIX = '/media/admin/'
+
+PROJECT_NAME = 'entelib'
+LOGIN_URL =  '/%s/login/' % PROJECT_NAME                # see http://docs.djangoproject.com/en/dev/ref/settings/#login-url
+LOGOUT_URL = '/%s/logout/' % PROJECT_NAME
+LOGIN_REDIRECT_URL = '/%s/' % PROJECT_NAME              # see http://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
+
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'c123x!_%j(ky=9c%_+9^s90znof2+juhy$-z(@pym(ls5(yxhb'
