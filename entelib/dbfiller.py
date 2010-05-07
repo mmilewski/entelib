@@ -25,6 +25,7 @@ BookCopy.objects.all().delete()
 Book.objects.all().delete()
 Phone.objects.all().delete()
 PhoneType.objects.all().delete()
+CostCenter.objects.all().delete()
 # NOTE: Users are not deleted. Only admin is.
 
 
@@ -36,6 +37,7 @@ publishers_count = 7
 books_count = 21
 states_count = 3
 copies_count = 101
+cost_centers_count = 2
 rentals_count = 30
 reservations_count = 50
 users_count = 50
@@ -112,6 +114,17 @@ for state in states:
     state.save()
 
 
+# cost centers
+print 'Adding %d cost centers' % cost_centers_count
+cost_centers_names = ['Good deal', 'Profit']
+cost_centers_names += [ get_random_text(15) for i in range(len(cost_centers_names), cost_centers_count) ]  # fill up to cost_centers_count
+shuffle(cost_centers_names)
+cost_centers = []
+for i in range(cost_centers_count):
+    cost_centers.append(CostCenter(name=cost_centers_names[i]))
+    cost_centers[-1].save()
+    
+
 # books
 print 'Adding %d books' % books_count
 book_titles = [u'Ogniem i mieczem', u'Księga robotów', u'Bomba megabitowa', u'Liryki lozeńskie']
@@ -138,6 +151,10 @@ copies = [ BookCopy(book           = choice(books),
                     # picture        = choice(pictures),
                     description    = get_random_text(300),
                     publication_nr = randint(1,10),
+                    cost_center    = choice(cost_centers),
+                    toc            = '',
+                    toc_url        = '',
+                    magic_number   = randint(123456789,987654321),
                     )
            for i in range(copies_count) ]
 for copy in copies:

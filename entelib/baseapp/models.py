@@ -46,8 +46,8 @@ class CustomUser(User):
         permissions = (
             ("list_users", "Can list users"),
             )
-    shoe_size = models.PositiveIntegerField(null=True, blank=True)  # :)
     objects = UserManager()
+    shoe_size = models.PositiveIntegerField(null=True, blank=True)  # :)
     phone = models.ManyToManyField(Phone, null=True, blank=True)
 
 
@@ -98,15 +98,28 @@ class Book(models.Model):
         # return u'%s %s' % (self.title, unicode(self.author.all()))
         return u'%s' % (self.title, )
 
+
+class CostCenter(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=CFG.costcenter_name_len)
+
+    def __unicode__(self):
+        return u'CC %s' % (self.name, )
+
+
 class BookCopy(models.Model):
     id = models.AutoField(primary_key=True)
+    magic_number = models.PositiveIntegerField()                              # big number for client's internal use
     book = models.ForeignKey(Book)
+    cost_center = models.ForeignKey(CostCenter)
     location = models.ForeignKey(Location)
     state = models.ForeignKey(State)
     publisher = models.ForeignKey(Publisher)
     year = models.IntegerField()
-    publication_nr = models.IntegerField()
+    publication_nr = models.IntegerField(blank=True)
     picture = models.ForeignKey(Picture, null=True, blank=True) 
+    toc = models.TextField(blank=True)                                        # table of contents
+    toc_url = models.URLField(blank=True, max_length=CFG.copy_toc_url_len)    # external link to TOC
     description = models.TextField(blank=True)
 
     def __unicode__(self):

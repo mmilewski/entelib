@@ -5,7 +5,7 @@
 #
 
 from os import system
-from sys import argv
+from sys import argv, exit
 
 db_file = 'database/database.db'
 
@@ -18,4 +18,5 @@ try:
     open(db_file, 'r')
 except IOError:
     system('echo "no" | python manage.py syncdb')
-    system('echo "import dbfiller" | python manage.py shell')
+    if not system('echo "import dbfiller" | python manage.py shell'):
+        exit(1)

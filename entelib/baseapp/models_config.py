@@ -28,6 +28,9 @@ author_name_len = 50
 
 book_title_len = 50
 
+copy_toc_url_len = 256                # url to table of contents
+
+costcenter_name_len = 50              # name of Cost Center
+
 
 # for views
-
