@@ -1,6 +1,7 @@
 from baseapp.tests.dbconfig import *
 from baseapp.tests.page_access import *
 from baseapp.tests.custom_user import *
+from baseapp.tests.pep8_test import *
 
 
 __test__ = {"doctest": """

@@ -1,8 +1,8 @@
-#-*- coding=utf-8 -*- 
+#-*- coding=utf-8 -*-
 
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-from django.http import HttpResponse #TODO usunąć ten wiersz kiedy forbidden będzie gotowe
+from django.http import HttpResponse   # TODO usunąć ten wiersz kiedy forbidden będzie gotowe
 
 
 def render_forbidden(request):
@@ -16,4 +16,3 @@ tak będzie docelowo:
        context_instance=RequestContext(request)
        )
 '''
-

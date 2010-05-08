@@ -13,6 +13,7 @@ admin.autodiscover()
 
 from django.http import HttpResponse, HttpResponseRedirect
 
+
 def get_redirect_function_to_url(url):
     ''' Create response object which redirects client to given url. '''
     return (lambda request: HttpResponseRedirect(url))
@@ -22,15 +23,15 @@ urlpatterns = patterns(
 
     # login/logout
     (r'^login/', login),
-    (r'^login$',  get_redirect_function_to_url('/entelib/login/')),
-    (r'^accounts/login/',  get_redirect_function_to_url('/entelib/login/')),
-    (r'^accounts/login$',  get_redirect_function_to_url('/entelib/login/')),
+    (r'^login$', get_redirect_function_to_url('/entelib/login/')),
+    (r'^accounts/login/', get_redirect_function_to_url('/entelib/login/')),
+    (r'^accounts/login$', get_redirect_function_to_url('/entelib/login/')),
     (r'^logout/', view.logout),
-    (r'^logout$',  get_redirect_function_to_url('/entelib/logout/')),
+    (r'^logout$', get_redirect_function_to_url('/entelib/logout/')),
 
     # books
     (r'^books/$', view.list_books),
-    (r'^books$',  get_redirect_function_to_url('/entelib/book/')),
+    (r'^books$', get_redirect_function_to_url('/entelib/book/')),
     (r'^books/(\d+)/$', view.show_book),
 
     # book copies
@@ -48,8 +49,8 @@ urlpatterns = patterns(
     # (r'^admin/auth/user/(?P<uid>\d+)/$', 'django.views.generic.simple.redirect_to', {'url': '/entelib/admin/baseapp/customuser/%(uid)s/'}),
     ## redirects admin pages
     (r'^admin/', include(admin.site.urls)),
-    (r'^admin$',  get_redirect_function_to_url('/entelib/admin/')),
+    (r'^admin$', get_redirect_function_to_url('/entelib/admin/')),
 
     # REPLACE ME: default matcher - to be replaced in future
-    (r'^$', view.default),     #
+    (r'^$', view.default),
 )

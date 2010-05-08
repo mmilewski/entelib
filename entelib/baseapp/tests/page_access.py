@@ -6,7 +6,7 @@ class PageAccessTest(TestCase, PageLogger):
     '''
     Checks whether different urls where rendered properly.
     '''
-        
+
     def test_index_page(self):
         ''' Tests correct redirection of index pages. '''
         self.failUnlessEqual(302, self.get_status_code('/entelib/'))  # redirects to login/

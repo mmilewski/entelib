@@ -1,4 +1,4 @@
-#-*- coding=utf-8 -*- 
+#-*- coding=utf-8 -*-
 
 from django.db import models
 # from django.db.models import User
@@ -44,7 +44,9 @@ class Phone(models.Model):
         return u"%s: %s" % (unicode(self.type), unicode(self.value))
 
 
-class PermisionNotDefined(Exception): pass
+class PermisionNotDefined(Exception):
+    pass
+
 
 class CustomUser(User):
     '''
@@ -60,7 +62,6 @@ class CustomUser(User):
             ("list_users", "Can list users"),
         )
 
-
     def has_perm(self, perm):
         '''
         Checks whether user not only has perminssion 'perm', but also whether such permission exists in project.
@@ -75,7 +76,7 @@ class CustomUser(User):
         for klass in _defined_models:
             for perm_name, desc in klass._meta.permissions:
                 perm_exists = True
-                if perm == ('%s.%s'%(APPLICATION_NAME, perm_name)):
+                if perm == ('%s.%s' % (APPLICATION_NAME, perm_name)):
                     print 'Permission %s found in %s class' % (perm, str(klass._meta))
                     return True
         if perm_exists:
@@ -92,6 +93,7 @@ class Location(models.Model):
     def __unicode__(self):
         return self.name
 
+
 class State(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=CFG.state_name_len)
@@ -100,20 +102,23 @@ class State(models.Model):
     def __unicode__(self):
         return self.name
 
+
 class Publisher(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=CFG.publisher_name_len)
 
     def __unicode__(self):
         return self.name
-   
+
+
 class Picture(models.Model):
     id = models.AutoField(primary_key=True)
     description = models.CharField(max_length=CFG.picture_description_len)
-    file = models.ImageField(upload_to=CFG.picture_upload_to) #TODO: ograniczenia obrazka
+    file = models.ImageField(upload_to=CFG.picture_upload_to)  # TODO: ograniczenia obrazka
 
     def __unicode__(self):
         return self.description
+
 
 class Author(models.Model):
     id = models.AutoField(primary_key=True)
@@ -122,11 +127,12 @@ class Author(models.Model):
     def __unicode__(self):
         return self.name
 
+
 class Book(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=CFG.book_title_len)
     author = models.ManyToManyField(Author)
-    
+
     def __unicode__(self):
         # return u'%s %s' % (self.title, unicode(self.author.all()))
         return u'%s' % (self.title, )
@@ -150,7 +156,7 @@ class BookCopy(models.Model):
     publisher = models.ForeignKey(Publisher)
     year = models.IntegerField()
     publication_nr = models.IntegerField(blank=True)
-    picture = models.ForeignKey(Picture, null=True, blank=True) 
+    picture = models.ForeignKey(Picture, null=True, blank=True)
     toc = models.TextField(blank=True)                                        # table of contents
     toc_url = models.URLField(blank=True, max_length=CFG.copy_toc_url_len)    # external link to TOC
     description = models.TextField(blank=True)
@@ -161,7 +167,9 @@ class BookCopy(models.Model):
     class Meta:
         verbose_name_plural = 'Book copies'
 
-    class Admin: pass
+    class Admin:
+        pass
+
 
 class Reservation(models.Model):
     id = models.AutoField(primary_key=True)
@@ -171,23 +179,24 @@ class Reservation(models.Model):
     end_date = models.DateField()
     who_reserved = models.ForeignKey(CustomUser, related_name='reserver')
     who_cancelled = models.ForeignKey(CustomUser, related_name='canceller')
-    
-    class Admin: pass
+
+    class Admin:
+        pass
 
     def __unicode__(self):
-        return u'id: ' + unicode(self.id) 
-    
+        return u'id: ' + unicode(self.id)
+
 
 class Rental(models.Model):
     id = models.AutoField(primary_key=True)
     reservation = models.ForeignKey(Reservation)
-    start_date = models.DateTimeField()  #(auto_now_add=True)
+    start_date = models.DateTimeField()   # (auto_now_add=True)
     end_date = models.DateTimeField()
     who_handed_out = models.ForeignKey(CustomUser, related_name='giver')
     who_received = models.ForeignKey(CustomUser, related_name='receiver')
 
     def __unicode__(self):
-        return u'id: ' + unicode(self.id) 
+        return u'id: ' + unicode(self.id)
 
 
 
@@ -195,7 +204,7 @@ class Rental(models.Model):
 
 
 
-# example of how we customize admin page (here Book's admin page)    
+# example of how we customize admin page (here Book's admin page)
 # # see: http://docs.djangoproject.com/en/1.1/ref/contrib/admin/
 # from django.contrib import admin
 # class BookAdmin(admin.ModelAdmin):

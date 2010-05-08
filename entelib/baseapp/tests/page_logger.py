@@ -1,8 +1,10 @@
 from django.conf import settings
 
+
 def page_accessed(response):
     ''' Checks whether page was rendered - we could access it. Returns True on success. '''
-    return 'Forbidden' not in response.content;
+    return 'Forbidden' not in response.content
+
 
 def page_not_accessed(response):
     ''' This is negation of what page_accessed does. Returns True on success (page couldn't be accessed). '''
@@ -20,7 +22,7 @@ class PageLogger(object):
 
     def login(self, username=username, password=userpassword):
         ''' Logs user 'username' with 'password' in. Fails if login was not possible. '''
-        response = self.get_post_response( '/entelib/login/', {'username': username, 'password': password} )
+        response = self.get_post_response('/entelib/login/', {'username': username, 'password': password})
         self.assertEquals(302, response.status_code)       # no redirection is login failure, so we require it
         self.assert_(response['Location'].endswith(settings.LOGIN_REDIRECT_URL))
 

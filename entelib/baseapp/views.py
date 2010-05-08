@@ -1,15 +1,16 @@
-#-*- coding=utf-8 -*- 
+#-*- coding=utf-8 -*-
 
 # Create your views here.
 from django.shortcuts import render_to_response
 from django.http import Http404, HttpResponseRedirect
-from entelib.baseapp.models import * #Book, BookCopy
+from entelib.baseapp.models import *   # Book, BookCopy
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
 from views_aux import render_forbidden
 from config import Config
 #from django.contrib.auth.decorators import permission_required
+
 
 def logout(request):
     if request.user.is_authenticated():
@@ -32,12 +33,13 @@ def list_books(request):
         if request.method == 'POST':
             search_words = request.POST['search'].split()
             if search_words:
+
                 def format_search_request(keywords):
-                    return reduce(lambda x,y: Q(title__icontains=x) and Q(title__icontains=y), keywords, Q(title__contains=u''))
+                    return reduce(lambda x, y: Q(title__icontains=x) and Q(title__icontains=y), keywords, Q(title__contains=u''))
                 for elem in Book.objects.filter(format_search_request(search_words)):
                     books.append({
-                        'title':elem.title, 
-                        'url': url + unicode(elem.id) + '/', 
+                        'title': elem.title,
+                        'url': url + unicode(elem.id) + '/',
                         'authors': [a.name for a in elem.author.all()]
                         })
         return render_to_response(
@@ -49,18 +51,16 @@ def list_books(request):
         return render_forbidden(request)
 
 
-
-
 def show_book(request, book_id):
     if request.user.is_authenticated():
         url = u'/entelib/bookcopy/'
         book = Book.objects.get(id=book_id)
         copies = BookCopy.objects.filter(book=book_id)
         if request.method == 'POST':
-            if request.POST.has_key('location'):
+            if 'location' in request.POST:
                 if not request.POST['location'] == u'0':
                     copies = copies.filter(location__exact=request.POST['location'])
-            if request.POST.has_key('available'):
+            if 'available' in request.POST:
                 if request.POST['available'] == 'available':
                     copies = copies.filter(state__is_available__exact=True)
                     print request.POST
@@ -79,7 +79,7 @@ def show_book(request, book_id):
             'title' : book.title,
             'authors' : [a.name for a in book.author.all()],
             'items' : book_copies,
-            'locations' : [{'name': '---', 'id': 0}] + [{'name': l.name, 'id': l.id} for l in Location.objects.all()] 
+            'locations' : [{'name': '---', 'id': 0}] + [{'name': l.name, 'id': l.id} for l in Location.objects.all()]
             }
         return render_to_response(
             'bookcopies.html',
@@ -90,6 +90,8 @@ def show_book(request, book_id):
         )
     else:
         return render_forbidden(request)
+
+
 #TODO wszystko poniżej jest draftem z czasu zanim adi zamieścił templaty
 #     Ja to dokończę
 #     mbr
@@ -119,10 +121,10 @@ def book_copy(request, bookcopy_id):
         )
     else:
         return render_forbidden(request)
-        
+
 
 '''
-   
+
 def users(request):
     user_request = request.POST['request']
     user_list = []
@@ -134,15 +136,15 @@ def users(request):
         { 'user_list' : user_list, },
         context_instance=RequestContext(request)
     )
-        
-        
+
+
 def user(request, user_id):
     user = User.objects.get(id=user_id)
     return render_to_response(
         'user.html',
         { 'first_name' : user.first_name,
           'last_name' : user.last_name,
-          'email' : user.email, 
+          'email' : user.email,
           },
         context_instance=RequestContext(request)
     )
@@ -151,23 +153,20 @@ def users_rentals(request, user_id):
     user = User.objects.get(id=user_id)
     users_rentals = user. #TODO jego wypożyczenia (aktywne)
     rent_list = [ {'id': r.reservation.book_copy.id, 'title': r.reservation.book_copy.book.title, }
-                    for r in users_rentals ] 
+                    for r in users_rentals ]
     return render_to_response(
         'users_rentals.html',
         { 'first_name' : user.first_name,
           'last_name' : user.last_name,
-          'email' : user.email, 
+          'email' : user.email,
           'rentals' : rent_list,
           },
         context_instance=RequestContext(request)
     )
 
 
-        
+
 def users_rental(request, user_id, rental_id):
     user = User.objects.get(id=user_id)
     rental = Rental.objects.get(id=rental_
 '''
-
-
-

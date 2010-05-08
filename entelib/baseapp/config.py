@@ -1,5 +1,6 @@
 from entelib.baseapp.models import Configuration
 
+
 class Config(object):
     '''
     Accesses configuration stored in database.

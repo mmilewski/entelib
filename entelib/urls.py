@@ -6,7 +6,8 @@ import settings
 # from django.contrib import admin
 # admin.autodiscover()
 
-# Czy to jest do czegoś potrzebne?
+
+# Czy to jest do czegoś potrzebne? Tak
 def quickhack(request):
     from entelib.baseapp.models import BookCopy
     from django.http import HttpResponse
@@ -27,7 +28,7 @@ urlpatterns = patterns('',
     (r'^' + settings.MEDIA_URL[1:] + '(?P<path>.*)$',  'django.views.static.serve',  { 'document_root': settings.MEDIA_ROOT, }),
     (r'^$', 'django.views.generic.simple.redirect_to', {'url': '/entelib/'}),
 
-    # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
+    # Uncomment the admin/doc line below and add 'django.contrib.admindocs'
     # to INSTALLED_APPS to enable admin documentation:
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

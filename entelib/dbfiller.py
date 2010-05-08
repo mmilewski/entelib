@@ -1,4 +1,4 @@
-#-*- coding=utf-8 -*- 
+#-*- coding=utf-8 -*-
 print '---  Running dbfiller  ---'
 
 #
@@ -50,9 +50,12 @@ def get_random_date():
     return datetime(randint(1990,2010), randint(1,12), randint(1,28),
                     randint(0,23),      randint(0,59), randint(0,59))
 
+
 def get_random_string(min_len, max_len):
     ''' Returns alpha string s, that  min_len <= len(s) < max_len. '''
-    return u''.join( [choice('qwertyuiopasdfghjklzxcvbnm') for i in range(0, randint(min_len, max_len))] )
+    return u''.join([ choice('qwertyuiopasdfghjklzxcvbnm')
+                      for i in range(0, randint(min_len, max_len)) ])
+
 
 def get_random_text(max_len):
     text = [ get_random_string(1, 8) for i in range(max_len) ]
@@ -84,7 +87,7 @@ for publisher in publishers:
 print 'Adding %d authors' % authors_count
 author_names = [u'Adam Mickiewicz', u'Heniu Sienkiewicz', u'Stanisław Lem']
 author_names += [ (get_random_string(4,10) + ' ' + get_random_string(6,12)).title()
-                  for i in range(len(author_names),authors_count) ]  # fill up to limit
+                  for i in range(len(author_names),authors_count) ]   # fill up to limit
 authors = [ Author(name = author_names[i])
             for i in range(authors_count) ]
 shuffle(author_names)
@@ -126,7 +129,7 @@ cost_centers = []
 for i in range(cost_centers_count):
     cost_centers.append(CostCenter(name=cost_centers_names[i]))
     cost_centers[-1].save()
-    
+
 
 # books
 print 'Adding %d books' % books_count
@@ -196,11 +199,11 @@ for copy in copies:
 
 
 # code belowe can be useful when implementing reservations and rentals above
-    
+
 # rentals = [Rental(book=choice(books),
 #                   person=choice(people),
 #                   started=get_random_date(),
-#                   ended=get_random_date() 
+#                   ended=get_random_date()
 #                   ) for i in xrange(rentals_count)]
 
 # # can't return before borrowing
@@ -213,7 +216,7 @@ for copy in copies:
 #                               person=choice(people),
 #                               starts=get_random_date(),
 #                               ) for i in xrange(reservations_count) ]
-# for reservation in reservations: 
+# for reservation in reservations:
 #     reservation.expires = reservation.starts + datetime.timedelta(days=30)
 #     reservation.save()
 
@@ -222,7 +225,7 @@ for copy in copies:
 # here we add a superuser which is available right after filling db
 # src: http://docs.djangoproject.com/en/dev/topics/auth/#creating-users
 # from django.contrib.auth.models import User
-    
+
 print "Adding users"
 from entelib.baseapp.models import CustomUser
 # superuser

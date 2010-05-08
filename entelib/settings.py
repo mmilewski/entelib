@@ -5,7 +5,8 @@ import os
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-CHECK_PASSWORD_ON_AUTH = True     # if True checks whether given password matches one in database.
+# if True checks whether given password matches one in database.
+CHECK_PASSWORD_ON_AUTH = True
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -13,8 +14,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = 'sqlite3'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'database/database.db'             # Or path to database file if using sqlite3.
+DATABASE_ENGINE = 'sqlite3'    # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+DATABASE_NAME = 'database/database.db'      # Or path to database file if using sqlite3.
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
