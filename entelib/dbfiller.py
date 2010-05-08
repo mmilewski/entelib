@@ -26,6 +26,9 @@ Book.objects.all().delete()
 Phone.objects.all().delete()
 PhoneType.objects.all().delete()
 CostCenter.objects.all().delete()
+CustomUser.objects.all().delete()
+User.objects.all().delete()
+
 # NOTE: Users are not deleted. Only admin is.
 
 
@@ -220,19 +223,15 @@ for copy in copies:
 # src: http://docs.djangoproject.com/en/dev/topics/auth/#creating-users
 # from django.contrib.auth.models import User
     
-print "Adding 'admin' user"
+print "Adding users"
 from entelib.baseapp.models import CustomUser
-
-extra_user_name = 'admin'
-try:
-    user = CustomUser.objects.get(username=extra_user_name)  # get may throw DoesNotExist
-    user.delete()
-except:
-    pass
-user = CustomUser.objects.create_user(extra_user_name, 'iam@frog.com', 'admin')
-user.first_name, user.last_name = 'Admino', 'Domino'
-user.is_staff = True
-user.is_superuser = True
+# superuser
+user = CustomUser.objects.create_user('admin', 'iam@superfrog.com', 'admin')
+user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Admino', u'Domino', True, True
+user.save()
+# everyday user
+user = CustomUser.objects.create_user('user', 'iam@frog.com', 'user')
+user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Grzegorz', u'Brzęczyszczykiewicz', False, False
 user.save()
 
 

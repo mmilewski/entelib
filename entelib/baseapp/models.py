@@ -5,6 +5,9 @@ from django.db import models
 from django.contrib.auth.models import User, UserManager
 import models_config as CFG
 
+APPLICATION_NAME = 'baseapp'     # should be read from somewhere, I think
+
+
 # TODO:
 #   - fields in location are probably: building, floor, room, name, telephone* (zero or more). Name is like 'Tweety' or 'Scooby'
 
@@ -14,7 +17,8 @@ class Configuration(models.Model):
     '''
     key = models.CharField(max_length=CFG.configuration_key_len, primary_key=True)
     value = models.CharField(max_length=CFG.configuration_value_len)
-    
+
+
 class PhoneType(models.Model):
     '''
     Phone type description.
@@ -40,15 +44,44 @@ class Phone(models.Model):
         return u"%s: %s" % (unicode(self.type), unicode(self.value))
 
 
+class PermisionNotDefined(Exception): pass
+
 class CustomUser(User):
-    """"""
-    class Meta:
-        permissions = (
-            ("list_users", "Can list users"),
-            )
+    '''
+    User with some extra fields like phone numbers.
+    '''
+
     objects = UserManager()
     shoe_size = models.PositiveIntegerField(null=True, blank=True)  # :)
     phone = models.ManyToManyField(Phone, null=True, blank=True)
+
+    class Meta:
+        permissions = (
+            ("list_users", "Can list users"),
+        )
+
+
+    def has_perm(self, perm):
+        '''
+        Checks whether user not only has perminssion 'perm', but also whether such permission exists in project.
+        Permissions defined in APP_NAME's models are checked like has_perm('baseapp.mypermission'),
+        and has_perm('mypermission') is INCORRECT.
+
+        NOTE: if user is superuser then no checking is performed. This should be fixed, but is not critical.
+        '''
+        if User.has_perm(self, perm):
+            return True
+        perm_exists = False
+        for klass in _defined_models:
+            for perm_name, desc in klass._meta.permissions:
+                perm_exists = True
+                if perm == ('%s.%s'%(APPLICATION_NAME, perm_name)):
+                    print 'Permission %s found in %s class' % (perm, str(klass._meta))
+                    return True
+        if perm_exists:
+            return False
+        else:
+            raise PermisionNotDefined(perm)
 
 
 class Location(models.Model):
@@ -191,3 +224,8 @@ class Rental(models.Model):
 #         #     'fields': ('enable_comments', 'registration_required', 'template_name')
 #         }),
 #     )
+
+
+# Defined model list contains all classes where has_perm will look for permissions.
+# If you know how to do this automaticaly, feel free to update :) I think it's possible. It's enough to walk through all classes and check for Meta inner class existance
+_defined_models = [Configuration, PhoneType, Phone, CustomUser, Location, State, Publisher, Picture, Author, Book, CostCenter, BookCopy, Reservation, Rental]

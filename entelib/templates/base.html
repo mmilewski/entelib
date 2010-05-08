@@ -1,18 +1,36 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"> 
 <html lang='en-uk'>
-<head>
+  <head>
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
     <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/style.css'>
     <title>Entelib</title>
-</head>
-<body>
+  </head>
+  <body>
     <div id='top'>
-        <div id='header'>
-            <h1>{% block header %}{% endblock %}</h1>
-        </div>
-        {% block menu %}{% endblock %}
-        {% block rest %}{% endblock %}
-        <div id='footer'></div>
+      <!-- development-only info -->
+      <div style="background:yellow; width:80% ; padding: 20px; text-align:center; margin: auto;">
+        Use <b>user</b>/<b>user</b> to log in as default user. <br/>
+        Use <b>admin</b>/<b>admin</b> to acquire a super power.
+      </div>
+      <!-- development-only info -->
+
+      <!-- box with info 'Logged as:...' or 'Not logged in' -->
+      <div class="logged_user_info" style="text-align:right; font-size:80%;">
+        {% if user.is_anonymous %}
+        Not logged in
+        {% else %}
+        Logged as: <strong>{{ user.username }}</strong> {% if user.is_superuser %}(superuser){% endif%}
+        {% endif %}
+      </div>
+      <!-- end of log-in state box -->
+
+
+      <div id='header'>
+        <h1>{% block header %}{% endblock %}</h1>
+      </div>
+      {% block menu %}{% endblock %}
+      {% block rest %}{% endblock %}
+      <div id='footer'></div>
     </div>
-</body>
+  </body>
 </html>
