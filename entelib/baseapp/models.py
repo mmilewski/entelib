@@ -2,7 +2,7 @@
 
 from django.db import models
 # from django.db.models import User
-from django.contrib.auth.models import User, UserManager
+from django.contrib.auth.models import User, UserManager, Permission
 import models_config as CFG
 
 APPLICATION_NAME = 'baseapp'     # should be read from somewhere, I think
@@ -62,27 +62,39 @@ class CustomUser(User):
             ("list_users", "Can list users"),
         )
 
+
+    def perm_exists(self, perm):
+        '''
+        Chcecks whether given permission exists. Returns True or False respectively.
+        '''
+        # query database (Permission table)
+        app_prefix = APPLICATION_NAME + '.'
+        perm_codename = perm if not perm.startswith(app_prefix) else perm[len(app_prefix):]
+        try:
+            Permission.objects.get(codename=perm_codename)
+            return True             # no exception means we found it!
+        except Permission.DoesntExist:
+            pass
+
+        # seek in models
+        for klass in _defined_models:
+            for perm_name, desc in klass._meta.permissions:
+                if perm == ('%s.%s' % (APPLICATION_NAME, perm_name)):
+                    print 'Permission %s found in %s class' % (perm, str(klass._meta))
+                    return True
+
+        return False
+
+
     def has_perm(self, perm):
         '''
         Checks whether user not only has perminssion 'perm', but also whether such permission exists in project.
         Permissions defined in APP_NAME's models are checked like has_perm('baseapp.mypermission'),
         and has_perm('mypermission') is INCORRECT.
-
-        NOTE: if user is superuser then no checking is performed. This should be fixed, but is not critical.
         '''
-        if User.has_perm(self, perm):
-            return True
-        perm_exists = False
-        for klass in _defined_models:
-            for perm_name, desc in klass._meta.permissions:
-                perm_exists = True
-                if perm == ('%s.%s' % (APPLICATION_NAME, perm_name)):
-                    print 'Permission %s found in %s class' % (perm, str(klass._meta))
-                    return True
-        if perm_exists:
-            return False
-        else:
+        if not self.perm_exists(perm):
             raise PermisionNotDefined(perm)
+        return User.has_perm(self, perm)
 
 
 class Location(models.Model):
