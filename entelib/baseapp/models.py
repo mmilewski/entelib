@@ -68,12 +68,16 @@ class CustomUser(User):
         Chcecks whether given permission exists. Returns True or False respectively.
         '''
         # query database (Permission table)
-        app_prefix = APPLICATION_NAME + '.'
-        perm_codename = perm if not perm.startswith(app_prefix) else perm[len(app_prefix):]
+        prefixes = [APPLICATION_NAME + '.', 'sites.', 'auth.']
+        for prefix in prefixes:
+            if perm.startswith(prefix):
+                perm = perm[len(prefix):]
+                break
+        perm_codename = perm
         try:
             Permission.objects.get(codename=perm_codename)
             return True             # no exception means we found it!
-        except Permission.DoesntExist:
+        except:
             pass
 
         # seek in models
