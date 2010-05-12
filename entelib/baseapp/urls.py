@@ -29,6 +29,10 @@ urlpatterns = patterns(
     (r'^logout/', view.logout),
     (r'^logout$', get_redirect_function_to_url('/entelib/logout/')),
 
+    # registration
+    # (r'^register/$', view.register),
+    (r'^register/(?P<action>(.+))/$', view.register),
+
     # books
     (r'^books/$', view.list_books),
     (r'^books$', get_redirect_function_to_url('/entelib/book/')),

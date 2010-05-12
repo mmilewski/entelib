@@ -92,3 +92,34 @@ div#footer
     bottom: 0;
     position: absolute;
 }
+
+
+div.formWrapper {
+    padding: 1em 0 0 1em;
+    background-image: url(http://www.recipester.org/images/7/7f/Bg-0006.gif);
+}
+
+form.registration_form input.required {
+    border: 1px solid red;
+}
+
+form.registration_form th {
+    text-align: right;
+}
+
+form.registration_form td,th {
+    padding-bottom: 1em;
+}
+
+form.registration_form td ul.errorlist {
+    list-style-type: none;
+    float: none;
+    color: red;
+    margin: 0;
+    padding: 0;
+    font-size: 90%;
+}
+
+form.registration_form td ul.errorlist li {
+    padding: 0;
+}

@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
     <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/style.css'>
-    <title>Entelib</title>
+    <title>{% block title %}Entelib, OVERRIDE TITLE PLEASE {% endblock %}</title>
   </head>
   <body>
     <div id='top'>
@@ -17,7 +17,7 @@
       <!-- box with info 'Logged as:...' or 'Not logged in' -->
       <div class="logged_user_info" style="text-align:right; font-size:80%;">
         {% if user.is_anonymous %}
-        Not logged in
+        Not logged in. <a href="/entelib/login/">Login</a> or <a href="/entelib/register/newuser">register</a>.
         {% else %}
         Logged as: <strong>{{ user.username }}</strong> {% if user.is_superuser %}(superuser){% endif%}
         {% endif %}

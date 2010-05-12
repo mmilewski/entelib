@@ -1,0 +1,28 @@
+{% extends "base_with_top_menu.html" %}
+
+{% block title %}New user registration{% endblock %}
+
+{% block header %}Registration form{% endblock %}
+
+{% block content %}
+<p>
+  Here is a registration form. Fill it in to register.
+</p>
+<p>
+  Attention! after registration you will have to wait until admin turn your account active.
+</p>
+
+<div class="formWrapper">
+  <form class="registration_form" action="." method="POST">
+    <table >
+      <tbody>
+        {{ form_content }}
+        <tr><th></th><td><input type="submit" value="Register me"/></td></tr>
+      </tbody>
+    </table>
+  </form>
+</div>
+
+{% endblock %}
+
+

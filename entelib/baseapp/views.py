@@ -10,6 +10,45 @@ from django.db.models import Q
 from views_aux import render_forbidden
 from config import Config
 #from django.contrib.auth.decorators import permission_required
+from baseapp.forms import RegistrationForm
+
+
+def register(request, action, registration_form=RegistrationForm, extra_context=None):
+    '''
+    Handles registration (adding new user) process.
+    '''
+    user = request.user
+    action = action if not action.endswith('/') else action[:-1]    # cut trailing slash
+    tpl_logout_first = 'registration/reg_logout_first.html'
+    tpl_registration_form = 'registration/reg_form.html'
+
+    if user.is_authenticated():
+        if action in ['logout',]:
+            auth.logout(request)
+            return HttpResponseRedirect('/entelib/register/newuser/')
+        else:
+            return render_to_response(tpl_logout_first, context_instance=RequestContext(request))
+    else:   # not authenticated
+        if action == 'newuser':
+            # commit new user
+            if request.method == 'POST':
+                form = registration_form(data=request.POST, files=request.FILES)
+                if form.is_valid():
+                    new_user = form.save()
+                    return HttpResponseRedirect('/entelib/')
+            # display form
+            else:
+                form = registration_form()
+
+            # prepare response
+            if extra_context is None:
+                extra_context = {}
+            context = RequestContext(request)
+            for key, value in extra_context.items():
+                context[key] = callable(value) and value() or value
+            return render_to_response(tpl_registration_form,
+                                      { 'form_content': form },
+                                      context_instance=context)
 
 
 def logout(request):
