@@ -1,17 +1,17 @@
 #-*- coding: utf-8 -*-
 from django.conf.urls.defaults import *
-from django.contrib.auth.views import login
+from django.contrib.auth.views import login as django_login
 from entelib.baseapp.views import list_books, show_book, logout, default
 import entelib.baseapp.views as view
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.http import HttpResponse, HttpResponseRedirect
 import settings
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
 
-from django.http import HttpResponse, HttpResponseRedirect
 
 
 def get_redirect_function_to_url(url):
@@ -22,12 +22,21 @@ urlpatterns = patterns(
     '',
 
     # login/logout
-    (r'^login/', login),
+    (r'^login/', django_login),
     (r'^login$', get_redirect_function_to_url('/entelib/login/')),
     (r'^accounts/login/', get_redirect_function_to_url('/entelib/login/')),
     (r'^accounts/login$', get_redirect_function_to_url('/entelib/login/')),
     (r'^logout/', view.logout),
     (r'^logout$', get_redirect_function_to_url('/entelib/logout/')),
+
+    # users
+    (r'^users/$', view.users),
+    (r'^users/(\d+)/$', view.user),
+    #(r'^users/(\d+)/reservations/$', view.user_reservations),
+    #(r'^users/(\d+)/rent-book/$', view.user_list_books),
+    (r'^users/(\d+)/rentals/$', view.user_rentals),
+    #(r'^users/(\d+)/rentals/(\d+)/$', view.user_rental),
+    #(r'^users/(\d+)/books/$', view.user_books),
 
     # registration
     # (r'^register/$', view.register),
@@ -55,6 +64,6 @@ urlpatterns = patterns(
     (r'^admin/', include(admin.site.urls)),
     (r'^admin$', get_redirect_function_to_url('/entelib/admin/')),
 
-    # REPLACE ME: default matcher - to be replaced in future
+    # default matcher
     (r'^$', view.default),
 )
