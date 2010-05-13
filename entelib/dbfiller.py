@@ -37,9 +37,9 @@ locations_count = 8
 authors_count = 25
 pictures_count = 3
 publishers_count = 7
-books_count = 21
+books_count = 11
 states_count = 3
-copies_count = 101
+copies_count = 51
 cost_centers_count = 2
 rentals_count = 30
 reservations_count = 50
@@ -58,14 +58,14 @@ def get_random_string(min_len, max_len):
 
 
 def get_random_text(max_len):
-    text = [ get_random_string(1, 8) for i in range(max_len) ]
+    text = [ get_random_string(1, 6) for i in range(max_len) ]
     return ' '.join(text).capitalize()[:max_len]
 
 
 # locations
 print 'Adding %d locations' % locations_count
 loc_names = ['Budynek A', 'Budynek B', 'Namiot', 'Szafa w przedpokoju', 'Półka specjalna']
-loc_names += [ get_random_text(18).capitalize() for i in range(len(loc_names), locations_count) ]
+loc_names += [ get_random_text(8).capitalize() for i in range(len(loc_names), locations_count) ]
 loc_remarks = ['', 'W remoncie', 'Chwilowo niedostępna z powodu rozlania soku malinowego', 'Klucz na portierni A', 'Kto ma klusz?']
 locs = [ Location(name = loc_names[i],
                   remarks = choice(loc_remarks))
@@ -134,7 +134,7 @@ for i in range(cost_centers_count):
 # books
 print 'Adding %d books' % books_count
 book_titles = [u'Ogniem i mieczem', u'Księga robotów', u'Bomba megabitowa', u'Liryki lozeńskie']
-book_titles += [ get_random_text(30) for i in range(len(book_titles), books_count) ]  # fill up to books_count
+book_titles += [ get_random_text(10) for i in range(len(book_titles), books_count) ]  # fill up to books_count
 books = []
 for i in range(books_count):
     book = Book(title = book_titles[i])
@@ -155,7 +155,7 @@ copies = [ BookCopy(book           = choice(books),
                     location       = choice(locs),
                     publisher      = choice(publishers),
                     # picture        = choice(pictures),
-                    description    = get_random_text(300),
+                    description    = get_random_text(30),
                     publication_nr = randint(1,10),
                     cost_center    = choice(cost_centers),
                     toc            = '',

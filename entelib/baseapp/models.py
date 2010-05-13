@@ -114,6 +114,7 @@ class State(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=CFG.state_name_len)
     is_available = models.BooleanField()
+    is_visible = models.BooleanField()
 
     def __unicode__(self):
         return self.name
@@ -192,24 +193,24 @@ class Reservation(models.Model):
     book_copy = models.ForeignKey(BookCopy)
     for_whom = models.ForeignKey(CustomUser, related_name='user')
     start_date = models.DateField()
-    end_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
     who_reserved = models.ForeignKey(CustomUser, related_name='reserver')
-    who_cancelled = models.ForeignKey(CustomUser, related_name='canceller')
+    who_cancelled = models.ForeignKey(CustomUser, related_name='canceller', null=True, blank=True)
 
     class Admin:
         pass
 
     def __unicode__(self):
-        return u'id: ' + unicode(self.id)
+        return u'For Mr/Ms ' + self.for_whom.first_name + u' ' + self.for_whom.last_name
 
 
 class Rental(models.Model):
     id = models.AutoField(primary_key=True)
     reservation = models.ForeignKey(Reservation)
     start_date = models.DateTimeField()   # (auto_now_add=True)
-    end_date = models.DateTimeField()
+    end_date = models.DateTimeField(null=True, blank=True)
     who_handed_out = models.ForeignKey(CustomUser, related_name='giver')
-    who_received = models.ForeignKey(CustomUser, related_name='receiver')
+    who_received = models.ForeignKey(CustomUser, related_name='receiver', null=True, blank=True)
 
     def __unicode__(self):
         return u'id: ' + unicode(self.id)
