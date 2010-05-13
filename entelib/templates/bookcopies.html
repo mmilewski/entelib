@@ -12,8 +12,9 @@
             <td>Location: </td>
             <td>
                 <select name='location'>
+                        <option value='all'>All</option>
                     {% for location in book.locations %}
-                        <option value='{{ location.id }}'>{{ location.name }}</option>
+                        <option value='{{ location }}'>{{ location }}</option>
                     {% endfor %}
                 </select>
             </td>
@@ -36,7 +37,7 @@
 {% else %}
 <b>No authors.</b>
 {% endif %}
-<ul class='spaces'>
+<ul class='booklist'>
 {% for item in book.items %}
 <li><b><a href='{{ item.url }}'>>></a></b>:
     <ul>

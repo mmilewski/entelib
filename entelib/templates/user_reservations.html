@@ -1,0 +1,25 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block header %}User reservations{% endblock %}
+
+{% block content %}
+<b>
+    {{ first_name }} {{ last_name }}
+    <br>
+    {{ email }}
+</b>
+<ul>
+{% for reservation in reservations %}
+<li style = 'margin-bottom: 0.5em'><b>{{ reservation.title }}</b>
+    <ul>
+    <li>Authors: {{ reservation.authors|join:', ' }}</li>
+    <li>From: {{ reservation.from_date }}</li>
+    <li>To: {{ reservation.to_date }}</li>
+    <li>Shelf mark: {{ reservation.shelf_mark }}</li>
+    <li>Status: {{ reservation.status }}</li>
+    </ul>
+</li>
+{% empty %}
+<b>No reservations.</b>
+{% endfor %}
+{% endblock %}
