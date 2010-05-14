@@ -7,7 +7,7 @@ from entelib.baseapp.models import * #Book, BookCopy
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
-from views_aux import render_forbidden, render_response
+from views_aux import render_forbidden, render_response, filter
 from config import Config
 #from django.contrib.auth.decorators import permission_required
 from baseapp.forms import RegistrationForm
@@ -70,21 +70,27 @@ def list_books(request):
         return render_forbidden(request)
     url = u'/entelib/books/'
     books = []
+    search = {}
     if request.method == 'POST':
-        search_words = request.POST['search'].split()
-        if search_words:
-            def format_search_request(keywords, all=True):
-                if all: # search for titles with all keywords
-                    return reduce(lambda x,y: Q(title__icontains=x) and Q(title__icontains=y), keywords, Q(title__contains=u''))
-                else:   # search for titles with any of keywords
-                    return reduce(lambda x,y: Q(title__icontains=x) or Q(title__icontains=y), keywords, Q(id__exact=u''))
-            for elem in Book.objects.filter(format_search_request(search_words)):
+        post = request.POST
+        search_title = post['title'].split()
+        search_author = post['author'].split()
+        search_category = post['category'].split()
+        search = {'title' : post['title'], 'author' : post['author'], 'category' : post['category'], }
+        if search_title + search_author + search_category:
+            booklist = filter(Book, Q(id__exact='0'), Q(title__contains=''), [ 
+                  (search_title, 'title_any' in post, lambda x: Q(title__icontains=x)),
+                  (search_author, 'author_any' in post, lambda x: Q(author__name__icontains=x)),
+                  #(search_category, 'category_any' in post, lambda x: q(id__something_with_category_which_is_not_yet_implemented)) #todo
+                ]
+            )
+            for elem in booklist:
                 books.append({
                     'title':elem.title, 
                     'url': url + unicode(elem.id) + '/', 
                     'authors': [a.name for a in elem.author.all()]
                     })
-    return render_response(request, 'book.html', {'books': books}) 
+    return render_response(request, 'book.html', {'books': books, 'search' : search}) 
 
 
 

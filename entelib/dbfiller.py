@@ -10,7 +10,7 @@ print '---  Running dbfiller  ---'
 
 from random import randint, choice, shuffle
 from datetime import datetime, timedelta
-from entelib.baseapp.models import *
+from baseapp.models import *
 
 # clear database
 print 'Clearing database'

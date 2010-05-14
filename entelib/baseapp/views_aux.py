@@ -3,6 +3,7 @@
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect #TODO usunąć HttpResponse 
+from django.db.models import Q
 
 def render_response(request, template, dict={}):
     if request.user.has_perm('baseapp.list_users'): 
@@ -31,3 +32,11 @@ tak będzie docelowo:
     )
 '''
 
+def filter(class_name, Q_none, Q_all, constraints):
+    result = class_name.objects.all()
+    for (keywords, any, Q_fun) in constraints:
+        if any:
+            result = result.filter(reduce(lambda q,y: q | Q_fun(y), keywords, Q_none))
+        else:
+            result = result.filter(reduce(lambda q,x: q & Q_fun(x), keywords, Q_all))
+    return result
