@@ -3,11 +3,11 @@
 # Create your views here.
 from django.shortcuts import render_to_response
 from django.http import Http404, HttpResponseRedirect
-from entelib.baseapp.models import * #Book, BookCopy
+from entelib.baseapp.models import *
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
-from views_aux import render_forbidden, render_response, filter, generate_book_desc
+from views_aux import render_forbidden, render_response, filter_query, generate_book_desc
 from config import Config
 #from django.contrib.auth.decorators import permission_required
 from baseapp.forms import RegistrationForm
@@ -79,10 +79,10 @@ def list_books(request):
         search_category = post['category'].split()
         search = {'title' : post['title'], 'author' : post['author'], 'category' : post['category'], }
         if search_title + search_author + search_category:
-            booklist = filter(Book, Q(id__exact='0'), Q(title__contains=''), [ 
+            booklist = filter_query(Book, Q(id__exact='0'), Q(title__contains=''), [ 
                   (search_title, 'title_any' in post, lambda x: Q(title__icontains=x)),
                   (search_author, 'author_any' in post, lambda x: Q(author__name__icontains=x)),
-                  #(search_category, 'category_any' in post, lambda x: q(id__something_with_category_which_is_not_yet_implemented)) #todo
+                  #(search_category, 'category_any' in post, lambda x: q(id__something_with_category_which_is_not_yet_implemented))  #TODO
                 ]
             )
             for elem in booklist:
@@ -143,7 +143,7 @@ def book_copy(request, bookcopy_id):
             'book' : book_desc,
             'can_reserve' : request.user.has_perm('baseapp.add_reservation'),
             #'can_rent' : request.user.has_perm('baseapp.add_rental'), and  #TODO
-            #'can_return' : request.user.has_perm('baseapp.change_rental'), #TODO
+            #'can_return' : request.user.has_perm('baseapp.change_rental'),  #TODO
         }
     )
         
@@ -153,11 +153,11 @@ def users(request):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
     if request.method == 'POST':
-        request_first_name = request.POST['first_name'] if request.POST.has_key('first_name') else ''
-        request_last_name = request.POST['last_name'] if request.POST.has_key('last_name') else ''
-        request_email = request.POST['email'] if request.POST.has_key('email') else ''
+        request_first_name = request.POST['first_name'] if 'first_name' in request.POST else ''
+        request_last_name = request.POST['last_name'] if 'last_name' in request.POST else ''
+        request_email = request.POST['email'] if 'email' in request.POST else ''
         user_list = []
-        if request.POST.has_key('action') and request.POST['action'] == 'Search':
+        if 'action' in request.POST and request.POST['action'] == 'Search':
             user_list = [ {'last_name' : u.last_name, 'first_name' : u.first_name, 'email' : u.email,'url' : unicode(u.id) + u'/'}
                           for u in User.objects.filter(first_name__icontains=request_first_name).filter(last_name__icontains=request_last_name).filter(email__icontains=request_email) ]
         dict = { 
