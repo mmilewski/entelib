@@ -9,6 +9,8 @@ def page_accessed(response):
 
 def page_not_accessed(response):
     ''' This is negation of what page_accessed does. Returns True on success (page couldn't be accessed). '''
+    if response.status_code in [301, 302] and response['Location'].endswith(settings.LOGIN_URL):
+        return True
     return not page_accessed(response)
 
 

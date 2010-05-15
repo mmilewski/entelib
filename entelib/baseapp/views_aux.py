@@ -34,6 +34,7 @@ tak będzie docelowo:
     )
 '''
 
+
 def filter_query(class_name, Q_none, Q_all, constraints):
     '''
     Desc:
