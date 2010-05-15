@@ -1,23 +1,32 @@
-{% extends 'base_with_top_menu.html' %}
+{% extends 'bookcopy_base.html' %}
 
 {% block header %}Book reservation{% endblock %}
 
-{% block content %}
+{% block forms %}
 <h2>Title: {{ book.title }}</h2>
+{% if reserved.ok %}
+Successfully reserved from {{ reserved.from }}.
+{% else %}
+{% if reserved.error %}
+<div> Error while reserving. Please try again.
+{% endif %}
 <div class='content_form', style='margin-top: 1em'>
 <form action='.' method='post'>
     <table>
         <tr>
             <td>From: </td>
             <td><input type='text' size='10' name='from' value='' onClick='showKal(this)'></td>
-        </tr><tr>
-            <td>To: </td>
-            <td><input type='text' size='10' name='to' value='' onClick='showKal(this)'></td>
-        </tr><tr>
-        <td></td><td>
-            <input type='submit' name='action' value='Reserve'>
-        </td></tr>
+        </tr>
+        <tr>
+            <td></td>
+            <td> YYYY-MM-DD </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td> <input type='submit' name='action' value='reserve'> </td>
+        </tr>
     </table>
 </form>
 </div>
+{% endif %}
 {% endblock %}

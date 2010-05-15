@@ -2,10 +2,9 @@
 
 #TODO: wymyślić jakiś sensowny sposób ułożenia tych zmiennych. Chyba że po prostu każdą wartość będziemy definiować pod istniejącymi. Co chyba nie jest rzadkim rozwiążązaniem...
 '''
-Settings for baseapp models and views. Constants and so on.
+Settings for baseapp models. Constants and so on.
 '''
 
-# for models
 configuration_key_len = 20
 configuration_value_len = 256
 
@@ -32,5 +31,4 @@ copy_toc_url_len = 256                # url to table of contents
 
 costcenter_name_len = 50              # name of Cost Center
 
-
-# for views
+category_name_len = 30                # name of a category

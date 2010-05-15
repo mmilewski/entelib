@@ -3,14 +3,11 @@
 {% block header %}{{ book.title }}{% endblock %}
 
 {% block content %}
-<div class='picture'>
-<img src='{{ book.picture_url }}'>
-</div>
-<div>
-{{ book.description }}
-</div>
+{% block forms %}
+{% endblock %}
 <div class='clear' style='padding-top: 1em;'>
 <ul class='booklist'>
+    <li>Shelf mark: {{ book.shelf_mark }}</li>
     <li>{% if book.authors %}
             <b>Authors: </b>{{ book.authors|join:', '}}
         {% else %}
@@ -20,8 +17,18 @@
     <li>State: {{ book.state }}</li>
     <li>Publisher: {{ book.publisher }}</li>
     <li>Year: {{ book.year }}</li>
+    <li>Publication number: {{ book.publication_nr }}</li>
+    <li><a href='{{ book.desc_url }}'>See external description</a></li>
+    {% if book.description %}
+    <li>Description:</ br><div> {{ book.description }}</div></li>
+    {% endif %}
+    {% if book.toc %}
+    <li>Table of contents: {{ book.toc}}</li>
+    {% endif %}
+    <div class='picture'>
+    <img src='{{ book.picture_url }}'>
+    </div>
+
 </ul>
-{% block forms %}
-{% endblock %}
 </div>
 {% endblock %}

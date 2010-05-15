@@ -1,5 +1,3 @@
 <mbr> [views.py:book_copy, bookcopy.html] filtrowanie egzemplarzy: przesyłać POSTem jakie filtrowanie zostało zaaplikowane i uwzględnić to w templacie
 
-<mbr> przemianować zmienną magic_number na np shelf_mark - z angielskiego sygnatura książki - magic number brzmi trochę tajemniczo i jakby mało profesjonalnie...
-
 <mbr> zaimplementować kategorie

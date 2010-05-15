@@ -144,11 +144,16 @@ class Author(models.Model):
     def __unicode__(self):
         return self.name
 
+class Category(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=CFG.category_name_len)
+
 
 class Book(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=CFG.book_title_len)
     author = models.ManyToManyField(Author)
+    
 
     def __unicode__(self):
         # return u'%s %s' % (self.title, unicode(self.author.all()))
@@ -165,7 +170,7 @@ class CostCenter(models.Model):
 
 class BookCopy(models.Model):
     id = models.AutoField(primary_key=True)
-    magic_number = models.PositiveIntegerField()                              # big number for client's internal use
+    shelf_mark = models.PositiveIntegerField()                              # big number for client's internal use
     book = models.ForeignKey(Book)
     cost_center = models.ForeignKey(CostCenter)
     location = models.ForeignKey(Location)
@@ -195,7 +200,9 @@ class Reservation(models.Model):
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
     who_reserved = models.ForeignKey(CustomUser, related_name='reserver')
+    when_reserved = models.DateTimeField(auto_now_add=True)
     who_cancelled = models.ForeignKey(CustomUser, related_name='canceller', null=True, blank=True)
+    when_cancelled = models.DateTimeField()
 
     class Admin:
         pass

@@ -160,7 +160,7 @@ copies = [ BookCopy(book           = choice(books),
                     cost_center    = choice(cost_centers),
                     toc            = '',
                     toc_url        = '',
-                    magic_number   = randint(123456789,987654321),
+                    shelf_mark     = randint(123456789,987654321),
                     )
            for i in range(copies_count) ]
 for copy in copies:

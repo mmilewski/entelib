@@ -49,6 +49,7 @@ urlpatterns = patterns(
 
     # book copies
     (r'^bookcopy/(\d+)/$', view.book_copy),
+    (r'^bookcopy/(\d+)/reserve/$', view.reserve),
 
 
     # admin docs urls

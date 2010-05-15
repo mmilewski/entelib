@@ -7,10 +7,11 @@ from entelib.baseapp.models import * #Book, BookCopy
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
-from views_aux import render_forbidden, render_response, filter
+from views_aux import render_forbidden, render_response, filter, generate_book_desc
 from config import Config
 #from django.contrib.auth.decorators import permission_required
 from baseapp.forms import RegistrationForm
+from datetime import date
 
 
 
@@ -49,7 +50,7 @@ def register(request, action, registration_form=RegistrationForm, extra_context=
             for key, value in extra_context.items():
                 context[key] = callable(value) and value() or value
             return render_to_response(tpl_registration_form,
-                                      { 'form_content': form },
+                                      { 'form_content' : form },
                                       context_instance=context)
 
 
@@ -87,10 +88,10 @@ def list_books(request):
             for elem in booklist:
                 books.append({
                     'title':elem.title, 
-                    'url': url + unicode(elem.id) + '/', 
-                    'authors': [a.name for a in elem.author.all()]
+                    'url' : url + unicode(elem.id) + '/', 
+                    'authors' : [a.name for a in elem.author.all()]
                     })
-    return render_response(request, 'book.html', {'books': books, 'search' : search}) 
+    return render_response(request, 'book.html', {'books' : books, 'search' : search}) 
 
 
 
@@ -112,19 +113,19 @@ def show_book(request, book_id):
     max_desc_len = Config().get_int('truncated_description_len')
     for elem in book_copies:
         curr_copies.append({
-            'url': url + unicode(elem.id) + '/',
-            'reserve_url' : url + 'reserve/',
-            'location': elem.location.name,
-            'state': elem.state.name,
-            'publisher': elem.publisher.name,
+            'url' : url + unicode(elem.id) + '/',
+            'reserve_url' : url + unicode(elem.id) + '/reserve/',
+            'location' : elem.location.name,
+            'state' : elem.state.name,
+            'publisher' : elem.publisher.name,
             'year' : elem.year,
-            'desc_url': elem.toc_url,
+            'desc_url' : elem.toc_url,
             })
     book_desc = {
         'title' : book.title,
         'authors' : [a.name for a in book.author.all()],
         'items' : curr_copies,
-        'locations' : [{'name': 'All', 'id': 0}] + [{'name': l.name, 'id': l.id} for l in Location.objects.filter(id__in=[c.location.id for c in book_copies])] 
+        'locations' : [{'name' : 'All', 'id' : 0}] + [{'name' : l.name, 'id' : l.id} for l in Location.objects.filter(id__in=[c.location.id for c in book_copies])] 
         }
     return render_response(request, 'bookcopies.html', { 'book' : book_desc, })
 
@@ -136,16 +137,7 @@ def book_copy(request, bookcopy_id):
         return render_forbidden(request)
     book_copy = BookCopy.objects.get(id=bookcopy_id)
     book = book_copy.book
-    book_desc = {
-        'title' : book.title,
-        'authors' : [a.name for a in book.author.all()],
-        'location': book_copy.location.name,
-        'state': book_copy.state.name,
-        'publisher': book_copy.publisher.name,
-        'year' : book_copy.year,
-        'description': book_copy.description,
-        'picture' : book_copy.picture,
-        }
+    book_desc = generate_book_desc(book, book_copy)
     return render_response(request, 'bookcopy.html',
         {
             'book' : book_desc,
@@ -166,7 +158,7 @@ def users(request):
         request_email = request.POST['email'] if request.POST.has_key('email') else ''
         user_list = []
         if request.POST.has_key('action') and request.POST['action'] == 'Search':
-            user_list = [ {'last_name': u.last_name, 'first_name': u.first_name, 'email': u.email,'url': unicode(u.id) + u'/'}
+            user_list = [ {'last_name' : u.last_name, 'first_name' : u.first_name, 'email' : u.email,'url' : unicode(u.id) + u'/'}
                           for u in User.objects.filter(first_name__icontains=request_first_name).filter(last_name__icontains=request_last_name).filter(email__icontains=request_email) ]
         dict = { 
             'users' : user_list, 
@@ -195,7 +187,7 @@ def user_rentals(request, user_id):
         return render_forbidden(request)
     user = User.objects.get(id=user_id)
     users_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(who_received__isnull=True)
-    rent_list = [ {'id': r.reservation.book_copy.shelf_mark, 'title': r.reservation.book_copy.book.title, }
+    rent_list = [ {'id' : r.reservation.book_copy.shelf_mark, 'title' : r.reservation.book_copy.book.title, }
                     for r in users_rentals ] 
     return render_to_response(
         'users_rentals.html',
@@ -215,5 +207,35 @@ def users_rental(request, user_id, rental_id):
     rental = Rental.objects.get(id=rental_
 '''
 
-
-
+def reserve(request, copy):
+    if not request.user.is_authenticated() or not request.user.has_perm('baseapp.add_reservation'):
+        return render_forbidden(request)
+    book_copy = BookCopy.objects.get(id=copy)
+    book = book_copy.book
+    book_desc = generate_book_desc(book, book_copy)
+    reserved = {}
+    post = request.POST
+    if request.method == 'POST':
+        r = Reservation(who_reserved=request.user, book_copy=book_copy, for_whom=request.user)
+        if 'from' in post and post['from'] != u'':
+            [y, m, d] = map(int, post['from'].split('-'))
+            try:
+                r.start_date = date(y, m, d)
+                r.save()
+                reserved.update({'ok' : 'ok'})
+                reserved.update({'from' : post['from']})
+            except:
+                reserved.update({'error' : 'error'})
+        elif 'action' in post and post['action'] == 'reserve':
+            r.start_date = date.today()
+            reserved.update({'from' : r.start_date.isoformat()})
+            reserved.update({'ok' : 'ok'})
+            
+                
+    return render_response(request, 'reserve.html',
+        {
+            'book' : book_desc,
+            'reserved' : reserved,
+            'can_reserve' : request.user.has_perm('baseapp.add_reservation') and book_copy.state.is_visible,
+        } 
+    )
