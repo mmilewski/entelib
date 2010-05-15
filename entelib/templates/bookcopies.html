@@ -12,9 +12,8 @@
             <td>Location: </td>
             <td>
                 <select name='location'>
-                        <option value='all'>All</option>
                     {% for location in book.locations %}
-                        <option value='{{ location }}'>{{ location }}</option>
+                        <option value='{{ location.id }}'>{{ location.name }}</option>
                     {% endfor %}
                 </select>
             </td>
@@ -45,7 +44,8 @@
     <li>State: {{ item.state }}</li>
     <li>Publisher: {{ item.publisher }}</li>
     <li>Year: {{ item.year }}</li>
-    <li>Description: {{ item.description }}</li>
+    <li><a href='{{ item.desc_url}}'>Description</a> </li>
+    <li><a href='{{ item.reserve_url }}'>Reserve</a></li>
     </ul>
 </li>
 {% empty %}

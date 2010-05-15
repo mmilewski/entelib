@@ -99,31 +99,32 @@ def show_book(request, book_id):
         return render_forbidden(request)
     url = u'/entelib/bookcopy/'
     book = Book.objects.get(id=book_id)
-    copies = BookCopy.objects.filter(book=book_id)
+    book_copies = BookCopy.objects.filter(book=book_id)
     if request.method == 'POST':
         if 'location' in request.POST:
             if not request.POST['location'] == u'0':
-                copies = copies.filter(location__exact=request.POST['location'])
-        if r'available' in equest.POST:
+                book_copies = book_copies.filter(location__id__exact=request.POST['location'])
+        if r'available' in request.POST:
             if request.POST['available'] == 'available':
-                copies = copies.filter(state__is_available__exact=True)
+                book_copies = book_copies.filter(state__is_available__exact=True)
                 print request.POST
-    book_copies = []
+    curr_copies = []
     max_desc_len = Config().get_int('truncated_description_len')
-    for elem in copies:
-        book_copies.append({
+    for elem in book_copies:
+        curr_copies.append({
             'url': url + unicode(elem.id) + '/',
+            'reserve_url' : url + 'reserve/',
             'location': elem.location.name,
             'state': elem.state.name,
             'publisher': elem.publisher.name,
             'year' : elem.year,
-            'description': elem.description[:max_desc_len],
+            'desc_url': elem.toc_url,
             })
     book_desc = {
         'title' : book.title,
         'authors' : [a.name for a in book.author.all()],
-        'items' : book_copies,
-        'locations' : [{'name': '---', 'id': 0}] + [{'name': l.name, 'id': l.id} for l in Location.objects.all()] 
+        'items' : curr_copies,
+        'locations' : [{'name': 'All', 'id': 0}] + [{'name': l.name, 'id': l.id} for l in Location.objects.filter(id__in=[c.location.id for c in book_copies])] 
         }
     return render_response(request, 'bookcopies.html', { 'book' : book_desc, })
 
@@ -194,7 +195,7 @@ def user_rentals(request, user_id):
         return render_forbidden(request)
     user = User.objects.get(id=user_id)
     users_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(who_received__isnull=True)
-    rent_list = [ {'id': r.reservation.book_copy.magic_number, 'title': r.reservation.book_copy.book.title, }
+    rent_list = [ {'id': r.reservation.book_copy.shelf_mark, 'title': r.reservation.book_copy.book.title, }
                     for r in users_rentals ] 
     return render_to_response(
         'users_rentals.html',
