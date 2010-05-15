@@ -1,12 +1,13 @@
-#-*- coding=utf-8 -*- 
+#-*- coding=utf-8 -*-
 
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-from django.http import HttpResponse, HttpResponseRedirect #TODO usunąć HttpResponse 
+from django.http import HttpResponse, HttpResponseRedirect  # TODO usunąć HttpResponse
 from datetime import date
 
+
 def render_response(request, template, dict={}):
-    if request.user.has_perm('baseapp.list_users'): 
+    if request.user.has_perm('baseapp.list_users'):
         dict.update( { 'can_list_users' : 'True' } )
     return render_to_response(
         template,
@@ -14,12 +15,13 @@ def render_response(request, template, dict={}):
         context_instance=RequestContext(request)
     )
 
+
 def render_forbidden(request):
     if request.user.is_authenticated():
         return HttpResponse("Forbidden")
     else:
         return HttpResponseRedirect('/entelib/login/')
-        
+
 
 '''
 tak będzie docelowo:
@@ -32,7 +34,7 @@ tak będzie docelowo:
     )
 '''
 
-def multi_filter(class_name, Q_none, Q_all, constraints):
+def filter_query(class_name, Q_none, Q_all, constraints):
     '''
     Desc:
         Applies many filters on class' object list. A filter may require all or any of it's conditions to be met.
@@ -61,7 +63,7 @@ def multi_filter(class_name, Q_none, Q_all, constraints):
 
 def generate_book_desc(book, book_copy):
     '''
-    Desc: 
+    Desc:
         Generates a dictionary to be passed to some bookcopy template
 
     Args:
@@ -97,9 +99,14 @@ def rental_possible(user, copy, reservation):
     '''
 
     all = Reservation.objects.filter(book_copy=copy).filter(end_date=None)
-    if reservation not in all: return 'Incorrect reservation'
-    if reservation != all[0]: return 'Reservation not first'
-    if reservation.start_date > date.today(): return 'Reservation not yet active'
-    if reservation.end_date is not None: return 'Reservation already pursued' #TODO nie wiem czy to dobre słowo...
-    if copy.state.is_available == False: return 'This copy is currently not available'
+    if reservation not in all:
+        return 'Incorrect reservation'
+    if reservation != all[0]:
+        return 'Reservation not first'
+    if reservation.start_date > date.today():
+        return 'Reservation not yet active'
+    if reservation.end_date is not None:
+        return 'Reservation already pursued'   # TODO nie wiem czy to dobre słowo...
+    if copy.state.is_available == False:
+        return 'This copy is currently not available'
     return True

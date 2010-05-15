@@ -144,6 +144,7 @@ class Author(models.Model):
     def __unicode__(self):
         return self.name
 
+
 class Category(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=CFG.category_name_len)
@@ -153,7 +154,7 @@ class Book(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=CFG.book_title_len)
     author = models.ManyToManyField(Author)
-    
+
 
     def __unicode__(self):
         # return u'%s %s' % (self.title, unicode(self.author.all()))

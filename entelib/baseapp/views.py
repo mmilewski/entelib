@@ -1,4 +1,4 @@
-#-*- coding=utf-8 -*- 
+#-*- coding=utf-8 -*-
 
 # Create your views here.
 from django.shortcuts import render_to_response
@@ -79,7 +79,7 @@ def list_books(request):
         search_category = post['category'].split()
         search = {'title' : post['title'], 'author' : post['author'], 'category' : post['category'], }
         if search_title + search_author + search_category:
-            booklist = filter_query(Book, Q(id__exact='0'), Q(title__contains=''), [ 
+            booklist = filter_query(Book, Q(id__exact='0'), Q(title__contains=''), [
                   (search_title, 'title_any' in post, lambda x: Q(title__icontains=x)),
                   (search_author, 'author_any' in post, lambda x: Q(author__name__icontains=x)),
                   #(search_category, 'category_any' in post, lambda x: q(id__something_with_category_which_is_not_yet_implemented))  #TODO
@@ -87,11 +87,11 @@ def list_books(request):
             )
             for elem in booklist:
                 books.append({
-                    'title':elem.title, 
-                    'url' : url + unicode(elem.id) + '/', 
+                    'title':elem.title,
+                    'url' : url + unicode(elem.id) + '/',
                     'authors' : [a.name for a in elem.author.all()]
                     })
-    return render_response(request, 'book.html', {'books' : books, 'search' : search}) 
+    return render_response(request, 'book.html', {'books' : books, 'search' : search})
 
 
 
@@ -125,7 +125,7 @@ def show_book(request, book_id):
         'title' : book.title,
         'authors' : [a.name for a in book.author.all()],
         'items' : curr_copies,
-        'locations' : [{'name' : 'All', 'id' : 0}] + [{'name' : l.name, 'id' : l.id} for l in Location.objects.filter(id__in=[c.location.id for c in book_copies])] 
+        'locations' : [{'name' : 'All', 'id' : 0}] + [{'name' : l.name, 'id' : l.id} for l in Location.objects.filter(id__in=[c.location.id for c in book_copies])]
         }
     return render_response(request, 'bookcopies.html', { 'book' : book_desc, })
 
@@ -146,9 +146,9 @@ def book_copy(request, bookcopy_id):
             #'can_return' : request.user.has_perm('baseapp.change_rental'),  #TODO
         }
     )
-        
 
-   
+
+
 def users(request):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
@@ -160,8 +160,8 @@ def users(request):
         if 'action' in request.POST and request.POST['action'] == 'Search':
             user_list = [ {'last_name' : u.last_name, 'first_name' : u.first_name, 'email' : u.email,'url' : unicode(u.id) + u'/'}
                           for u in User.objects.filter(first_name__icontains=request_first_name).filter(last_name__icontains=request_last_name).filter(email__icontains=request_email) ]
-        dict = { 
-            'users' : user_list, 
+        dict = {
+            'users' : user_list,
             'first_name' : request_first_name,
             'last_name' : request_last_name,
             'email' : request_email,
@@ -170,14 +170,14 @@ def users(request):
         dict = {}
     return render_response(request, 'users.html', dict)
 
-        
-        
+
+
 def user(request, user_id):
     user = User.objects.get(id=user_id)
     return render_response(request, 'user.html',
         { 'first_name' : user.first_name,
           'last_name' : user.last_name,
-          'email' : user.email, 
+          'email' : user.email,
         }
     )
 
@@ -188,12 +188,12 @@ def user_rentals(request, user_id):
     user = User.objects.get(id=user_id)
     users_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(who_received__isnull=True)
     rent_list = [ {'id' : r.reservation.book_copy.shelf_mark, 'title' : r.reservation.book_copy.book.title, }
-                    for r in users_rentals ] 
+                    for r in users_rentals ]
     return render_to_response(
         'users_rentals.html',
         { 'first_name' : user.first_name,
           'last_name' : user.last_name,
-          'email' : user.email, 
+          'email' : user.email,
           'rentals' : rent_list,
           },
         context_instance=RequestContext(request)
@@ -201,11 +201,12 @@ def user_rentals(request, user_id):
 
 '''
 
-        
+
 def users_rental(request, user_id, rental_id):
     user = User.objects.get(id=user_id)
     rental = Rental.objects.get(id=rental_
 '''
+
 
 def reserve(request, copy):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.add_reservation'):
@@ -230,12 +231,12 @@ def reserve(request, copy):
             r.start_date = date.today()
             reserved.update({'from' : r.start_date.isoformat()})
             reserved.update({'ok' : 'ok'})
-            
-                
+
+
     return render_response(request, 'reserve.html',
         {
             'book' : book_desc,
             'reserved' : reserved,
             'can_reserve' : request.user.has_perm('baseapp.add_reservation') and book_copy.state.is_visible,
-        } 
+        }
     )
