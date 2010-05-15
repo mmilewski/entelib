@@ -59,7 +59,7 @@ def filter_query(class_name, Q_none, Q_all, constraints):
             result = result.filter(reduce(lambda q,y: q | Q_fun(y), keywords, Q_none))
         else:
             result = result.filter(reduce(lambda q,x: q & Q_fun(x), keywords, Q_all))
-    return result
+    return result.distinct()
 
 
 def generate_book_desc(book, book_copy):

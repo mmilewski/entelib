@@ -79,7 +79,7 @@ def list_books(request):
         search_category = post['category'].split()
         search = {'title' : post['title'], 'author' : post['author'], 'category' : post['category'], }
         if search_title + search_author + search_category:
-            booklist = filter_query(Book, Q(id__exact='0'), Q(title__contains=''), [
+            booklist = filter_query(Book, Q(id__exact='-1'), Q(title__contains=''), [
                   (search_title, 'title_any' in post, lambda x: Q(title__icontains=x)),
                   (search_author, 'author_any' in post, lambda x: Q(author__name__icontains=x)),
                   # (search_category, 'category_any' in post, lambda x: q(id__something_with_category_which_is_not_yet_implemented))  # TODO
