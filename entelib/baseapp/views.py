@@ -9,7 +9,7 @@ from django.contrib import auth
 from django.db.models import Q
 from views_aux import render_forbidden, render_response, filter_query, generate_book_desc
 from config import Config
-#from django.contrib.auth.decorators import permission_required
+# from django.contrib.auth.decorators import permission_required
 from baseapp.forms import RegistrationForm
 from datetime import date
 
@@ -82,7 +82,7 @@ def list_books(request):
             booklist = filter_query(Book, Q(id__exact='0'), Q(title__contains=''), [
                   (search_title, 'title_any' in post, lambda x: Q(title__icontains=x)),
                   (search_author, 'author_any' in post, lambda x: Q(author__name__icontains=x)),
-                  #(search_category, 'category_any' in post, lambda x: q(id__something_with_category_which_is_not_yet_implemented))  #TODO
+                  # (search_category, 'category_any' in post, lambda x: q(id__something_with_category_which_is_not_yet_implemented))  # TODO
                 ]
             )
             for elem in booklist:
@@ -131,7 +131,7 @@ def show_book(request, book_id):
 
 
 
-#TODO can_rent i can_return
+# TODO can_rent i can_return
 def book_copy(request, bookcopy_id):
     if not request.user.is_authenticated():
         return render_forbidden(request)
@@ -142,8 +142,8 @@ def book_copy(request, bookcopy_id):
         {
             'book' : book_desc,
             'can_reserve' : request.user.has_perm('baseapp.add_reservation'),
-            #'can_rent' : request.user.has_perm('baseapp.add_rental'), and  #TODO
-            #'can_return' : request.user.has_perm('baseapp.change_rental'),  #TODO
+            # 'can_rent' : request.user.has_perm('baseapp.add_rental'), and  # TODO
+            # 'can_return' : request.user.has_perm('baseapp.change_rental'),  # TODO
         }
     )
 
