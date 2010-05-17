@@ -9,9 +9,19 @@ def page_accessed(response):
 
 def page_not_accessed(response):
     ''' This is negation of what page_accessed does. Returns True on success (page couldn't be accessed). '''
-    if response.status_code in [301, 302] and response['Location'].endswith(settings.LOGIN_URL):
+    if was_redirected(response, settings.LOGIN_URL):
         return True
     return not page_accessed(response)
+
+
+def was_redirected(response, url_suffix=None):
+    '''
+    Returns True if response carries redirection info.
+    If url_suffix is set, then redirection's Location have to match url_suffix, it is omitted otherwise.
+    '''
+    if not url_suffix:
+        url_suffix = ''
+    return response.status_code in [301, 302] and response['Location'].endswith(url_suffix)
 
 
 class PageLogger(object):
