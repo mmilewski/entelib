@@ -3,21 +3,38 @@ from django.conf import settings
 
 
 def page_accessed(response):
-    ''' Checks whether page was rendered - we could access it. Returns True on success. '''
+    '''
+    Checks whether page was rendered - we could access it. Returns True on success.
+    If page wasn't found (404, 500, ...) returns False.
+    Redirection is neither True nor False.
+    '''
+    if not page_exists(response):
+        return False
     return 'Forbidden' not in response.content
 
 
 def page_not_accessed(response):
-    ''' This is negation of what page_accessed does. Returns True on success (page couldn't be accessed). '''
+    '''
+    Returns True if page couldn't be accessed, but False if an error occured.
+    Note that if page doesn't exist, it means error, so function returns False.
+    Redirection to login page ==> perm wasn't granted ==> page not accessed ==> return True.
+    '''
+    if not page_exists(response):
+        return False
     if was_redirected(response, settings.LOGIN_URL):
         return True
     return not page_accessed(response)
 
 
+def page_exists(response):
+    ''' Checks unless 404 or 500 occured. '''
+    return response.status_code not in [404, 500]
+
+
 def was_redirected(response, url_suffix=None):
     '''
     Returns True if response carries redirection info.
-    If url_suffix is set, then redirection's Location have to match url_suffix, it is omitted otherwise.
+    If url_suffix is set, then redirection's Location's suffix have to match url_suffix, and it is omitted otherwise.
     '''
     if not url_suffix:
         url_suffix = ''
