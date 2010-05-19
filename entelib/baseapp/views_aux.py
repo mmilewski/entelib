@@ -23,16 +23,16 @@ def render_forbidden(request):
         return HttpResponseRedirect('/entelib/login/')
 
 
-'''
-tak będzie docelowo:
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect('/entelib/login/')
-    return render_to_response(
-       'forbidden.html',
-       {},
-       context_instance=RequestContext(request)
-    )
-'''
+    '''
+    tak będzie docelowo:
+        if not request.user.is_authenticated():
+            return HttpResponseRedirect('/entelib/login/')
+        return render_to_response(
+           'forbidden.html',
+           {},
+           context_instance=RequestContext(request)
+        )
+    '''
 
 
 def filter_query(class_name, Q_none, Q_all, constraints):
@@ -62,10 +62,10 @@ def filter_query(class_name, Q_none, Q_all, constraints):
     return result.distinct()
 
 
-def generate_book_desc(book, book_copy):
+def get_book_details(book_copy):
     '''
     Desc:
-        Generates a dictionary to be passed to some bookcopy template
+        Returns a dictionary to be passed to some bookcopy template
 
     Args:
         book - Book object
@@ -76,9 +76,9 @@ def generate_book_desc(book, book_copy):
     '''
 
     book_desc = {
-        'title' : book.title,
+        'title' : book_copy.book.title,
         'shelf_mark' : book_copy.shelf_mark,
-        'authors' : [a.name for a in book.author.all()],
+        'authors' : [a.name for a in book_copy.book.author.all()],
         'location' : book_copy.location.name,
         'state' : book_copy.state.name,
         'publisher' : book_copy.publisher.name,
@@ -89,6 +89,7 @@ def generate_book_desc(book, book_copy):
         'toc' : book_copy.toc,
         'picture' : book_copy.picture,
     }
+    print 'url' + book_copy.toc_url
     return book_desc
 
 

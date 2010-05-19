@@ -30,7 +30,7 @@ urlpatterns = patterns(
     (r'^logout$', get_redirect_function_to_url('/entelib/logout/')),
 
     # users
-    (r'^users/$', view.users),
+    (r'^users/$', view.show_users),
     (r'^users/(\d+)/$', view.user),
     # (r'^users/(\d+)/reservations/$', view.user_reservations),
     # (r'^users/(\d+)/rent-book/$', view.user_list_books),
@@ -48,7 +48,7 @@ urlpatterns = patterns(
     (r'^books/(\d+)/$', view.show_book),
 
     # book copies
-    (r'^bookcopy/(\d+)/$', view.book_copy),
+    (r'^bookcopy/(\d+)/$', view.show_book_copy),
     (r'^bookcopy/(\d+)/reserve/$', view.reserve),
 
 

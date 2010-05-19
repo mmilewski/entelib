@@ -1,13 +1,12 @@
 #-*- coding=utf-8 -*-
 
-# Create your views here.
 from django.shortcuts import render_to_response
 from django.http import Http404, HttpResponseRedirect
 from entelib.baseapp.models import *
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
-from views_aux import render_forbidden, render_response, filter_query, generate_book_desc
+from views_aux import render_forbidden, render_response, filter_query, get_book_details
 from config import Config
 # from django.contrib.auth.decorators import permission_required
 from baseapp.forms import RegistrationForm
@@ -30,7 +29,7 @@ def register(request, action, registration_form=RegistrationForm, extra_context=
             auth.logout(request)
             return HttpResponseRedirect('/entelib/register/newuser/')
         else:
-            return render_to_response(tpl_logout_first, context_instance=RequestContext(request))
+            return render_response(request, tpl_logout_first)
     else:   # not authenticated
         if action == 'newuser':
             # commit new user
@@ -78,19 +77,19 @@ def list_books(request):
         search_author = post['author'].split()
         search_category = post['category'].split()
         search = {'title' : post['title'], 'author' : post['author'], 'category' : post['category'], }
-        if search_title + search_author + search_category:
-            booklist = filter_query(Book, Q(id__exact='-1'), Q(title__contains=''), [
-                  (search_title, 'title_any' in post, lambda x: Q(title__icontains=x)),
-                  (search_author, 'author_any' in post, lambda x: Q(author__name__icontains=x)),
-                  # (search_category, 'category_any' in post, lambda x: q(id__something_with_category_which_is_not_yet_implemented))  # TODO
-                ]
-            )
-            for elem in booklist:
-                books.append({
-                    'title':elem.title,
-                    'url' : url + unicode(elem.id) + '/',
-                    'authors' : [a.name for a in elem.author.all()]
-                    })
+        #if search_title + search_author + search_category:
+        booklist = filter_query(Book, Q(id__exact='-1'), Q(title__contains=''), [
+              (search_title, 'title_any' in post, lambda x: Q(title__icontains=x)),
+              (search_author, 'author_any' in post, lambda x: Q(author__name__icontains=x)),
+              # (search_category, 'category_any' in post, lambda x: q(id__something_with_category_which_is_not_yet_implemented))  # TODO
+            ]
+        )
+        for elem in booklist:
+            books.append({
+                'title':elem.title,
+                'url' : url + unicode(elem.id) + '/',
+                'authors' : [a.name for a in elem.author.all()]
+                })
     return render_response(request, 'book.html', {'books' : books, 'search' : search})
 
 
@@ -132,12 +131,11 @@ def show_book(request, book_id):
 
 
 # TODO can_rent i can_return
-def book_copy(request, bookcopy_id):
+def show_book_copy(request, bookcopy_id):
     if not request.user.is_authenticated():
         return render_forbidden(request)
     book_copy = BookCopy.objects.get(id=bookcopy_id)
-    book = book_copy.book
-    book_desc = generate_book_desc(book, book_copy)
+    book_desc = get_book_details(book_copy)
     return render_response(request, 'bookcopy.html',
         {
             'book' : book_desc,
@@ -149,7 +147,7 @@ def book_copy(request, bookcopy_id):
 
 
 
-def users(request):
+def show_users(request):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
     if request.method == 'POST':
@@ -189,14 +187,13 @@ def user_rentals(request, user_id):
     users_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(who_received__isnull=True)
     rent_list = [ {'id' : r.reservation.book_copy.shelf_mark, 'title' : r.reservation.book_copy.book.title, }
                     for r in users_rentals ]
-    return render_to_response(
+    return render_response(request,
         'users_rentals.html',
         { 'first_name' : user.first_name,
           'last_name' : user.last_name,
           'email' : user.email,
           'rentals' : rent_list,
-          },
-        context_instance=RequestContext(request)
+        }
     )
 
 '''
@@ -212,8 +209,7 @@ def reserve(request, copy):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.add_reservation'):
         return render_forbidden(request)
     book_copy = BookCopy.objects.get(id=copy)
-    book = book_copy.book
-    book_desc = generate_book_desc(book, book_copy)
+    book_desc = get_book_details(book_copy)
     reserved = {}
     post = request.POST
     if request.method == 'POST':
