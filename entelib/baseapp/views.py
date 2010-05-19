@@ -65,19 +65,19 @@ def default(request):
     return render_response(request, 'entelib.html')
 
 
-def list_books(request):
+def show_books(request):
     if not request.user.is_authenticated():
         return render_forbidden(request)
     url = u'/entelib/books/'
     books = []
     search = {}
+    dict = {}
     if request.method == 'POST':
         post = request.POST
         search_title = post['title'].split()
         search_author = post['author'].split()
         search_category = post['category'].split()
         search = {'title' : post['title'], 'author' : post['author'], 'category' : post['category'], }
-        #if search_title + search_author + search_category:
         booklist = filter_query(Book, Q(id__exact='-1'), Q(title__contains=''), [
               (search_title, 'title_any' in post, lambda x: Q(title__icontains=x)),
               (search_author, 'author_any' in post, lambda x: Q(author__name__icontains=x)),
@@ -90,7 +90,13 @@ def list_books(request):
                 'url' : url + unicode(elem.id) + '/',
                 'authors' : [a.name for a in elem.author.all()]
                 })
-    return render_response(request, 'book.html', {'books' : books, 'search' : search})
+        dict = {'books' : books, 'search' : search}
+        dict.update({
+            'title_any_checked' : 'true' if 'title_any' in post else '',
+            'author_any_checked' : 'true' if 'author_any' in post else '',
+            'category_any_checked' : 'true' if 'category_any' in post else '',
+        })
+    return render_response(request, 'books.html', dict)
 
 
 
@@ -107,7 +113,6 @@ def show_book(request, book_id):
         if r'available' in request.POST:
             if request.POST['available'] == 'available':
                 book_copies = book_copies.filter(state__is_available__exact=True)
-                print request.POST
     curr_copies = []
     max_desc_len = Config().get_int('truncated_description_len')
     for elem in book_copies:
@@ -126,11 +131,10 @@ def show_book(request, book_id):
         'items' : curr_copies,
         'locations' : [{'name' : 'All', 'id' : 0}] + [{'name' : l.name, 'id' : l.id} for l in Location.objects.filter(id__in=[c.location.id for c in book_copies])]
         }
-    return render_response(request, 'bookcopies.html', { 'book' : book_desc, })
+    return render_response(request, 'bookcopies.html', { 'book' : book_desc, 'only_available_checked' : 'yes' if 'available' in request.POST else ''})
 
 
 
-# TODO can_rent i can_return
 def show_book_copy(request, bookcopy_id):
     if not request.user.is_authenticated():
         return render_forbidden(request)
@@ -150,6 +154,7 @@ def show_book_copy(request, bookcopy_id):
 def show_users(request):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
+    dict = {}
     if request.method == 'POST':
         request_first_name = request.POST['first_name'] if 'first_name' in request.POST else ''
         request_last_name = request.POST['last_name'] if 'last_name' in request.POST else ''
@@ -157,38 +162,38 @@ def show_users(request):
         user_list = []
         if 'action' in request.POST and request.POST['action'] == 'Search':
             user_list = [ {'last_name' : u.last_name, 'first_name' : u.first_name, 'email' : u.email,'url' : unicode(u.id) + u'/'}
-                          for u in User.objects.filter(first_name__icontains=request_first_name).filter(last_name__icontains=request_last_name).filter(email__icontains=request_email) ]
+                          for u in CustomUser.objects.filter(first_name__icontains=request_first_name).filter(last_name__icontains=request_last_name).filter(email__icontains=request_email) ]
         dict = {
             'users' : user_list,
             'first_name' : request_first_name,
             'last_name' : request_last_name,
             'email' : request_email,
             }
-    else:
-        dict = {}
     return render_response(request, 'users.html', dict)
 
 
 
-def user(request, user_id):
-    user = User.objects.get(id=user_id)
+def show_user(request, user_id):
+    user = CustomUser.objects.get(id=user_id)
     return render_response(request, 'user.html',
         { 'first_name' : user.first_name,
           'last_name' : user.last_name,
           'email' : user.email,
+          'rentals' : 'rentals/',
+          'reservations' : 'reservations/',
         }
     )
 
 
-def user_rentals(request, user_id):
+def show_user_rentals(request, user_id):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
-    user = User.objects.get(id=user_id)
+    user = CustomUser.objects.get(id=user_id)
     users_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(who_received__isnull=True)
     rent_list = [ {'id' : r.reservation.book_copy.shelf_mark, 'title' : r.reservation.book_copy.book.title, }
                     for r in users_rentals ]
     return render_response(request,
-        'users_rentals.html',
+        'user_rentals.html',
         { 'first_name' : user.first_name,
           'last_name' : user.last_name,
           'email' : user.email,
@@ -196,6 +201,23 @@ def user_rentals(request, user_id):
         }
     )
 
+
+def show_user_reservations(request, user_id):
+    if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
+        return render_forbidden(request)
+    user = CustomUser.objects.get(id=user_id)
+    user_reservations = Reservation.objects.filter(for_whom=user.id).filter(who_handed_out__isnull=True).filter(when_cancelled__is_null=True)
+    rent_list = [ {'id' : r.reservation.book_copy.shelf_mark, 'title' : r.reservation.book_copy.book.title, }
+                    for r in users_rentals ]
+    return render_response(request,
+        'user_rentals.html',
+        { 'first_name' : user.first_name,
+          'last_name' : user.last_name,
+          'email' : user.email,
+          'rentals' : rent_list,
+        }
+    )
+    
 '''
 
 

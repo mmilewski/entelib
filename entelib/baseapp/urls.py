@@ -31,10 +31,10 @@ urlpatterns = patterns(
 
     # users
     (r'^users/$', view.show_users),
-    (r'^users/(\d+)/$', view.user),
-    # (r'^users/(\d+)/reservations/$', view.user_reservations),
+    (r'^users/(\d+)/$', view.show_user),
+    (r'^users/(\d+)/reservations/$', view.show_user_reservations),
     # (r'^users/(\d+)/rent-book/$', view.user_list_books),
-    (r'^users/(\d+)/rentals/$', view.user_rentals),
+    (r'^users/(\d+)/rentals/$', view.show_user_rentals),
     # (r'^users/(\d+)/rentals/(\d+)/$', view.user_rental),
     # (r'^users/(\d+)/books/$', view.user_books),
 

@@ -172,7 +172,7 @@ class CostCenter(models.Model):
 
 class BookCopy(models.Model):
     id = models.AutoField(primary_key=True)
-    shelf_mark = models.PositiveIntegerField()                              # big number for client's internal use
+    shelf_mark = models.PositiveIntegerField()                                # big number for client's internal use
     book = models.ForeignKey(Book)
     cost_center = models.ForeignKey(CostCenter)
     location = models.ForeignKey(Location)
@@ -196,6 +196,14 @@ class BookCopy(models.Model):
 
 
 class Reservation(models.Model):
+    '''
+    Class for book reservations.
+
+    who_cancelled and when_cancelled fields should be normally NULL.
+    If who_cancelled is NULL and when_cancelled is not, it means reservation expired.
+
+    end_date is set when performing rental. It can be max of #TODO field in configuration table.
+    '''
     id = models.AutoField(primary_key=True)
     book_copy = models.ForeignKey(BookCopy)
     for_whom = models.ForeignKey(CustomUser, related_name='user')
@@ -214,6 +222,20 @@ class Reservation(models.Model):
 
 
 class Rental(models.Model):
+    '''
+    Stores rental information.
+    
+    Every rental must be connected with some reservation. Reservation holds informations on who
+    rented (reservation.for_whom), which book (reservation.book_copy) and when he is obligated to return it (reservation.end_date).
+    
+    start_date is when book was rented
+
+    end_date is when book was returned (may be NULL if book is still rented)
+
+    who_handed_out is librarian who gave away book
+
+    who_received is librarian who reveived book
+    '''
     id = models.AutoField(primary_key=True)
     reservation = models.ForeignKey(Reservation)
     start_date = models.DateTimeField()   # (auto_now_add=True)
