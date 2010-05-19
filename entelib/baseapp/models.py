@@ -9,6 +9,7 @@ APPLICATION_NAME = 'baseapp'     # should be read from somewhere, I think
 
 
 # TODO:
+#   this comment seems outdated...
 #   - fields in location are probably: building, floor, room, name, telephone* (zero or more). Name is like 'Tweety' or 'Scooby'
 
 class Configuration(models.Model):
@@ -203,7 +204,7 @@ class Reservation(models.Model):
     who_reserved = models.ForeignKey(CustomUser, related_name='reserver')
     when_reserved = models.DateTimeField(auto_now_add=True)
     who_cancelled = models.ForeignKey(CustomUser, related_name='canceller', null=True, blank=True)
-    when_cancelled = models.DateTimeField()
+    when_cancelled = models.DateTimeField(null=True, blank=True)
 
     class Admin:
         pass

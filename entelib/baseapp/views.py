@@ -215,8 +215,8 @@ def reserve(request, copy):
     if request.method == 'POST':
         r = Reservation(who_reserved=request.user, book_copy=book_copy, for_whom=request.user)
         if 'from' in post and post['from'] != u'':
-            [y, m, d] = map(int, post['from'].split('-'))
             try:
+                [y, m, d] = map(int,post['from'].split('-'))
                 r.start_date = date(y, m, d)
                 r.save()
                 reserved.update({'ok' : 'ok'})
