@@ -6,11 +6,11 @@ from entelib.baseapp.models import *
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
-from views_aux import render_forbidden, render_response, filter_query, get_book_details
+from views_aux import render_forbidden, render_response, filter_query, get_book_details, reservation_status, rental_possible, rent
 from config import Config
 # from django.contrib.auth.decorators import permission_required
 from baseapp.forms import RegistrationForm
-from datetime import date
+from datetime import date, datetime, timedelta
 
 
 
@@ -190,7 +190,7 @@ def show_user_rentals(request, user_id):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
     user = CustomUser.objects.get(id=user_id)
-    users_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(who_received__isnull=True)
+    user_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(who_received__isnull=True)
     rent_list = [ {'id' : r.reservation.book_copy.shelf_mark, 'title' : r.reservation.book_copy.book.title, }
                     for r in users_rentals ]
     return render_response(request,
@@ -203,16 +203,22 @@ def show_user_rentals(request, user_id):
     )
 
 
-# the following is draft
 def show_user_reservations(request, user_id):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
     user = CustomUser.objects.get(id=user_id)
+    if request.method == 'POST':
+        post = request.POST
+        librarian = request.user
+        if 'reservation_id' in post:
+            rent(Reservation.objects.get(id=post['reservation_id']), librarian)
+
     user_reservations = Reservation.objects.filter(for_whom=user).filter(rental=None).filter(when_cancelled=None)
-    reservation_list = [ {'reservation_id' : r.id,
+    reservation_list = [ {'id' : r.id,
+                          'url' : unicode(r.id) + u'/',
                           'book_copy_id' : r.book_copy.id,
                           'shelf_mark' : r.book_copy.shelf_mark,
-                          'book_copy_url' : unicode(r.book_copy.id) + u'/',
+                          'rental_impossible' : '' if rental_possible(r) else reservation_status(r),
                           'title' : r.book_copy.book.title,
                           'authors' : [a.name for a in r.book_copy.book.author.all()],
                           'from_date' : r.start_date,
@@ -223,17 +229,21 @@ def show_user_reservations(request, user_id):
           'last_name' : user.last_name,
           'email' : user.email,
           'reservations' : reservation_list,
+          'cancel_all_url' : 'cancell-all/',
         }
     )
 
 
-def show_user_reservation(r,_):
+def reserve_for_user(request, user):
+    user = CustomUser.objects.get(id=user)
+
+
+def show_user_reservation(request, user_id):
     pass
 
 
+
 '''
-
-
 def users_rental(request, user_id, rental_id):
     user = User.objects.get(id=user_id)
     rental = Rental.objects.get(id=rental_

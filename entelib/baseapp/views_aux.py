@@ -1,9 +1,10 @@
 #-*- coding=utf-8 -*-
 
+from entelib.baseapp.models import Reservation, Rental
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect  # TODO usunąć HttpResponse
-from datetime import date
+from datetime import date, datetime
 
 
 def render_response(request, template, dict={}):
@@ -93,22 +94,51 @@ def get_book_details(book_copy):
     return book_desc
 
 
-def rental_possible(user, copy, reservation):
+def rental_possible(reservation):
     '''
     Desc:
-        Returns True if a rental can be completed.
-        Warning: returns unicode if rental cannot be accomplished
+        Returns True if a rental can be completed; False otherwise
     '''
+    if reservation_status(reservation) == 0:
+        return True
+    else:
+        return False
 
-    all = Reservation.objects.filter(book_copy=copy).filter(end_date=None)
+
+def reservation_status(reservation):
+    '''
+    Desc returns reservation status:
+        0 means rental possible.
+        any other value is string explaining why rental is not possible
+    '''
+    all = Reservation.objects.filter(book_copy=reservation.book_copy).filter(end_date=None).filter(for_whom=reservation.for_whom)
     if reservation not in all:
         return 'Incorrect reservation'
     if reservation != all[0]:
         return 'Reservation not first'
+    if reservation.book_copy.state.is_available == False:
+        return 'This copy is currently not available'
     if reservation.start_date > date.today():
         return 'Reservation not yet active'
     if reservation.end_date is not None:
         return 'Reservation already pursued'   # TODO nie wiem czy to dobre słowo...
-    if copy.state.is_available == False:
-        return 'This copy is currently not available'
-    return True
+    return 0
+
+
+def rent(reservation, librarian):
+    if rental_possible(reservation):
+        print 'librarian'
+        print librarian.__class__
+        print 'rental possible'
+        try:
+            rental = Rental(reservation=reservation, who_handed_out=librarian, start_date=datetime.now())
+            print 'rental created'
+            rental.save()
+            print 'rental saved'
+            reservation.end_date = date.today() + timedelta(days=dateConfig.get_int('max_rental_time'))
+            reservation.save()
+            print 'reservation updated'
+            return True
+        except:
+            return 'error'
+    return 'rental not possible'

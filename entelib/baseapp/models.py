@@ -213,6 +213,7 @@ class Reservation(models.Model):
     when_reserved = models.DateTimeField(auto_now_add=True)
     who_cancelled = models.ForeignKey(CustomUser, related_name='canceller', null=True, blank=True)
     when_cancelled = models.DateTimeField(null=True, blank=True)
+    active_since = models.DateField(null=True, blank=True)
 
     class Admin:
         pass
@@ -226,7 +227,8 @@ class Rental(models.Model):
     Stores rental information.
 
     Every rental must be connected with some reservation. Reservation holds informations on who
-    rented (reservation.for_whom), which book (reservation.book_copy) and when he is obligated to return it (reservation.end_date).
+    rented (reservation.for_whom), which book (reservation.book_copy) and when he is obligated
+    to return it (reservation.end_date).
 
     start_date is when book was rented
 
@@ -234,7 +236,7 @@ class Rental(models.Model):
 
     who_handed_out is librarian who gave away book
 
-    who_received is librarian who reveived book
+    who_received is librarian who received book
     '''
     id = models.AutoField(primary_key=True)
     reservation = models.ForeignKey(Reservation)
