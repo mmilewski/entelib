@@ -1,7 +1,6 @@
 #-*- coding: utf-8 -*-
 from django.conf.urls.defaults import *
 from django.contrib.auth.views import login as django_login
-from entelib.baseapp.views import list_books, show_book, logout, default
 import entelib.baseapp.views as view
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -33,6 +32,8 @@ urlpatterns = patterns(
     (r'^users/$', view.show_users),
     (r'^users/(\d+)/$', view.show_user),
     (r'^users/(\d+)/reservations/$', view.show_user_reservations),
+    (r'^users/(\d+)/reservations/(\d+)/$', view.show_user_reservation),
+    # (r'^users/(\d+)/rent-book/(\d+)/$', view.show_user_reservation),
     # (r'^users/(\d+)/rent-book/$', view.user_list_books),
     (r'^users/(\d+)/rentals/$', view.show_user_rentals),
     # (r'^users/(\d+)/rentals/(\d+)/$', view.user_rental),
@@ -43,7 +44,7 @@ urlpatterns = patterns(
     (r'^register/(?P<action>(.+))/$', view.register),
 
     # books
-    (r'^books/$', view.list_books),
+    (r'^books/$', view.show_books),
     (r'^books$', get_redirect_function_to_url('/entelib/book/')),
     (r'^books/(\d+)/$', view.show_book),
 
@@ -66,5 +67,5 @@ urlpatterns = patterns(
     (r'^admin$', get_redirect_function_to_url('/entelib/admin/')),
 
     # default matcher
-    (r'^$', view.default),
+    (r'^', view.default),
 )
