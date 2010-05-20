@@ -2,32 +2,33 @@
 
 {% block header %}Book reservation{% endblock %}
 
-{% block forms %}
-<h2>Title: {{ book.title }}</h2>
-{% if reserved.ok %}
-Successfully reserved from {{ reserved.from }}.
-{% else %}
-{% if reserved.error %}
-<div> Error while reserving. Please try again.
-{% endif %}
-<div class='content_form', style='margin-top: 1em'>
-<form action='.' method='post'>
-    <table>
-        <tr>
-            <td>From: </td>
-            <td><input type='text' size='10' name='from' value='' onClick='showKal(this)'></td>
-            <td>(Leave empty for today)</td>
-        </tr>
-        <tr>
-            <td></td>
-            <td> YYYY-MM-DD </td>
-        </tr>
-        <tr>
-            <td></td>
-            <td> <input type='submit' name='action' value='reserve'> </td>
-        </tr>
-    </table>
-</form>
-</div>
-{% endif %}
+{% block form %}
+    {% if reserved.ok %}
+        Successfully reserved from {{ reserved.from }}.
+    {% else %}
+        {% if reserved.error %}
+            <div> Error while reserving. Please try again.
+        {% endif %}
+        <div class='content_form', style='margin-top: 1em'>
+            <form action='.' method='post'>
+                <table>
+                    <tr>
+                        <td>From: </td>
+                        <td><input type='text' maxlength='10' name='from' value='' onClick='showKal(this)'></td>
+                        <td>(Leave empty for today)</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>YYYY-MM-DD</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><input type='submit' name='action' value='reserve'></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    {% endif %}
 {% endblock %}

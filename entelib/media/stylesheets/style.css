@@ -13,12 +13,26 @@ a
 
 h1, h2
 {
-    margin: 5px;
+    margin: 0.1em;
+}
+
+table.booklist
+{
+    margin-top: 1em;
+    width: 100%;
+    border: 1px solid #000;
+    text-align: center
+}
+
+table.booklist td
+{
+    padding: 0.5em;
+    border: 1px solid #000;
 }
 
 ul.spaces > li
 {
-    margin-bottom: 1em;
+    margin-bottom: 0.5em;
 }
 
 .clear
@@ -36,30 +50,29 @@ div#top
 {
     background-color: #eee;
     margin: 0 auto;
-    padding: 10px;
-    width: 780px;
+    padding: 1em;
+    width: 80%;
     min-height: 100%;
     position: relative;
 }
 
 div.content_form
 {
-    margin-left: 160px;
+    margin-left: 10em;
 }
 
 div#header
 {
     background-color: #888;
     margin: 0 auto 1em auto;
-    padding: 5px;
-    width: 740px;
+    padding: 0.5em;
     overflow: hidden;
 }
 
 div#menu
 {
-    background-color: #bbb;
-    margin: 0 10px 0 0px;
+    background-color: #bbb;  
+    margin: 0 0.5em 0 0;
     padding: 0;
     width: 120px;
     float: left;
@@ -72,16 +85,21 @@ div#menu ul
     padding: 0;
 }
 
+ul.menu
+{
+    margin: 0.5em 0 0.5em 2em;
+    padding: 0;
+}
+
 div#login
 {
-    margin: 3em 0 0 200px;
+    margin: 3em 0 0 15em;
 }
 
 div#content
 {
     margin: 0;
-    padding: 5px;
-    width: 640px;
+    padding: 0.5em;
     overflow: auto;
 }
 
@@ -92,7 +110,6 @@ div#footer
     bottom: 0;
     position: absolute;
 }
-
 
 div.formWrapper {
     padding: 1em 0 0 1em;

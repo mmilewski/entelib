@@ -2,55 +2,84 @@
 
 {% block title %}{{ book.title }}{% endblock %}
 
-{% block header %}{{ book.title }}{% endblock %}
+{% block header %}Book copies{% endblock %}
 
 {% block content %}
-<div class='content_form'>
-<form action='.' method='post'>
-    <table>
-        <tr>
-            <td>Location: </td>
-            <td>
-                <select name='location'>
-                    {% for location in book.locations %}
-                        <option value='{{ location.id }}'>{{ location.name }}</option>
-                    {% endfor %}
-                </select>
-            </td>
-        </tr><tr>
-            <td>Only available: </td>
-            <td>
-                <input type='checkbox' name='available' value='available' {% if only_available_checked %} checked='checked' {% endif %} >
-            </td>
-        </tr><tr>
-            <td></td><td>
-                <input type='submit'  name='action' value='Search'>
-            </td></tr>
-    </table>
-</form>
-</div>
-<div style='margin-top: 1em'>
-{% if book.authors %}
-<b>Authors: </b>
-{{ book.authors|join:', '}}
-{% else %}
-<b>No authors.</b>
-{% endif %}
-<ul class='booklist'>
-{% for item in book.items %}
-<li><b><a href='{{ item.url }}'>>></a></b>:
-    <ul>
-    <li>Location: {{ item.location }}</li>
-    <li>State: {{ item.state }}</li>
-    <li>Publisher: {{ item.publisher }}</li>
-    <li>Year: {{ item.year }}</li>
-    <li><a href='{{ item.desc_url}}'>External description</a> </li>
-    <li><a href='{{ item.reserve_url }}'>Reserve</a></li>
-    </ul>
-</li>
-{% empty %}
-<b>Sorry, no copies.</b>
-{% endfor %}
-</ul>
-</div>
+    <h2>Title: {{ book.title }}</h2><br>
+    <div class='content_form'>
+        <form action='.' method='post'>
+            <table>
+                <tr>
+                    <td>Location: </td>
+                    <td>
+                        <select name='location'>
+                            {% for location in book.locations %}
+                                <option value='{{ location.id }}'>{{ location.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr><tr>
+                    <td>Only available: </td>
+                    <td>
+                        <input type='checkbox' name='available' value='available' {% if only_available_checked %} checked='checked' {% endif %} >
+                    </td>
+                </tr><tr>
+                    <td></td><td>
+                        <input type='submit'  name='action' value='Search'>
+                    </td></tr>
+            </table>
+        </form>
+    </div>
+    <div style='margin-top: 1em'>
+        {% if book.authors %}
+            <b>Authors: </b>{{ book.authors|join:', '}}
+        {% else %}
+            <b>No authors.</b>
+        {% endif %}
+        <!-- <ul class='booklist'>
+        {% for item in book.items %}
+        <li><b><a href='{{ item.url }}'>>></a></b>:
+            <ul>
+            <li>Location: {{ item.location }}</li>
+            <li>State: {{ item.state }}</li>
+            <li>Publisher: {{ item.publisher }}</li>
+            <li>Year: {{ item.year }}</li>
+            <li><a href='{{ item.desc_url}}'>External description</a> </li>
+            <li><a href='{{ item.reserve_url }}'>Reserve</a></li>
+            </ul>
+        </li>
+        {% empty %}
+        <b>Sorry, no copies.</b>
+        {% endfor %}
+        </ul> -->
+        {% if book.items %}
+            <table class='booklist'>
+                <tr style='font-weight: bold'>
+                    <td></td>
+                    <td>Location</td>
+                    <td>State</td>
+                    <td>Publisher</td>
+                    <td>Year</td>
+                    <td></td>
+                </tr>
+                {% for item in book.items %}
+                    <tr>
+                        <td><a href='{{ item.url }}'>>></a></td>
+                        <td>{{ item.location }}</td>
+                        <td>{{ item.state }}</td>
+                        <td>{{ item.publisher }}</td>
+                        <td>{{ item.year }}</td>
+                        <td>
+                            <ul class='menu'>
+                                <li><a href='{{ item.desc_url}}'>External description</a></li>
+                                <li><a href='{{ item.reserve_url }}'>Reserve</a></li>
+                            </ul>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <br><b>No copies.</b>
+        {% endif %}
+    </div>
 {% endblock %}

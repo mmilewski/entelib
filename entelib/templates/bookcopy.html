@@ -1,18 +1,16 @@
 {% extends 'bookcopy_base.html' %}
-
-{% block forms %}
-<div class='content_form'>
-<form action='.' method='post'>
-{% if can_reserve %}
-| <b><a href='reserve/'>Reserve</a></b>
-{% endif %}
-{% if can_rent %}
-| <input type='submit' name='action' value='Rent'>
-{% endif %}
-{% if can_return %}
-| <input type='submit' name='action' value='Return'>
-{% endif %}
- |
-</form>
-</div>
+{% block links %}
+    <div class='content_form'>
+        <form action='.' method='post'>
+            {% if can_reserve %}
+                | <b><a href='reserve/'>Reserve</a></b> |
+            {% endif %}
+            {% if can_rent %}
+                | <input type='submit' name='action' value='Rent'> |
+            {% endif %}
+            {% if can_return %}
+                | <input type='submit' name='action' value='Return'> |
+            {% endif %}
+        </form>
+    </div>
 {% endblock %}

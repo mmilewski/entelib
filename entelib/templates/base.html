@@ -1,19 +1,37 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"> 
 <html lang='en-uk'>
-<head>
-    <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
-    <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/style.css'>
-    <script type='text/javascript' src='{{ MEDIA_URL }}js/cal.js'></script> 
-    <title>Entelib</title>
-</head>
-<body>
-    <div id='top'>
-        <div id='header'>
-            <h1>{% block header %}{% endblock %}</h1>
+    <head>
+        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+        <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/style.css'>
+        <script type='text/javascript' src='{{ MEDIA_URL }}js/cal.js'></script> 
+        <title>{% block title %}{% endblock %}</title>
+    </head>
+    <body>
+        <div id='top'>
+            <!-- development-only info -->
+            <div style="background:yellow; width:80% ; padding: 20px; text-align:center; margin: auto;">
+                Use <b>user</b>/<b>user</b> to log in as default user. <br/>
+                Use <b>admin</b>/<b>admin</b> to acquire a super power.
+            </div>
+            <!-- development-only info -->
+            <br>
+            <div id='header'>
+                <div style='float: left;'>
+                    <h1>{% block header %}{% endblock %}</h1>
+                </div>
+                <!-- box with info 'Logged as:...' or 'Not logged in' -->
+                <div class="logged_user_info" style="text-align:right; vertical-align:top; font-size:80%;">
+                    {% if user.is_anonymous %}
+                        Not logged in. <a href="/entelib/login/">Login</a> or <a href="/entelib/register/newuser">register</a>.
+                    {% else %}
+                        Logged as: <strong>{{ user.username }}</strong> {% if user.is_superuser %}(superuser){% endif%}
+                    {% endif %}
+                </div>
+                <!-- end of log-in state box -->
+            </div>
+            {% block menu %}{% endblock %}
+            {% block rest %}{% endblock %}
+            <div id='footer'></div>
         </div>
-        {% block menu %}{% endblock %}
-        {% block rest %}{% endblock %}
-        <div id='footer'></div>
-    </div>
-</body>
+    </body>
 </html>

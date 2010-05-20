@@ -9,23 +9,24 @@
     {{ email }}
 </b>
 
-<ul>
-{% for reservation in reservations %}
-<li style = 'margin-bottom: 0.5em'>
-    <form action='.' method='post'>
-        <b><a href='{{reservation.url}}'> {{ reservation.title }}</a></b>
-        <input type='hidden' name='reservation_id' value='{{ reservation.id }}'>
-        <input type='submit' name='action' value='Rent' {% if reservation.rental_impossible %} disabled {% endif %}>
-    </form>
-    <ul>
-        <li>Shelf mark: {{ reservation.shelf_mark }}</li>
-        <li>Authors: {{ reservation.authors|join:', ' }}</li>
-        <li>From: {{ reservation.from_date }}</li>
-        <li>Status: {% firstof reservation.rental_impossible "Ready" %}</li>
-    </ul>
-</li>
-{% empty %}
-<b>No reservations.</b>
-{% endfor %}
+<ul class='spaces'>
+    {% for reservation in reservations %}
+        <li>
+            <form action='.' method='post'>
+                <b><a href='{{reservation.url}}'> {{ reservation.title }}</a></b>
+                <input type='hidden' name='reservation_id' value='{{ reservation.id }}'>
+                <input type='submit' name='action' value='Rent' {% if reservation.rental_impossible %} disabled {% endif %}>
+            </form>
+            <ul>
+                <li>Shelf mark: {{ reservation.shelf_mark }}</li>
+                <li>Authors: {{ reservation.authors|join:', ' }}</li>
+                <li>From: {{ reservation.from_date }}</li>
+                <li>Status: {% firstof reservation.rental_impossible "Ready" %}</li>
+            </ul>
+        </li>
+    {% empty %}
+        <b>No reservations.</b>
+    {% endfor %}
+</ul>
 <a href='{{ cancel_all_url }}'>Cancel all reservations</a>
 {% endblock %}

@@ -1,17 +1,19 @@
 {% extends 'base_with_top_menu.html' %}
 
+{% block title %}User profile{% endblock %}
+
 {% block header %}User profile{% endblock %}
 
 {% block content %}
-<ul class='spaces'>
-    <li>Name: {{ first_name }}</li>
-    <li>Surname: {{ last_name }}</li>
-    <li>E-mail: {{ email }}</li>
-</ul>
-<div class='content_form'>
-<b>
-| <a href='reservations/'>Reservations</a> |
- <a href='rentals/'>Rentals</a> |
-</b>
-</div>
+    <ul class='spaces'>
+        <li>Name: {{ first_name }}</li>
+        <li>Surname: {{ last_name }}</li>
+        <li>E-mail: {{ email }}</li>
+    </ul>
+    <div class='content_form'>
+        <b>
+        | <a href='reservations/'>Reservations</a> | 
+        <a href='rentals/'>Rentals</a> |
+        </b>
+    </div>
 {% endblock %}
