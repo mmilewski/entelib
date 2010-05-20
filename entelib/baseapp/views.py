@@ -190,11 +190,24 @@ def show_user_rentals(request, user_id):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
     user = CustomUser.objects.get(id=user_id)
+    post = request.POST
+    if request.method == 'POST' and 'returned' in  post:
+        returned_rental = Rental.objects.get(id=post['returned'])
+        returned_rental.who_received = request.user
+        returned_rental.end_date = datetime.now()
+        returned_rental.save()
     user_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(who_received__isnull=True)
-    rent_list = [ {'id' : r.reservation.book_copy.shelf_mark, 'title' : r.reservation.book_copy.book.title, }
-                    for r in users_rentals ]
+    rent_list = [ {'id' : r.id,
+                   'shelf_mark' : r.reservation.book_copy.shelf_mark,
+                   'title' : r.reservation.book_copy.book.title, 
+                   'authors' : [a.name for a in r.reservation.book_copy.book.author.all()],
+                   'from_date' : r.start_date,
+                   'to_date' : r.reservation.end_date,
+                  }
+                    for r in user_rentals ]
+
     return render_response(request,
-        'user_rentals.html',
+        'user_books.html',
         { 'first_name' : user.first_name,
           'last_name' : user.last_name,
           'email' : user.email,

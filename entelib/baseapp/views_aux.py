@@ -111,34 +111,31 @@ def reservation_status(reservation):
         0 means rental possible.
         any other value is string explaining why rental is not possible
     '''
-    all = Reservation.objects.filter(book_copy=reservation.book_copy).filter(end_date=None).filter(for_whom=reservation.for_whom)
+    all = Reservation.objects.filter(book_copy=reservation.book_copy).filter(rental=None).filter(for_whom=reservation.for_whom)
     if reservation not in all:
         return 'Incorrect reservation'
+    to_return = []
     if reservation != all[0]:
-        return 'Reservation not first'
+        to_return += ['Reservation not first.']
     if reservation.book_copy.state.is_available == False:
-        return 'This copy is currently not available'
+        to_return += ['This copy is currently not available.']
     if reservation.start_date > date.today():
-        return 'Reservation not yet active'
+        to_return += ['Reservation not yet active.']
     if reservation.end_date is not None:
-        return 'Reservation already pursued'   # TODO nie wiem czy to dobre słowo...
+        to_return += ['Reservation already pursued']   # TODO nie wiem czy to dobre słowo...
+    if to_return:
+        return ' '.join(to_return)
     return 0
 
 
 def rent(reservation, librarian):
     if rental_possible(reservation):
-        print 'librarian'
-        print librarian.__class__
-        print 'rental possible'
         try:
             rental = Rental(reservation=reservation, who_handed_out=librarian, start_date=datetime.now())
-            print 'rental created'
             rental.save()
-            print 'rental saved'
             reservation.end_date = date.today() + timedelta(days=dateConfig.get_int('max_rental_time'))
             reservation.save()
-            print 'reservation updated'
             return True
-        except:
+        except Exception:
             return 'error'
     return 'rental not possible'
