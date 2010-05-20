@@ -16,15 +16,21 @@ h1, h2
     margin: 0.1em;
 }
 
+table
+{
+    border-collapse: collapse;
+    border: 0;
+}
+
 table.booklist
 {
     margin-top: 1em;
     width: 100%;
     border: 1px solid #000;
-    text-align: center
+    text-align: center;
 }
 
-table.booklist td
+table.booklist td, th
 {
     padding: 0.5em;
     border: 1px solid #000;
