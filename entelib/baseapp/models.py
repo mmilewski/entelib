@@ -224,10 +224,10 @@ class Reservation(models.Model):
 class Rental(models.Model):
     '''
     Stores rental information.
-    
+
     Every rental must be connected with some reservation. Reservation holds informations on who
     rented (reservation.for_whom), which book (reservation.book_copy) and when he is obligated to return it (reservation.end_date).
-    
+
     start_date is when book was rented
 
     end_date is when book was returned (may be NULL if book is still rented)

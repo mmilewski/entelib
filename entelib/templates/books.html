@@ -11,24 +11,23 @@
         <tr>
             <td>Title: </td>
             <td><input type='text' name='title' value='{{ search.title }}'></td>
-            <td><input type='checkbox' name='title_any' value='any' ></td>
+            <td><input type='checkbox' name='title_any' value='any'  {% if title_any_checked %} checked {% endif %} ></td>
             <td>Any of keywords</td>
         </tr><tr>
         <tr>
             <td>Author: </td>
             <td><input type='text' name='author' value='{{ search.author }}'></td>
-            <td><input type='checkbox' name='author_any' value='any' ></td>
+            <td><input type='checkbox' name='author_any' value='any'  {% if author_any_checked %} checked {% endif %} ></td>
             <td>Any of keywords</td>
         </tr><tr>
         <tr>
             <td>Category: </td>
             <td><input type='text' name='category' value='{{ search.category }}'></td>
-            <td><input type='checkbox' name='category_any' value='any' ></td>
+            <td><input type='checkbox' name='category_any' value='any'  {% if category_any_checked %} checked {% endif %} ></td>
             <td>Any of keywords</td>
         </tr><tr>
             <td></td><td>
                 <input type='submit' name='action' value='Search'>
-                 | <input type='submit' name='action' value='List all'>
             </td></tr>
     </table>
 </form>

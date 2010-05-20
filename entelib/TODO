@@ -1,3 +1,0 @@
-<mbr> [views.py:book_copy, bookcopy.html] filtrowanie egzemplarzy: przesyłać POSTem jakie filtrowanie zostało zaaplikowane i uwzględnić to w templacie
-
-<mbr> zaimplementować kategorie

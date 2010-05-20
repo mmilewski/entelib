@@ -202,17 +202,18 @@ def show_user_rentals(request, user_id):
         }
     )
 
-#the following is draft
+
+# the following is draft
 def show_user_reservations(request, user_id):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
     user = CustomUser.objects.get(id=user_id)
     user_reservations = Reservation.objects.filter(for_whom=user).filter(rental=None).filter(when_cancelled=None)
-    reservation_list = [ {'reservation_id' : r.id, 
+    reservation_list = [ {'reservation_id' : r.id,
                           'book_copy_id' : r.book_copy.id,
-                          'shelf_mark' : r.book_copy.shelf_mark, 
+                          'shelf_mark' : r.book_copy.shelf_mark,
                           'book_copy_url' : unicode(r.book_copy.id) + u'/',
-                          'title' : r.book_copy.book.title, 
+                          'title' : r.book_copy.book.title,
                           'authors' : [a.name for a in r.book_copy.book.author.all()],
                           'from_date' : r.start_date,
                          } for r in user_reservations]
@@ -224,9 +225,11 @@ def show_user_reservations(request, user_id):
           'reservations' : reservation_list,
         }
     )
-    
 
-def show_user_reservation(r,_): pass
+
+def show_user_reservation(r,_):
+    pass
+
 
 '''
 
