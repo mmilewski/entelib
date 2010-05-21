@@ -10,6 +10,8 @@ from datetime import date, datetime
 def render_response(request, template, dict={}):
     if request.user.has_perm('baseapp.list_users'):
         dict.update( { 'can_list_users' : 'True' } )
+    else:
+        dict.update( { 'can_list_users' : '' } )
     return render_to_response(
         template,
         dict,
@@ -18,22 +20,21 @@ def render_response(request, template, dict={}):
 
 
 def render_forbidden(request):
-    if request.user.is_authenticated():
-        return HttpResponse("Forbidden")
-    else:
+    if not request.user.is_authenticated():
         return HttpResponseRedirect('/entelib/login/')
+    return render_to_response(
+       'forbidden.html',
+       {},
+       context_instance=RequestContext(request)
+    )
 
 
-    '''
-    tak będzie docelowo:
-        if not request.user.is_authenticated():
-            return HttpResponseRedirect('/entelib/login/')
-        return render_to_response(
-           'forbidden.html',
-           {},
-           context_instance=RequestContext(request)
-        )
-    '''
+def render_not_implemented(request):
+    return render_to_response(
+       'not_implemented.html',
+       {},
+       context_instance=RequestContext(request)
+    )
 
 
 def filter_query(class_name, Q_none, Q_all, constraints):
@@ -141,3 +142,10 @@ def rent(reservation, librarian):
         except Exception:
             return 'error'
     return 'rental not possible'
+
+
+def mark_available(book_copy):
+    reservations = Reservation.objects.filter(rental=None)
+    if reservations.count() > 0:
+        reservations[0].active_since = date.today()
+        #TODO notify user he can rent the book

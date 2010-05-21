@@ -6,7 +6,7 @@ from entelib.baseapp.models import *
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
-from views_aux import render_forbidden, render_response, filter_query, get_book_details, reservation_status, rental_possible, rent
+from views_aux import render_forbidden, render_response, filter_query, get_book_details, reservation_status, rental_possible, rent, mark_available, render_not_implemented
 from config import Config
 # from django.contrib.auth.decorators import permission_required
 from baseapp.forms import RegistrationForm
@@ -185,7 +185,6 @@ def show_user(request, user_id):
     )
 
 
-#the following is draft
 def show_user_rentals(request, user_id):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
@@ -196,6 +195,7 @@ def show_user_rentals(request, user_id):
         returned_rental.who_received = request.user
         returned_rental.end_date = datetime.now()
         returned_rental.save()
+        mark_available(returned_rental.reservation.book_copy)
     user_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(who_received__isnull=True)
     rent_list = [ {'id' : r.id,
                    'shelf_mark' : r.reservation.book_copy.shelf_mark,
@@ -242,17 +242,17 @@ def show_user_reservations(request, user_id):
           'last_name' : user.last_name,
           'email' : user.email,
           'reservations' : reservation_list,
-          'cancel_all_url' : 'cancell-all/',
+          'cancel_all_url' : 'cancel-all/',
         }
     )
 
 
-def reserve_for_user(request, user):
-    user = CustomUser.objects.get(id=user)
+def reserve_for_user(request, user_id):
+    return render_not_implemented(request)
 
 
 def show_user_reservation(request, user_id):
-    pass
+    return render_not_implemented(request)
 
 
 
@@ -295,3 +295,7 @@ def reserve(request, copy):
             'can_reserve' : request.user.has_perm('baseapp.add_reservation') and book_copy.state.is_visible,
         }
     )
+
+
+def cancel_all_user_resevations(request, user_id):
+    return render_not_implemented(request)
