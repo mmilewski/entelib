@@ -8,10 +8,8 @@ attrs_dict = { 'class': 'required' }
 
 class ProfileEditionForm(forms.Form):
     '''
-    Form for editing user profile
-    
-    User can edit their both email and password
-    
+    Form for editing user profile    
+    User can edit their both email and password   
     The new password must be entered twice in order to catch typos
     '''
     current_password = forms.CharField(widget=forms.PasswordInput(render_value=False), label=(u'Current password'), required=False)
@@ -24,9 +22,9 @@ class ProfileEditionForm(forms.Form):
         super(ProfileEditionForm, self).__init__(*args, **kwargs)
         
     def clean_current_password(self):
-    '''
-    Verify that the current password user typed is correct
-    '''
+        '''
+        Verify that the current password user typed is correct
+        '''
         if not 'current_password' in self.cleaned_data:
             return self.cleaned_data
     
@@ -35,10 +33,10 @@ class ProfileEditionForm(forms.Form):
         return self.cleaned_data
         
     def clean(self):
-    '''
-    Verify that at least one of new password and email fields is not empty, 
-    and, if a new password given, that values typed into the new password fields match
-    '''
+        '''
+        Verify that at least one of new password and email fields is not empty, 
+        and, if a new password given, that values typed into the new password fields match
+        '''
         if not ('email' in self.cleaned_data and 'password1' in self.cleaned_data and 'password2' in self.cleaned_data):
             return self.cleaned_data
         
@@ -52,9 +50,9 @@ class ProfileEditionForm(forms.Form):
         return self.cleaned_data
         
     def save(self):
-    '''
-    Edit user profile and save it
-    '''
+        '''
+        Edit user profile and save it
+        '''
         if self.cleaned_data['email'] != '':
             new_email = self.cleaned_data['email']
             self.user.email = new_email
