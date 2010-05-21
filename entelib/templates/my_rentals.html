@@ -1,0 +1,28 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block title %}User rentals{% endblock %}
+
+{% block header %}User rentals{% endblock %}
+
+{% block content %}
+    <b>
+        {{ first_name }} {{ last_name }}
+        <br>
+        {{ email }}
+    </b>
+    <ul class='spaces'>
+        {% for rental in rentals %}
+            <li><b>{{ rental.title }}</b>{% block return %}{% endblock %}
+                <ul>
+                    <li>Authors: {{ rental.authors|join:', ' }}</li>
+                    <li>From: {{ rental.from_date }}</li>
+                    <li>To: {{ rental.to_date }}</li>
+                    <li>Shelf mark: {{ rental.shelf_mark }}</li>
+                </ul>
+            </li>
+        {% empty %}
+            <b>No rentals.</b>
+        {% endfor %}
+    </ul>
+{% endblock %}
+

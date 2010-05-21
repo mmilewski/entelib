@@ -39,6 +39,11 @@ urlpatterns = patterns(
     (r'^users/(\d+)/rentals/$', view.show_user_rentals),
     # (r'^users/(\d+)/rentals/(\d+)/$', view.user_rental),
     # (r'^users/(\d+)/books/$', view.user_books),
+    
+    #user profile
+    (r'^profile/$', view.edit_user_profile),
+    (r'^profile/reservations/$', view.show_my_reservations),
+    (r'^profile/rentals/$', view.show_my_rentals),
 
     # registration
     # (r'^register/$', view.register),

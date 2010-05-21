@@ -1,0 +1,31 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block header %}My reservations{% endblock %}
+
+{% block content %}
+<b>
+    {{ first_name }} {{ last_name }}
+    <br>
+    {{ email }}
+</b>
+
+<ul class='spaces'>
+    {% for reservation in reservations %}
+        <li>
+            <form action='.' method='post'>
+                <input type='hidden' name='reservation_id' value='{{ reservation.id }}'>
+                <input type='submit' name='action' value='Cancel'>
+            </form>
+            <ul>
+                <li>Shelf mark: {{ reservation.shelf_mark }}</li>
+                <li>Authors: {{ reservation.authors|join:', ' }}</li>
+                <li>From: {{ reservation.from_date }}</li>
+                <li>Status: {% firstof reservation.rental_impossible "Ready" %}</li>
+            </ul>
+        </li>
+    {% empty %}
+        <b>No reservations.</b>
+    {% endfor %}
+</ul>
+<a href='{{ cancel_all_url }}'>Cancel all reservations</a>
+{% endblock %}

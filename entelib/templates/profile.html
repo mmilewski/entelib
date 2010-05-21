@@ -1,0 +1,22 @@
+{% extends 'user.html' %}
+
+{% block edit_form %}
+    <br>
+    <b>Edit your profile</b>
+    <div class='content_form'>
+        <form action='.' method='POST' class='registration_form'>
+            {{ form_content.non_field_errors }}
+            <table>
+                {% for field in form_content %}
+                    <tr>
+                        <td>{{ field.label_tag }}: </td>
+                        <td>{{ field }}</td>
+                        <td>{{ field.errors }}</td>
+                    </tr>
+                {% endfor %}
+                <tr><td></td><td><input type='submit' value='Submit changes'></td><td></td></tr>
+            </table>
+        </form>
+    </div>
+    <b>{{ edition_info }}</b>
+{% endblock %}

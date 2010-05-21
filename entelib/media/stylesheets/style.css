@@ -134,6 +134,15 @@ form.registration_form td,th {
     padding-bottom: 1em;
 }
 
+form.registration_form ul.errorlist {
+    list-style-type: none;
+    float: none;
+    color: red;
+    margin: 0 0 1em 0;
+    padding: 0;
+    font-size: 90%;
+}
+
 form.registration_form td ul.errorlist {
     list-style-type: none;
     float: none;

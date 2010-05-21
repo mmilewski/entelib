@@ -12,8 +12,10 @@
     </ul>
     <div class='content_form'>
         <b>
-        | <a href='reservations/'>Reservations</a> | 
-        <a href='rentals/'>Rentals</a> |
+        | <a href='{{ reservations }}'>Reservations</a> | 
+        <a href='{{ rentals }}'>Rentals</a> |
         </b>
     </div>
+    {% block edit_form %}
+    {% endblock %}
 {% endblock %}
