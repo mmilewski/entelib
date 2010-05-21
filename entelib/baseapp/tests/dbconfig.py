@@ -51,8 +51,12 @@ class DbConfigTest(TestCase):
         self.assertEqual(unicode, type(self.c['mickey_mouse_creator']))
         self.assertEqual('Walt Disney', self.c['mickey_mouse_creator'])
 
-    def test_creating_string(self):
+    def test_creating_string_with_brackets(self):
         self.c['almost_random_prefix'] = 'tralala'
+        self.assertEqual('tralala', self.c['almost_random_prefix'])
+
+    def test_creating_string_with_setter(self):
+        self.c.set_str('almost_random_prefix', 'tralala')
         self.assertEqual('tralala', self.c['almost_random_prefix'])
 
 
@@ -70,8 +74,12 @@ class DbConfigTest(TestCase):
         self.assertEqual(type(42), type(self.c.get_int('most_funny_number')))
         self.assertEqual(42, self.c.get_int('most_funny_number'))
 
-    def test_creating_int(self):
+    def test_creating_int_with_brackets(self):
         self.c['some_int_name'] = 123654
+        self.assertEqual(123654, self.c.get_int('some_int_name'))
+
+    def test_creating_int_with_setter(self):
+        self.c.set_int('some_int_name', 123654)
         self.assertEqual(123654, self.c.get_int('some_int_name'))
 
 
@@ -98,8 +106,15 @@ class DbConfigTest(TestCase):
         self.assertEqual(type(False), type(self.c.get_bool('some_bool_value')))
         self.assertEqual(False, self.c.get_bool('some_bool_value'))
 
-    def test_creating_bool(self):
+    def test_creating_bool_with_brackets(self):
         self.c['green_apples_exists'] = True
+        self.assertEqual(Config._true_value, self.c['green_apples_exists'])           # when using brackets Config doesn't know value's type
+        self.assertEqual(type(True), type(self.c.get_bool('green_apples_exists')))    # so you should use get_bool() while _true_value is private
+        self.assertEqual(True, self.c.get_bool('green_apples_exists'))
+        self.assertEqual(False, not self.c.get_bool('green_apples_exists'))
+
+    def test_creating_bool_with_setter(self):
+        self.c.set_bool('green_apples_exists', True)
         self.assertEqual(Config._true_value, self.c['green_apples_exists'])           # when using brackets Config doesn't know value's type
         self.assertEqual(type(True), type(self.c.get_bool('green_apples_exists')))    # so you should use get_bool() while _true_value is private
         self.assertEqual(True, self.c.get_bool('green_apples_exists'))
@@ -129,7 +144,12 @@ class DbConfigTest(TestCase):
         self.assertEqual(type([]), type(self.c.get_list('simple_int_list')))
         self.assertEqual([], self.c.get_list('simple_int_list'))
 
-    def test_creating_list(self):
+    def test_creating_list_with_brackets(self):
         self.c['mixed_list'] = [1, 3.1416,'hello', "world"]
+        self.assertEqual(type([]), type(self.c.get_list('mixed_list')))
+        self.assertEqual([1,3.1416, 'hello', "world"], self.c.get_list('mixed_list'))
+
+    def test_creating_list_with_setter(self):
+        self.c.set_list('mixed_list', [1, 3.1416,'hello', "world"])
         self.assertEqual(type([]), type(self.c.get_list('mixed_list')))
         self.assertEqual([1,3.1416, 'hello', "world"], self.c.get_list('mixed_list'))
