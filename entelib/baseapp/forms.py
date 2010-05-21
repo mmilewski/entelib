@@ -6,25 +6,28 @@ attrs_dict = { 'class': 'required' }
 
 # see http://code.google.com/p/django-registration/source/browse/trunk/registration/forms.py
 
+
 class ProfileEditForm(forms.Form):
     '''
-    Form for editing user profile.    
-    User can edit their both email and password.   
+    Form for editing user profile.
+    User can edit their both email and password.
     The new password must be entered twice in order to catch typos.
-    
+
     Empty field = no edition.
     '''
-    current_password = forms.CharField(widget=forms.PasswordInput(render_value=False), 
+    current_password = forms.CharField(widget=forms.PasswordInput(render_value=False),
         label=(u'Current password'), required=False)
     email = forms.EmailField(label=(u'New email'), required=False)
-    password1 = forms.CharField(widget=forms.PasswordInput(render_value=False), 
+    password1 = forms.CharField(widget=forms.PasswordInput(render_value=False),
         label=(u'New password'), required=False)
-    password2 = forms.CharField(widget=forms.PasswordInput(render_value=False), 
+    password2 = forms.CharField(widget=forms.PasswordInput(render_value=False),
         label=(u'New password (again)'), required=False)
+
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
         super(ProfileEditForm, self).__init__(*args, **kwargs)
+
 
     def clean_current_password(self):
         '''
@@ -32,10 +35,10 @@ class ProfileEditForm(forms.Form):
         '''
         if not 'current_password' in self.cleaned_data:
             return self.cleaned_data
-
         if not self.user.check_password(self.cleaned_data['current_password']):
             raise forms.ValidationError(u'The password is incorrect.')
         return self.cleaned_data
+
 
     def clean(self):
         '''
@@ -43,11 +46,10 @@ class ProfileEditForm(forms.Form):
         '''
         if not ('password1' in self.cleaned_data and 'password2' in self.cleaned_data):
             return self.cleaned_data
-
         if self.cleaned_data['password1'] != self.cleaned_data['password2']:
             raise forms.ValidationError(u'You must type the same new password each time.')
-
         return self.cleaned_data
+
 
     def save(self):
         '''

@@ -182,17 +182,17 @@ def show_user(request, user_id):
     )
 
 
-def edit_user_profile(request):
+def edit_user_profile(request, profile_edit_form=ProfileEditForm):
     if not request.user.is_authenticated():
         return render_forbidden(request)
 
     user = CustomUser.objects.get(id=request.user.id)
 
     if request.method == 'POST':
-        form = ProfileEditForm(user=user, data=request.POST)
+        form = profile_edit_form(user=user, data=request.POST)
         if form.is_valid():
             form.save()
-            newform = ProfileEditForm(user=user)
+            new_form = profile_edit_form(user=user)
             return render_response(request, 'profile.html',
                 {
                     'first_name' : user.first_name,
@@ -200,11 +200,11 @@ def edit_user_profile(request):
                     'email' : user.email,
                     'rentals' : 'rentals/',
                     'reservations' : 'reservations/',
-                    'form_content': newform,
+                    'form_content': new_form,
                     'edit_info': 'Edit successful',
                 })
     else:
-        form = ProfileEditForm(user=user)
+        form = profile_edit_form(user=user)
 
     return render_response(request, 'profile.html',
         {
@@ -213,7 +213,7 @@ def edit_user_profile(request):
             'email' : user.email,
             'rentals' : 'rentals/',
             'reservations' : 'reservations/',
-            'form_content': form
+            'form_content': form,
         })
 
 
