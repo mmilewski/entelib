@@ -7,14 +7,16 @@ from django.http import HttpResponse, HttpResponseRedirect  # TODO usunąć Http
 from datetime import date, datetime
 
 
-def render_response(request, template, dict={}):
+def render_response(request, template, context={}):
     if request.user.has_perm('baseapp.list_users'):
-        dict.update( { 'can_list_users' : 'True' } )
+        context.update( { 'can_list_users' : 'True' } )
     else:
-        dict.update( { 'can_list_users' : '' } )
+        context.update( { 'can_list_users' : '' } )
+    for key, value in context.items():
+        context[key] = callable(value) and value() or value
     return render_to_response(
         template,
-        dict,
+        context,
         context_instance=RequestContext(request)
     )
 
@@ -22,19 +24,11 @@ def render_response(request, template, dict={}):
 def render_forbidden(request):
     if not request.user.is_authenticated():
         return HttpResponseRedirect('/entelib/login/')
-    return render_to_response(
-       'forbidden.html',
-       {},
-       context_instance=RequestContext(request)
-    )
+    return render_response(request, 'forbidden.html')
 
 
 def render_not_implemented(request):
-    return render_to_response(
-       'not_implemented.html',
-       {},
-       context_instance=RequestContext(request)
-    )
+    return render_to_response(request, 'not_implemented.html')
 
 
 def filter_query(class_name, Q_none, Q_all, constraints):

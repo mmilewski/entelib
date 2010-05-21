@@ -43,14 +43,11 @@ def register(request, action, registration_form=RegistrationForm, extra_context=
                 form = registration_form()
 
             # prepare response
+            result_context = { 'form_content' : form }
             if extra_context is None:
                 extra_context = {}
-            context = RequestContext(request)
-            for key, value in extra_context.items():
-                context[key] = callable(value) and value() or value
-            return render_to_response(tpl_registration_form,
-                                      { 'form_content' : form },
-                                      context_instance=context)
+            result_context.update(extra_context)
+            return render_response(request, tpl_registration_form, result_context)
 
 
 def logout(request):
@@ -183,19 +180,20 @@ def show_user(request, user_id):
           'reservations' : 'reservations/',
         }
     )
-    
+
+
 def edit_user_profile(request):
     if not request.user.is_authenticated():
         return render_forbidden(request)
-    
+
     user = CustomUser.objects.get(id=request.user.id)
-    
+
     if request.method == 'POST':
         form = ProfileEditionForm(user=user, data=request.POST)
         if form.is_valid():
             form.save()
             newform = ProfileEditionForm(user=user)
-            return render_response(request, 'profile.html', 
+            return render_response(request, 'profile.html',
                 {
                     'first_name' : user.first_name,
                     'last_name' : user.last_name,
@@ -207,8 +205,8 @@ def edit_user_profile(request):
                 })
     else:
         form = ProfileEditionForm(user=user)
-    
-    return render_response(request, 'profile.html', 
+
+    return render_response(request, 'profile.html',
         {
             'first_name' : user.first_name,
             'last_name' : user.last_name,
@@ -249,15 +247,16 @@ def show_user_rentals(request, user_id):
         }
     )
 
+
 def show_my_rentals(request):
     if not request.user.is_authenticated():
         return render_forbidden(request)
     user = CustomUser.objects.get(id=request.user.id)
- 
+
     user_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(who_received__isnull=True)
     rent_list = [ {'id' : r.id,
                    'shelf_mark' : r.reservation.book_copy.shelf_mark,
-                   'title' : r.reservation.book_copy.book.title, 
+                   'title' : r.reservation.book_copy.book.title,
                    'authors' : [a.name for a in r.reservation.book_copy.book.author.all()],
                    'from_date' : r.start_date,
                    'to_date' : r.reservation.end_date,
@@ -272,7 +271,8 @@ def show_my_rentals(request):
           'rentals' : rent_list,
         }
     )
-    
+
+
 def show_user_reservations(request, user_id):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
@@ -303,6 +303,7 @@ def show_user_reservations(request, user_id):
         }
     )
 
+
 def show_my_reservations(request):
     if not request.user.is_authenticated():
         return render_forbidden(request)
@@ -328,8 +329,10 @@ def show_my_reservations(request):
         }
     )
 
+
 def reserve_for_user(request, user_id):
     return render_not_implemented(request)
+
 
 def show_user_reservation(request, user_id):
     return render_not_implemented(request)

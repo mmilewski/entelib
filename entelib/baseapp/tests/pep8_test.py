@@ -13,6 +13,7 @@ class PEP8TestCase(TestCase):
                         '--show-source',
                         '--show-pep8',
                         '--ignore=E201,E202,E203,E221,E222,E231,E241,E251,E303,E501',
+                        '--repeat',
                         './']
         buf = StringIO()
         sys.stdout = buf
