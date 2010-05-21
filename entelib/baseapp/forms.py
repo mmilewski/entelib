@@ -6,25 +6,29 @@ attrs_dict = { 'class': 'required' }
 
 # see http://code.google.com/p/django-registration/source/browse/trunk/registration/forms.py
 
-
-class ProfileEditionForm(forms.Form):
+class ProfileEditForm(forms.Form):
     '''
-    Form for editing user profile
-    User can edit their both email and password
-    The new password must be entered twice in order to catch typos
+    Form for editing user profile.    
+    User can edit their both email and password.   
+    The new password must be entered twice in order to catch typos.
+    
+    Empty field = no edition.
     '''
-    current_password = forms.CharField(widget=forms.PasswordInput(render_value=False), label=(u'Current password'), required=False)
+    current_password = forms.CharField(widget=forms.PasswordInput(render_value=False), 
+        label=(u'Current password'), required=False)
     email = forms.EmailField(label=(u'New email'), required=False)
-    password1 = forms.CharField(widget=forms.PasswordInput(render_value=False), label=(u'New password'), required=False)
-    password2 = forms.CharField(widget=forms.PasswordInput(render_value=False), label=(u'New password (again)'), required=False)
+    password1 = forms.CharField(widget=forms.PasswordInput(render_value=False), 
+        label=(u'New password'), required=False)
+    password2 = forms.CharField(widget=forms.PasswordInput(render_value=False), 
+        label=(u'New password (again)'), required=False)
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
-        super(ProfileEditionForm, self).__init__(*args, **kwargs)
+        super(ProfileEditForm, self).__init__(*args, **kwargs)
 
     def clean_current_password(self):
         '''
-        Verify that the current password user typed is correct
+        Verify that the password user typed as their current one is correct.
         '''
         if not 'current_password' in self.cleaned_data:
             return self.cleaned_data
@@ -35,15 +39,10 @@ class ProfileEditionForm(forms.Form):
 
     def clean(self):
         '''
-        Verify that at least one of new password and email fields is not empty,
-        and, if a new password given, that values typed into the new password fields match
+        Verify that the values typed into the new password fields match.
         '''
-        if not ('email' in self.cleaned_data and 'password1' in self.cleaned_data and 'password2' in self.cleaned_data):
+        if not ('password1' in self.cleaned_data and 'password2' in self.cleaned_data):
             return self.cleaned_data
-
-        if self.cleaned_data['email'] == '':
-            if self.cleaned_data['password1'] == '' or  self.cleaned_data['password2'] == '':
-                raise forms.ValidationError(u'Both email and new password fields are empty')
 
         if self.cleaned_data['password1'] != self.cleaned_data['password2']:
             raise forms.ValidationError(u'You must type the same new password each time.')
@@ -52,7 +51,7 @@ class ProfileEditionForm(forms.Form):
 
     def save(self):
         '''
-        Edit user profile and save it
+        Edit user profile.
         '''
         if self.cleaned_data['email'] != '':
             new_email = self.cleaned_data['email']

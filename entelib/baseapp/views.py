@@ -9,7 +9,7 @@ from django.db.models import Q
 from views_aux import render_forbidden, render_response, filter_query, get_book_details, reservation_status, rental_possible, rent, mark_available, render_not_implemented
 from config import Config
 # from django.contrib.auth.decorators import permission_required
-from baseapp.forms import RegistrationForm, ProfileEditionForm
+from baseapp.forms import RegistrationForm, ProfileEditForm
 from datetime import date, datetime, timedelta
 
 
@@ -189,10 +189,10 @@ def edit_user_profile(request):
     user = CustomUser.objects.get(id=request.user.id)
 
     if request.method == 'POST':
-        form = ProfileEditionForm(user=user, data=request.POST)
+        form = ProfileEditForm(user=user, data=request.POST)
         if form.is_valid():
             form.save()
-            newform = ProfileEditionForm(user=user)
+            newform = ProfileEditForm(user=user)
             return render_response(request, 'profile.html',
                 {
                     'first_name' : user.first_name,
@@ -201,10 +201,10 @@ def edit_user_profile(request):
                     'rentals' : 'rentals/',
                     'reservations' : 'reservations/',
                     'form_content': newform,
-                    'edition_info': 'Edit successful',
+                    'edit_info': 'Edit successful',
                 })
     else:
-        form = ProfileEditionForm(user=user)
+        form = ProfileEditForm(user=user)
 
     return render_response(request, 'profile.html',
         {

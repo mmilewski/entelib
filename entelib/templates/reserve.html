@@ -4,12 +4,12 @@
 
 {% block form %}
     {% if reserved.ok %}
-        Successfully reserved from {{ reserved.from }}.
+        <b>Successfully reserved from {{ reserved.from }}.</b>
     {% else %}
         {% if reserved.error %}
             <div> Error while reserving. Please try again.
         {% endif %}
-        <div class='content_form', style='margin-top: 1em'>
+        <div class='content_form' style='margin-top: 1em'>
             <form action='.' method='post'>
                 <table>
                     <tr>
