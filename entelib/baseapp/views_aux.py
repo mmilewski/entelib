@@ -117,6 +117,8 @@ def reservation_status(reservation):
     to_return = []
     if reservation != all[0]:
         to_return += ['Reservation not first.']
+    if Rental.objects.filter(reservation__book_copy=reservation.book_copy).filter(end_date=None).count() > 0:
+        to_return += ['This copy is currently rented.']
     if reservation.book_copy.state.is_available == False:
         to_return += ['This copy is currently not available.']
     if reservation.start_date > date.today():

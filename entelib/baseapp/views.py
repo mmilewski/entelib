@@ -199,7 +199,7 @@ def show_user_rentals(request, user_id):
     user_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(who_received__isnull=True)
     rent_list = [ {'id' : r.id,
                    'shelf_mark' : r.reservation.book_copy.shelf_mark,
-                   'title' : r.reservation.book_copy.book.title, 
+                   'title' : r.reservation.book_copy.book.title,
                    'authors' : [a.name for a in r.reservation.book_copy.book.author.all()],
                    'from_date' : r.start_date,
                    'to_date' : r.reservation.end_date,

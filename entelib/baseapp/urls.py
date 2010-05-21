@@ -68,5 +68,5 @@ urlpatterns = patterns(
     (r'^admin$', get_redirect_function_to_url('/entelib/admin/')),
 
     # default matcher
-    (r'^', view.default),
+    (r'^$', view.default),
 )
