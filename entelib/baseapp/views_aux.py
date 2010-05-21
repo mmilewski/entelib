@@ -9,9 +9,9 @@ from datetime import date, datetime
 
 def render_response(request, template, context={}):
     if request.user.has_perm('baseapp.list_users'):
-        context.update( { 'can_list_users' : 'True' } )
+        context.update( { 'can_list_users' : True } )
     else:
-        context.update( { 'can_list_users' : '' } )
+        context.pop('can_list_users', None)
     for key, value in context.items():
         context[key] = callable(value) and value() or value
     return render_to_response(
