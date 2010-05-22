@@ -103,10 +103,12 @@ def show_book(request, book_id):
     url = u'/entelib/bookcopy/'
     book = Book.objects.get(id=book_id)
     book_copies = BookCopy.objects.filter(book=book_id)
+    selected_locations = []
     if request.method == 'POST':
         if 'location' in request.POST:
-            if not request.POST['location'] == u'0':
-                book_copies = book_copies.filter(location__id__exact=request.POST['location'])
+            selected_locations = map(int, request.POST.getlist('location'))
+            if 0 not in selected_locations:    # 0 in selected_locations means 'no location constraint' (All)
+                book_copies = book_copies.filter(location__id__in=selected_locations)
         if r'available' in request.POST:
             if request.POST['available'] == 'available':
                 book_copies = book_copies.filter(state__is_available__exact=True)
@@ -120,15 +122,23 @@ def show_book(request, book_id):
             'state' : elem.state.name,
             'publisher' : elem.publisher.name,
             'year' : elem.year,
-            'desc_url' : elem.toc_url,
+            # 'desc_url' : elem.toc_url,
+            'desc_url' : '/desc_url_not_implemented',
             })
     book_desc = {
         'title' : book.title,
         'authors' : [a.name for a in book.author.all()],
         'items' : curr_copies,
-        'locations' : [{'name' : 'All', 'id' : 0}] + [{'name' : l.name, 'id' : l.id} for l in Location.objects.filter(id__in=[c.location.id for c in book_copies])]
         }
-    return render_response(request, 'bookcopies.html', { 'book' : book_desc, 'only_available_checked' : 'yes' if 'available' in request.POST else ''})
+    search_data = {
+        'locations' :
+            [{'name' : '-- Any --', 'id' : 0}] + [{'name' : l.name, 'id' : l.id, 'selected': l.id in selected_locations}
+                                                  for l in Location.objects.filter(id__in=[c.location.id for c in book_copies])],
+        'copies_select_size': Config().get_int('copies_select_size'),      # count of elements displayed in <select> tag
+        }
+    return render_response(request, 'bookcopies.html', { 'book' : book_desc,
+                                                         'search' : search_data,
+                                                         'only_available_checked' : 'yes' if 'available' in request.POST else ''})
 
 
 

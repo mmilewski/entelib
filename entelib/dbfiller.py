@@ -255,3 +255,4 @@ print "Adding config pairs"
 from baseapp.config import Config
 config = Config()
 config['truncated_description_len'] = 80
+config['copies_select_size'] = 5

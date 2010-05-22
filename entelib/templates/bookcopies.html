@@ -12,9 +12,9 @@
                 <tr>
                     <td>Location: </td>
                     <td>
-                        <select name='location'>
-                            {% for location in book.locations %}
-                                <option value='{{ location.id }}'>{{ location.name }}</option>
+                        <select name='location' multiple='multiple' size='{{ search.copies_select_size }}'>
+                            {% for location in search.locations %}
+                                <option value='{{ location.id }}' {% if location.selected %}selected{% endif %}>{{ location.name }}</option>
                             {% endfor %}
                         </select>
                     </td>
