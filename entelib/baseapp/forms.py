@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django import forms
+from django.contrib.auth.models import Group
 from baseapp.models import CustomUser
+from config import Config
 
 attrs_dict = { 'class': 'required' }
 
@@ -75,9 +77,20 @@ class RegistrationForm(forms.Form):
     either preserve the base ``save()``
     '''
     username = forms.RegexField(regex=r'^\w+$',
+                                min_length=3,
                                 max_length=30,
                                 widget=forms.TextInput(attrs=attrs_dict),
-                                label=(u'Username'))
+                                label=(u'Username'),
+                                help_text=r'Can contain only alphanumeric values or underscores. Length should be at least 3.'
+                                )
+    first_name = forms.CharField(max_length=30,
+                                 widget=forms.TextInput(attrs=attrs_dict),
+                                 label=(u'First name')
+                                 )
+    last_name = forms.CharField(max_length=30,
+                                widget=forms.TextInput(attrs=attrs_dict),
+                                label=(u'Last name')
+                                )
     email = forms.EmailField(widget=forms.TextInput(attrs=dict(attrs_dict, maxlength=75)),
                              label=(u'Email'))
     password1 = forms.CharField(widget=forms.PasswordInput(attrs=attrs_dict, render_value=False),
@@ -113,9 +126,23 @@ class RegistrationForm(forms.Form):
         '''
         Create the new user and returns it.
         '''
-        user = CustomUser.objects.create_user(username=self.cleaned_data['username'],
-                                              password=self.cleaned_data['password1'],
-                                              email=self.cleaned_data['email'])
+        user = CustomUser.objects.create_user(username = self.cleaned_data['username'],
+                                              password = self.cleaned_data['password1'],
+                                              email = self.cleaned_data['email']
+                                              )
         user.is_active, user.is_superuser, user.is_staff = False, False, False
+        # add user to default groups
+        cfg = Config()
+        groups = cfg.get_list('user_after_registration_groups')
+        print groups
+        for group_name in groups:
+            try:
+                g = Group.objects.get(name=group_name)
+                user.groups.add(g)
+            except Group.DoesNotExist, e:
+                msg = u'Adding user %s to group %s failed. Group not found.' % (user.username, group_name)
+                # TODO this should be reported
+                # log_warning(msg)
+        # save
         user.save()
         return user

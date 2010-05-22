@@ -18,9 +18,8 @@ class CustomUserAdmin(admin.ModelAdmin):
         rows_updated = queryset.update(is_active=True)
         message_bit = "1 account was" if rows_updated == 1 else "%s accounts were" % rows_updated
         self.message_user(request, "%s successfully activated." % message_bit)
-            
     activate_users.short_description = "Activate selected accounts"
-        
+
     def deactivate_users(self, request, queryset):
         rows_updated = queryset.update(is_active=False)
         message_bit = "1 account was" if rows_updated == 1 else "%s accounts were" % rows_updated

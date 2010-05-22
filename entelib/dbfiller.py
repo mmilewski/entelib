@@ -11,6 +11,7 @@ print '---  Running dbfiller  ---'
 from random import randint, choice, shuffle
 from datetime import datetime, timedelta
 from baseapp.models import *
+from django.contrib.auth.models import Group
 
 # clear database
 print 'Clearing database'
@@ -249,10 +250,24 @@ for (name, re, desc) in phone_types:
     pt.save()
 
 
+# add few groups
+def readd_group(name, perms=[]):
+    try:
+        Group.objects.get(name=name)
+        # TODO: add perms for this group
+    except:
+        pass
+    Group(name=name).save()
+
+print "Adding app specific groups"
+readd_group('Readers', perms=[])  # TODO: fill permissions
+
+
 
 # Config filler
 print "Adding config pairs"
 from baseapp.config import Config
 config = Config()
 config['truncated_description_len'] = 80
-config['copies_select_size'] = 5
+config['copies_select_size'] = 5                             # number of elements to display when listing copies of a book
+config['user_after_registration_groups'] = ['Readers']       # user joins this groups right after he is registered
