@@ -7,7 +7,26 @@
 {% block header %}Book copies{% endblock %}
 
 {% block content %}
-    <h2>Title: {{ book.title }}</h2><br>
+    <h2>Title: {{ book.title }}</h2>
+
+    <div class="book_authors">
+        <dt>Authors:</dt>
+        {% if book.authors %}
+        <dd>{{ book.authors|join:', '}}</dd>
+        {% else %}
+        <dd>No authors.</dd>
+        {% endif %}
+    </div>
+
+    <div class="book_categories">
+      <dt>Categories:</dt>
+      {% if book.categories %}
+      <dd>{{ book.categories|join:", " }}</dd>
+      {% else %}
+      <dd>This book wasn't assigned to any category.</dd>
+      {% endif %}
+    </div>
+
     <div class='content_form'>
         <form action='.' method='post'>
             <table>
@@ -40,15 +59,8 @@
     {% endcomment %}
     {% go_back_link "Go back to book copies list." %}
 
-    <div class="book_authors">
-        {% if book.authors %}
-        <dt>Authors: </dt><dd>{{ book.authors|join:', '}}</dd>
-        {% else %}
-            <b>No authors.</b>
-        {% endif %}
-    </div>
-
     <div class="book_copies">
+      <h3 id="book_copies">Copies of this book:</h3>
         <!-- <ul class='booklist'>
         {% for item in book.items %}
         <li><b><a href='{{ item.url }}'>>></a></b>:

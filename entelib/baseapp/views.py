@@ -130,6 +130,7 @@ def show_book(request, book_id):
         'title' : book.title,
         'authors' : [a.name for a in book.author.all()],
         'items' : curr_copies,
+        'categories' : [tag.name for tag in book.tags],
         }
     search_data = {
         'locations' :

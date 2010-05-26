@@ -122,14 +122,19 @@ div.gobackWrapper a {
     border-bottom: 1px dashed brown;
 }
 
-div.book_authors, div.book_copies {    /* bookcopies.html */
+div.book_copies > h3#book_copies {
+    margin-top: 1.3em;
+    margin-bottom: 0;
+}
+
+div.book_authors, div.book_copies, div.book_categories {    /* bookcopies.html */
     margin-top: 1em;
 }
-div.book_authors dt {    /* bookcopies.html */
+div.book_authors dt, div.book_categories dt {    /* bookcopies.html */
     font-weight: bold;
     display: inline;
 }
-div.book_authors dd {
+div.book_authors dd, div.book_categories dd {
     margin:0;
     padding:0;
     display:inline;

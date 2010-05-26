@@ -14,6 +14,7 @@ class PEP8TestCase(TestCase):
                         '--show-pep8',
                         '--ignore=E201,E202,E203,E221,E222,E231,E241,E251,E303,E501',
                         '--repeat',
+                        '--exclude=tagging',
                         './']
         buf = StringIO()
         sys.stdout = buf
@@ -21,5 +22,4 @@ class PEP8TestCase(TestCase):
         sys.stdout = sys.__stdout__
         result = buf.getvalue()
 
-        self.assertEqual("", result,
-                         "Code messages should be empty but was:\n" + result)
+        self.assertEqual("", result, "Code messages should be empty but was:\n" + result)

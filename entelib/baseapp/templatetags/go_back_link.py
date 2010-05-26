@@ -5,6 +5,7 @@ from django import template
 
 register = template.Library()
 
+
 class GoBackLinkNode(template.Node):
     def __init__(self, link_name):
         if not link_name:
@@ -19,6 +20,7 @@ class GoBackLinkNode(template.Node):
                }
         return t.render(template.Context(ctx))
 
+
 def do_go_back_link(parser, token):
     try:
         tokens = token.split_contents()    # split_contents() knows not to split quoted strings.
@@ -28,10 +30,10 @@ def do_go_back_link(parser, token):
             tag_name, link_name = tokens
     except ValueError:
         raise template.TemplateSyntaxError, "%r tag requires 0 or 1 argument" % token.contents.split()[0]
-    if not (link_name==None
-            or (len(link_name)>1 and link_name[0]==link_name[-1] and link_name[0] in ('"', "'"))):
+    if not (link_name == None
+            or (len(link_name) > 1 and link_name[0] == link_name[-1] and link_name[0] in ('"', "'"))):
         raise template.TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
-    if link_name==None:
+    if link_name == None:
         return GoBackLinkNode(None)
     else:
         return GoBackLinkNode(link_name[1:-1])
