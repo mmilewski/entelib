@@ -64,8 +64,7 @@ def get_book_details(book_copy):
         Returns a dictionary to be passed to some bookcopy template
 
     Args:
-        book - Book object
-        book_copy - BookCopy objects such that book_copy.book == book
+        book_copy - BookCopy object, of which we want to get details.
 
     Return:
         Dictionary describing book copy
@@ -80,9 +79,10 @@ def get_book_details(book_copy):
         'publisher' : book_copy.publisher.name,
         'year' : book_copy.year,
         'publication_nr' : book_copy.publication_nr,
-        'description' : book_copy.description,
-        'desc_url' : book_copy.toc_url,
+        'desc' : book_copy.description,
+        'desc_url' : book_copy.description_url,
         'toc' : book_copy.toc,
+        'toc_url' : book_copy.toc_url,
         'picture' : book_copy.picture,
     }
     print 'url' + book_copy.toc_url

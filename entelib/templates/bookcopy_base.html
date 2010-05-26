@@ -8,33 +8,50 @@
     <div class='picture'>
         <img src='{{ book.picture_url }}'>
     </div>
-    <div>
-        <h2>Title: {{ book.title }}</h2>
-        <br>
-        {{ book.description }}
+    <div class="title">
+        <h2 id="title">Title: {{ book.title }}</h2>
     </div>
     <div class='clear' style='padding-top: 1em;'>
     {% block form %}
     {% endblock %}
         <ul class='spaces'>
-            <li>
+            <li class="book_authors">
                 {% if book.authors %}
                     <b>Authors: </b>{{ book.authors|join:', '}}
                 {% else %}
                     <b>No authors.</b>
                 {% endif %}
             </li>
-            <li>Shelf mark: {{ book.shelf_mark }}</li>            
-            <li>Location: {{ book.location }}</li>
-            <li>State: {{ book.state }}</li>
-            <li>Publisher: {{ book.publisher }}</li>
-            <li>Year: {{ book.year }}</li>
-            <li>Publication number: {{ book.publication_nr }}</li>
-            <li><a href='{{ book.desc_url }}'>See external description</a></li>
-            {% if book.toc %}
-                <li>Table of contents: {{ book.toc }}</li>
-            {% endif %}           
+            <li class="book_shelfmark">Shelf mark: {{ book.shelf_mark }}</li>            
+            <li class="book_location">Location: {{ book.location }}</li>
+            <li class="book_state">State: {{ book.state }}</li>
+            <li class="book_publisher">Publisher: {{ book.publisher }}</li>
+            <li class="book_year">Year: {{ book.year }}</li>
+            <li class="book_pubno">Publication number: {{ book.publication_nr }}</li>
+            <!-- <li class="desc_url"><a href='{{ book.desc_url }}'>See external description</a></li> -->
+            <!-- {% if book.toc %} -->
+            <!--     <li>Table of contents: {{ book.toc }}</li> -->
+            <!-- {% endif %}            -->
         </ul>
+
+        <!--  TOC  -->
+        {% if book.toc or book.toc_url %}
+        <h3 id="toc" class="book_toc">Table Of Contents</h3>
+        <div class="book_tocWrapper">
+          {% if book.toc_url %}  <div class="book_toc_url">  <p><a href="{{ book.toc_url }}">Click to see external table of contents.</a></p>  </div>   {% endif %}
+          {% if book.toc %}      <div class="book_toc">  {{ book.toc }}  </div>    {% endif %}
+        </div>
+        {% endif %}
+
+        <!--  DESC  -->
+        {% if book.desc or book.desc_url %}
+        <h3 id="description" class="book_desc">Description</h3>
+        <div class="book_descWrapper">
+          {% if book.desc_url %}  <div class="book_desc_url">  <p><a href="{{ book.desc_url }}">Click to see external description</a></p>  </div>    {% endif %}
+          {% if book.desc %}      <div class="book_desc">  {{ book.desc }}  </div>     {% endif %}
+        </div>
+        {% endif %}
+
         {% block links %}
         {% endblock %}
     </div>

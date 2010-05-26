@@ -100,30 +100,31 @@ def show_books(request):
 def show_book(request, book_id):
     if not request.user.is_authenticated():
         return render_forbidden(request)
-    url = u'/entelib/bookcopy/'
+    show_url = u'/entelib/bookcopy/%d/'
+    reserve_url = u'/entelib/bookcopy/%d/reserve/'
     book = Book.objects.get(id=book_id)
     book_copies = BookCopy.objects.filter(book=book_id)
     selected_locations = []
     if request.method == 'POST':
         if 'location' in request.POST:
             selected_locations = map(int, request.POST.getlist('location'))
-            if 0 not in selected_locations:    # 0 in selected_locations means 'no location constraint' (All)
+            if 0 not in selected_locations:    # 0 in selected_locations means 'no location constraint' (= List from any location)
                 book_copies = book_copies.filter(location__id__in=selected_locations)
         if r'available' in request.POST:
             if request.POST['available'] == 'available':
                 book_copies = book_copies.filter(state__is_available__exact=True)
     curr_copies = []
-    max_desc_len = Config().get_int('truncated_description_len')
     for elem in book_copies:
         curr_copies.append({
-            'url' : url + unicode(elem.id) + '/',
-            'reserve_url' : url + unicode(elem.id) + '/reserve/',
+            'url' : show_url % elem.id,
+            'reserve_url' : reserve_url % elem.id,
             'location' : elem.location.name,
             'state' : elem.state.name,
             'publisher' : elem.publisher.name,
             'year' : elem.year,
-            # 'desc_url' : elem.toc_url,
-            'desc_url' : '/desc_url_not_implemented',
+            'is_available' : elem.state.is_available,
+            'is_reservable' : True,    # TODO: this should check if one can reserve copy and whether book is available for reserving (whatever this means)
+            # 'desc_url' : '/desc_url_not_implemented',      # link generation is done in templates, see bookcopies.html
             })
     book_desc = {
         'title' : book.title,

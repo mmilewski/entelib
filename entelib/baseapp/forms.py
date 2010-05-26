@@ -131,6 +131,8 @@ class RegistrationForm(forms.Form):
                                               email = self.cleaned_data['email']
                                               )
         user.is_active, user.is_superuser, user.is_staff = False, False, False
+        user.save()   # checkpoint save, because cfg.get_list may throw and is_active is True as default
+
         # add user to default groups
         cfg = Config()
         groups = cfg.get_list('user_after_registration_groups')

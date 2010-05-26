@@ -30,12 +30,16 @@
             </table>
         </form>
     </div>
-    <div style='margin-top: 1em'>
+
+    <div class="book_authors">
         {% if book.authors %}
-            <b>Authors: </b>{{ book.authors|join:', '}}
+        <dt>Authors: </dt><dd>{{ book.authors|join:', '}}</dd>
         {% else %}
             <b>No authors.</b>
         {% endif %}
+    </div>
+
+    <div class="book_copies">
         <!-- <ul class='booklist'>
         {% for item in book.items %}
         <li><b><a href='{{ item.url }}'>>></a></b>:
@@ -60,19 +64,20 @@
                     <th>State</th>
                     <th>Publisher</th>
                     <th>Year</th>
-                    <th></th>
+                    <th>Actions</th>
                 </tr>
                 {% for item in book.items %}
                     <tr>
-                        <td><a href='{{ item.url }}'>>></a></td>
-                        <td>{{ item.location }}</td>
-                        <td>{{ item.state }}</td>
-                        <td>{{ item.publisher }}</td>
-                        <td>{{ item.year }}</td>
-                        <td>
-                            <ul class='menu'>
-                                <li><a href='{{ item.desc_url}}'>External description</a></li>
-                                <li><a href='{{ item.reserve_url }}'>Reserve</a></li>
+                        <td class="url"><a href='{{ item.url }}'>>></a></td>
+                        <td class="location">{{ item.location }}</td>
+                        <td class="state">{{ item.state }} {% if item.is_available %}<span title="Is available">(avail)</span>{%endif%}</td>
+                        <td class="publisher">{{ item.publisher }}</td>
+                        <td class="year">{{ item.year }}</td>
+                        <td class="actions">
+                            <ul class="actions">
+                                <!-- <li><a href='{{ item.desc_url}}'>External description</a></li> -->
+                                <li><a href="{{ item.url }}#description">Description</a></li>
+                                {%if item.is_reservable %}<li><a href='{{ item.reserve_url }}'>Reserve</a></li> {% endif %}
                             </ul>
                         </td>
                     </tr>

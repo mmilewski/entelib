@@ -4,6 +4,7 @@ html, body
     margin: 0;
     padding: 0;
     height: 100%;
+    font-size: 9pt;
 }
 
 a
@@ -91,12 +92,6 @@ div#menu ul
     padding: 0;
 }
 
-ul.menu
-{
-    margin: 0.5em 0 0.5em 2em;
-    padding: 0;
-}
-
 div#login
 {
     margin: 3em 0 0 15em;
@@ -115,6 +110,25 @@ div#footer
     width: 100%;
     bottom: 0;
     position: absolute;
+}
+
+div.book_authors, div.book_copies {    /* bookcopies.html */
+    margin-top: 1em;
+}
+div.book_authors dt {    /* bookcopies.html */
+    font-weight: bold;
+    display: inline;
+}
+div.book_authors dd {
+    margin:0;
+    padding:0;
+    display:inline;
+}
+
+table.booklist .actions {   /* bookcopies.html */
+    text-align: left;
+    margin: 0.5em 0 0.5em 2em;
+    padding: 0;
 }
 
 div.formWrapper {
