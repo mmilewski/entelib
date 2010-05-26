@@ -269,5 +269,6 @@ print "Adding config pairs"
 from baseapp.config import Config
 config = Config()
 config['truncated_description_len'] = 80
-config['copies_select_size'] = 5                             # number of elements to display when listing copies of a book
-config['user_after_registration_groups'] = ['Readers']       # user joins this groups right after he is registered
+config['copies_select_size'] = 5                                   # Number of elements to display when listing copies of a book
+config['user_after_registration_groups'] = ['Readers']             # User joins this groups right after he is registered
+config['default_go_back_link_name'] = 'Go back to searching.'      # Name of link displayed when filtering books/copies/...

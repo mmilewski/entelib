@@ -1,5 +1,7 @@
 {% extends 'base_with_top_menu.html' %}
 
+{% load go_back_link %}
+
 {% block title %}{{ book.title }}{% endblock %}
 
 {% block header %}Book copies{% endblock %}
@@ -30,6 +32,13 @@
             </table>
         </form>
     </div>
+
+    {% comment %}
+    If no argument is specified, then default one will be loaded - which is set in Config.
+    Try typing:
+      {% go_back_link %}
+    {% endcomment %}
+    {% go_back_link "Go back to book copies list." %}
 
     <div class="book_authors">
         {% if book.authors %}

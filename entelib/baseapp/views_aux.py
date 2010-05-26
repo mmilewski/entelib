@@ -9,7 +9,9 @@ from datetime import date, datetime
 
 def render_response(request, template, context={}):
     if request.user.has_perm('baseapp.list_users'):
-        context.update( { 'can_list_users' : True } )
+        context.update( { 'can_list_users' : True,
+                          'go_back_link' : '<a href="javascript: history.go(-1)">Back</a>',
+                          } )
     else:
         context.pop('can_list_users', None)
     for key, value in context.items():
