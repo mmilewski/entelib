@@ -4,7 +4,6 @@ from django.db import models
 # from django.db.models import User
 from django.contrib.auth.models import User, UserManager, Permission
 import models_config as CFG
-import tagging
 
 APPLICATION_NAME = 'baseapp'     # should be read from somewhere, I think
 
@@ -147,20 +146,23 @@ class Author(models.Model):
         return self.name
 
 
+class Category(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=CFG.category_name_len)
+
+    def __unicode__(self):
+        return unicode(self.name)
+
+
 class Book(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=CFG.book_title_len)
     author = models.ManyToManyField(Author)
-
+    category = models.ManyToManyField(Category, blank=True)
 
     def __unicode__(self):
         # return u'%s %s' % (self.title, unicode(self.author.all()))
         return u'%s' % (self.title, )
-
-try:
-    tagging.register(Book)     # enable tagging
-except:
-    pass
 
 
 class CostCenter(models.Model):

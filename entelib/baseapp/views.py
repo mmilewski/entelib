@@ -65,35 +65,65 @@ def default(request):
 def show_books(request):
     if not request.user.is_authenticated():
         return render_forbidden(request)
-    url = u'/entelib/books/'
-    books = []
-    search = {}
-    dict = {}
+    book_url = u'/entelib/books/%d/'
+    search_data = {}                    # data of searching context
+    selected_categories_ids = []        # ids of selected categories -- needed to reselect them on site reload
+
     if request.method == 'POST':
         post = request.POST
         search_title = post['title'].split()
         search_author = post['author'].split()
-        search_category = post['category'].split()
-        search = {'title' : post['title'], 'author' : post['author'], 'category' : post['category'], }
+        selected_categories_ids = map(int, request.POST.getlist('category'))
+        search_data.update({'title' : post['title'], 'author' : post['author'],})  # categories will be added later
+
+        # filter with Title and/or Author
         booklist = filter_query(Book, Q(id__exact='-1'), Q(title__contains=''), [
               (search_title, 'title_any' in post, lambda x: Q(title__icontains=x)),
               (search_author, 'author_any' in post, lambda x: Q(author__name__icontains=x)),
-              # (search_category, 'category_any' in post, lambda x: q(id__something_with_category_which_is_not_yet_implemented))  # TODO
+              # (search_category, 'category_any' in post, lambda x: Q(category__id__in=x)),
             ]
         )
-        for elem in booklist:
-            books.append({
-                'title':elem.title,
-                'url' : url + unicode(elem.id) + '/',
-                'authors' : [a.name for a in elem.author.all()]
-                })
-        dict = {'books' : books, 'search' : search}
-        dict.update({
-            'title_any_checked' : 'true' if 'title_any' in post else '',
-            'author_any_checked' : 'true' if 'author_any' in post else '',
-            'category_any_checked' : 'true' if 'category_any' in post else '',
-        })
-    return render_response(request, 'books.html', dict)
+
+        # filter with Category
+        if 0 not in selected_categories_ids:
+            if 'category_any' in post:
+                booklist = booklist.filter(category__id__in=selected_categories_ids)
+            else:
+                for category_id in selected_categories_ids:
+                    booklist = booklist.filter(category__id=category_id)
+
+        # compute set of categories present in booklist (= exists book which has such a category)
+        # because we don't want to list categories that don't matter.
+        categories_from_booklist = list(set([c for b in booklist for c in b.category.all()]))
+
+        # put ticks on previously ticked checkboxes
+        search_data.update({ 'title_any_checked' : 'true' if 'title_any' in post else '',
+                             'author_any_checked' : 'true' if 'author_any' in post else '',
+                             'category_any_checked' : 'true' if 'category_any' in post else '',
+                             })
+
+        # prepare each book (add url, list of authors) for rendering
+        books = [{ 'title': book.title,
+                   'url' : book_url % book.id,
+                   'authors' : [a.name for a in book.author.all()]
+                   } for book in booklist ]
+    else:
+        # If no POST data was sent, then we don't want to list any books, but we want
+        # to fill category selection input with all possible categories.
+        books = []
+        categories_from_booklist = Category.objects.all()      # FIXME: can be fixed to list categories, to which at least one book belong
+
+    # prepare categories for rendering
+    search_categories = [ {'name' : '-- Any --',  'id' : 0} ]
+    search_categories += [ {'name' : c.name,  'id' : c.id,  'selected': c.id in selected_categories_ids } for c in categories_from_booklist ]
+
+    search_data.update({'categories' : search_categories,
+                        })
+    context = {
+        'books' : books,
+        'search' : search_data,
+        }
+    return render_response(request, 'books.html', context)
 
 
 
@@ -130,7 +160,7 @@ def show_book(request, book_id):
         'title' : book.title,
         'authors' : [a.name for a in book.author.all()],
         'items' : curr_copies,
-        'categories' : [tag.name for tag in book.tags],
+        'categories' : [c.name for c in book.category.all()],
         }
     search_data = {
         'locations' :

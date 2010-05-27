@@ -27,6 +27,7 @@ Book.objects.all().delete()
 Phone.objects.all().delete()
 PhoneType.objects.all().delete()
 CostCenter.objects.all().delete()
+Category.objects.all().delete()
 CustomUser.objects.all().delete()
 User.objects.all().delete()
 
@@ -61,6 +62,14 @@ def get_random_string(min_len, max_len):
 def get_random_text(max_len):
     text = [ get_random_string(1, 6) for i in range(max_len) ]
     return ' '.join(text).capitalize()[:max_len]
+
+
+# categories
+print 'Adding categories'
+cat_names = ['Horror', 'History', 'Sci-Fi', 'Fantasy']
+shuffle(cat_names)
+for cat_name in cat_names:
+    Category(name=cat_name).save()
 
 
 # locations

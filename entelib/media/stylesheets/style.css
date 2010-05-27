@@ -68,6 +68,10 @@ div.content_form
     margin-left: 10em;
 }
 
+div.content_form > .tip {
+    text-align: center;
+}
+
 div#header
 {
     background-color: #888;

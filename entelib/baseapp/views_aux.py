@@ -53,6 +53,8 @@ def filter_query(class_name, Q_none, Q_all, constraints):
 
     result = class_name.objects.all()
     for (keywords, any, Q_fun) in constraints:
+        if not keywords:   # this check is needed for situation when any==True and keywords==[]. Then
+            continue       # reduce below would return Q_none and finally empty result would be returned.
         if any:
             result = result.filter(reduce(lambda q,y: q | Q_fun(y), keywords, Q_none))
         else:
