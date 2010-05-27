@@ -89,7 +89,6 @@ def get_book_details(book_copy):
         'toc_url' : book_copy.toc_url,
         'picture' : book_copy.picture,
     }
-    print 'url' + book_copy.toc_url
     return book_desc
 
 

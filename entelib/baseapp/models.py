@@ -1,9 +1,10 @@
 #-*- coding=utf-8 -*-
 
 from django.db import models
-# from django.db.models import User
 from django.contrib.auth.models import User, UserManager, Permission
 import models_config as CFG
+from django.db.models import signals
+import settings
 
 APPLICATION_NAME = 'baseapp'     # should be read from somewhere, I think
 
@@ -54,7 +55,7 @@ class UserProfile(models.Model):
     User with some extra fields like phone numbers.
     '''
 
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, unique=True)
     shoe_size = models.PositiveIntegerField(null=True, blank=True)  # :)
     phone = models.ManyToManyField(Phone, null=True, blank=True)
 
@@ -62,6 +63,9 @@ class UserProfile(models.Model):
         permissions = (
             ("list_users", "Can list users"),
         )
+
+    def __unicode__(self):
+        return u"%s's profile" % self.user.username
 
     def perm_exists(self, perm):
         '''
@@ -84,7 +88,8 @@ class UserProfile(models.Model):
         for klass in _defined_models:
             for perm_name, desc in klass._meta.permissions:
                 if perm == ('%s.%s' % (APPLICATION_NAME, perm_name)):
-                    print 'Permission %s found in %s class' % (perm, str(klass._meta))
+                    if settings.DEBUG:
+                        print 'Permission %s found in %s class' % (perm, str(klass._meta))
                     return True
 
         return False
@@ -99,6 +104,16 @@ class UserProfile(models.Model):
         if not self.perm_exists(perm):
             raise PermisionNotDefined(perm)
         return User.has_perm(self, perm)
+
+
+def create_profile_for_user(sender, instance, **kwargs):
+    ''' instance is an instance of User class. '''
+    try:
+        UserProfile.objects.get(user__id=instance.id)
+    except UserProfile.DoesNotExist:
+        UserProfile(user=instance).save()
+
+signals.post_save.connect(create_profile_for_user, sender=User, weak=False)
 
 
 class Location(models.Model):

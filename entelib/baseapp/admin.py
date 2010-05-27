@@ -7,9 +7,15 @@ from entelib.baseapp.models import Location, State, Publisher, Picture, Author, 
 
 class MyUserAdmin(admin.ModelAdmin):
     search_fields = ('username', 'first_name', 'last_name', 'email')
-    list_display = ('username', 'first_name', 'last_name', 'email', 'is_active', 'is_superuser', 'is_staff')
+    list_display = ('username', 'first_name', 'last_name', 'email', 'profile', 'is_active', 'is_superuser', 'is_staff',)
     list_filter = ('is_staff', 'is_superuser', 'is_active')
     actions = ['activate_users', 'deactivate_users']
+
+    def profile(self, s):
+        profile_url = '/entelib/admin/baseapp/userprofile/%d/' % s.id
+        return '<a href="%s">%s</a>' % (profile_url, 'View profile')
+    profile.short_description = "User's profile"
+    profile.allow_tags = True
 
     # see /usr/lib/pymodules/python2.6/django/contrib/admin/actions.py
     # see http://docs.djangoproject.com/en/dev/ref/contrib/admin/actions/

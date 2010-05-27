@@ -138,7 +138,6 @@ class RegistrationForm(forms.Form):
         # add user to default groups
         cfg = Config()
         groups = cfg.get_list('user_after_registration_groups')
-        print groups
         for group_name in groups:
             try:
                 g = Group.objects.get(name=group_name)
