@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from django.contrib.auth.models import Group
-from baseapp.models import CustomUser
+from django.contrib.auth.models import Group, User
+# from baseapp.models import CustomUser
 from config import Config
 
 attrs_dict = { 'class': 'required' }
@@ -104,8 +104,8 @@ class RegistrationForm(forms.Form):
         Validate that the username is alphanumeric and is not already in use.
         '''
         try:
-            user = CustomUser.objects.get(username__iexact=self.cleaned_data['username'])
-        except CustomUser.DoesNotExist:
+            user = User.objects.get(username__iexact=self.cleaned_data['username'])
+        except User.DoesNotExist:
             return self.cleaned_data['username']
         raise forms.ValidationError(u'This username is already taken. Please choose another.')
 
@@ -126,11 +126,13 @@ class RegistrationForm(forms.Form):
         '''
         Create the new user and returns it.
         '''
-        user = CustomUser.objects.create_user(username = self.cleaned_data['username'],
-                                              password = self.cleaned_data['password1'],
-                                              email = self.cleaned_data['email']
-                                              )
+        user = User.objects.create_user(username = self.cleaned_data['username'],
+                                        password = self.cleaned_data['password1'],
+                                        email = self.cleaned_data['email']
+                                        )
         user.is_active, user.is_superuser, user.is_staff = False, False, False
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
         user.save()   # checkpoint save, because cfg.get_list may throw and is_active is True as default
 
         # add user to default groups

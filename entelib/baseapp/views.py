@@ -201,7 +201,7 @@ def show_users(request):
         user_list = []
         if 'action' in request.POST and request.POST['action'] == 'Search':
             user_list = [ {'last_name' : u.last_name, 'first_name' : u.first_name, 'email' : u.email,'url' : unicode(u.id) + u'/'}
-                          for u in CustomUser.objects.filter(first_name__icontains=request_first_name).filter(last_name__icontains=request_last_name).filter(email__icontains=request_email) ]
+                          for u in User.objects.filter(first_name__icontains=request_first_name).filter(last_name__icontains=request_last_name).filter(email__icontains=request_email) ]
         dict = {
             'users' : user_list,
             'first_name' : request_first_name,
@@ -213,7 +213,7 @@ def show_users(request):
 
 
 def show_user(request, user_id):
-    user = CustomUser.objects.get(id=user_id)
+    user = User.objects.get(id=user_id)
     return render_response(request, 'user.html',
         { 'first_name' : user.first_name,
           'last_name' : user.last_name,
@@ -228,7 +228,7 @@ def edit_user_profile(request, profile_edit_form=ProfileEditForm):
     if not request.user.is_authenticated():
         return render_forbidden(request)
 
-    user = CustomUser.objects.get(id=request.user.id)
+    user = User.objects.get(id=request.user.id)
 
     if request.method == 'POST':
         form = profile_edit_form(user=user, data=request.POST)
@@ -262,7 +262,7 @@ def edit_user_profile(request, profile_edit_form=ProfileEditForm):
 def show_user_rentals(request, user_id):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
-    user = CustomUser.objects.get(id=user_id)
+    user = User.objects.get(id=user_id)
     post = request.POST
     if request.method == 'POST' and 'returned' in  post:
         returned_rental = Rental.objects.get(id=post['returned'])
@@ -293,7 +293,7 @@ def show_user_rentals(request, user_id):
 def show_my_rentals(request):
     if not request.user.is_authenticated():
         return render_forbidden(request)
-    user = CustomUser.objects.get(id=request.user.id)
+    user = User.objects.get(id=request.user.id)
 
     user_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(who_received__isnull=True)
     rent_list = [ {'id' : r.id,
@@ -318,7 +318,7 @@ def show_my_rentals(request):
 def show_user_reservations(request, user_id):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
-    user = CustomUser.objects.get(id=user_id)
+    user = User.objects.get(id=user_id)
     if request.method == 'POST':
         post = request.POST
         librarian = request.user
@@ -349,7 +349,7 @@ def show_user_reservations(request, user_id):
 def show_my_reservations(request):
     if not request.user.is_authenticated():
         return render_forbidden(request)
-    user = CustomUser.objects.get(id=request.user.id)
+    user = User.objects.get(id=request.user.id)
 
     user_reservations = Reservation.objects.filter(for_whom=user).filter(rental=None).filter(when_cancelled=None)
     reservation_list = [ {'id' : r.id,

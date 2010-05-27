@@ -1,11 +1,11 @@
 from django.contrib import admin
-from entelib.baseapp.models import CustomUser
+# from entelib.baseapp.models import CustomUser
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from entelib.baseapp.models import Location, State, Publisher, Picture, Author, Book, BookCopy, Reservation, Rental, Phone, PhoneType, CostCenter, Category
+from entelib.baseapp.models import Location, State, Publisher, Picture, Author, Book, BookCopy, Reservation, Rental, Phone, PhoneType, CostCenter, Category, UserProfile
 
 
-class CustomUserAdmin(admin.ModelAdmin):
+class MyUserAdmin(admin.ModelAdmin):
     search_fields = ('username', 'first_name', 'last_name', 'email')
     list_display = ('username', 'first_name', 'last_name', 'email', 'is_active', 'is_superuser', 'is_staff')
     list_filter = ('is_staff', 'is_superuser', 'is_active')
@@ -28,9 +28,9 @@ class CustomUserAdmin(admin.ModelAdmin):
 
 
 admin.site.unregister(User)
-admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(User, MyUserAdmin)
 
 
 # register models in admin's site
-for model in [Location, State, Publisher, Picture, Author, Book, BookCopy, Reservation, Rental, Phone, PhoneType, CostCenter, Category]:
+for model in [Location, State, Publisher, Picture, Author, Book, BookCopy, Reservation, Rental, Phone, PhoneType, CostCenter, Category, UserProfile]:
     admin.site.register(model)

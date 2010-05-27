@@ -49,12 +49,12 @@ class PermisionNotDefined(Exception):
     pass
 
 
-class CustomUser(User):
+class UserProfile(models.Model):
     '''
     User with some extra fields like phone numbers.
     '''
 
-    objects = UserManager()
+    user = models.OneToOneField(User)
     shoe_size = models.PositiveIntegerField(null=True, blank=True)  # :)
     phone = models.ManyToManyField(Phone, null=True, blank=True)
 
@@ -63,13 +63,12 @@ class CustomUser(User):
             ("list_users", "Can list users"),
         )
 
-
     def perm_exists(self, perm):
         '''
         Chcecks whether given permission exists. Returns True or False respectively.
         '''
         # query database (Permission table)
-        prefixes = [APPLICATION_NAME + '.', 'sites.', 'auth.', 'tagging.']
+        prefixes = [APPLICATION_NAME + '.', 'sites.', 'auth.']
         for prefix in prefixes:
             if perm.startswith(prefix):
                 perm = perm[len(prefix):]
@@ -210,12 +209,12 @@ class Reservation(models.Model):
     '''
     id = models.AutoField(primary_key=True)
     book_copy = models.ForeignKey(BookCopy)
-    for_whom = models.ForeignKey(CustomUser, related_name='user')
+    for_whom = models.ForeignKey(User, related_name='reader')
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
-    who_reserved = models.ForeignKey(CustomUser, related_name='reserver')
+    who_reserved = models.ForeignKey(User, related_name='reserver')
     when_reserved = models.DateTimeField(auto_now_add=True)
-    who_cancelled = models.ForeignKey(CustomUser, related_name='canceller', null=True, blank=True)
+    who_cancelled = models.ForeignKey(User, related_name='canceller', null=True, blank=True)
     when_cancelled = models.DateTimeField(null=True, blank=True)
     active_since = models.DateField(null=True, blank=True)
 
@@ -246,8 +245,8 @@ class Rental(models.Model):
     reservation = models.ForeignKey(Reservation)
     start_date = models.DateTimeField()   # (auto_now_add=True)
     end_date = models.DateTimeField(null=True, blank=True)
-    who_handed_out = models.ForeignKey(CustomUser, related_name='giver')
-    who_received = models.ForeignKey(CustomUser, related_name='receiver', null=True, blank=True)
+    who_handed_out = models.ForeignKey(User, related_name='giver')
+    who_received = models.ForeignKey(User, related_name='receiver', null=True, blank=True)
 
     def __unicode__(self):
         return u'id: ' + unicode(self.id)
@@ -291,4 +290,4 @@ class Rental(models.Model):
 
 # Defined model list contains all classes where has_perm will look for permissions.
 # If you know how to do this automaticaly, feel free to update :) I think it's possible. It's enough to walk through all classes and check for Meta inner class existance
-_defined_models = [Configuration, PhoneType, Phone, CustomUser, Location, State, Publisher, Picture, Author, Book, CostCenter, BookCopy, Reservation, Rental]
+_defined_models = [Configuration, PhoneType, Phone, User, UserProfile, Location, State, Publisher, Picture, Author, Book, CostCenter, BookCopy, Reservation, Rental]

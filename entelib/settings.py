@@ -91,10 +91,12 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.admindocs',
-    'tagging',
+    # 'tagging',
     'entelib.baseapp',
 )
 
 AUTHENTICATION_BACKENDS = (
     'entelib.auth_backends.CustomUserModelBackend',
 )
+
+AUTH_PROFILE_MODULE = 'baseapp.UserProfile'
