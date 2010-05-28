@@ -67,43 +67,43 @@ class UserProfile(models.Model):
     def __unicode__(self):
         return u"%s's profile" % self.user.username
 
-    def perm_exists(self, perm):
-        '''
-        Chcecks whether given permission exists. Returns True or False respectively.
-        '''
-        # query database (Permission table)
-        prefixes = [APPLICATION_NAME + '.', 'sites.', 'auth.']
-        for prefix in prefixes:
-            if perm.startswith(prefix):
-                perm = perm[len(prefix):]
-                break
-        perm_codename = perm
-        try:
-            Permission.objects.get(codename=perm_codename)
-            return True             # no exception means we found it!
-        except:
-            pass
+    # def perm_exists(self, perm):
+    #     '''
+    #     Chcecks whether given permission exists. Returns True or False respectively.
+    #     '''
+    #     # query database (Permission table)
+    #     prefixes = [APPLICATION_NAME + '.', 'sites.', 'auth.']
+    #     for prefix in prefixes:
+    #         if perm.startswith(prefix):
+    #             perm = perm[len(prefix):]
+    #             break
+    #     perm_codename = perm
+    #     try:
+    #         Permission.objects.get(codename=perm_codename)
+    #         return True             # no exception means we found it!
+    #     except:
+    #         pass
 
-        # seek in models
-        for klass in _defined_models:
-            for perm_name, desc in klass._meta.permissions:
-                if perm == ('%s.%s' % (APPLICATION_NAME, perm_name)):
-                    if settings.DEBUG:
-                        print 'Permission %s found in %s class' % (perm, str(klass._meta))
-                    return True
+    #     # seek in models
+    #     for klass in _defined_models:
+    #         for perm_name, desc in klass._meta.permissions:
+    #             if perm == ('%s.%s' % (APPLICATION_NAME, perm_name)):
+    #                 if settings.DEBUG:
+    #                     print 'Permission %s found in %s class' % (perm, str(klass._meta))
+    #                 return True
 
-        return False
+    #     return False
 
 
-    def has_perm(self, perm):
-        '''
-        Checks whether user not only has perminssion 'perm', but also whether such permission exists in project.
-        Permissions defined in APP_NAME's models are checked like has_perm('baseapp.mypermission'),
-        and has_perm('mypermission') is INCORRECT.
-        '''
-        if not self.perm_exists(perm):
-            raise PermisionNotDefined(perm)
-        return User.has_perm(self, perm)
+    # def has_perm(self, perm):
+    #     '''
+    #     Checks whether user not only has perminssion 'perm', but also whether such permission exists in project.
+    #     Permissions defined in APP_NAME's models are checked like has_perm('baseapp.mypermission'),
+    #     and has_perm('mypermission') is INCORRECT.
+    #     '''
+    #     if not self.perm_exists(perm):
+    #         raise PermisionNotDefined(perm)
+    #     return User.has_perm(self, perm)
 
 
 def create_profile_for_user(sender, instance, **kwargs):
