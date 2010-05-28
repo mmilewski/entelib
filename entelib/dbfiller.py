@@ -279,8 +279,8 @@ def readd_group(group_name, perms=[]):
     g.save()
 
 print "Adding app specific groups"
-readd_group('Readers', perms=['list_users'])  # TODO: fill permissions
-
+readd_group('Readers', perms=['list_books', 'view_own_profile', 'add_reservation'])  # TODO: fill permissions
+readd_group('VIPs', perms=['list_reports', 'list_users', ])
 
 
 # Config filler
@@ -289,11 +289,12 @@ from baseapp.config import Config
 config = Config()
 config['truncated_description_len'] = 80
 config['copies_select_size'] = 5                                   # Number of elements to display when listing copies of a book
-config['user_after_registration_groups'] = ['Readers']             # User joins this groups right after he is registered
+config['user_after_registration_groups'] = ['Readers']     # User joins this groups right after he is registered
 config['default_go_back_link_name'] = 'Go back to searching.'      # Name of link displayed when filtering books/copies/...
 
 # add user
 print "Adding default user to some groups"
 u = User.objects.get(username='user')
-for group_name in ['Readers']:
+for group_name in config.get_list('user_after_registration_groups'):
+    print group_name
     u.groups.add(Group.objects.get(name=group_name))

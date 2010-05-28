@@ -62,6 +62,9 @@ class UserProfile(models.Model):
     class Meta:
         permissions = (
             ("list_users", "Can list users"),
+            ('view_own_profile', 'Can view his own profile'),
+            ('view_others_profil', "Can view other people' profile"),
+            ('list_reports', 'Can list reports'),     # FIXME: this shouldn't be here, but I don't know where is the right place for that, since no Report model is defined
         )
 
     def __unicode__(self):
@@ -177,6 +180,11 @@ class Book(models.Model):
     def __unicode__(self):
         # return u'%s %s' % (self.title, unicode(self.author.all()))
         return u'%s' % (self.title, )
+
+    class Meta:
+        permissions = (
+            ("list_books", "Can list books"),
+            )
 
 
 class CostCenter(models.Model):

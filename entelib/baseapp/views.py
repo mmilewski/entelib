@@ -144,6 +144,7 @@ def show_book(request, book_id):
             if request.POST['available'] == 'available':
                 book_copies = book_copies.filter(state__is_available__exact=True)
     curr_copies = []
+    is_copy_reservable = request.user.has_perm('baseapp.add_reservation')
     for elem in book_copies:
         curr_copies.append({
             'url' : show_url % elem.id,
@@ -153,7 +154,7 @@ def show_book(request, book_id):
             'publisher' : elem.publisher.name,
             'year' : elem.year,
             'is_available' : elem.state.is_available,
-            'is_reservable' : True,    # TODO: this should check if one can reserve copy and whether book is available for reserving (whatever this means)
+            'is_reservable' : is_copy_reservable,    # TODO: this should check if one can reserve copy and whether book is available for reserving (whatever this means)
             # 'desc_url' : '/desc_url_not_implemented',      # link generation is done in templates, see bookcopies.html
             })
     book_desc = {

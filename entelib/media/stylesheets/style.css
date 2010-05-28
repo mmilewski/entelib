@@ -5,6 +5,7 @@ html, body
     padding: 0;
     height: 100%;
     font-size: 9pt;
+    font-family: Arial, sans-serif;
 }
 
 a
@@ -23,6 +24,10 @@ table
     border: 0;
 }
 
+table select {
+    width: 100%;
+}
+
 table.booklist
 {
     margin-top: 1em;
@@ -31,10 +36,17 @@ table.booklist
     text-align: center;
 }
 
-table.booklist td, th
+table.booklist td,
+table.booklist th
 {
     padding: 0.5em;
     border: 1px solid #000;
+}
+
+table.booklist .actions {   /* bookcopies.html */
+    text-align: left;
+    margin: 0.5em 0 0.5em 2em;
+    padding: 0;
 }
 
 ul.spaces > li
@@ -92,8 +104,29 @@ div#menu
 
 div#menu ul
 {
-    margin: 0.5em 0 0.5em 2em;
+    list-style-type: none;
+    margin: 0;
     padding: 0;
+    border: 0.5em solid #888;
+    border-left: 0;
+    border-right: 0;
+}
+
+div#menu ul li {
+    padding: 0;
+    margin: 0;
+    border-top: 1px dotted #888;
+}
+
+div#menu ul li a {
+    /* border: 1px solid red; */
+    display: block;
+    padding: 1em 0 1em 1em;
+    text-decoration: none;
+}
+
+div#menu ul li a:hover {
+    background-color: yellow;
 }
 
 div#login
@@ -144,30 +177,29 @@ div.book_authors dd, div.book_categories dd {
     display:inline;
 }
 
-table.booklist .actions {   /* bookcopies.html */
-    text-align: left;
-    margin: 0.5em 0 0.5em 2em;
-    padding: 0;
-}
-
 div.formWrapper {
     padding: 1em 0 0 1em;
     background-image: url(http://www.recipester.org/images/7/7f/Bg-0006.gif);
 }
 
+
 form.registration_form input.required {
     border: 1px solid red;
 }
 
-form.registration_form th {
+form.registration_form table.basic_fields  th {
     text-align: right;
+    vertical-align: top;
+    padding-right: 1em;
+    /* border: 1px solid green; */
 }
 
-form.registration_form td,th {
-    padding-bottom: 1em;
+form.registration_form table.basic_fields  td {
+    padding-bottom: 1.5em;
+    /* border: 1px solid red; */
 }
 
-form.registration_form ul.errorlist {
+form.registration_form table.basic_fields ul.errorlist {
     list-style-type: none;
     float: none;
     color: red;
@@ -176,7 +208,7 @@ form.registration_form ul.errorlist {
     font-size: 90%;
 }
 
-form.registration_form td ul.errorlist {
+form.registration_form table.basic_fields  td ul.errorlist {
     list-style-type: none;
     float: none;
     color: red;
@@ -185,6 +217,6 @@ form.registration_form td ul.errorlist {
     font-size: 90%;
 }
 
-form.registration_form td ul.errorlist li {
+form.registration_form table.basic_fields  td ul.errorlist li {
     padding: 0;
 }

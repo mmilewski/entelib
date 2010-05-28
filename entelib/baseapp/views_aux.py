@@ -8,12 +8,18 @@ from datetime import date, datetime
 
 
 def render_response(request, template, context={}):
-    if request.user.has_perm('baseapp.list_users'):
-        context.update( { 'can_list_users' : True,
-                          'go_back_link' : '<a href="javascript: history.go(-1)">Back</a>',
-                          } )
-    else:
-        context.pop('can_list_users', None)
+    user = request.user
+    context.update( {'go_back_link' : '<a href="javascript: history.go(-1)">Back</a>',
+                     'can_access_admin_panel' : user.is_staff or user.is_superuser,
+                     })
+    baseapp_perms = ['list_books', 'view_own_profile', 'list_users', 'list_reports']
+    for perm_name in baseapp_perms:
+        perm_fullname = 'can_' + perm_name
+        if user.has_perm('baseapp.' + perm_name):
+            context[perm_fullname] = True
+        else:
+            context.pop(perm_fullname, None)
+
     for key, value in context.items():
         context[key] = callable(value) and value() or value
     return render_to_response(

@@ -1,4 +1,4 @@
-{% extends "base_with_top_menu.html" %}
+{% extends "base_with_content.html" %}
 
 {% block title %}New user registration{% endblock %}
 
@@ -14,7 +14,7 @@
 
 <div class="formWrapper">
   <form class="registration_form" action="." method="POST">
-    <table >
+    <table class="basic_fields">
       <tbody>
         {{ form_content }}
         <tr><th></th><td><input type="submit" value="Register me"/></td></tr>
