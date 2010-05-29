@@ -85,7 +85,7 @@ def show_books(request):
         )
 
         # filter with Category
-        if 0 not in selected_categories_ids:
+        if selected_categories_ids and (0 not in selected_categories_ids):  # at least one 'real' category selected
             if 'category_any' in post:
                 booklist = booklist.filter(category__id__in=selected_categories_ids)
             else:

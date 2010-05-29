@@ -6,21 +6,21 @@
 
 {% block content %}
     <div class='content_form'>
-        <form action='.' method='post'>
-            <table>
-                <tr>
+        <form action='.' method='post' class="book_search">
+            <table class="book_details">
+                <tr class="book_title">
                     <td>Title: </td>
                     <td><input type='text' name='title' value='{{ search.title }}'></td>
-                    <td><input type='checkbox' name='title_any' value='any'  {% if search.title_any_checked %} checked {% endif %} ></td>
-                    <td>Any of keywords</td>
-                </tr><tr>
-                <tr>
+                    <td><input type='checkbox' name='title_any' id="title_any" value='any'  {% if search.title_any_checked %} checked {% endif %} ></td>
+                    <td><label for="title_any">Any of keywords</label></td>
+                </tr>
+                <tr class="book_author">
                     <td>Author: </td>
                     <td><input type='text' name='author' value='{{ search.author }}'></td>
-                    <td><input type='checkbox' name='author_any' value='any'  {% if search.author_any_checked %} checked {% endif %} ></td>
-                    <td>Any of keywords</td>
-                </tr><tr>
-                <tr>
+                    <td><input type='checkbox' name='author_any' id="author_any" value='any'  {% if search.author_any_checked %} checked {% endif %} ></td>
+                    <td><label for="author_any">Any of keywords</label></td>
+                </tr>
+                <tr class="book_category">
                     <td>Category: </td>
                     <td>
                         <select name='category' multiple='multiple' size='{{ search.categories_select_size }}'>
@@ -31,19 +31,22 @@
 
                       <!-- <input type='text' name='category' value='{{ search.category }}'> -->
                     </td>
-                    <td><input type='checkbox' name='category_any' value='any'  {% if search.category_any_checked %} checked {% endif %} ></td>
-                    <td>Any of keywords</td>
-                </tr><tr>
-                    <td></td><td>
-                        <input type='submit' name='action' value='Search'>
-                    </td></tr>
+                    <td><input type='checkbox' name='category_any' id="category_any" value='any'  {% if search.category_any_checked %} checked {% endif %} ></td>
+                    <td><label for="category_any">Any of keywords</label></td>
+                </tr>
+                <tr class="book_search">
+                    <td></td>
+                    <td> <input type='submit' name='action' value='Search'> </td>
+                    <td></td>
+                    <td></td>
+                </tr>
             </table>
         </form>
     </div>
-    <div>
+    <div class="found_books">
         <ul class='spaces'>
             {% for book in books %}
-                <li><b><a href='{{ book.url }}'>{{ book.title }}:</a></b>
+                <li class="book"><b><a href='{{ book.url }}'>{{ book.title }}:</a></b>
                     {% if book.authors %}
                       {{ book.authors|join:', '}}
                     {% else %}
