@@ -1,6 +1,10 @@
+#-*- coding=utf-8 -*-
+
 from entelib.baseapp.models import Configuration
 import json
 
+# zmienne których używamy:
+# int: rental_duration
 
 class Config(object):
     '''

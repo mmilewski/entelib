@@ -1,6 +1,6 @@
 #-*- coding=utf-8 -*-
 
-from entelib.baseapp.models import Reservation, Rental
+from entelib.baseapp.models import Reservation, Rental, BookCopy
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect  # TODO usunąć HttpResponse
@@ -98,10 +98,10 @@ def get_book_details(book_copy):
     return book_desc
 
 
-def rental_possible(reservation):
+def is_reservation_rentable(reservation):
     '''
     Desc:
-        Returns True if a rental can be completed; False otherwise
+        Returns True if a reserved book can be rented; False otherwise
     '''
     if reservation_status(reservation) == 0:
         return True
@@ -111,9 +111,10 @@ def rental_possible(reservation):
 
 def reservation_status(reservation):
     '''
-    Desc returns reservation status:
-        0 means rental possible.
-        any other value is string explaining why rental is not possible
+    Desc:
+        returns reservation status:
+            0 means rental possible.
+            any other value is string explaining why rental is not possible
     '''
     all = Reservation.objects.filter(book_copy=reservation.book_copy).filter(rental=None).filter(for_whom=reservation.for_whom)
     if reservation not in all:
@@ -134,8 +135,39 @@ def reservation_status(reservation):
     return 0
 
 
+def is_book_copy_rentable(book_copy):
+    if book_copy_status(book_copy) == 0:
+        return True
+    else:
+        return False
+
+
+def book_copy_status(book_copy):
+    '''
+    Desc:
+        Returns book copy status. 
+
+    Arg:
+        book_copy is BookCopy object.
+
+    Returns:
+        0 mean's rentable. Any other string explains why not rentable.
+    '''
+    to_return = []
+    if book_copy.state.is_available == False:
+        to_return += ['This copy is currently not available.']
+    if Rental.objects.filter(reservation__book_copy=book_copy).filter(end_date=None).count() > 0:
+        to_return += ['This copy is currently rented.']
+    if Reservation.objects.filter(book_copy=book_copy).filter(end_date=None).count() > 0:
+        to_return += ['This copy is reserved.']
+
+    if to_return:
+        return ' '.join(to_return)
+    return 0
+
+
 def rent(reservation, librarian):
-    if rental_possible(reservation):
+    if is_reservation_rentable(reservation):
         try:
             rental = Rental(reservation=reservation, who_handed_out=librarian, start_date=datetime.now())
             rental.save()
@@ -143,7 +175,7 @@ def rent(reservation, librarian):
             reservation.save()
             return True
         except Exception:
-            return 'error'
+            return 'Exception while in rent'
     return 'rental not possible'
 
 

@@ -6,7 +6,7 @@ from entelib.baseapp.models import *
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
-from views_aux import render_forbidden, render_response, filter_query, get_book_details, reservation_status, rental_possible, rent, mark_available, render_not_implemented
+from views_aux import render_forbidden, render_response, filter_query, get_book_details, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, is_book_copy_rentable
 from config import Config
 # from django.contrib.auth.decorators import permission_required
 from baseapp.forms import RegistrationForm, ProfileEditForm
@@ -62,10 +62,10 @@ def default(request):
     return render_response(request, 'entelib.html')
 
 
-def show_books(request):
+def show_books(request, non_standard_user_id=False):
     if not request.user.is_authenticated():
         return render_forbidden(request)
-    book_url = u'/entelib/books/%d/'
+    book_url = u'/entelib/books/%d/' if non_standard_user_id == False else u'/entelib/users/%d/reservations/new/book/%s/' % (int(non_standard_user_id), '%d')
     search_data = {}                    # data of searching context
     selected_categories_ids = []        # ids of selected categories -- needed to reselect them on site reload
 
@@ -127,11 +127,12 @@ def show_books(request):
 
 
 
-def show_book(request, book_id):
+def show_book(request, book_id, non_standard_user_id=False):
     if not request.user.is_authenticated():
         return render_forbidden(request)
-    show_url = u'/entelib/bookcopy/%d/'
-    reserve_url = u'/entelib/bookcopy/%d/reserve/'
+    url_for_non_standard_users = u'/entelib/users/%d/reservations/new/bookcopy/%s/' % (int(non_standard_user_id), u'%d')
+    show_url = u'/entelib/bookcopy/%d/' if non_standard_user_id == False else url_for_non_standard_users
+    reserve_url = u'/entelib/bookcopy/%d/reserve/' if non_standard_user_id == False else url_for_non_standard_users
     book = Book.objects.get(id=book_id)
     book_copies = BookCopy.objects.filter(book=book_id)
     selected_locations = []
@@ -331,7 +332,7 @@ def show_user_reservations(request, user_id):
                           'url' : unicode(r.id) + u'/',
                           'book_copy_id' : r.book_copy.id,
                           'shelf_mark' : r.book_copy.shelf_mark,
-                          'rental_impossible' : '' if rental_possible(r) else reservation_status(r),
+                          'rental_impossible' : '' if is_reservation_rentable(r) else reservation_status(r),
                           'title' : r.book_copy.book.title,
                           'authors' : [a.name for a in r.book_copy.book.author.all()],
                           'from_date' : r.start_date,
@@ -357,7 +358,7 @@ def show_my_reservations(request):
                           'url' : unicode(r.id) + u'/',
                           'book_copy_id' : r.book_copy.id,
                           'shelf_mark' : r.book_copy.shelf_mark,
-                          'rental_impossible' : '' if rental_possible(r) else reservation_status(r),
+                          'rental_impossible' : '' if is_reservation_rentable(r) else reservation_status(r),
                           'title' : r.book_copy.book.title,
                           'authors' : [a.name for a in r.book_copy.book.author.all()],
                           'from_date' : r.start_date,
@@ -373,7 +374,25 @@ def show_my_reservations(request):
     )
 
 
-def reserve_for_user(request, user_id):
+def find_book_for_user(request, user_id, book_id=None):
+    if not book_id:
+        return show_books(request, user_id)
+    else:
+        return show_book(request, book_id, user_id)
+
+def rent_not_reserved(request, user_id, book_id=None, bookcopy_id=None):
+    if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
+        return render_forbidden(request)
+
+def reserve_for_user(request, user_id, book_copy_id):
+    return reserve(request, book_copy_id, user_id)
+
+### zbędne
+def reserve_for_user_book(request, user_id, book_id):
+    return render_not_implemented(request)
+
+### zbędne
+def reserve_for_user_book_copy(request, user_id, book_copy_id):
     return render_not_implemented(request)
 
 
@@ -389,15 +408,17 @@ def users_rental(request, user_id, rental_id):
 '''
 
 
-def reserve(request, copy):
+def reserve(request, copy, non_standard_user_id=False):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.add_reservation'):
         return render_forbidden(request)
     book_copy = BookCopy.objects.get(id=copy)
     book_desc = get_book_details(book_copy)
     reserved = {}
+    rented = {}
     post = request.POST
+    user = request.user if non_standard_user_id == False else User.objects.get(id=non_standard_user_id)
     if request.method == 'POST':
-        r = Reservation(who_reserved=request.user, book_copy=book_copy, for_whom=request.user)
+        r = Reservation(who_reserved=request.user, book_copy=book_copy, for_whom=user)
         if 'from' in post and post['from'] != u'':
             try:
                 [y, m, d] = map(int,post['from'].split('-'))
@@ -406,19 +427,30 @@ def reserve(request, copy):
                 reserved.update({'ok' : 'ok'})
                 reserved.update({'from' : post['from']})
             except:
-                reserved.update({'error' : 'error'})
-        elif 'action' in post and post['action'] == 'reserve':
+                reserved.update({'error' : 'error - possibly incorrect date format'})
+        elif 'action' in post and post['action'].lower() == 'reserve':
             r.start_date = date.today()
             r.save()
             reserved.update({'from' : r.start_date.isoformat()})
             reserved.update({'ok' : 'ok'})
+        elif 'action' in post and post['action'].lower() == 'rent':
+                r.start_date = date.today()
+                r.end_date = date.today() + timedelta(Config().get_int('rental_duration'))
+                r.save()
+                rental = Rental(reservation=r, start_date=date.today(), who_handed_out=request.user)
+                rental.save()
+                rented.update({'until' : r.end_date.isoformat()})
+                reserved.update({'ok' : False})
 
 
     return render_response(request, 'reserve.html',
         {
             'book' : book_desc,
             'reserved' : reserved,
+            'rented' : rented,
             'can_reserve' : request.user.has_perm('baseapp.add_reservation') and book_copy.state.is_visible,
+            'can_rent' : request.user.has_perm('baseapp.add_rental') and non_standard_user_id,
+            'rental_possible' : is_book_copy_rentable(book_copy)
         }
     )
 

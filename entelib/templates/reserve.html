@@ -3,6 +3,10 @@
 {% block header %}Book reservation{% endblock %}
 
 {% block form %}
+    {% if rented.until %}
+        <b>Successfully rented until {{ rented.until }}.</b>
+    {% endif %}
+
     {% if reserved.ok %}
         <b>Successfully reserved from {{ reserved.from }}.</b>
     {% else %}
@@ -27,6 +31,13 @@
                         <td><input type='submit' name='action' value='reserve'></td>
                         <td></td>
                     </tr>
+                    {% if can_rent %}
+                        <tr>
+                            <td></td>
+                            <td><input type='submit' name='action' value='rent' {% if not rental_possible %} disabled {% endif %} ></td>
+                            <td></td>
+                    {% endif %}
+                        </tr>
                 </table>
             </form>
         </div>

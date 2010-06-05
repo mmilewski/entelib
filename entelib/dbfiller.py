@@ -121,7 +121,7 @@ for author in authors:
 
 # states
 print 'Adding %d states' % states_count
-state_names = [ get_random_string(7,20) for i in range(states_count) ]
+state_names = [ get_random_string(3,7) for i in range(states_count) ]
 state_availability = [ True, False ]
 states = [ State(name = state_names[i],
                  is_available = choice(state_availability))
@@ -291,6 +291,7 @@ config['truncated_description_len'] = 80
 config['copies_select_size'] = 5                                   # Number of elements to display when listing copies of a book
 config['user_after_registration_groups'] = ['Readers']     # User joins this groups right after he is registered
 config['default_go_back_link_name'] = 'Go back to searching.'      # Name of link displayed when filtering books/copies/...
+config['rental_duration'] = 30
 
 # add user
 print "Adding default user to some groups"
