@@ -64,7 +64,9 @@ def filter_query(class_name, Q_none, Q_all, constraints):
         if any:
             result = result.filter(reduce(lambda q,y: q | Q_fun(y), keywords, Q_none))
         else:
-            result = result.filter(reduce(lambda q,x: q & Q_fun(x), keywords, Q_all))
+            #result = result.filter(reduce(lambda q,x: q & Q_fun(x), keywords, Q_all))
+            for keyword in keywords:  # this should deal with filtering objects which has e.g. many authors
+                result = result.filter(Q_fun(keyword))
     return result.distinct()
 
 
