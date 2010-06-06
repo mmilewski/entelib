@@ -122,6 +122,7 @@ def show_books(request, non_standard_user_id=False):
     context = {
         'books' : books,
         'search' : search_data,
+        'can_add_book' : request.user.has_perm('baseapp.add_book'),
         }
     return render_response(request, 'books.html', context)
 
@@ -172,6 +173,7 @@ def show_book(request, book_id, non_standard_user_id=False):
         }
     return render_response(request, 'bookcopies.html', { 'book' : book_desc,
                                                          'search' : search_data,
+                                                         'can_add_bookcopy' : request.user.has_perm('baseapp.add_bookcopy'),
                                                          'only_available_checked' : 'yes' if 'available' in request.POST else ''})
 
 

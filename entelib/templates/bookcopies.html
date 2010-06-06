@@ -52,12 +52,18 @@
         </form>
     </div>
 
+    <div class="bookcopy_actions">
+      {% if can_add_bookcopy %}
+      <a href="/entelib/admin/baseapp/bookcopy/add/" class="add_bookcopy">Add book copy.</a>
+      {% endif %}
+    </div>
+
     {% comment %}
     If no argument is specified, then default one will be loaded - which is set in Config.
     Try typing:
-      {% go_back_link %}
+    {% go_back_link %}
     {% endcomment %}
-    {% go_back_link "Go back to book copies list." %}
+    {% go_back_link "Go back" %}
 
     <div class="book_copies">
       <h3 id="book_copies">Copies of this book:</h3>

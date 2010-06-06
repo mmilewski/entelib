@@ -43,6 +43,13 @@
             </table>
         </form>
     </div>
+
+    <div class="book_actions">
+      {% if can_add_book %}
+      <a href="/entelib/admin/baseapp/book/add/" class="add_book">Add book</a>
+      {% endif %}
+    </div>
+       
     <div class="found_books">
         <ul class='spaces'>
             {% for book in books %}

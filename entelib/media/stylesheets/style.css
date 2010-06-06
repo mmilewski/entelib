@@ -159,6 +159,16 @@ div.gobackWrapper a {
     border-bottom: 1px dashed brown;
 }
 
+
+div.book_actions a,       /* 'add book' link */
+div.bookcopy_actions a {  /* 'add book copy' link */
+    background: url('/media/images/add-icon.png') no-repeat;
+    padding: 0 0 .1em 20px;
+    text-decoration: none;
+    border-bottom: 1px dashed brown;
+}
+
+
 div.book_copies > h3#book_copies {
     margin-top: 1.3em;
     margin-bottom: 0;
