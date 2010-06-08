@@ -386,12 +386,15 @@ def rent_not_reserved(request, user_id, book_id=None, bookcopy_id=None):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
 
+
 def reserve_for_user(request, user_id, book_copy_id):
     return reserve(request, book_copy_id, user_id)
+
 
 ### zbędne
 def reserve_for_user_book(request, user_id, book_id):
     return render_not_implemented(request)
+
 
 ### zbędne
 def reserve_for_user_book_copy(request, user_id, book_copy_id):
@@ -433,7 +436,8 @@ def reserve(request, copy, non_standard_user_id=False):
         elif 'action' in post and post['action'].lower() == 'reserve':
             r.start_date = date.today()
             r.save()
-            reserved.update({'from' : r.start_date.isoformat()})
+            msg = Config().get_str('message_book_reserved') % r.start_date.isoformat()
+            reserved.update({'msg' : msg})
             reserved.update({'ok' : 'ok'})
         elif 'action' in post and post['action'].lower() == 'rent':
                 r.start_date = date.today()

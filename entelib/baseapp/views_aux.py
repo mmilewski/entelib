@@ -103,10 +103,11 @@ def get_book_details(book_copy):
 def is_reservation_rentable(reservation):
     '''
     Desc:
-        Returns True if a reserved book can be rented; False otherwise
+        Returns non zero integer or non empty string (which evaluates to True) if a reserved book can be rented; False otherwise
     '''
-    if reservation_status(reservation) == 0:
-        return True
+    status = reservation_status(reservation)
+    if isinstance(status, int):
+        return status if status != 0 else 'infinity'
     else:
         return False
 
@@ -118,23 +119,30 @@ def reservation_status(reservation):
             0 means rental possible.
             any other value is string explaining why rental is not possible
     '''
-    all = Reservation.objects.filter(book_copy=reservation.book_copy).filter(rental=None).filter(for_whom=reservation.for_whom)
+    all = Reservation.objects.filter(book_copy=reservation.book_copy).filter(rental=None)
+    all = all.filter(end_date=None).order_by('id')  # TODO: doczytać o order by: koszt i zdefiniowanie kolejności wpp
     if reservation not in all:
         return 'Incorrect reservation'
     to_return = []
-    if reservation != all[0]:
+    if reservation != all.filter(start_date__lte=date.today())[0]:
         to_return += ['Reservation not first.']
     if Rental.objects.filter(reservation__book_copy=reservation.book_copy).filter(end_date=None).count() > 0:
         to_return += ['This copy is currently rented.']
     if reservation.book_copy.state.is_available == False:
-        to_return += ['This copy is currently not available.']
+        to_return += ['This copy is currently not available (' + reservation.book_copy.state.name + ').']
     if reservation.start_date > date.today():
-        to_return += ['Reservation not yet active.']
+        to_return += ['Reservation active since ' + reservation.start_date.isoformat() + '.']
     if reservation.end_date is not None:
         to_return += ['Reservation already pursued']   # TODO nie wiem czy to dobre słowo...
     if to_return:
         return ' '.join(to_return)
-    return 0
+
+    if reservation == all[0]:
+        return 0
+    older = all[:all.index(reservation)]
+    if min([(r.start_date - date.today()).days for r in older]) == 0:  # TODO nie mam fajnego pomysłu na asercje. No dobra, nie chce mi się robić porządnych asercji.
+        raise 'assert fail: in reservation status: egsists older valid reservation'
+    return min([(r.start_date - date.today()).days for r in older])
 
 
 def is_book_copy_rentable(book_copy):
@@ -169,11 +177,14 @@ def book_copy_status(book_copy):
 
 
 def rent(reservation, librarian):
-    if is_reservation_rentable(reservation):
+    rentable = is_reservation_rentable(reservation)
+    if rentable:
         try:
             rental = Rental(reservation=reservation, who_handed_out=librarian, start_date=datetime.now())
             rental.save()
-            reservation.end_date = date.today() + timedelta(days=dateConfig.get_int('max_rental_time'))
+            max_duration = Config.get_int('max_rental_time')
+            duration = max_duration if rentable == 'infinity' or isinstance(rentable,int) and max_duration <= rentable else rentable
+            reservation.end_date = date.today() + timedelta(days=duration)
             reservation.save()
             return True
         except Exception:
@@ -182,7 +193,7 @@ def rent(reservation, librarian):
 
 
 def mark_available(book_copy):
-    reservations = Reservation.objects.filter(rental=None)
+    reservations = Reservation.objects.filter(rental=None).filter(start_date__lte=date.today)  #TODO tylko aktywne? jak rozwiązać sytuację, jak ktoś zarezerwował od jutra?
     if reservations.count() > 0:
         reservations[0].active_since = date.today()
         #TODO notify user he can rent the book
