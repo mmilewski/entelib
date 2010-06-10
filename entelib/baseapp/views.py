@@ -185,6 +185,7 @@ def show_book(request, book_id, non_standard_user_id=False):
             # 'desc_url' : '/desc_url_not_implemented',      # link generation is done in templates, see bookcopies.html
             })
     book_desc = {
+        'id' : book.id,
         'title' : book.title,
         'authors' : [a.name for a in book.author.all()],
         'items' : curr_copies,

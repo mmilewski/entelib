@@ -54,7 +54,7 @@
 
     <div class="bookcopy_actions">
       {% if can_add_bookcopy %}
-      <a href="/entelib/admin/baseapp/bookcopy/add/" class="add_bookcopy">Add book copy.</a>
+      <a href="/entelib/admin/baseapp/bookcopy/add/?book={{book.id}}" class="add_bookcopy">Add book copy.</a>
       {% endif %}
     </div>
 
@@ -117,4 +117,6 @@
             <br><b>No copies.</b>
         {% endif %}
     </div>
+    {% go_back_link "Go back" %}
+
 {% endblock %}
