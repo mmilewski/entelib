@@ -1,0 +1,18 @@
+{% extends 'reports.html' %}
+
+{% block report %}
+    <div style='margin-top: 1em'>
+            <table class='booklist'>
+                <tr>
+                    <th>Name</th>
+                    <th>Number of cancels</th>                                    
+                </tr>
+                {% for user in report %}
+                <tr>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.num_of_cancels }}</td>
+                </tr>
+                {% endfor %}  
+            </table>
+    </div>
+{% endblock %}

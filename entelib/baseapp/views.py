@@ -1,12 +1,12 @@
 #-*- coding=utf-8 -*-
 
 from django.shortcuts import render_to_response
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, HttpResponse
 from entelib.baseapp.models import *
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
-from views_aux import render_forbidden, render_response, filter_query, get_book_details, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, is_book_copy_rentable
+from views_aux import render_forbidden, render_response, filter_query, get_book_details, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, is_book_copy_rentable, get_report_data, generate_csv
 from config import Config
 # from django.contrib.auth.decorators import permission_required
 from baseapp.forms import RegistrationForm, ProfileEditForm
@@ -374,6 +374,42 @@ def show_my_reservations(request):
           'cancel_all_url' : 'cancell-all/',
         }
     )
+
+
+def show_reports(request):
+    if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_reports'):
+        return render_forbidden(request)
+    report_types = [{'name': u'Library status', 'value': u'status'},
+                    {'name': u'Most often rented books', 'value': u'most_often_rented'},
+                    {'name': u'Most often reserved books', 'value': u'most_often_reserved'},
+                    {'name': u'Users black list', 'value': u'black_list'},
+                    {'name': u'Not available books', 'value': u'lost_books'}]
+
+    post = request.POST
+    if request.method == 'POST':
+        search_data = {'from': post['from'], 'to': post['to']}
+        if 'action' in post and post['action'] == u'Export to csv':
+            if 'from' in post and 'to' in post and 'report_type' in post:
+                response = generate_csv(post['report_type'], post['from'], post['to'])
+                return response
+
+        if 'action' in post and post['action'] == u'Show':
+            if 'from' in post and 'to' in post and 'report_type' in post:
+                report_data = get_report_data(post['report_type'], post['from'], post['to'])
+                report = report_data['report']
+                template = report_data['template']
+                error = report_data['error']
+                map(lambda d: d.update({'selected': True}) if d['value'] == post['report_type'] else d, report_types)
+                return render_response( request,
+                                        template,
+                                        {
+                                            'error': error,
+                                            'search': search_data,
+                                            'report_types': report_types,
+                                            'report': report
+                                        })
+
+    return render_response(request, 'reports.html', {'report_types': report_types})
 
 
 def find_book_for_user(request, user_id, book_id=None):

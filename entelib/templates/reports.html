@@ -1,0 +1,49 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block title %}Reports{% endblock %}
+
+{% block header %}Reports{% endblock %}
+
+{% block content %}
+    {% if error %}
+        <p><h2>Error - probably bad date format</h2></p>
+    {% endif %}
+    <div class='content_form'>
+        <form action='.' method='post'>
+            <table>
+                <tr>
+                    <td>Report type: </td>
+                    <td>
+                        <select name='report_type' size='{{ select_size }}'>
+                            {% for type in report_types %}
+                                <option value='{{ type.value }}' {% if type.selected %}selected{% endif %}>{{ type.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>From: </td>
+                    <td><input type='text' maxlength='10' name='from' value='{{ search.from }}' onClick='showKal(this)'></td>
+                    <td>(Leave at least one field empty for no time period specification)</td>
+                </tr>
+                <tr>
+                    <td>To: </td>
+                    <td><input type='text' maxlength='10' name='to' value='{{ search.to }}' onClick='showKal(this)'></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>YYYY-MM-DD</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><input type='submit' name='action' value='Show'> <input type='submit' name='action' value='Export to csv'></td>
+                    <td></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    {% block report %}{% endblock %}
+{% endblock %}

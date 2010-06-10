@@ -1,0 +1,18 @@
+{% extends 'reports.html' %}
+
+{% block report %}
+    <div style='margin-top: 1em'>
+            <table class='booklist'>
+                <tr>
+                    <th>Title</th>
+                    <th>Number of reservations</th>                                    
+                </tr>
+                {% for book in report %}
+                <tr>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.num_of_reservations }}</td>
+                </tr>
+                {% endfor %}  
+            </table>
+    </div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'reports.html' %}
+
+{% block report %}
+    <div style='margin-top: 1em'>
+            <table class='booklist'>
+                <tr>
+                    <th rowspan='2'>Title</th>
+                    <th rowspan='2'>Location</th>
+                    <th rowspan='2'>Shelf mark</th>
+                    <th rowspan='2'>Status</th>
+                    <th colspan='3'>Last time rented</th>                                      
+                </tr>
+                <tr>
+                    <td>For</td>
+                    <td>On</td>
+                    <td>By</td>
+                </tr>
+                {% for book in report %}
+                <tr>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.location }}</td>
+                    <td>{{ book.shelf_mark }}</td>
+                    <td>{{ book.status }}</td>
+                    {% if book.not_rented_yet %}
+                        <td colspan='3'>Not rented yet</td>
+                    {% else %}
+                        <td>{{ book.for_whom }}</td>
+                        <td>{{ book.when }}</td>
+                        <td>{{ book.by_whom }}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}  
+            </table>
+    </div>
+{% endblock %}
