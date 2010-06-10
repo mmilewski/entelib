@@ -48,6 +48,9 @@ table.booklist .actions {   /* bookcopies.html */
     margin: 0.5em 0 0.5em 2em;
     padding: 0;
 }
+table.booklist .actions a.notavailable {
+    color: red;
+}
 
 ul.spaces > li
 {
@@ -187,7 +190,11 @@ div.book_authors dd, div.book_categories dd {
     display:inline;
 }
 
-div.formWrapper {
+
+div.formWrapper th {
+    vertical-align: top;
+}
+div.formWrapper form.registration_form {
     padding: 1em 0 0 1em;
     background-image: url(http://www.recipester.org/images/7/7f/Bg-0006.gif);
 }

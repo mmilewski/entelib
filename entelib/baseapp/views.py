@@ -9,10 +9,35 @@ from django.db.models import Q
 from views_aux import render_forbidden, render_response, filter_query, get_book_details, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, is_book_copy_rentable, get_report_data, generate_csv
 from config import Config
 # from django.contrib.auth.decorators import permission_required
-from baseapp.forms import RegistrationForm, ProfileEditForm
+from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm
 from datetime import date, datetime, timedelta
 
 
+def request_book(request, request_form=BookRequestForm):
+    '''
+    Handles requesting for book by any user.
+    '''
+    user = request.user
+    tpl_request = 'book_request.html'
+    context = {}
+
+    # auth
+    if not all([user.is_authenticated(), user.has_perm('baseapp.add_bookrequest')]):
+        return render_forbidden(request)
+
+    # redisplay form
+    if request.method == 'POST':
+        form = request_form(user=user, data=request.POST, files=request.FILES)
+        if form.is_valid():
+            form.save()
+            context['show_confirmation_msg'] = True
+            return render_response(request, tpl_request, context)
+    # display fresh new form
+    else:
+        form = request_form(user=user)
+
+    context['form_content'] = form
+    return render_response(request, tpl_request, context)
 
 
 def register(request, action, registration_form=RegistrationForm, extra_context=None):
@@ -417,6 +442,7 @@ def find_book_for_user(request, user_id, book_id=None):
         return show_books(request, user_id)
     else:
         return show_book(request, book_id, user_id)
+
 
 def rent_not_reserved(request, user_id, book_id=None, bookcopy_id=None):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):

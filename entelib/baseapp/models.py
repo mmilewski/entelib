@@ -187,6 +187,16 @@ class Book(models.Model):
             )
 
 
+class BookRequest(models.Model):
+    id = models.AutoField(primary_key=True)
+    who = models.ForeignKey(User, blank=False, null=False)
+    when = models.DateTimeField(auto_now_add=True, blank=False, null=False)
+    info = models.TextField()
+
+    def __unicode__(self):
+        return u'Request for: %s' % (self.info[:30], )
+
+
 class CostCenter(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=CFG.costcenter_name_len)

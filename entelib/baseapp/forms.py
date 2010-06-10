@@ -1,12 +1,53 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.contrib.auth.models import Group, User
+from baseapp.models import BookRequest
 # from baseapp.models import CustomUser
 from config import Config
 
 attrs_dict = { 'class': 'required' }
 
 # see http://code.google.com/p/django-registration/source/browse/trunk/registration/forms.py
+
+
+class BookRequestForm(forms.Form):
+    '''
+    Form for requesting book. Users can add their propositions of books,
+    they would like to have in the library.
+    '''
+    info = forms.CharField(widget=forms.Textarea,
+                           label=(u'Information about book you request'),
+                           required=True,
+                           )
+
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super(BookRequestForm, self).__init__(*args, **kwargs)
+
+
+    def clean_info(self):
+        if not 'info' in self.cleaned_data:
+            raise forms.ValidationError(u'Give any informations about book.')
+        return self.cleaned_data['info']
+
+
+    def clean(self):
+        config = Config()
+        min_info_len = config.get_int('book_request_info_min_len')
+        if 'info' in self.cleaned_data:
+            print self.cleaned_data['info']
+            info_len = len(self.cleaned_data['info'])
+            if info_len < min_info_len:
+                raise forms.ValidationError(u'Your request is too short. Should be at least %d, but was %d' % (min_info_len, info_len))
+            return self.cleaned_data
+        raise forms.ValidationError(u"Your request doesn't contain any informations. Should be at least %d long" % (min_info_len,))
+
+
+
+    def save(self):
+        req = BookRequest(who=self.user, info=self.cleaned_data['info'])
+        req.save()
 
 
 class ProfileEditForm(forms.Form):
@@ -133,11 +174,11 @@ class RegistrationForm(forms.Form):
         user.is_active, user.is_superuser, user.is_staff = False, False, False
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
-        user.save()   # checkpoint save, because cfg.get_list may throw and is_active is True as default
+        user.save()   # checkpoint save, because config.get_list may throw and is_active is True as default
 
         # add user to default groups
-        cfg = Config()
-        groups = cfg.get_list('user_after_registration_groups')
+        config = Config()
+        groups = config.get_list('user_after_registration_groups')
         for group_name in groups:
             try:
                 g = Group.objects.get(name=group_name)

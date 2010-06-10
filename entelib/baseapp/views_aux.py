@@ -16,7 +16,9 @@ def render_response(request, template, context={}):
     context.update( {'go_back_link' : '<a href="javascript: history.go(-1)">Back</a>',
                      'can_access_admin_panel' : user.is_staff or user.is_superuser,
                      })
-    baseapp_perms = ['list_books', 'view_own_profile', 'list_users', 'list_reports']
+    # as far as we use perms with following convention, we can pass perms to templates easily:
+    # if in-code perm's name is list_book, then template gets can_list_books variable
+    baseapp_perms = ['list_books', 'add_bookrequest', 'view_own_profile', 'list_users', 'list_reports']
     for perm_name in baseapp_perms:
         perm_fullname = 'can_' + perm_name
         if user.has_perm('baseapp.' + perm_name):
@@ -451,7 +453,7 @@ def rent(reservation, librarian):
 
 
 def mark_available(book_copy):
-    reservations = Reservation.objects.filter(rental=None).filter(start_date__lte=date.today)  #TODO tylko aktywne? jak rozwiązać sytuację, jak ktoś zarezerwował od jutra?
+    reservations = Reservation.objects.filter(rental=None).filter(start_date__lte=date.today)  # TODO tylko aktywne? jak rozwiązać sytuację, jak ktoś zarezerwował od jutra?
     if reservations.count() > 0:
         reservations[0].active_since = date.today()
-        #TODO notify user he can rent the book
+        # TODO notify user he can rent the book

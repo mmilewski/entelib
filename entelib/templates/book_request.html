@@ -1,0 +1,30 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block title %}Request for book{% endblock %}
+
+{% block header %}Request for book{% endblock %}
+
+{% block content %}
+
+{% if show_confirmation_msg %}
+<div class="msg_wrapper">
+  <div class="confirmation_msg">
+    Thank you for your request.
+  </div>
+</div>
+{% endif %}
+
+{% if form_content %}
+<div class="formWrapper">
+  <form class="book_request_form" action="." method="POST">
+    <table class="basic_fields">
+      <tbody>
+        {{ form_content }}
+        <tr><th></th><td><input type="submit" value="Send request"/></td></tr>
+      </tbody>
+    </table>
+  </form>
+</div>
+{% endif %}
+
+{% endblock %}

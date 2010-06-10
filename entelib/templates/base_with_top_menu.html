@@ -6,6 +6,9 @@
             {% if can_list_books %}
             <li><a href='/entelib/books/'>Book list</a></li>
             {% endif %}
+            {% if can_add_bookrequest %}
+            <li><a href='/entelib/requestbook/'>Request book</a></li>
+            {% endif %}
             {% if can_view_own_profile %}
             <li><a href='/entelib/profile/'>My profile</a></li>
             {% endif %}

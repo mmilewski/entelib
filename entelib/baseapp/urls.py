@@ -56,6 +56,7 @@ urlpatterns = patterns(
     (r'^books/$', view.show_books),
     (r'^books$', get_redirect_function_to_url('/entelib/book/')),
     (r'^books/(\d+)/$', view.show_book),
+    (r'^requestbook/$', view.request_book),                   # request for book
 
     # book copies
     (r'^bookcopy/(\d+)/$', view.show_book_copy),

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User         # for reregistering User with modified UserAdmin
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AdminPasswordChangeForm     # for MyUserAdmin
-from entelib.baseapp.models import Location, State, Publisher, Picture, Author, Book, BookCopy, Reservation, Rental, Phone, PhoneType, CostCenter, Category, UserProfile
+from entelib.baseapp.models import Location, State, Publisher, Picture, Author, Book, BookCopy, BookRequest, Reservation, Rental, Phone, PhoneType, CostCenter, Category, UserProfile
 
 
 class MyUserAdmin(UserAdmin):
@@ -54,5 +54,5 @@ admin.site.register(User, MyUserAdmin)
 
 
 # register models in admin's site
-for model in [Location, State, Publisher, Picture, Author, Book, BookCopy, Reservation, Rental, Phone, PhoneType, CostCenter, Category, UserProfile]:
+for model in [Location, State, Publisher, Picture, Author, Book, BookCopy, BookRequest, Reservation, Rental, Phone, PhoneType, CostCenter, Category, UserProfile]:
     admin.site.register(model)
