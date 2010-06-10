@@ -401,7 +401,7 @@ def show_reports(request):
                 error = report_data['error']
                 map(lambda d: d.update({'selected': True}) if d['value'] == post['report_type'] else d, report_types)
                 return render_response( request,
-                                        template,
+                                        'reports/' + template,
                                         {
                                             'error': error,
                                             'search': search_data,
