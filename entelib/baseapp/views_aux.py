@@ -4,7 +4,10 @@ from entelib.baseapp.models import Reservation, Rental, BookCopy
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect  # TODO usunąć HttpResponse
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
+from config import Config
+
+config = Config()
 
 
 def render_response(request, template, context={}):
@@ -179,17 +182,12 @@ def book_copy_status(book_copy):
 def rent(reservation, librarian):
     rentable = is_reservation_rentable(reservation)
     if rentable:
-        try:
-            rental = Rental(reservation=reservation, who_handed_out=librarian, start_date=datetime.now())
-            rental.save()
-            max_duration = Config.get_int('max_rental_time')
-            duration = max_duration if rentable == 'infinity' or isinstance(rentable,int) and max_duration <= rentable else rentable
-            reservation.end_date = date.today() + timedelta(days=duration)
-            reservation.save()
-            return True
-        except Exception:
-            return 'Exception while in rent'
-    return 'rental not possible'
+        rental = Rental(reservation=reservation, who_handed_out=librarian, start_date=datetime.now())
+        rental.save()
+        max_duration = config.get_int('rental_duration')
+        duration = max_duration if rentable == 'infinity' or isinstance(rentable,int) and max_duration <= rentable else rentable
+        reservation.end_date = date.today() + timedelta(days=duration)
+        reservation.save()
 
 
 def mark_available(book_copy):
