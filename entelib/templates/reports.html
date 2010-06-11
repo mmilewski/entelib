@@ -14,7 +14,7 @@
                 <tr>
                     <td>Report type: </td>
                     <td>
-                        <select name='report_type' {%if select_size %}size='{{ select_size }}'{%endif%}>
+                        <select name='report_type' size='{{ select_size|default:1 }}'>
                             {% for type in report_types %}
                                 <option value='{{ type.value }}' {% if type.selected %}selected{% endif %}>{{ type.name }}</option>
                             {% endfor %}
