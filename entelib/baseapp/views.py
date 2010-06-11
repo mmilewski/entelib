@@ -90,6 +90,7 @@ def default(request):
 def show_books(request, non_standard_user_id=False):
     if not request.user.is_authenticated():
         return render_forbidden(request)
+    config = Config()
     book_url = u'/entelib/books/%d/' if non_standard_user_id == False else u'/entelib/users/%d/reservations/new/book/%s/' % (int(non_standard_user_id), '%d')
     search_data = {}                    # data of searching context
     selected_categories_ids = []        # ids of selected categories -- needed to reselect them on site reload
@@ -136,7 +137,10 @@ def show_books(request, non_standard_user_id=False):
         # If no POST data was sent, then we don't want to list any books, but we want
         # to fill category selection input with all possible categories.
         books = []
-        categories_from_booklist = Category.objects.all()      # FIXME: can be fixed to list categories, to which at least one book belong
+        if config.get_bool('list_only_existing_categories_in_search'):
+            categories_from_booklist = list(set([c for b in Book.objects.all() for c in b.category.all()]))
+        else:
+            categories_from_booklist = Category.objects.all()      # FIXME: can be fixed to list categories, to which at least one book belong
 
     # prepare categories for rendering
     search_categories = [ {'name' : '-- Any --',  'id' : 0} ]

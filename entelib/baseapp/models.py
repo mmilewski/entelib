@@ -204,6 +204,11 @@ class CostCenter(models.Model):
     def __unicode__(self):
         return u'CC %s' % (self.name, )
 
+    class Meta:
+        permissions = (
+            ("list_cost_centers", "Can list cost centers"),
+            )
+
 
 class BookCopy(models.Model):
     id = models.AutoField(primary_key=True)

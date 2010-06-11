@@ -1,5 +1,7 @@
 {% extends 'base_with_top_menu.html' %}
 
+{% load go_back_link %}
+
 {% block title %}{{ book.title }}{% endblock %}
 
 {% block header %}Book copy{% endblock %}
@@ -14,6 +16,8 @@
     <div class='clear' style='padding-top: 1em;'>
     {% block form %}
     {% endblock %}
+
+        {% go_back_link "Go back" %}
         <ul class='spaces'>
             <li class="book_authors">
                 {% if book.authors %}
@@ -24,6 +28,7 @@
             </li>
             <li class="book_shelfmark">Shelf mark: {{ book.shelf_mark }}</li>            
             <li class="book_location">Location: {{ book.location }}</li>
+            {%if can_list_cost_centers%}<li class="costcenter">Cost Center: {{ book.cost_center }}</li>{%endif%}
             <li class="book_state">State: {{ book.state }}</li>
             <li class="book_publisher">Publisher: {{ book.publisher }}</li>
             <li class="book_year">Year: {{ book.year }}</li>

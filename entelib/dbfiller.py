@@ -295,7 +295,8 @@ config['rental_duration'] = 30                                                 #
 config['reservation_rush'] = 4                                                 # How quick you need to rent reserved book when it becomes available
 config['default_email_sender'] = 'NSN library <no-reply@library.nsn.wroc.pl'   # From what address user receives emails
 config['message_book_reserved'] = 'Reservation active since %s'                # Message to show right after user reserves a book. Has to contain exactly one %s which will be filled with reservation start date
-config['book_request_info_min_len'] =  10                                           # Minimal length of book request information
+config['book_request_info_min_len'] =  10                                      # Minimal length of book request information
+config['list_only_existing_categories_in_search'] = True                       # True iff in booklist (book search, not book copy search) only those categories will be listed, that exists a book with such category.
 
 # add user
 print "Adding default user to some groups"
