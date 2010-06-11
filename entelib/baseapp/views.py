@@ -413,7 +413,7 @@ def show_reports(request):
                     {'name': u'Most often rented books', 'value': u'most_often_rented'},
                     {'name': u'Most often reserved books', 'value': u'most_often_reserved'},
                     {'name': u'Users black list', 'value': u'black_list'},
-                    {'name': u'Not available books', 'value': u'lost_books'}]
+                    {'name': u'Unavailable books', 'value': u'lost_books'}]
 
     post = request.POST
     if request.method == 'POST':

@@ -359,7 +359,7 @@ def get_report_data(report_type, from_date, to_date):
 
     elif report_type == u'lost_books':
         book_infos = get_report_data(u'status', u'', u'')['report']
-        lost_books = filter(lambda b: b['status'] == 'Not available', book_infos)
+        lost_books = filter(lambda b: b['status'] == 'Unavailable', book_infos)
         return {'report': lost_books, 'template': 'library_status.html', 'error': False}
 
     else:
@@ -431,7 +431,7 @@ def book_copy_status(book_copy):
     '''
     to_return = 0
     if book_copy.state.is_available == False:
-        to_return = u'Not available'
+        to_return = u'Unavailable'
     elif Rental.objects.filter(reservation__book_copy=book_copy).filter(end_date__isnull=True).count() > 0:
         to_return = u'Rented'
     elif Reservation.objects.filter(book_copy=book_copy).filter(end_date__isnull=True).count() > 0:
