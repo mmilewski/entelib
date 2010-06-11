@@ -32,7 +32,8 @@ class Config(object):
                 self._cached_data[key] = result.value
                 return result.value
             except Configuration.DoesNotExist, e:
-                raise e
+                # print Configuration.objects.all()
+                raise Configuration.DoesNotExist(e.args + (key,))
 
     def __setitem__(self, key, value):
         if value == True:

@@ -5,7 +5,7 @@
 Settings for baseapp models. Constants and so on.
 '''
 
-configuration_key_len = 20
+configuration_key_len = 60
 configuration_value_len = 256
 
 location_name_len = 30

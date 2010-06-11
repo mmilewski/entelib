@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 from django.test import TestCase
 from page_logger import *
+from entelib.dbfiller import fill_config
 
 
 class PageAccessTest(TestCase, PageLogger):
     '''
     Checks whether different urls where rendered properly.
     '''
+    def setUp(self):
+        self.config = fill_config()
 
     def test_index_page(self):
         ''' Tests correct redirection of index pages. '''

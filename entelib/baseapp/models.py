@@ -20,6 +20,9 @@ class Configuration(models.Model):
     key = models.CharField(max_length=CFG.configuration_key_len, primary_key=True)
     value = models.CharField(max_length=CFG.configuration_value_len)
 
+    def __unicode__(self):
+        return u'%s => %s' % (self.key, self.value)
+
 
 class PhoneType(models.Model):
     '''
