@@ -468,7 +468,7 @@ def reserve_for_user_book_copy(request, user_id, book_copy_id):
     return render_not_implemented(request)
 
 
-def show_user_reservation(request, user_id):
+def show_user_reservation(request, user_id, reservation_id):
     return render_not_implemented(request)
 
 

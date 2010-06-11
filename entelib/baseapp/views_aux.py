@@ -42,7 +42,7 @@ def render_forbidden(request):
 
 
 def render_not_implemented(request):
-    return render_to_response(request, 'not_implemented.html')
+    return render_response(request, 'not_implemented.html')
 
 
 def filter_query(class_name, Q_none, Q_all, constraints):
