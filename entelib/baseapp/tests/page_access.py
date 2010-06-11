@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.test import TestCase
 from page_logger import *
-from entelib.dbfiller import fill_config
+from entelib.dbconfigfiller import fill_config
 
 
 class PageAccessTest(TestCase, PageLogger):
