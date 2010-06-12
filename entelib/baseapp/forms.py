@@ -64,7 +64,7 @@ class BookRequestForm(forms.Form):
 
     def save(self):
         info = self.cleaned_data['info']
-        book_id = int(self.cleaned_data['book']) if self.cleaned_data['book']!='0' else None
+        book_id = int(self.cleaned_data['book']) if self.cleaned_data['book'] != '0' else None
         book = Book.objects.get(pk=book_id)
         req = BookRequest(who=self.user, info=info, book=book)
         req.save()

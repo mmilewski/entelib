@@ -4,6 +4,8 @@ from django.contrib.auth.models import User         # for reregistering User wit
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AdminPasswordChangeForm     # for MyUserAdmin
 from entelib.baseapp.models import Location, State, Publisher, Picture, Author, Book, BookCopy, BookRequest, Reservation, Rental, Phone, PhoneType, CostCenter, Category, UserProfile
 
+admin.site.disable_action('delete_selected')
+
 
 class MyUserAdmin(UserAdmin):
     '''
