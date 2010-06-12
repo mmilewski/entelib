@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.contrib.auth.models import Group, User
-from baseapp.models import BookRequest
+from baseapp.models import Book, BookRequest
 # from baseapp.models import CustomUser
 from config import Config
 
@@ -15,6 +15,12 @@ class BookRequestForm(forms.Form):
     Form for requesting book. Users can add their propositions of books,
     they would like to have in the library.
     '''
+    def _books_choice_list():
+        na = (0, '-- not applicable --')
+        return [na] + [(b.id,b.title) for b in Book.objects.all().order_by('title')]
+
+    book = forms.ChoiceField(choices=_books_choice_list(), label="Book")
+
     info = forms.CharField(widget=forms.Textarea,
                            label=(u'Information about book you request'),
                            required=True,
@@ -25,12 +31,25 @@ class BookRequestForm(forms.Form):
         self.user = user
         super(BookRequestForm, self).__init__(*args, **kwargs)
 
-
     def clean_info(self):
         if not 'info' in self.cleaned_data:
             raise forms.ValidationError(u'Give any informations about book.')
         return self.cleaned_data['info']
 
+    def clean_book(self):
+        # field exists at all
+        if not 'book' in self.cleaned_data:
+            raise forms.ValidationError(u"Form data corrupted. Book field wasn't found.")
+        # id==0 is a special case - but it's correct
+        book_id = (int)(self.cleaned_data['book'])
+        if book_id == 0:
+            return self.cleaned_data['book']
+        # check if one tries to corrupt db.
+        try:
+            Book.objects.get(id=book_id)
+        except Book.DoesNotExist:
+            raise forms.ValidationError(u"Corrupted book's id")
+        return self.cleaned_data['book']
 
     def clean(self):
         config = Config()
@@ -43,10 +62,11 @@ class BookRequestForm(forms.Form):
             return self.cleaned_data
         raise forms.ValidationError(u"Your request doesn't contain any informations. Should be at least %d long" % (min_info_len,))
 
-
-
     def save(self):
-        req = BookRequest(who=self.user, info=self.cleaned_data['info'])
+        info = self.cleaned_data['info']
+        book_id = int(self.cleaned_data['book']) if self.cleaned_data['book']!='0' else None
+        book = Book.objects.get(pk=book_id)
+        req = BookRequest(who=self.user, info=info, book=book)
         req.save()
 
 

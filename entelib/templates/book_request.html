@@ -9,18 +9,22 @@
 {% if show_confirmation_msg %}
 <div class="msg_wrapper">
   <div class="confirmation_msg">
-    Thank you for your request.
+    Thank you for your request. You can see <a href="/entelib/admin/baseapp/bookrequest/">all requests here</a>.
   </div>
 </div>
 {% endif %}
 
 {% if form_content %}
+<div class="usage_info">
+  <p>If you want to <em>request a book</em> leave book field empty.</p>
+  <p>If you want to <em>request a copy of existing book</em> find book on a drop-down list.</p>
+</div>
 <div class="formWrapper">
   <form class="book_request_form" action="." method="POST">
     <table class="basic_fields">
       <tbody>
         {{ form_content }}
-        <tr><th></th><td><input type="submit" value="Send request"/></td></tr>
+        <tr> <th></th> <td><input type="submit" value="Send request"/></td> </tr>
       </tbody>
     </table>
   </form>

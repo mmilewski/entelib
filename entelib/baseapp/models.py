@@ -194,10 +194,12 @@ class BookRequest(models.Model):
     id = models.AutoField(primary_key=True)
     who = models.ForeignKey(User, blank=False, null=False)
     when = models.DateTimeField(auto_now_add=True, blank=False, null=False)
+    book = models.ForeignKey(Book, blank=True, null=True)
     info = models.TextField()
 
     def __unicode__(self):
-        return u'Request for: %s' % (self.info[:30], )
+        title = self.book.title if self.book else 'n/a'
+        return u'Request for: (%s) %s' % (title, self.info[:30], )
 
 
 class CostCenter(models.Model):
@@ -222,7 +224,7 @@ class BookCopy(models.Model):
     state = models.ForeignKey(State)
     publisher = models.ForeignKey(Publisher)
     year = models.IntegerField()
-    publication_nr = models.IntegerField(blank=True)
+    publication_nr = models.IntegerField(null=True, blank=True)
     picture = models.ForeignKey(Picture, null=True, blank=True)
     toc = models.TextField(blank=True)                                         # table of contents
     toc_url = models.CharField(blank=True, max_length=CFG.copy_toc_url_len)    # external link to TOC

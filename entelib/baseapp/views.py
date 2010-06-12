@@ -37,6 +37,7 @@ def request_book(request, request_form=BookRequestForm):
         form = request_form(user=user)
 
     context['form_content'] = form
+    context['books'] = Book.objects.all()
     return render_response(request, tpl_request, context)
 
 
