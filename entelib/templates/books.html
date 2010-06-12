@@ -1,5 +1,7 @@
 {% extends 'base_with_top_menu.html' %}
 
+{% load go_back_link %}
+
 {% block title %}Book list{% endblock %}
 
 {% block header %}Book list{% endblock %}
@@ -48,6 +50,7 @@
       {% if can_add_book %}
       <a href="/entelib/admin/baseapp/book/add/" class="add_book">Add book</a>
       {% endif %}
+      {% go_back_link "Go back" %}
     </div>
 
     <div class="found_books">

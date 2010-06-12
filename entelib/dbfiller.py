@@ -16,6 +16,7 @@ from django.contrib.auth.models import Group
 # clear database
 print 'Clearing database'
 Location.objects.all().delete()
+Building.objects.all().delete()
 Reservation.objects.all().delete()
 Rental.objects.all().delete()
 Picture.objects.all().delete()
@@ -36,6 +37,7 @@ User.objects.all().delete()
 
 # define number of records to create
 locations_count = 8
+buildings_count = 4
 authors_count = 25
 pictures_count = 3
 publishers_count = 7
@@ -72,12 +74,22 @@ for cat_name in cat_names:
     Category(name=cat_name).save()
 
 
+# buildings
+print 'Adding %d buildings' % buildings_count
+buil_names = [ 'Building A', 'Building B', 'Store', 'Skyscraper' ]
+builds = [ Building(name = buil_names[i]) for i in range(buildings_count) ]
+shuffle(builds)
+for b in builds:
+    b.save()
+
+
 # locations
 print 'Adding %d locations' % locations_count
-loc_names = ['Budynek A', 'Budynek B', 'Namiot', 'Szafa w przedpokoju', 'Półka specjalna']
+loc_names = [ 'Room %d' % i for i in range(1,10) ]
 loc_names += [ get_random_text(8).capitalize() for i in range(len(loc_names), locations_count) ]
-loc_remarks = ['', 'W remoncie', 'Chwilowo niedostępna z powodu rozlania soku malinowego', 'Klucz na portierni A', 'Kto ma klusz?']
-locs = [ Location(name = loc_names[i],
+loc_remarks = ['', 'W remoncie', 'Chwilowo zamknięta z powodu rozlania soku malinowego', 'Klucz na portierni A', 'Kto ma klucz?']
+locs = [ Location(details = loc_names[i],
+                  building = choice(builds),
                   remarks = choice(loc_remarks))
          for i in range(locations_count) ]
 shuffle(locs)
@@ -232,22 +244,6 @@ for copy in copies:
 
 
 
-# here we add a superuser which is available right after filling db
-# src: http://docs.djangoproject.com/en/dev/topics/auth/#creating-users
-# from django.contrib.auth.models import User
-
-print "Adding users"
-# from entelib.baseapp.models import CustomUser
-# superuser
-user = User.objects.create_user('admin', 'iam@superfrog.com', 'admin')
-user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Admino', u'Domino', True, True
-user.save()
-# everyday user
-user = User.objects.create_user('user', 'iam@frog.com', 'user')
-user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Grzegorz', u'Brzęczyszczykiewicz', False, False
-user.save()
-
-
 # add telephone types
 print "Adding phone types"
 phone_types = [ ('Mobile', '(\+?\d{2,3})?.?\d{3}-\d{3}-\d{3}', 'For mobiles'),
@@ -257,6 +253,32 @@ phone_types = [ ('Mobile', '(\+?\d{2,3})?.?\d{3}-\d{3}-\d{3}', 'For mobiles'),
 for (name, re, desc) in phone_types:
     pt = PhoneType(name=name, verify_re=re, description=desc)
     pt.save()
+
+
+# here we add a superuser which is available right after filling db
+# src: http://docs.djangoproject.com/en/dev/topics/auth/#creating-users
+# from django.contrib.auth.models import User
+
+print "Adding users"
+# from entelib.baseapp.models import CustomUser
+# superuser
+user = User.objects.create_user('admin', 'iam@superfrog.com', 'admin')
+user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Admino', u'Domino', True, True
+# user.save()
+ph = Phone(type=PhoneType.objects.get(id=1), value="333-444-555")
+ph.save()
+user.get_profile().phone.add(ph)
+ph = Phone(type=PhoneType.objects.get(id=2), value="admino.dominko")
+ph.save()
+user.get_profile().phone.add(ph)
+user.save()
+# everyday user
+user = User.objects.create_user('user', 'iam@frog.com', 'user')
+user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Grzegorz', u'Brzęczyszczykiewicz', False, False
+ph = Phone(type=PhoneType.objects.get(id=2), value="grzesiu.brzeczy")
+ph.save()
+user.get_profile().phone.add(ph)
+user.save()
 
 
 # add few groups

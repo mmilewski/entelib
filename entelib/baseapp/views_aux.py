@@ -1,11 +1,12 @@
 #-*- coding=utf-8 -*-
 
-from entelib.baseapp.models import Reservation, Rental, BookCopy, Book, User
+from entelib.baseapp.models import Reservation, Rental, BookCopy, Book, User, Location
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from datetime import date, datetime, timedelta
 from config import Config
+from entelib import settings
 import csv
 
 config = Config()
@@ -18,7 +19,7 @@ def render_response(request, template, context={}):
                      })
     # as far as we use perms with following convention, we can pass perms to templates easily:
     # if in-code perm's name is list_book, then template gets can_list_books variable
-    baseapp_perms = ['list_books', 'add_bookrequest', 'view_own_profile', 'list_users', 'list_reports', 'list_cost_centers',]
+    baseapp_perms = ['list_books', 'add_bookrequest', 'list_bookrequests', 'view_own_profile', 'list_users', 'list_reports', 'list_cost_centers',]
     for perm_name in baseapp_perms:
         perm_fullname = 'can_' + perm_name
         if user.has_perm('baseapp.' + perm_name):
@@ -37,7 +38,7 @@ def render_response(request, template, context={}):
 
 def render_forbidden(request):
     if not request.user.is_authenticated():
-        return HttpResponseRedirect('/entelib/login/')
+        return HttpResponseRedirect(settings.LOGIN_URL)
     return render_response(request, 'forbidden.html')
 
 
@@ -89,22 +90,50 @@ def get_book_details(book_copy):
     '''
 
     book_desc = {
-        'title' : book_copy.book.title,
-        'shelf_mark' : book_copy.shelf_mark,
-        'authors' : [a.name for a in book_copy.book.author.all()],
-        'location' : book_copy.location.name,
-        'state' : book_copy.state.name,
-        'publisher' : book_copy.publisher.name,
-        'year' : book_copy.year,
-        'cost_center' : book_copy.cost_center,
+        'title'          : book_copy.book.title,
+        'shelf_mark'     : book_copy.shelf_mark,
+        'authors'        : [a.name for a in book_copy.book.author.all()],
+        'location'       : unicode(book_copy.location),
+        'state'          : unicode(book_copy.state),
+        'publisher'      : unicode(book_copy.publisher),
+        'year'           : book_copy.year,
+        'cost_center'    : unicode(book_copy.cost_center),
         'publication_nr' : book_copy.publication_nr,
-        'desc' : book_copy.description,
-        'desc_url' : book_copy.description_url,
-        'toc' : book_copy.toc,
-        'toc_url' : book_copy.toc_url,
-        'picture' : book_copy.picture,
+        'desc'           : book_copy.description,
+        'desc_url'       : book_copy.description_url,
+        'toc'            : book_copy.toc,
+        'toc_url'        : book_copy.toc_url,
+        'picture'        : book_copy.picture,
     }
     return book_desc
+
+
+def get_locations_for_book(book_id):
+    '''
+    Desc:
+        Result contains location L iff exists copy of book (book, which id is book_id) assigned to L.
+
+    Return:
+        List of instances of Location.
+    '''
+    try:
+        b = Book.objects.get(id=book_id)
+    except Book.DoesNotExist:
+        print 'get_locations_for_book(%d): book not found' % book_id
+        return []
+    copies = b.bookcopy_set.only('id').all()
+    return [ loc for loc in Location.objects.filter(id__in=[c.location.id for c in copies])]
+
+
+def get_phones_for_user(user):
+    '''
+    Desc:
+        Returns list of dicts {type, value} where type & value are string from Phone model
+
+    Args:
+        user -- instance of User class. NOT an id.
+    '''
+    return [ {'type':p.type.name, 'value':p.value} for p in user.get_profile().phone.all() ]
 
 
 def generate_csv(report_type, from_date, to_date):

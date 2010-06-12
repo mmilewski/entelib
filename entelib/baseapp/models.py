@@ -9,10 +9,6 @@ import settings
 APPLICATION_NAME = 'baseapp'     # should be read from somewhere, I think
 
 
-# TODO:
-#   this comment seems outdated...
-#   - fields in location are probably: building, floor, room, name, telephone* (zero or more). Name is like 'Tweety' or 'Scooby'
-
 class Configuration(models.Model):
     '''
     Key,Value pairs.
@@ -29,7 +25,7 @@ class PhoneType(models.Model):
     Phone type description.
     '''
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=CFG.phonetype_name_len)
+    name = models.CharField(max_length=CFG.phonetype_name_len, unique=True)
     verify_re = models.CharField(max_length=CFG.phonetype_verify_re_len, blank=True)
     description = models.CharField(max_length=CFG.phonetype_description_len, blank=True)
 
@@ -61,6 +57,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, unique=True)
     shoe_size = models.PositiveIntegerField(null=True, blank=True)  # :)
     phone = models.ManyToManyField(Phone, null=True, blank=True)
+    building = models.ForeignKey('Building', null=True, blank=True)
 
     class Meta:
         permissions = (
@@ -122,13 +119,23 @@ def create_profile_for_user(sender, instance, **kwargs):
 signals.post_save.connect(create_profile_for_user, sender=User, weak=False)
 
 
-class Location(models.Model):
+class Building(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=CFG.location_name_len)
-    remarks = models.CharField(max_length=CFG.location_remarks_len, blank=True)
+    name = models.CharField(max_length=CFG.building_name_len)
+    remarks = models.CharField(max_length=CFG.building_remarks_len, blank=True)
 
     def __unicode__(self):
         return self.name
+
+
+class Location(models.Model):
+    id = models.AutoField(primary_key=True)
+    building = models.ForeignKey(Building, blank=False, null=False)
+    details = models.CharField(max_length=CFG.location_name_len)
+    remarks = models.CharField(max_length=CFG.location_remarks_len, blank=True)
+
+    def __unicode__(self):
+        return u'%s: %s' % (self.building.name, self.details)
 
 
 class State(models.Model):
@@ -200,6 +207,11 @@ class BookRequest(models.Model):
     def __unicode__(self):
         title = self.book.title if self.book else 'n/a'
         return u'Request for: (%s) %s' % (title, self.info[:30], )
+
+    class Meta:
+        permissions = (
+            ("list_bookrequests", "Can list book requests"),
+            )
 
 
 class CostCenter(models.Model):

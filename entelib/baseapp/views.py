@@ -6,7 +6,8 @@ from entelib.baseapp.models import *
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
-from views_aux import render_forbidden, render_response, filter_query, get_book_details, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, is_book_copy_rentable, get_report_data, generate_csv
+from views_aux import render_forbidden, render_response, filter_query, get_book_details, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, is_book_copy_rentable, get_report_data, generate_csv, get_locations_for_book
+from entelib import settings
 from config import Config
 # from django.contrib.auth.decorators import permission_required
 from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm
@@ -84,7 +85,7 @@ def logout(request):
 
 def default(request):
     if not request.user.is_authenticated():
-        return HttpResponseRedirect('/entelib/login/')
+        return HttpResponseRedirect(settings.LOGIN_URL)
     return render_response(request, 'entelib.html')
 
 
@@ -179,27 +180,26 @@ def show_book(request, book_id, non_standard_user_id=False):
     is_copy_reservable = request.user.has_perm('baseapp.add_reservation')
     for elem in book_copies:
         curr_copies.append({
-            'url' : show_url % elem.id,
-            'reserve_url' : reserve_url % elem.id,
-            'location' : elem.location.name,
-            'state' : elem.state.name,
-            'publisher' : elem.publisher.name,
-            'year' : elem.year,
-            'is_available' : elem.state.is_available,
+            'url'           : show_url % elem.id,
+            'reserve_url'   : reserve_url % elem.id,
+            'location'      : unicode(elem.location),
+            'state'         : unicode(elem.state),
+            'publisher'     : unicode(elem.publisher),
+            'year'          : elem.year,
+            'is_available'  : elem.state.is_available,
             'is_reservable' : is_copy_reservable,    # TODO: this should check if one can reserve copy and whether book is available for reserving (whatever this means)
-            # 'desc_url' : '/desc_url_not_implemented',      # link generation is done in templates, see bookcopies.html
             })
     book_desc = {
-        'id' : book.id,
-        'title' : book.title,
-        'authors' : [a.name for a in book.author.all()],
-        'items' : curr_copies,
-        'categories' : [c.name for c in book.category.all()],
+        'id'          : book.id,
+        'title'       : book.title,
+        'authors'     : [a.name for a in book.author.all()],
+        'items'       : curr_copies,
+        'categories'  : [c.name for c in book.category.all()],
         }
     search_data = {
         'locations' :
-            [{'name' : '-- Any --', 'id' : 0}] + [{'name' : l.name, 'id' : l.id, 'selected': l.id in selected_locations}
-                                                  for l in Location.objects.filter(id__in=[c.location.id for c in book_copies])],
+            [{'name' : '-- Any --', 'id' : 0}] + [{'name' : unicode(l), 'id' : l.id, 'selected': l.id in selected_locations}
+                                                  for l in get_locations_for_book(book.id)],
         'copies_select_size': Config().get_int('copies_select_size'),      # count of elements displayed in <select> tag
         }
     return render_response(request, 'bookcopies.html', { 'book' : book_desc,
@@ -250,11 +250,13 @@ def show_users(request):
 def show_user(request, user_id):
     user = User.objects.get(id=user_id)
     return render_response(request, 'user.html',
-        { 'first_name' : user.first_name,
-          'last_name' : user.last_name,
-          'email' : user.email,
-          'rentals' : 'rentals/',
-          'reservations' : 'reservations/',
+        { 'first_name'    : user.first_name,
+          'last_name'     : user.last_name,
+          'email'         : user.email,
+          'phones'        : get_phones_for_user(user),
+          'building'      : user.get_profile().building,
+          'rentals'       : 'rentals/',
+          'reservations'  : 'reservations/',
         }
     )
 
@@ -285,12 +287,14 @@ def edit_user_profile(request, profile_edit_form=ProfileEditForm):
 
     return render_response(request, 'profile.html',
         {
-            'first_name' : user.first_name,
-            'last_name' : user.last_name,
-            'email' : user.email,
-            'rentals' : 'rentals/',
-            'reservations' : 'reservations/',
-            'form_content': form,
+            'first_name'    : user.first_name,
+            'last_name'     : user.last_name,
+            'email'         : user.email,
+            'building'      : user.get_profile().building,
+            'phones'        : get_phones_for_user(user),
+            'rentals'       : 'rentals/',
+            'reservations'  : 'reservations/',
+            'form_content'  : form,
         })
 
 

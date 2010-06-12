@@ -1,5 +1,7 @@
 {% extends 'base_with_top_menu.html' %}
 
+{% load go_back_link %}
+
 {% block title %}User profile{% endblock %}
 
 {% block header %}User profile{% endblock %}
@@ -9,6 +11,15 @@
         <li>Name: {{ first_name }}</li>
         <li>Surname: {{ last_name }}</li>
         <li>E-mail: {{ email }}</li>
+        <li>Phones: {% if phones %}
+                    <ul class="phones">
+                    {% for p in phones %}
+                        <li>{{p.type}}: {%ifequal p.type "Skype" %}<a class="skype" href="skype:{{p.value}}">{{p.value}}</a>{% else %}{{p.value}}{% endifequal %}</li>
+                    {% endfor %}
+                    </ul>
+                    {% else %} None defined {% endif %}
+        </li>
+        <li>Building: {{ building|default_if_none:"Not defined" }}</li>
     </ul>
     <div class='content_form'>
         <b>
@@ -16,6 +27,9 @@
         <a href='{{ rentals }}'>Rentals</a> |
         </b>
     </div>
+
+    {% go_back_link "Go back" %}
+
     {% block edit_form %}
     {% endblock %}
 {% endblock %}

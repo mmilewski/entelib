@@ -11,8 +11,11 @@ configuration_value_len = 256
 location_name_len = 30
 location_remarks_len = 50
 
+building_name_len = 30
+building_remarks_len = 50
+
 phone_value_len = 30                  # i.e. len('515-626-737')
-phonetype_name_len = 30
+phonetype_name_len = 30               # i.e. len('Skype'), len('fax')
 phonetype_verify_re_len = 100         # regular expression to verify phone type correctness
 phonetype_description_len = 100       # some info for users. One can give example phone numbers
 

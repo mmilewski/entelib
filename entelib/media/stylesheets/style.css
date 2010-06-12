@@ -237,3 +237,9 @@ form.registration_form table.basic_fields  td ul.errorlist {
 form.registration_form table.basic_fields  td ul.errorlist li {
     padding: 0;
 }
+
+ul.phones a.skype {
+    background: url('/media/images/skype-icon.png') no-repeat right;
+    padding: 0 26px 0 0;
+    text-decoration: none;
+}
