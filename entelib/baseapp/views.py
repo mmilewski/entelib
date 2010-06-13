@@ -6,7 +6,8 @@ from entelib.baseapp.models import *
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
-from views_aux import render_forbidden, render_response, filter_query, get_book_details, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, is_book_copy_rentable, get_report_data, generate_csv, get_locations_for_book
+from views_aux import render_forbidden, render_response, filter_query, get_book_details, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, is_book_copy_rentable, get_locations_for_book
+from reports import get_report_data, generate_csv
 from entelib import settings
 from config import Config
 # from django.contrib.auth.decorators import permission_required
@@ -419,6 +420,7 @@ def show_reports(request):
                     {'name': u'Most often reserved books', 'value': u'most_often_reserved'},
                     {'name': u'Users black list', 'value': u'black_list'},
                     {'name': u'Unavailable books', 'value': u'lost_books'}]
+    select_size = unicode(len(report_types))
 
     post = request.POST
     if request.method == 'POST':
@@ -434,17 +436,21 @@ def show_reports(request):
                 report = report_data['report']
                 template = report_data['template']
                 error = report_data['error']
+                if not error:
+                    template = 'reports/' + template
+
                 map(lambda d: d.update({'selected': True}) if d['value'] == post['report_type'] else d, report_types)
                 return render_response( request,
-                                        'reports/' + template,
+                                        template,
                                         {
+                                            'select_size': select_size,
                                             'error': error,
                                             'search': search_data,
                                             'report_types': report_types,
                                             'report': report
                                         })
 
-    return render_response(request, 'reports.html', {'report_types': report_types})
+    return render_response(request, 'reports.html', {'report_types': report_types, 'select_size': select_size})
 
 
 def find_book_for_user(request, user_id, book_id=None):
