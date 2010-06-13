@@ -26,6 +26,11 @@ def render_response(request, template, context={}):
         else:
             context.pop(perm_fullname, None)
 
+    # special cases
+    if config.get_bool('is_cost_center_visible_to_anyone') == True:
+        context['can_list_cost_centers'] = True
+
+
     for key, value in context.items():
         context[key] = callable(value) and value() or value
     return render_to_response(
