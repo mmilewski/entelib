@@ -13,7 +13,7 @@
         <tbody>
           <tr><th>Sent</th> <th>From</th> <th>To</th> <th>Body</th> </tr>
           {% for email in emails %}
-          <tr><td>{{email.sent_date|date:'d.m.Y H:i'}}</td> <td>{{email.sender}}</td> <td>{{email.receiver}}</td> <td>{{email.body}}</td> </tr>
+          <tr><td>{{email.sent_date|date:"d.m.Y H:i"}}</td> <td>{{email.sender}}</td> <td>{{email.receiver}}</td> <td>{{email.body}}</td> </tr>
           {% endfor %}
         </tbody>
       </table>

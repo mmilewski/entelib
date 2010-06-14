@@ -48,7 +48,7 @@ table.booklist .actions {   /* bookcopies.html */
     margin: 0.5em 0 0.5em 2em;
     padding: 0;
 }
-table.booklist .actions a.notavailable {
+table.booklist .actions a.unavailable {
     color: red;
 }
 

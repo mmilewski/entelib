@@ -50,6 +50,7 @@ def request_book(request, request_form=BookRequestForm):
         if form.is_valid():
             form.save()
             context['show_confirmation_msg'] = True
+            context['requested_items'] = BookRequest.objects.all()
             return render_response(request, tpl_request, context)
     # display fresh new form
     else:

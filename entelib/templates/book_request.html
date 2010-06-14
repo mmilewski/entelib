@@ -7,12 +7,27 @@
 {% block content %}
 
 {% if show_confirmation_msg %}
-<div class="msg_wrapper">
-  <div class="confirmation_msg">
-    Thank you for your request. You can see <a href="/entelib/admin/baseapp/bookrequest/">all requests here</a>.
-  </div>
-</div>
+    <div class="msg_wrapper">
+      <div class="confirmation_msg">
+        Thank you for your request. You can see <a href="/entelib/admin/baseapp/bookrequest/">all requests here</a>.
+      </div>
+    </div>
+
+    {% if requested_items %}
+    <div class="requested_wrapper">
+      <h2>Requested items</h2>
+      <ul>
+        {% for item in requested_items %}
+        <li>
+          <dt>{{item.book|default_if_none:'-'}}, {{item.who}}, {{item.when|date:"d.m.Y H:i"}}</dt>
+          <dd style="margin-bottom:1em;">{{item.info}}</dd>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
 {% endif %}
+
 
 {% if form_content %}
 <div class="usage_info">

@@ -27,6 +27,7 @@ class EmailLog(models.Model):
             ('list_emaillog', 'Can list email logs'),
             )
 
+
 class Configuration(models.Model):
     '''
     Key,Value pairs.

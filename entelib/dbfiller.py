@@ -38,7 +38,7 @@ User.objects.all().delete()
 # define number of records to create
 locations_count = 8
 buildings_count = 4
-authors_count = 25
+authors_count = 20
 pictures_count = 3
 publishers_count = 7
 books_count = 11
@@ -99,15 +99,26 @@ for loc in locs:
 
 # publishers
 print 'Adding %d publishers' % publishers_count
-publishers = [ Publisher(name = get_random_text(15).upper())
-               for i in range(publishers_count) ]
+publishers = [
+    Publisher(name=u"Atlas Press"),
+    Publisher(name=u"Book Works"),
+    Publisher(name=u"City Lights Publishers"),
+    Publisher(name=u"Firebrand Books"),
+    Publisher(name=u"Holland Park Press"),
+    Publisher(name=u"Indiana University Press"),
+    Publisher(name=u"Medknow Publications"),
+    Publisher(name=u"MIT Press"),
+    Publisher(name=u"Penguin Books UK"),
+    ]
+publishers += [ Publisher(name = get_random_text(15).upper())
+                for i in range(len(publishers),publishers_count) ]
 for publisher in publishers:
     publisher.save()
 
 
 # authors
 print 'Adding %d authors' % authors_count
-author_names = [u'Adam Mickiewicz', u'Heniu Sienkiewicz', u'Stanisław Lem']
+author_names = [u'Adam Mickiewicz', u'Heniu Sienkiewicz', u'Stanisław Lem', u'Maria Konopnicka', u'Jan Brzechwa', u'Julian Tuwim', u'Ignacy Krasicki', u'Borys Pasternak', u'Horacy', u'Zbyniu Herbert', u'Marc Abrahams', u'Elizabeth Adler', u'Khadija al-Salami', u'Mitch Albom', u'John Naish', u'Zofia Nałkowska', u'Jenny Nimmo', u'Carlos Eire', u'Barbara Ann Barnett', u'Joanna Czerniawska-Far', u'Hans i Michael Eysenck']
 author_names += [ (get_random_string(4,10) + ' ' + get_random_string(6,12)).title()
                   for i in range(len(author_names),authors_count) ]   # fill up to limit
 authors = [ Author(name = author_names[i])
@@ -133,11 +144,16 @@ for author in authors:
 
 # states
 print 'Adding %d states' % states_count
-state_names = [ get_random_string(3,7) for i in range(states_count) ]
-state_availability = [ True, False ]
-states = [ State(name = state_names[i],
-                 is_available = choice(state_availability))
-           for i in range(states_count) ]
+# state_names = [ get_random_string(3,7) for i in range(states_count) ]
+# state_availability = [ True, False ]
+# states = [ State(name = state_names[i],
+#                  is_available = choice(state_availability))
+#            for i in range(states_count) ]
+states = [
+    State(name="OK", is_available=True),
+    State(name="Bought & Arrived", is_available=True),
+    State(name="Lost", is_available=False),
+    ]
 for state in states:
     state.save()
 
@@ -155,7 +171,7 @@ for i in range(cost_centers_count):
 
 # books
 print 'Adding %d books' % books_count
-book_titles = [u'Ogniem i mieczem', u'Księga robotów', u'Bomba megabitowa', u'Liryki lozeńskie']
+book_titles = [u'Ogniem i mieczem', u'Księga robotów', u'Bomba megabitowa', u'Liryki lozeńskie', u'Na marne', u'Qua Vadis', u'Krzyżacy', u'W pustyni i w puszczy', u'Latarnik', 'Potop', u'Sonety krymskie', u'Pan Tadeusz', u'100 bajeczek kołysaneczek', u'Bajka o szczęściu', u'Czerwony kapturek', u'Żółw i zając', u'Tajemnicza ścieżka', u'Tomcio Paluch']
 book_titles += [ get_random_text(10) for i in range(len(book_titles), books_count) ]  # fill up to books_count
 books = []
 for i in range(books_count):

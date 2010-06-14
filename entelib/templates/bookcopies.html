@@ -97,7 +97,7 @@
                     <tr>
                         <td class="url"><a href='{{ item.url }}'>>></a></td>
                         <td class="location">{{ item.location }}</td>
-                        <td class="state">{{ item.state }} {% if item.is_available %}<span title="Is available">(avail)</span>{%endif%}</td>
+                        <td class="state">{{ item.state }} {% if not item.is_available %}<span style="color:red;" title="Unavailable, sorry">(not avail)</span>{%endif%}</td>
                         <td class="publisher">{{ item.publisher }}</td>
                         <td class="year">{{ item.year }}</td>
                         <td class="actions">
@@ -105,7 +105,7 @@
                                 <!-- <li><a href='{{ item.desc_url}}'>External description</a></li> -->
                                 <li><a href="{{ item.url }}#description">Description</a></li>
                                 {%if item.is_reservable %}<li><a href='{{ item.reserve_url }}'
-                                                                 {% if not item.is_available %}class="notavailable" title="Book not available"{% endif %}>
+                                                                 {% if not item.is_available %}class="available" title="Book is not available"{% endif %}>
                                                                  Reserve
                                                               </a></li> {% endif %}
                             </ul>
