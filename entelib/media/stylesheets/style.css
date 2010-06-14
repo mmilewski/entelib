@@ -97,7 +97,7 @@ div#header
 
 div#menu
 {
-    background-color: #bbb;  
+    background-color: #bbb;
     margin: 0 0.5em 0 0;
     padding: 0;
     width: 120px;
@@ -203,19 +203,16 @@ div.formWrapper form.registration_form {
 form.registration_form input.required {
     border: 1px solid red;
 }
-
 form.registration_form table.basic_fields  th {
     text-align: right;
     vertical-align: top;
     padding-right: 1em;
     /* border: 1px solid green; */
 }
-
 form.registration_form table.basic_fields  td {
     padding-bottom: 1.5em;
     /* border: 1px solid red; */
 }
-
 form.registration_form table.basic_fields ul.errorlist {
     list-style-type: none;
     float: none;
@@ -224,7 +221,6 @@ form.registration_form table.basic_fields ul.errorlist {
     padding: 0;
     font-size: 90%;
 }
-
 form.registration_form table.basic_fields  td ul.errorlist {
     list-style-type: none;
     float: none;
@@ -233,7 +229,6 @@ form.registration_form table.basic_fields  td ul.errorlist {
     padding: 0;
     font-size: 90%;
 }
-
 form.registration_form table.basic_fields  td ul.errorlist li {
     padding: 0;
 }
@@ -242,4 +237,17 @@ ul.phones a.skype {
     background: url('/media/images/skype-icon.png') no-repeat right;
     padding: 0 26px 0 0;
     text-decoration: none;
+}
+
+div.emails_wrapper div.email {
+    border-top: 1px solid black;
+    margin-bottom: 2em;
+}
+div.emails_wrapper table.emails {
+    border: 1px solid black;
+}
+div.emails_wrapper table.emails td,
+div.emails_wrapper table.emails th {
+    padding: 0.5em;
+    border: 1px solid #000;
 }

@@ -62,8 +62,11 @@ urlpatterns = patterns(
     (r'^bookcopy/(\d+)/$', view.show_book_copy),
     (r'^bookcopy/(\d+)/reserve/$', view.reserve),
 
-    #reports
+    # reports
     (r'^report/$', view.show_reports),
+
+    # emails
+    (r'^emails/$', view.show_email_list),
 
     # admin docs urls
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),

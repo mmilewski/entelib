@@ -9,6 +9,24 @@ import settings
 APPLICATION_NAME = 'baseapp'     # should be read from somewhere, I think
 
 
+class EmailLog(models.Model):
+    '''
+    Contains information about sent emails.
+    '''
+    sender = models.CharField(max_length=CFG.emaillog_sender_len)
+    receiver = models.CharField(max_length=CFG.emaillog_receiver_len)
+    sent_date = models.DateTimeField(auto_now_add=True, blank=False, null=False)
+    body = models.CharField(max_length=CFG.emaillog_body_len)
+
+    def __unicode__(self):
+        sent_date = self.sent_date.strftime('%d.%m.%Y %H:%M')
+        return u"[%s] FROM: %s TO: %s BODY: %s" % (sent_date, self.sender, self.receiver, self.body)
+
+    class Meta:
+        permissions = (
+            ('list_emaillog', 'Can list email logs'),
+            )
+
 class Configuration(models.Model):
     '''
     Key,Value pairs.

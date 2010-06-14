@@ -15,6 +15,23 @@ from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm
 from datetime import date, datetime, timedelta
 
 
+def show_email_list(request):
+    '''
+    Handles listing all emails.
+    '''
+    tpl_email_list = 'email/list.html'
+    context = {
+        'emails' : EmailLog.objects.all(),
+        }
+    user = request.user
+
+    # auth
+    if not all([user.is_authenticated(), user.has_perm('baseapp.list_emaillogs')]):
+        return render_forbidden(request)
+
+    return render_response(request, tpl_email_list, context)
+
+
 def request_book(request, request_form=BookRequestForm):
     '''
     Handles requesting for book by any user.
@@ -318,7 +335,7 @@ def show_user_rentals(request, user_id):
                    'from_date' : r.start_date,
                    'to_date' : r.reservation.end_date,
                   }
-                    for r in user_rentals ]
+                  for r in user_rentals ]
 
     return render_response(request,
         'user_books.html',
@@ -407,7 +424,7 @@ def show_my_reservations(request):
           'last_name' : user.last_name,
           'email' : user.email,
           'reservations' : reservation_list,
-          'cancel_all_url' : 'cancell-all/',
+          'cancel_all_url' : 'cancel-all/',
         }
     )
 
@@ -426,12 +443,12 @@ def show_reports(request):
     if request.method == 'POST':
         search_data = {'from': post['from'], 'to': post['to']}
         if 'action' in post and post['action'] == u'Export to csv':
-            if 'from' in post and 'to' in post and 'report_type' in post:
+            if ('from' in post) and ('to' in post) and ('report_type' in post):
                 response = generate_csv(post['report_type'], post['from'], post['to'])
                 return response
 
         if 'action' in post and post['action'] == u'Show':
-            if 'from' in post and 'to' in post and 'report_type' in post:
+            if ('from' in post) and ('to' in post) and ('report_type' in post):
                 report_data = get_report_data(post['report_type'], post['from'], post['to'])
                 report = report_data['report']
                 template = report_data['template']
@@ -439,7 +456,8 @@ def show_reports(request):
                 if not error:
                     template = 'reports/' + template
 
-                map(lambda d: d.update({'selected': True}) if d['value'] == post['report_type'] else d, report_types)
+                select_if_chosen = lambda d: d.update({'selected': True}) if d['value'] == post['report_type'] else d
+                map(select_if_chosen, report_types)
                 return render_response( request,
                                         template,
                                         {
@@ -525,7 +543,6 @@ def reserve(request, copy, non_standard_user_id=False):
                 rental.save()
                 rented.update({'until' : r.end_date.isoformat()})
                 reserved.update({'ok' : False})
-
 
     return render_response(request, 'reserve.html',
         {
