@@ -68,10 +68,11 @@ def get_random_text(max_len):
 
 # categories
 print 'Adding categories'
-cat_names = ['Horror', 'History', 'Sci-Fi', 'Fantasy']
+cat_names = ['Horror', 'History', 'Sci-Fi', 'Fantasy', 'Thriller', 'Comics']
 shuffle(cat_names)
-for cat_name in cat_names:
-    Category(name=cat_name).save()
+categories = [Category(name=cat_name) for cat_name in cat_names]
+for c in categories:
+    c.save()
 
 
 # buildings
@@ -179,6 +180,8 @@ for i in range(books_count):
     book.save()        # see: http://www.djangoproject.com/documentation/models/many_to_many/#sample-usage
     for author in set([ choice(authors) for i in range(1, 5) ]):
         book.author.add(author)
+    for category in set([ choice(categories) for i in range(1, 5) ]):
+        book.category.add(category)
     books.append(book)
 shuffle(books)
 for book in books:
