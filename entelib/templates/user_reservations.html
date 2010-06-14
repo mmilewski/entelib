@@ -21,6 +21,7 @@
                 <li>Shelf mark: {{ reservation.shelf_mark }}</li>
                 <li>Authors: {{ reservation.authors|join:', ' }}</li>
                 <li>From: {{ reservation.from_date }}</li>
+                <li>To:   {{ reservation.to_date   }}</li>
                 <li>Status: {% firstof reservation.rental_impossible "Ready" %}</li>
             </ul>
         </li>

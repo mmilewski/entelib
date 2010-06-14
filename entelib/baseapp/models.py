@@ -285,7 +285,7 @@ class Reservation(models.Model):
     book_copy = models.ForeignKey(BookCopy)
     for_whom = models.ForeignKey(User, related_name='reader')
     start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField()
     who_reserved = models.ForeignKey(User, related_name='reserver')
     when_reserved = models.DateTimeField(auto_now_add=True)
     who_cancelled = models.ForeignKey(User, related_name='canceller', null=True, blank=True)

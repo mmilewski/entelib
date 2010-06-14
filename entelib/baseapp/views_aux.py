@@ -9,6 +9,7 @@ from config import Config
 from entelib import settings
 
 config = Config()
+today = date.today
 
 
 def render_response(request, template, context={}):
@@ -18,7 +19,7 @@ def render_response(request, template, context={}):
                      })
     # as far as we use perms with following convention, we can pass perms to templates easily:
     # if in-code perm's name is list_book, then template gets can_list_books variable
-    baseapp_perms = ['list_books', 'add_bookrequest', 'list_bookrequests', 'view_own_profile', 'list_users', 'list_reports', 'list_cost_centers', 'list_emaillog', ]
+    baseapp_perms = ['list_books', 'add_bookrequest', 'list_bookrequests', 'view_own_profile', 'list_users', 'list_reports', 'list_cost_centers', 'list_emaillog',]
     for perm_name in baseapp_perms:
         perm_fullname = 'can_' + perm_name
         if user.has_perm('baseapp.' + perm_name):
@@ -147,7 +148,14 @@ def is_reservation_rentable(reservation):
     '''
     status = reservation_status(reservation)
     if isinstance(status, int):
-        return status if status != 0 else 'infinity'
+        return status
+    else:
+        return False
+
+
+def is_reservation_active(r):
+    if r.when_cancelled == None and r.rental == None and r.end_date <= today():
+        return True
     else:
         return False
 
@@ -156,35 +164,34 @@ def reservation_status(reservation):
     '''
     Desc:
         returns reservation status:
-            0 means rental possible.
-            any other value is string explaining why rental is not possible
+            integer means for how many days book can be rented
+            string is explaining why rental is not possible
     '''
-    all = Reservation.objects.filter(book_copy=reservation.book_copy).filter(rental=None)
-    all = all.filter(end_date=None).order_by('id')  # TODO: doczytać o order by: koszt i zdefiniowanie kolejności wpp
+    all = Reservation.objects.filter(book_copy=reservation.book_copy).filter(rental=None).filter(when_cancelled=None).filter(end_date__gt=today())
     if reservation not in all:
         return 'Incorrect reservation'
-    to_return = []
-    if reservation.start_date > date.today():
-        to_return += ['Reservation active since ' + reservation.start_date.isoformat() + '.']
-    elif reservation != all.filter(start_date__lte=date.today())[0]:
-        to_return += ['Reservation not first.']
+    # książka wypożyczona:
     if Rental.objects.filter(reservation__book_copy=reservation.book_copy).filter(end_date=None).count() > 0:
-        to_return += ['This copy is currently rented.']
+        return 'This copy is currently rented.'
+    # książka niedostępna
     if reservation.book_copy.state.is_available == False:
-        to_return += ['This copy is currently not available (' + reservation.book_copy.state.name + ').']
-    if reservation.end_date is not None:
-        to_return += ['Reservation already pursued']   # TODO nie wiem czy to dobre słowo...
-    if to_return:
-        return ' '.join(to_return)
-
-    older = all.exclude(id__lte=reservation.id)
-    if older.count() == 0:
-        return 0
-    return min([(r.start_date - date.today()).days for r in older])
+        return 'This copy is currently not available (' + reservation.book_copy.state.name + ').'
+    # rezerwacja jest do przodu i są jakieś inne po drodze:
+    if reservation.start_date > today() and all.filter(start_date__lt=reservation.start_date).count() > 0:
+        return 'There are reservations before this one starts.'
+    # jakaś starsza jest aktywna
+    if all.filter(id__lt=reservation.id).filter(start_date__lte=today()).filter(end_date__gt=today()).count() > 0:  # WARNING: this might need modification if additional conditions are added to definition of active reservation
+        return 'Reservation not first'
+    max_allowed = config.get_int('rental_duration')
+    try:
+        max_possible = (min([r.start_date for r in all.filter(id__lt=reservation.id).filter(start_date__gt=today())]) - today()).days
+    except ValueError:
+        max_possible = max_allowed
+    return min(max_allowed, max_possible)
 
 
 def is_book_copy_rentable(book_copy):
-    if book_copy_status(book_copy) == 0:
+    if isinstance(book_copy_status(book_copy),int):
         return True
     else:
         return False
@@ -199,34 +206,39 @@ def book_copy_status(book_copy):
         book_copy is BookCopy object.
 
     Returns:
-        0 mean's rentable. Any other string explains why not rentable.
+        integer n mean's rentable for n days. String explains why not rentable.
     '''
     to_return = 0
     if book_copy.state.is_available == False:
-        to_return = u'Unavailable'
+        return  u'Unavailable'
     elif Rental.objects.filter(reservation__book_copy=book_copy).filter(end_date__isnull=True).count() > 0:
-        to_return = u'Rented'
-    elif Reservation.objects.filter(book_copy=book_copy).filter(end_date__isnull=True).count() > 0:
-        to_return = u'Reserved'
+        return  u'Rented'
+    elif Reservation.objects.filter(book_copy=book_copy).filter(start_date__lte=today()).filter(end_date__gt=today()).filter(when_cancelled=None).filter(rental=None).count() > 0:
+        return u'Reserved'
 
-    if to_return:
-        return to_return
-    return 0
+    max_allowed = config.get_int('rental_duration')
+    try:
+        max_possible = (min([r.start_date for r in
+            Reservation.objects.filter(book_copy=book_copy).filter(end_date__gt=today()).filter(when_cancelled=None).filter(rental=None)]) - today()).days
+        if max_possible < 0:
+            max_possible = 0
+    except ValueError:
+        max_possible = max_allowed
+    return min(max_allowed, max_possible)
 
 
 def rent(reservation, librarian):
-    rentable = is_reservation_rentable(reservation)
+    rentable = is_reservation_rentable(reservation) and librarian.has_perm('baseapp.add_rental')
     if rentable:
         rental = Rental(reservation=reservation, who_handed_out=librarian, start_date=datetime.now())
         rental.save()
-        max_duration = config.get_int('rental_duration')
-        duration = max_duration if rentable == 'infinity' or isinstance(rentable,int) and max_duration <= rentable else rentable
-        reservation.end_date = date.today() + timedelta(days=duration)
-        reservation.save()
+        return True
+    else:
+        return False
 
 
 def mark_available(book_copy):
     reservations = Reservation.objects.filter(rental=None).filter(start_date__lte=date.today)  # TODO tylko aktywne? jak rozwiązać sytuację, jak ktoś zarezerwował od jutra?
     if reservations.count() > 0:
-        reservations[0].active_since = date.today()
+        reservations[0].active_since = today()
         # TODO notify user he can rent the book

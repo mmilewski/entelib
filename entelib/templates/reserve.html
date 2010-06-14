@@ -4,7 +4,7 @@
 
 {% block form %}
     {% if rented.until %}
-        <b>Successfully rented until {{ rented.until }}.</b>
+        <b>Successfully rented from {{ rented.from }} until {{ rented.until }}.</b>
     {% endif %}
 
     {% if reserved.ok %}
@@ -20,6 +20,10 @@
                         <td>From: </td>
                         <td><input type='text' maxlength='10' name='from' value='' onClick='showKal(this)'></td>
                         <td>(Leave empty for today)</td>
+                    </tr>
+                    <tr>
+                        <td>To: </td>
+                        <td><input type='text' maxlength='10' name='to' value='' onClick='showKal(this)'></td>
                     </tr>
                     <tr>
                         <td></td>

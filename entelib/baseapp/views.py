@@ -14,6 +14,8 @@ from config import Config
 from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm
 from datetime import date, datetime, timedelta
 
+config = Config()
+
 
 def show_email_list(request):
     '''
@@ -177,7 +179,6 @@ def show_books(request, non_standard_user_id=False):
     return render_response(request, 'books.html', context)
 
 
-
 def show_book(request, book_id, non_standard_user_id=False):
     if not request.user.is_authenticated():
         return render_forbidden(request)
@@ -227,7 +228,6 @@ def show_book(request, book_id, non_standard_user_id=False):
                                                          'only_available_checked' : 'yes' if 'available' in request.POST else ''})
 
 
-
 def show_book_copy(request, bookcopy_id):
     if not request.user.is_authenticated():
         return render_forbidden(request)
@@ -241,7 +241,6 @@ def show_book_copy(request, bookcopy_id):
             # 'can_return' : request.user.has_perm('baseapp.change_rental'),  # TODO
         }
     )
-
 
 
 def show_users(request):
@@ -263,7 +262,6 @@ def show_users(request):
             'email' : request_email,
             }
     return render_response(request, 'users.html', dict)
-
 
 
 def show_user(request, user_id):
@@ -392,6 +390,7 @@ def show_user_reservations(request, user_id):
                           'title' : r.book_copy.book.title,
                           'authors' : [a.name for a in r.book_copy.book.author.all()],
                           'from_date' : r.start_date,
+                          'to_date' : r.end_date,
                          } for r in user_reservations]
     return render_response(request,
         'user_reservations.html',
@@ -479,35 +478,12 @@ def find_book_for_user(request, user_id, book_id=None):
         return show_book(request, book_id, user_id)
 
 
-def rent_not_reserved(request, user_id, book_id=None, bookcopy_id=None):
-    if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
-        return render_forbidden(request)
-
-
 def reserve_for_user(request, user_id, book_copy_id):
     return reserve(request, book_copy_id, user_id)
 
 
-### zbędne
-def reserve_for_user_book(request, user_id, book_id):
-    return render_not_implemented(request)
-
-
-### zbędne
-def reserve_for_user_book_copy(request, user_id, book_copy_id):
-    return render_not_implemented(request)
-
-
 def show_user_reservation(request, user_id, reservation_id):
     return render_not_implemented(request)
-
-
-
-'''
-def users_rental(request, user_id, rental_id):
-    user = User.objects.get(id=user_id)
-    rental = Rental.objects.get(id=rental_
-'''
 
 
 def reserve(request, copy, non_standard_user_id=False):
@@ -521,29 +497,56 @@ def reserve(request, copy, non_standard_user_id=False):
     user = request.user if non_standard_user_id == False else User.objects.get(id=non_standard_user_id)
     if request.method == 'POST':
         r = Reservation(who_reserved=request.user, book_copy=book_copy, for_whom=user)
-        if 'from' in post and post['from'] != u'':
-            try:
-                [y, m, d] = map(int,post['from'].split('-'))
-                r.start_date = date(y, m, d)
+        if 'action' in post and post['action'].lower() == 'reserve':
+            failed = False  # TODO rozwiązać to ładniej
+            if 'from' in post and post['from'] != u'':
+                try:
+                    [y, m, d] = map(int,post['from'].split('-'))
+                    r.start_date = date(y, m, d)
+                except:  # TODO jak to wyjątek
+                    reserved.update({'error' : 'error - possibly incorrect date format'})
+                    failed = True
+            else:
+                r.start_date = date.today()
+            if 'to' in post and post['to'] != u'':
+                try:
+                    [y, m, d] = map(int,post['to'].split('-'))
+                    r.end_date = date(y, m, d)
+                    if (r.end_date - r.start_date).days < 0:
+                        reserved.update({'error' : 'Reservation end date must be later than start date'})
+                        failed = True
+                    if (r.end_date - r.start_date).days > config.get_int('rental_duration'):
+                        reserved.update({'error' : 'You can\'t reserve for longer than %d days' % config.get_int('rental_duration')})
+                        failed = True
+                except:  # TODO jak to wyjątek
+                    reserved.update({'error' : 'error - possibly incorrect date format'})
+                    failed = True
+            else:
+                reserved.update({'error' : 'You need to specify reservation end date'})
+                failed = True
+            if not failed:
                 r.save()
                 reserved.update({'ok' : 'ok'})
-                reserved.update({'from' : post['from']})
-            except:
-                reserved.update({'error' : 'error - possibly incorrect date format'})
-        elif 'action' in post and post['action'].lower() == 'reserve':
-            r.start_date = date.today()
-            r.save()
-            msg = Config().get_str('message_book_reserved') % r.start_date.isoformat()
-            reserved.update({'msg' : msg})
-            reserved.update({'ok' : 'ok'})
-        elif 'action' in post and post['action'].lower() == 'rent':
+                reserved.update({'msg' : config.get_str('message_book_reserved') % (r.start_date.isoformat(), r.end_date.isoformat())})
+                reserved.update({'from' : r.start_date.isoformat()})
+                reserved.update({'to' : r.end_date.isoformat()})
+        elif 'action' in post and post['action'].lower() == 'rent' and request.user.has_perm('baseapp.add_rental'):
                 r.start_date = date.today()
-                r.end_date = date.today() + timedelta(Config().get_int('rental_duration'))
+                r.end_date = date.today() + timedelta(config.get_int('rental_duration'))
+                try:
+                    if 'to' in post and post['to'] != '':
+                        [y, m, d] = map(int,post['to'].split('-'))
+                        if r.end_date > date(y, m, d):
+                            r.end_date = date(y, m, d)
+                except:
+                    print 'error in reserve - failed when renting'
+                    pass
                 r.save()
                 rental = Rental(reservation=r, start_date=date.today(), who_handed_out=request.user)
                 rental.save()
                 rented.update({'until' : r.end_date.isoformat()})
                 reserved.update({'ok' : False})
+
 
     return render_response(request, 'reserve.html',
         {

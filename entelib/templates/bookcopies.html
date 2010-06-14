@@ -103,7 +103,6 @@
                         <td class="actions">
                             <ul class="actions">
                                 <!-- <li><a href='{{ item.desc_url}}'>External description</a></li> -->
-                                <li><a href="{{ item.url }}#description">Description</a></li>
                                 {%if item.is_reservable %}<li><a href='{{ item.reserve_url }}'
                                                                  {% if not item.is_available %}class="available" title="Book is not available"{% endif %}>
                                                                  Reserve
