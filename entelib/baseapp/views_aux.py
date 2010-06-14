@@ -164,24 +164,22 @@ def reservation_status(reservation):
     if reservation not in all:
         return 'Incorrect reservation'
     to_return = []
-    if reservation != all.filter(start_date__lte=date.today())[0]:
+    if reservation.start_date > date.today():
+        to_return += ['Reservation active since ' + reservation.start_date.isoformat() + '.']
+    elif reservation != all.filter(start_date__lte=date.today())[0]:
         to_return += ['Reservation not first.']
     if Rental.objects.filter(reservation__book_copy=reservation.book_copy).filter(end_date=None).count() > 0:
         to_return += ['This copy is currently rented.']
     if reservation.book_copy.state.is_available == False:
         to_return += ['This copy is currently not available (' + reservation.book_copy.state.name + ').']
-    if reservation.start_date > date.today():
-        to_return += ['Reservation active since ' + reservation.start_date.isoformat() + '.']
     if reservation.end_date is not None:
         to_return += ['Reservation already pursued']   # TODO nie wiem czy to dobre słowo...
     if to_return:
         return ' '.join(to_return)
 
-    if reservation == all[0]:
+    older = all.exclude(id__lte=reservation.id)
+    if older.count() == 0:
         return 0
-    older = all[:all.index(reservation)]
-    if min([(r.start_date - date.today()).days for r in older]) == 0:  # TODO nie mam fajnego pomysłu na asercje. No dobra, nie chce mi się robić porządnych asercji.
-        raise 'assert fail: in reservation status: egsists older valid reservation'
     return min([(r.start_date - date.today()).days for r in older])
 
 
