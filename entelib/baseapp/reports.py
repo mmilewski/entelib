@@ -130,7 +130,7 @@ def get_report_data(report_type, from_date, to_date):
             location = book_details['location']
 
             status = book_copy_status(book)
-            if not status:
+            if isinstance(status, int):
                 status = u'Rentable'
 
             book_infos.append({ 'title': title,
