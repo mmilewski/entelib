@@ -5,6 +5,71 @@
 {% block header %}Reports{% endblock %}
 
 {% block content %}
+    <script type="text/javascript"> 
+    <!--
+        $(document).ready(function()
+        {   
+            from = '{{ search.from }}';
+            to = '{{ search.to }}';
+            
+            $("#from").html("<input type='hidden' name='from' value='" + from + "'>");
+            $("#to").html("<input type='hidden' name='to' value='" + to + "'>");
+            $("#info").html("");
+            
+            val = $("#report_type_select").val();
+            from_str =  "<td>From: </td>" + 
+                        "<td><input type='text' maxlength='10' name='from' value='" + 
+                        from + "' onClick='showKal(this)'></td>" + 
+                        "<td>(Leave at least one field empty for no time period specification)</td>";
+                
+            to_str =    "<td>To: </td>" + 
+                        "<td><input type='text' maxlength='10' name='to' value='" + 
+                        to + "' onClick='showKal(this)'></td>" + 
+                        "<td></td>";
+            
+            info_str = "<td></td><td>YYYY-MM-DD</td><td></td>";
+            
+            if (val == "most_often_rented" || val == "most_often_reserved" || val == "black_list")
+            {
+                $("#from").html(from_str);
+                $("#to").html(to_str);
+                $("#info").html(info_str);
+            };
+            
+            $("#report_type_select").click(function() 
+            {
+                val = $(this).val();
+                from = $("input[name=from]", $("#from")).val();
+                to = $("input[name=to]", $("#to")).val();
+                
+                from_str =  "<td>From: </td>" + 
+                            "<td><input type='text' maxlength='10' name='from' value='" + 
+                            from + "' onClick='showKal(this)'></td>" + 
+                            "<td>(Leave at least one field empty for no time period specification)</td>";
+                
+                to_str =    "<td>To: </td>" + 
+                            "<td><input type='text' maxlength='10' name='to' value='" + 
+                            to + "' onClick='showKal(this)'></td>" + 
+                            "<td></td>";
+                
+                if (val == "most_often_rented" || val == "most_often_reserved" || val == "black_list")
+                {
+                    $("#from").html(from_str);
+                    $("#to").html(to_str);
+                    $("#info").html(info_str);
+                }
+                else
+                {
+                    $("#from").html("<input type='hidden' name='from' value='" + 
+                                    from + "'>");
+                    $("#to").html(  "<input type='hidden' name='to' value='" + 
+                                    to + "'>");
+                    $("#info").html("");
+                }
+            });
+        });
+    //-->
+    </script>
     {% if error %}
         <p><h2>Error - probably bad date format</h2></p>
     {% endif %}
@@ -14,7 +79,7 @@
                 <tr>
                     <td>Report type: </td>
                     <td>
-                        <select name='report_type' size='{{ select_size }}'>
+                        <select id='report_type_select' name='report_type' size='{{ select_size }}'>
                             {% for type in report_types %}
                                 <option value='{{ type.value }}' {% if type.selected %}selected{% endif %}>{{ type.name }}</option>
                             {% endfor %}
@@ -22,20 +87,26 @@
                     </td>
                     <td></td>
                 </tr>
-                <tr>
-                    <td>From: </td>
-                    <td><input type='text' maxlength='10' name='from' value='{{ search.from }}' onClick='showKal(this)'></td>
-                    <td>(Leave at least one field empty for no time period specification)</td>
+                <tr id='from'>
+                    <noscript>
+                        <td>From: </td>
+                        <td><input type='text' maxlength='10' name='from' value='{{ search.from }}' onClick='showKal(this)'></td>
+                        <td>(Leave at least one field empty for no time period specification)</td>
+                    </noscript>
                 </tr>
-                <tr>
-                    <td>To: </td>
-                    <td><input type='text' maxlength='10' name='to' value='{{ search.to }}' onClick='showKal(this)'></td>
-                    <td></td>
+                <tr id='to'>
+                    <noscript>
+                        <td>To: </td>
+                        <td><input type='text' maxlength='10' name='to' value='{{ search.to }}' onClick='showKal(this)'></td>
+                        <td></td>
+                    </noscript>
                 </tr>
-                <tr>
-                    <td></td>
-                    <td>YYYY-MM-DD</td>
-                    <td></td>
+                <tr id='info'>
+                    <noscript>
+                        <td></td>
+                        <td>YYYY-MM-DD</td>
+                        <td></td>
+                    </noscript>
                 </tr>
                 <tr>
                     <td></td>
