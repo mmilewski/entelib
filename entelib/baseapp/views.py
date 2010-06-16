@@ -6,7 +6,7 @@ from entelib.baseapp.models import *
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
-from views_aux import render_forbidden, render_response, filter_query, get_book_details, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, is_book_copy_rentable, get_locations_for_book
+from views_aux import render_forbidden, render_response, filter_query, get_book_details, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, get_locations_for_book
 from reports import get_report_data, generate_csv
 from entelib import settings
 from config import Config
@@ -123,7 +123,7 @@ def show_books(request, non_standard_user_id=False):
         search_title = post['title'].split()
         search_author = post['author'].split()
         selected_categories_ids = map(int, request.POST.getlist('category'))
-        search_data.update({'title' : post['title'], 'author' : post['author'],})  # categories will be added later
+        search_data.update({'title' : post['title'], 'author' : post['author'],})  # categories and checkboxes will be added later
 
         # filter with Title and/or Author
         booklist = filter_query(Book, Q(id__exact='-1'), Q(title__contains=''), [
@@ -141,9 +141,13 @@ def show_books(request, non_standard_user_id=False):
                 for category_id in selected_categories_ids:
                     booklist = booklist.filter(category__id=category_id)
 
-        # compute set of categories present in booklist (= exists book which has such a category)
-        # because we don't want to list categories that don't matter.
-        categories_from_booklist = list(set([c for b in booklist for c in b.category.all()]))
+
+        if config.get_bool('cut_categories_list_to_found_books'):
+            # compute set of categories present in booklist (= exists book which has such a category)
+            categories_from_booklist = list(set([c for b in booklist for c in b.category.all()]))
+        else:
+            # list all nonempty categories
+            categories_from_booklist = list(set([c for b in Book.objects.only('category').all() for c in b.category.all()]))
 
         # put ticks on previously ticked checkboxes
         search_data.update({ 'title_any_checked' : 'true' if 'title_any' in post else '',
@@ -166,10 +170,12 @@ def show_books(request, non_standard_user_id=False):
             categories_from_booklist = Category.objects.all()      # FIXME: can be fixed to list categories, to which at least one book belong
 
     # prepare categories for rendering
-    search_categories = [ {'name' : '-- Any --',  'id' : 0} ]
-    search_categories += [ {'name' : c.name,  'id' : c.id,  'selected': c.id in selected_categories_ids } for c in categories_from_booklist ]
+    search_categories  = [ {'name' : '-- Any --',  'id' : 0} ]
+    search_categories += [ {'name' : c.name,  'id' : c.id,  'selected': c.id in selected_categories_ids }  for c in categories_from_booklist ]
 
+    # update search context
     search_data.update({'categories' : search_categories,
+                        'categories_select_size' : min(len(search_categories), config.get_int('categories_select_size')),
                         })
     context = {
         'books' : books,
@@ -182,10 +188,14 @@ def show_books(request, non_standard_user_id=False):
 def show_book(request, book_id, non_standard_user_id=False):
     if not request.user.is_authenticated():
         return render_forbidden(request)
+    config = Config()
     url_for_non_standard_users = u'/entelib/users/%d/reservations/new/bookcopy/%s/' % (int(non_standard_user_id), u'%d')
     show_url = u'/entelib/bookcopy/%d/' if non_standard_user_id == False else url_for_non_standard_users
     reserve_url = u'/entelib/bookcopy/%d/reserve/' if non_standard_user_id == False else url_for_non_standard_users
-    book = Book.objects.get(id=book_id)
+    try:
+        book = Book.objects.get(id=book_id)
+    except Book.DoesNotExist:
+        return render_not_found(request, item_name='Book')
     book_copies = BookCopy.objects.filter(book=book_id)
     selected_locations = []
     if request.method == 'POST':
@@ -217,11 +227,11 @@ def show_book(request, book_id, non_standard_user_id=False):
         'items'       : curr_copies,
         'categories'  : [c.name for c in book.category.all()],
         }
+    search_locations  = [{'name' : '-- Any --', 'id' : 0}]
+    search_locations += [{'name' : unicode(l), 'id' : l.id, 'selected': l.id in selected_locations}  for l in get_locations_for_book(book.id)]
     search_data = {
-        'locations' :
-            [{'name' : '-- Any --', 'id' : 0}] + [{'name' : unicode(l), 'id' : l.id, 'selected': l.id in selected_locations}
-                                                  for l in get_locations_for_book(book.id)],
-        'copies_select_size': Config().get_int('copies_select_size'),      # count of elements displayed in <select> tag
+        'locations' : search_locations,
+        'copies_location_select_size': min(len(search_locations), config.get_int('copies_location_select_size')),      # count of elements displayed in <select> tag
         }
     return render_response(request, 'bookcopies.html', { 'book' : book_desc,
                                                          'search' : search_data,
@@ -232,7 +242,10 @@ def show_book(request, book_id, non_standard_user_id=False):
 def show_book_copy(request, bookcopy_id):
     if not request.user.is_authenticated():
         return render_forbidden(request)
-    book_copy = BookCopy.objects.get(id=bookcopy_id)
+    try:
+        book_copy = BookCopy.objects.get(id=bookcopy_id)
+    except BookCopy.DoesNotExist:
+        return render_not_found(request, item_name='Book copy')
     book_desc = get_book_details(book_copy)
     return render_response(request, 'bookcopy.html',
         {
@@ -266,7 +279,10 @@ def show_users(request):
 
 
 def show_user(request, user_id):
-    user = User.objects.get(id=user_id)
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return render_not_found(request, item_name='User')
     return render_response(request, 'user.html',
         { 'first_name'    : user.first_name,
           'last_name'     : user.last_name,
@@ -282,9 +298,10 @@ def show_user(request, user_id):
 def edit_user_profile(request, profile_edit_form=ProfileEditForm):
     if not request.user.is_authenticated():
         return render_forbidden(request)
-
-    user = User.objects.get(id=request.user.id)
-
+    try:
+        user = User.objects.get(id=request.user.id)
+    except User.DoesNotExist:
+        return render_not_found(request, item_name='User')
     if request.method == 'POST':
         form = profile_edit_form(user=user, data=request.POST)
         if form.is_valid():
@@ -319,10 +336,16 @@ def edit_user_profile(request, profile_edit_form=ProfileEditForm):
 def show_user_rentals(request, user_id):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
-    user = User.objects.get(id=user_id)
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return render_not_found(request, item_name='User')
     post = request.POST
-    if request.method == 'POST' and 'returned' in  post:
-        returned_rental = Rental.objects.get(id=post['returned'])
+    if request.method == 'POST' and 'returned' in post:
+        try:
+            returned_rental = Rental.objects.get(id=post['returned'])
+        except Rental.DoesNotExist:
+            return render_not_found(request, item_name='Rental')
         returned_rental.who_received = request.user
         returned_rental.end_date = datetime.now()
         returned_rental.save()
@@ -350,7 +373,10 @@ def show_user_rentals(request, user_id):
 def show_my_rentals(request):
     if not request.user.is_authenticated():
         return render_forbidden(request)
-    user = User.objects.get(id=request.user.id)
+    try:
+        user = User.objects.get(id=request.user.id)
+    except User.DoesNotExist:
+        return render_not_found(request, item_name='User')
 
     user_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(who_received__isnull=True)
     rent_list = [ {'id' : r.id,
@@ -375,12 +401,19 @@ def show_my_rentals(request):
 def show_user_reservations(request, user_id):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
-    user = User.objects.get(id=user_id)
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return render_not_found(request, item_name='User')
     if request.method == 'POST':
         post = request.POST
         librarian = request.user
         if 'reservation_id' in post:
-            rent(Reservation.objects.get(id=post['reservation_id']), librarian)
+            try:
+                reservation = Reservation.objects.get(id=post['reservation_id'])
+            except Reservation.DoesNotExist:
+                return render_not_found(request, item_name='Reservation')
+            rent(reservation, librarian)
 
     user_reservations = Reservation.objects.filter(for_whom=user).filter(rental=None).filter(when_cancelled=None)
     reservation_list = [ {'id' : r.id,
@@ -407,7 +440,10 @@ def show_user_reservations(request, user_id):
 def show_my_reservations(request):
     if not request.user.is_authenticated():
         return render_forbidden(request)
-    user = User.objects.get(id=request.user.id)
+    try:
+        user = User.objects.get(id=request.user.id)
+    except User.DoesNotExist:
+        return render_not_found(request, item_name='User')
 
     user_reservations = Reservation.objects.filter(for_whom=user).filter(rental=None).filter(when_cancelled=None)
     reservation_list = [ {'id' : r.id,
@@ -490,12 +526,19 @@ def show_user_reservation(request, user_id, reservation_id):
 def reserve(request, copy, non_standard_user_id=False):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.add_reservation'):
         return render_forbidden(request)
-    book_copy = BookCopy.objects.get(id=copy)
+    try:
+        book_copy = BookCopy.objects.get(id=copy)
+    except BookCopy.DoesNotExist:
+        return render_not_found(request, item_name='Book copy')
     book_desc = get_book_details(book_copy)
     reserved = {}
     rented = {}
     post = request.POST
-    user = request.user if non_standard_user_id == False else User.objects.get(id=non_standard_user_id)
+    try:
+        nonstandard_user = User.objects.get(id=non_standard_user_id)
+    except User.DoesNotExist:
+        return render_not_found(request, item_name='User')
+    user = request.user if non_standard_user_id == False else nonstandard_user
     if request.method == 'POST':
         r = Reservation(who_reserved=request.user, book_copy=book_copy, for_whom=user)
         if 'action' in post and post['action'].lower() == 'reserve':

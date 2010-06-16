@@ -51,6 +51,11 @@ def render_not_implemented(request):
     return render_response(request, 'not_implemented.html')
 
 
+def render_not_found(request, **kwargs):
+    context = kwargs
+    return render_response(request, 'not_found.html', context)
+
+
 def filter_query(class_name, Q_none, Q_all, constraints):
     '''
     Desc:
@@ -126,7 +131,7 @@ def get_locations_for_book(book_id):
     except Book.DoesNotExist:
         print 'get_locations_for_book(%d): book not found' % book_id
         return []
-    copies = b.bookcopy_set.only('id').all()
+    copies = b.bookcopy_set.only('location').all()
     return [ loc for loc in Location.objects.filter(id__in=[c.location.id for c in copies])]
 
 

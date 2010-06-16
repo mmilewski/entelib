@@ -7,6 +7,10 @@
 {% block header %}Book list{% endblock %}
 
 {% block content %}
+    <div class="tip">
+      <p>1. If you use Firefox or Opera you can click and drag to multiselect locations. In Chrome you can use CTRL+click</p>
+      <p>2. Selecting "Any" has effect only iff nothing else is selected. If "Any" and sth else is selected, then "Any" would be deselected</p>
+    </div>
     <div class='content_form'>
         <form action='.' method='post' class="book_search">
             <table class="book_details">
@@ -65,13 +69,14 @@
                 </li>
             {% empty %}
                 <p><b>Sorry, no books.</b></p>
-                <p>Why? Here are some tips:</p>
-                <div class="tips">
-                  <ul>
-                    <li>Use whitespaces as separators.</li>
+                <div class="tip tips">
+                  <p>Why nothing was found? Here are some tips:</p>
+                  <ul style="margin-top:1em;">
+                    <li>Use spaces as separators.</li>
                     <li>Title, Author and Category are combined with logical AND operator.</li>
                     <li>Check your query for typos.</li>
                     <li>Check if "Any" checkboxes are ticked properly.</li>
+                    <li>Your query is too strict.</li>
                   </ul>
                 </div>
             {% endfor %}

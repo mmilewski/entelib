@@ -42,7 +42,7 @@
                 <tr>
                     <td>Location: </td>
                     <td>
-                        <select name='location' multiple='multiple' size='{{ search.copies_select_size }}'>
+                        <select name='location' multiple='multiple' size='{{ search.copies_location_select_size }}'>
                             {% for location in search.locations %}
                                 <option value='{{ location.id }}' {% if location.selected %}selected{% endif %}>{{ location.name }}</option>
                             {% endfor %}
@@ -113,7 +113,7 @@
                         <td class="url"><a href='{{ item.url }}'><img src="{{MEDIA_URL}}/images/details.png"></a></td>
                         <td class="location">{{ item.location }}</td>
                         <td class="shelfmark">{{ item.shelf_mark }}</td>
-                        <td class="state">{{ item.state }} {% if not item.is_available %}<span style="color:red;" title="Unavailable, sorry">(not avail)</span>{%endif%}</td>
+                        <td class="state">{{ item.state }} {% if not item.is_available %}<span style="color:red;" title="Unavailable, sorry"><br/>(unavailable)</span>{%endif%}</td>
                         <td class="publisher">{{ item.publisher }}</td>
                         <td class="year">{{ item.year }}</td>
                         <td class="actions">

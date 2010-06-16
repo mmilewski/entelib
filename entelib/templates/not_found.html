@@ -1,0 +1,22 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% load go_back_link %}
+
+{% block title %}{{header|default:"Page not found"}}{% endblock %}
+
+{% block header %}{{header|default:"Page not found"}}{% endblock %}
+
+{% block content %}
+
+<h2>{{item_name|default_if_none:"Page not found"}} not found</h2>
+<p>Sorry, but there is nothing to be displayed. What happened?</p>
+<ul>
+  <li>You entered wrong query, or</li>
+  <li>Use invalid/corrupted data, or</li>
+  <li>Tried to hack this app, or</li>
+  <li>Someone else did, or</li>
+  <li>Found a bug</li>
+  <li>Whatever, end of the world is comming.</li>
+</ul>
+
+{% endblock %}

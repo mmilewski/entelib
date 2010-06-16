@@ -10,7 +10,7 @@
     <ul class='spaces'>
         <li>Name: {{ first_name }}</li>
         <li>Surname: {{ last_name }}</li>
-        <li>E-mail: {{ email|urlize }}</li>
+        <li>E-mail: {{ email|urlize }} <div class="tip" style="display:inline">Email link is clickable. Try!</div></li>
         <li>Phones: {% if phones %}
                     <ul class="phones">
                     {% for p in phones %}

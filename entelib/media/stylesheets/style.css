@@ -11,11 +11,20 @@ html, body
 div.tip,
 p.tip {
     border: 1px solid #842DCE;
-    background: #FFF380 url("/media/images/tip.png") top left no-repeat;
+    background: #FFF380 url("/media/images/tip_off.png") top left no-repeat;
     padding: 1em 1em .5em 2em;
     margin: .5em;
     text-align:left;
 }
+div.tip:hover,
+p.tip:hover {
+    background: #FFFF90 url("/media/images/tip_on.png") top left no-repeat;
+    border: 1px solid #943DdE;
+    border-bottom-left-radius: 1.5em;
+    -moz-border-radius-bottomleft: 1.5em;
+    -webkit-border-bottom-left-radius: 1.5em;
+}
+
 div.tip p,
 p.tip p {
     margin-bottom: 0;
@@ -107,7 +116,8 @@ div.content_form > .tip {
 
 div#header
 {
-    background-color: #888;
+    background-color: #BCE954;
+    border-left: 2px solid #4AA02C;
     margin: 0 auto 1em auto;
     padding: 0.5em;
     overflow: hidden;

@@ -2,7 +2,7 @@
 
 {% load go_back_link %}
 
-{% block title %}{{ book.title }}{% endblock %}
+{% block title %}{{ book.title|default_if_none:"Title undefined"}}{% endblock %}
 
 {% block header %}Book copy{% endblock %}
 
