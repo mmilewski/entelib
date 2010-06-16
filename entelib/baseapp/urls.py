@@ -65,8 +65,8 @@ urlpatterns = patterns(
     # reports
     (r'^report/$', view.show_reports),
 
-    # emails
-    (r'^emails/$', view.show_email_list),
+    # email logs
+    (r'^emaillog/$', view.show_email_list),
 
     # admin docs urls
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),

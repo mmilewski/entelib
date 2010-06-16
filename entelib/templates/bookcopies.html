@@ -7,6 +7,10 @@
 {% block header %}Book copies{% endblock %}
 
 {% block content %}
+    <script type="text/javascript">
+      $(document).ready(function()  { $("#booklist").tablesorter( {sortList: [[1,0], [2,0]]} ); } );
+    </script>
+
     <h2>Title: {{ book.title }}</h2>
 
     <div class="book_authors">
@@ -27,6 +31,11 @@
       {% endif %}
     </div>
 
+
+    <div class="tip">
+      <p>1. If you use Firefox or Opera you can click and drag to multiselect locations. In Chrome you can use CTRL+click</p>
+      <p>2. Selecting "Any" has effect only iff nothing else is selected. If "Any" and sth else is selected, then "Any" would be deselected</p>
+    </div>
     <div class='content_form'>
         <form action='.' method='post'>
             <table>
@@ -67,6 +76,10 @@
 
     <div class="book_copies">
       <h3 id="book_copies">Copies of this book:</h3>
+      <div class="tip">
+        <p>1. Hold shift and then press header to select by multiple columns.</p>
+        <p>2. If you reserve book that is unavailable, you will be <em>unable</em> to rent it.</p>
+      </div>
         <!-- <ul class='booklist'>
         {% for item in book.items %}
         <li><b><a href='{{ item.url }}'>>></a></b>:
@@ -84,19 +97,22 @@
         {% endfor %}
         </ul> -->
         {% if book.items %}
-            <table class='booklist'>
-                <tr>
+            <table id="booklist" class="tablesorter booklist">
+                <thead>
                     <th></th>
                     <th>Location</th>
+                    <th title="AKA shelf mark">Id</th>
                     <th>State</th>
                     <th>Publisher</th>
                     <th>Year</th>
                     <th>Actions</th>
-                </tr>
+                </thead>
+                <tbody>
                 {% for item in book.items %}
                     <tr>
-                        <td class="url"><a href='{{ item.url }}'>>></a></td>
+                        <td class="url"><a href='{{ item.url }}'><img src="{{MEDIA_URL}}/images/details.png"></a></td>
                         <td class="location">{{ item.location }}</td>
+                        <td class="shelfmark">{{ item.shelf_mark }}</td>
                         <td class="state">{{ item.state }} {% if not item.is_available %}<span style="color:red;" title="Unavailable, sorry">(not avail)</span>{%endif%}</td>
                         <td class="publisher">{{ item.publisher }}</td>
                         <td class="year">{{ item.year }}</td>
@@ -111,6 +127,7 @@
                         </td>
                     </tr>
                 {% endfor %}
+                </tbody>
             </table>
         {% else %}
             <br><b>No copies.</b>

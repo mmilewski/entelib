@@ -8,7 +8,7 @@
     <b>
         {{ first_name }} {{ last_name }}
         <br>
-        {{ email }}
+        {{ email|urlize }}
     </b>
     <ul class='spaces'>
         {% for rental in rentals %}

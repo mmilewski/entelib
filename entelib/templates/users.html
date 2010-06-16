@@ -16,7 +16,7 @@
                     <td><input type='text' name='last_name' value='{{ last_name }}'></td>
                 </tr><tr>
                     <td>Email: </td>
-                    <td><input type='text' name='email' value='{{ email }}'></td>
+                    <td><input type='text' name='email' value='{{ email|urlize }}'></td>
                 </tr><tr>
                     <td></td><td>
                         <input type='submit'  name='action' value='Search'>

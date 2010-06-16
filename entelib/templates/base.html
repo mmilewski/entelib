@@ -1,16 +1,18 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"> 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html lang='en-uk'>
     <head>
         <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
         <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/style.css'>
+        <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/tablesorter.css'>
         <script type='text/javascript' src='{{ MEDIA_URL }}js/cal.js'></script> 
-        <script type='text/javascript' src='{{ MEDIA_URL }}js/jquery-1.4.2.js'></script> 
+        <script type='text/javascript' src='{{ MEDIA_URL }}js/jquery-1.4.2.js'></script>
+        <script type='text/javascript' src='{{ MEDIA_URL }}js/jquery.tablesorter.min.js'></script>
         <title>{% block title %}{% endblock %}</title>
     </head>
     <body>
         <div id='top'>
             <!-- development-only info -->
-            <div style="background:yellow; width:80% ; padding: 20px; text-align:center; margin: auto;">
+            <div class="tip" style=" width:80% ; padding: 20px; text-align:center; margin: auto;">
                 Use <b>user</b>/<b>user</b> to log in as default user. <br/>
                 Use <b>admin</b>/<b>admin</b> to acquire a super power.
             </div>

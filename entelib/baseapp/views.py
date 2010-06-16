@@ -202,9 +202,10 @@ def show_book(request, book_id, non_standard_user_id=False):
         curr_copies.append({
             'url'           : show_url % elem.id,
             'reserve_url'   : reserve_url % elem.id,
-            'location'      : unicode(elem.location),
-            'state'         : unicode(elem.state),
-            'publisher'     : unicode(elem.publisher),
+            'shelf_mark'    : elem.shelf_mark,
+            'location'      : elem.location,
+            'state'         : elem.state,
+            'publisher'     : elem.publisher,
             'year'          : elem.year,
             'is_available'  : elem.state.is_available,
             'is_reservable' : is_copy_reservable,    # TODO: this should check if one can reserve copy and whether book is available for reserving (whatever this means)

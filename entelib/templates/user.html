@@ -10,11 +10,13 @@
     <ul class='spaces'>
         <li>Name: {{ first_name }}</li>
         <li>Surname: {{ last_name }}</li>
-        <li>E-mail: {{ email }}</li>
+        <li>E-mail: {{ email|urlize }}</li>
         <li>Phones: {% if phones %}
                     <ul class="phones">
                     {% for p in phones %}
-                        <li>{{p.type}}: {%ifequal p.type "Skype" %}<a class="skype" href="skype:{{p.value}}">{{p.value}}</a>{% else %}{{p.value}}{% endifequal %}</li>
+                        <li>{{p.type}}: {%ifequal p.type "Skype" %}<a class="skype" href="skype:{{p.value}}">{{p.value}}</a>{% else %}{{p.value}}{% endifequal %}
+                          {%ifequal p.type "Skype" %}<div class="tip" style="display:inline">Skype link is clickable. Try!</div> {% endifequal %}
+                        </li>
                     {% endfor %}
                     </ul>
                     {% else %} None defined {% endif %}
