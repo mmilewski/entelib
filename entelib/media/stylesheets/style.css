@@ -184,7 +184,7 @@ div.gobackWrapper {
     margin: 1em 0;
 }
 div.gobackWrapper a {
-    background: url('/media/images/iconGoBack.png') no-repeat;
+    background: url('/media/images/iconGoBack.png') no-repeat !important;
     padding: 0 0 .1em 20px;
     text-decoration: none;
     border-bottom: 1px dashed brown;

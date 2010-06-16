@@ -7,6 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from datetime import date, datetime, timedelta
 from config import Config
 from entelib import settings
+import baseapp.emails as mail
 
 config = Config()
 today = date.today
@@ -237,6 +238,7 @@ def rent(reservation, librarian):
     if rentable:
         rental = Rental(reservation=reservation, who_handed_out=librarian, start_date=datetime.now())
         rental.save()
+        mail.made_rental(rental)
         return True
     else:
         return False

@@ -7,13 +7,17 @@
 {% block header %}List of sent emails{% endblock %}
 
 {% block content %}
+    <div class="tip">
+      <p>1. <em>Email body may differ</em> (but not significantly) from the one that was sent. Why? Because to display the body django's <a href="http://docs.djangoproject.com/en/dev/ref/templates/builtins/#linebreaks">linebreaks tag</a> was used.</p>
+      <p>2. Known bug: reservation confirmation email says 'Come & rent' event if book is not rantable.</p>
+    </div>
     <div class="emails_wrapper">
       {% if emails %}
       <table class="emails">
         <tbody>
-          <tr><th>Sent</th> <th>From</th> <th>To</th> <th>Body</th> </tr>
+          <tr><th>Sent date</th> <th>From</th> <th>To</th> <th>Body</th> </tr>
           {% for email in emails %}
-          <tr><td>{{email.sent_date|date:"d.m.Y H:i"}}</td> <td>{{email.sender}}</td> <td>{{email.receiver}}</td> <td>{{email.body}}</td> </tr>
+          <tr><td>{{email.sent_date|date:"d.m.Y H:i"}}</td> <td>{{email.sender}}</td> <td>{{email.receiver}}</td> <td>{{email.body|linebreaks}}</td> </tr>
           {% endfor %}
         </tbody>
       </table>

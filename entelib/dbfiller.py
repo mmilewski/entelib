@@ -281,7 +281,7 @@ for (name, re, desc) in phone_types:
 print "Adding users"
 # from entelib.baseapp.models import CustomUser
 # superuser
-user = User.objects.create_user('admin', 'iam@superfrog.com', 'admin')
+user = User.objects.create_user('admin', 'domin@bosses.net', 'admin')
 user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Admino', u'Domino', True, True
 # user.save()
 ph = Phone(type=PhoneType.objects.get(id=1), value="333-444-555")
@@ -292,7 +292,7 @@ ph.save()
 user.get_profile().phone.add(ph)
 user.save()
 # everyday user
-user = User.objects.create_user('user', 'iam@frog.com', 'user')
+user = User.objects.create_user('user', 'grzegorz.brz@smigamy.com', 'user')
 user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Grzegorz', u'Brzęczyszczykiewicz', False, False
 ph = Phone(type=PhoneType.objects.get(id=2), value="grzesiu.brzeczy")
 ph.save()

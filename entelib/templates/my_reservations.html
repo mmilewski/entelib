@@ -1,5 +1,7 @@
 {% extends 'base_with_top_menu.html' %}
 
+{% load go_back_link %}
+
 {% block title %}My reservations{% endblock %}
 
 {% block header %}My reservations{% endblock %}
@@ -29,5 +31,9 @@
         <b>No reservations.</b>
     {% endfor %}
 </ul>
-<a href='{{ cancel_all_url }}'>Cancel all reservations</a>
+
+<p>{% go_back_link "Go back" %}</p>
+<br/>
+<p><a href='{{ cancel_all_url }}'>Cancel all reservations</a></p>
+
 {% endblock %}

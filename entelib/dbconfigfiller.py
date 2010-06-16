@@ -10,7 +10,7 @@ def fill_config():
     # emails
     config['send_emails'] = False                                                  # True iff app will send emails.
     config['log_send_emails'] = True                                               # True iff send emails will be stored in db. Logging doesn't care about send_emails value
-    config['default_email_sender'] = 'NSN library <no-reply@library.nsn.wroc.pl'   # From what address user receives emails
+    config['default_email_sender'] = 'NSN library <no-reply@library.nsn.wroc.pl>'  # From what address user receives emails
 
     # reservation/rental
     config['rental_duration'] = 30                                                 # For how long you rent a book

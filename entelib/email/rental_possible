@@ -1,8 +1,8 @@
 Welcome!
 
-You have reserved {{ title }} by {% for a in authors %} {{ a }}, {% endfor %}.
+You have reserved {{ title }} {% if authors %}by {{authors|join:", "}}{% endif %}.
 
-It has become available for you to rent untile {{ deadline }}. 
+It has become available for you to rent until {{ deadline }}. 
 
 Please come and rent.
 

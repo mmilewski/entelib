@@ -1,5 +1,7 @@
 {% extends 'base_with_top_menu.html' %}
 
+{% load go_back_link %}
+
 {% block title %}My rentals{% endblock %}
 
 {% block header %}My rentals{% endblock %}
@@ -24,5 +26,8 @@
             <b>No rentals.</b>
         {% endfor %}
     </ul>
+
+<p>{% go_back_link "Go back" %}</p>
+<br/>
 {% endblock %}
 

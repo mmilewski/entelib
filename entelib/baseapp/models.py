@@ -16,6 +16,7 @@ class EmailLog(models.Model):
     sender = models.CharField(max_length=CFG.emaillog_sender_len)
     receiver = models.CharField(max_length=CFG.emaillog_receiver_len)
     sent_date = models.DateTimeField(auto_now_add=True, blank=False, null=False)
+    subject = models.CharField(max_length=CFG.emaillog_subject_len)
     body = models.CharField(max_length=CFG.emaillog_body_len)
 
     def __unicode__(self):

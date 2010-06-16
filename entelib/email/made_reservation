@@ -1,0 +1,9 @@
+Welcome!
+
+You have reserved {{ title }} {% if authors %}by {{authors|join:", "}}{% endif %}. You can rent it until {{ deadline }}. 
+
+Please come and rent.
+
+Please do not reply for this email.
+
+Library staff.

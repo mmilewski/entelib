@@ -12,6 +12,7 @@ from entelib import settings
 from config import Config
 # from django.contrib.auth.decorators import permission_required
 from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm
+import baseapp.emails as mail
 from datetime import date, datetime, timedelta
 
 config = Config()
@@ -23,7 +24,7 @@ def show_email_list(request):
     '''
     tpl_email_list = 'email/list.html'
     context = {
-        'emails' : EmailLog.objects.all(),
+        'emails' : EmailLog.objects.all().order_by('-sent_date'),
         }
     user = request.user
 
@@ -535,7 +536,8 @@ def reserve(request, copy, non_standard_user_id=False):
     rented = {}
     post = request.POST
     try:
-        nonstandard_user = User.objects.get(id=non_standard_user_id)
+        if non_standard_user_id:
+            nonstandard_user = User.objects.get(id=non_standard_user_id)
     except User.DoesNotExist:
         return render_not_found(request, item_name='User')
     user = request.user if non_standard_user_id == False else nonstandard_user
@@ -570,6 +572,8 @@ def reserve(request, copy, non_standard_user_id=False):
                 failed = True
             if not failed:
                 r.save()
+                mail.made_reservation(r)
+
                 reserved.update({'ok' : 'ok'})
                 reserved.update({'msg' : config.get_str('message_book_reserved') % (r.start_date.isoformat(), r.end_date.isoformat())})
                 reserved.update({'from' : r.start_date.isoformat()})
