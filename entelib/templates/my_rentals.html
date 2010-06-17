@@ -7,6 +7,10 @@
 {% block header %}My rentals{% endblock %}
 
 {% block content %}
+<div class="tip">
+  <p>If you want to <em>return a book</em> you have to find you profile via <em>'User list'</em> in the menu. This is only info page. But here is a <a href="/entelib/users/{{user_id}}/rentals/">direct link</a>.</p>
+</div>
+
     <b>
         {{ first_name }} {{ last_name }}
         <br>

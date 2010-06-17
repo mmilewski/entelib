@@ -94,7 +94,6 @@ def made_rental(rental):
             'deadline' : 'TODO: what should I put here?'
             })
     recipient = _make_recipient_from_user(rental.reservation.for_whom)
-    print ctx
     default_email([recipient], tpl, ctx)
 
 

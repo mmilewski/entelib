@@ -393,10 +393,11 @@ def show_my_rentals(request):
 
     return render_response(request,
         'my_rentals.html',
-        { 'first_name' : user.first_name,
-          'last_name' : user.last_name,
-          'email' : user.email,
-          'rentals' : rent_list,
+        { 'user_id'     : user.id,
+          'first_name'  : user.first_name,
+          'last_name'   : user.last_name,
+          'email'       : user.email,
+          'rentals'     : rent_list,
         }
     )
 
@@ -460,10 +461,11 @@ def show_my_reservations(request):
                          } for r in user_reservations]
     return render_response(request,
         'my_reservations.html',
-        { 'first_name' : user.first_name,
-          'last_name' : user.last_name,
-          'email' : user.email,
-          'reservations' : reservation_list,
+        { 'user_id'        : user.id,
+          'first_name'     : user.first_name,
+          'last_name'      : user.last_name,
+          'email'          : user.email,
+          'reservations'   : reservation_list,
           'cancel_all_url' : 'cancel-all/',
         }
     )
