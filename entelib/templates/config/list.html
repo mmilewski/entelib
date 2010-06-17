@@ -1,0 +1,30 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% load go_back_link %}
+
+{% block title %}List of configurable options{% endblock %}
+
+{% block header %}List of configurable options{% endblock %}
+
+{% block content %}
+    <div class="tip">
+      <ol>
+        <li><p>Options can be edited via admin panel (the only way now).</p></li>
+        <li><p>0 and 1 usually mean boolean False and True. In general option's name should tell you what is it's type.</p></li>
+      </ol>
+    </div>
+
+    <div class="config_options_wrapper">
+      {% if options %}
+      {% for opt in options %}
+      <div class="option">
+        <dt class="key">{{opt.key}} <a href="/entelib/admin/baseapp/configuration/{{opt.key}}/"><img src="/media/images/edit.png" alt="edit"></a></dt>
+        <dd class="value">{{opt.value}}</dd>
+        <dd class="desc">{{opt.description}}</dd>
+      </div>
+      {% endfor %}
+      {% else %}
+      <p>No config options were found.</p>
+      {% endif %}
+    </div>
+{% endblock %}
