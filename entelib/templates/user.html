@@ -10,19 +10,20 @@
     <ul class='spaces'>
         <li>Name: {{ first_name }}</li>
         <li>Surname: {{ last_name }}</li>
-        <li>E-mail: {{ email|urlize }} <div class="tip" style="display:inline">Email link is clickable. Try!</div></li>
+        <li>E-mail: {{ email|urlize }} <div class="itip">Email link is clickable. Try!</div></li>
         <li>Phones: {% if phones %}
                     <ul class="phones">
                     {% for p in phones %}
                         <li>{{p.type}}: {%ifequal p.type "Skype" %}<a class="skype" href="skype:{{p.value}}">{{p.value}}</a>{% else %}{{p.value}}{% endifequal %}
-                          {%ifequal p.type "Skype" %}<div class="tip" style="display:inline">Skype link is clickable. Try!</div> {% endifequal %}
+                          {%ifequal p.type "Skype" %}<div class="itip">Skype link is clickable. Try!</div> {% endifequal %}
                         </li>
                     {% endfor %}
                     </ul>
                     {% else %} None defined {% endif %}
         </li>
-        <li>Building I work in: {{ building|default_if_none:"Not defined" }}</li>
+        <li>Building I work in: {{ building|default_if_none:"Not defined" }}  </li>
     </ul>
+    <div class="tip">As for now you cannot change neither your building nor phones. But you can do it (superuser required) in <a href="/entelib/admin/baseapp/userprofile/{{user_id}}/">admin panel</a> - well, it's better then nothing.</div><br/><br/>
     <div class='content_form'>
         <b>
         | <a href='{{ reservations }}'>Reservations</a> | 

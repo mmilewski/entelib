@@ -9,7 +9,7 @@ html, body
 }
 
 div.tip,
-p.tip {
+div.itip {
     border: 1px solid #842DCE;
     background: #FFF380 url("/media/images/tip_off.png") top left no-repeat;
     padding: 1em 1em .5em 2em;
@@ -17,22 +17,24 @@ p.tip {
     text-align:left;
 }
 div.tip:hover,
-p.tip:hover {
+div.itip:hover {
     background: #FFFF90 url("/media/images/tip_on.png") top left no-repeat;
     border: 1px solid #943DdE;
     border-bottom-left-radius: 1.5em;
     -moz-border-radius-bottomleft: 1.5em;
     -webkit-border-bottom-left-radius: 1.5em;
 }
-
 div.tip p,
-p.tip p {
+div.itip p {
     margin-bottom: 0;
     padding-bottom: 0;
 }
 div.tip em,
-p.tip em {
+div.itip em {
     font-weight: bold;
+}
+div.itip {
+    display: inline;
 }
 
 a

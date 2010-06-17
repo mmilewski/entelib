@@ -311,6 +311,7 @@ def edit_user_profile(request, profile_edit_form=ProfileEditForm):
             return render_response(request, 'profile.html',
                 {
                     'first_name' : user.first_name,
+                    'user_id'   : user.id,
                     'last_name' : user.last_name,
                     'email' : user.email,
                     'rentals' : 'rentals/',
@@ -324,6 +325,7 @@ def edit_user_profile(request, profile_edit_form=ProfileEditForm):
     return render_response(request, 'profile.html',
         {
             'first_name'    : user.first_name,
+            'user_id'       : user.id,
             'last_name'     : user.last_name,
             'email'         : user.email,
             'building'      : user.get_profile().building,
