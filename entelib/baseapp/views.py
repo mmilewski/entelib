@@ -594,6 +594,7 @@ def reserve(request, copy, non_standard_user_id=False):
                 r.save()
                 rental = Rental(reservation=r, start_date=date.today(), who_handed_out=request.user)
                 rental.save()
+                mail.made_rental(rental)
                 rented.update({'until' : r.end_date.isoformat()})
                 reserved.update({'ok' : False})
 
