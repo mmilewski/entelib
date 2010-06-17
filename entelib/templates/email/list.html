@@ -8,8 +8,11 @@
 
 {% block content %}
     <div class="tip">
-      <p>1. <em>Email body may differ</em> (but not significantly) from the one that was sent. Why? Because to display the body django's <a href="http://docs.djangoproject.com/en/dev/ref/templates/builtins/#linebreaks">linebreaks tag</a> was used.</p>
-      <p>2. Known bug: reservation confirmation email says 'Come & rent' event if book is not rantable.</p>
+      <ol>
+        <li><p>For some events only mails are sent. They are: book reserving and book renting. Others will be added soon (just a matter of time).</p></li>
+        <li><p>Email body may differ (but not significantly) from the one that was sent. Why? Because to display the body <a href="http://docs.djangoproject.com/en/dev/ref/templates/builtins/#linebreaks">django's linebreaks tag</a> was used.</p></li>
+        <li><p>Known bug: reservation confirmation email says 'Come & rent' even if book is not rentable (i.e. it's unavailable).</p></li>
+      </ol>
     </div>
     <div class="emails_wrapper">
       {% if emails %}

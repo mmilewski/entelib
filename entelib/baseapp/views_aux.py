@@ -20,7 +20,8 @@ def render_response(request, template, context={}):
                      })
     # as far as we use perms with following convention, we can pass perms to templates easily:
     # if in-code perm's name is list_book, then template gets can_list_books variable
-    baseapp_perms = ['list_books', 'add_bookrequest', 'list_bookrequests', 'view_own_profile', 'list_users', 'list_reports', 'list_cost_centers', 'list_emaillog',]
+    baseapp_perms = ['list_books', 'add_bookrequest', 'list_bookrequests', 'view_own_profile', 'list_users', 'list_reports', 'list_cost_centers',
+                     'list_emaillog', 'list_config_options',]
     for perm_name in baseapp_perms:
         perm_fullname = 'can_' + perm_name
         if user.has_perm('baseapp.' + perm_name):

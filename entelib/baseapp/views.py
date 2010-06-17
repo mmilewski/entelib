@@ -18,6 +18,24 @@ from datetime import date, datetime, timedelta
 config = Config()
 
 
+def show_config_options(request):
+    '''
+    Handles listing config options from Configuration model (also Config class).
+    '''
+    tpl_opts = 'config/list.html'
+    opts = Configuration.objects.all()
+    context = {
+        'options' : opts,
+        }
+    user = request.user
+
+    # auth
+    if not all([user.is_authenticated(), user.has_perm('baseapp.list_config_options')]):
+        return render_forbidden(request)
+
+    return render_response(request, tpl_opts, context)
+
+
 def show_email_list(request):
     '''
     Handles listing all emails.

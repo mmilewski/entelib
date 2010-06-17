@@ -68,6 +68,8 @@ urlpatterns = patterns(
     # email logs
     (r'^emaillog/$', view.show_email_list),
 
+    (r'^config/$', view.show_config_options),
+
     # admin docs urls
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),
     (r'^admin/doc$', get_redirect_function_to_url('/entelib/admin/doc/')),

@@ -56,7 +56,7 @@ class Config(object):
             return
         except Configuration.DoesNotExist, e:
             # insert
-            record = Configuration(key=key, value=value)
+            record = Configuration(key=key, value=value, description='')
             record.save()
 
     def __contains__(self, item):
@@ -66,6 +66,29 @@ class Config(object):
             return True
         except Configuration.DoesNotExist:
             return False
+
+    # set description
+    def set_description(self, key, desc):
+        '''
+        Sets description of given key.
+        '''
+        try:
+            result = Configuration.objects.get(key=key)
+        except Configuration.DoesNotExist, e:
+            raise Configuration.DoesNotExist(e.args + (key,))
+        result.description = desc
+        result.save()
+
+    # get description
+    def get_description(self, key):
+        '''
+        Gets description of given key.
+        '''
+        try:
+            result = Configuration.objects.get(key=key)
+        except Configuration.DoesNotExist, e:
+            raise Configuration.DoesNotExist(e.args + (key,))
+        return result.description
 
     # str
     def get_str(self, key):

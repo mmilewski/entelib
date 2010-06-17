@@ -285,3 +285,21 @@ div.emails_wrapper table.emails th {
     padding: 0.5em;
     border: 1px solid #000;
 }
+
+div.config_options_wrapper div.option {
+    padding: .5em 1em;
+}
+div.config_options_wrapper div.option:hover {
+    background: #ddd;
+    font-size: 115%;
+}
+div.config_options_wrapper dt.key {
+    font-family: monospace;
+    font-weight: bold;
+}
+div.config_options_wrapper dt.key img {
+    border: none;
+}
+div.config_options_wrapper dd.value {
+    font-size: 110%;
+}
