@@ -4,14 +4,14 @@
 
 {% block form %}
     {% if rented.until %}
-        <b>Successfully rented from {{ rented.from }} until {{ rented.until }}.</b>
+        <b>Successfully rented until {{ rented.until }}.</b>
     {% endif %}
 
     {% if reserved.ok %}
         <b>{{ reserved.msg }}.</b>
     {% else %}
         {% if reserved.error %}
-            <div> Error while reserving. Please try again.
+            <div> {{ reserved.error }}
         {% endif %}
         <div class='content_form' style='margin-top: 1em'>
             <form action='.' method='post'>
@@ -32,7 +32,7 @@
                     </tr>
                     <tr>
                         <td></td>
-                        <td><input type='submit' name='action' value='reserve'></td>
+                        <td><input type='submit' name='action' value='reserve' {% if not can_reserve %} disabled {% endif %}  ></td>
                         <td></td>
                     </tr>
                     {% if can_rent %}

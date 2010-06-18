@@ -26,7 +26,7 @@
                     <b>No authors.</b>
                 {% endif %}
             </li>
-            <li class="book_shelfmark">Shelf mark: {{ book.shelf_mark }}</li>            
+            <li class="book_shelfmark">ID: {{ book.shelf_mark }}</li>            
             <li class="book_location">Location: {{ book.location }}</li>
             {%if can_list_cost_centers%}<li class="costcenter">Cost Center: {{ book.cost_center }}</li>{%endif%}
             <li class="book_state">State: {{ book.state }}</li>

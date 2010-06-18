@@ -151,9 +151,9 @@ print 'Adding %d states' % states_count
 #                  is_available = choice(state_availability))
 #            for i in range(states_count) ]
 states = [
-    State(name="OK", is_available=True),
-    State(name="Bought & Arrived", is_available=True),
-    State(name="Lost", is_available=False),
+    State(name="OK", is_available=True, is_visible=True),
+    State(name="Bought & Arrived", is_available=True, is_visible=True),
+    State(name="Lost", is_available=False, is_visible=True),
     ]
 for state in states:
     state.save()
@@ -346,9 +346,9 @@ def readd_group(group_name, perms=[]):
     g.save()
 
 print "Adding app specific groups"
-readers_perms = ['list_books', 'view_own_profile', 'add_reservation', 'add_bookrequest',]
+readers_perms = ['list_books', 'view_own_profile', 'add_reservation', 'change_own_reservation', 'add_bookrequest',]
 vips_perms = ['list_reports', 'list_users', ]
-librarians_perms = ['list_users', 'add_rental']
+librarians_perms = ['list_users', 'add_rental', 'change_reservation', 'change_rental']
 readd_group('Readers', perms=readers_perms)  # TODO: fill permissions
 readd_group('VIPs', perms=vips_perms)
 readd_group('Librarians', perms=librarians_perms)

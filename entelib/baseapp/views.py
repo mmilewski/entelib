@@ -6,7 +6,7 @@ from entelib.baseapp.models import *
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
-from views_aux import render_forbidden, render_response, filter_query, get_book_details, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, get_locations_for_book
+from views_aux import render_forbidden, render_response, filter_query, get_book_details, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, book_copy_status, get_locations_for_book, Q_reservation_active, cancel_reservation
 from reports import get_report_data, generate_csv
 from entelib import settings
 from config import Config
@@ -215,7 +215,7 @@ def show_book(request, book_id, non_standard_user_id=False):
         book = Book.objects.get(id=book_id)
     except Book.DoesNotExist:
         return render_not_found(request, item_name='Book')
-    book_copies = BookCopy.objects.filter(book=book_id)
+    book_copies = BookCopy.objects.filter(book=book_id).filter(state__is_visible=True)
     selected_locations = []
     if request.method == 'POST':
         if 'location' in request.POST:
@@ -467,7 +467,12 @@ def show_my_reservations(request):
     except User.DoesNotExist:
         return render_not_found(request, item_name='User')
 
-    user_reservations = Reservation.objects.filter(for_whom=user).filter(rental=None).filter(when_cancelled=None)
+    post = request.POST
+    if request.method == 'POST' and 'reservation_id' in post:
+        print 'Cancelling ' + post['reservation_id']
+        cancel_reservation(Reservation.objects.get(id=post['reservation_id']), request.user)
+
+    user_reservations = Reservation.objects.filter(for_whom=user).filter(Q_reservation_active)
     reservation_list = [ {'id' : r.id,
                           'url' : unicode(r.id) + u'/',
                           'book_copy_id' : r.book_copy.id,
@@ -546,14 +551,13 @@ def show_user_reservation(request, user_id, reservation_id):
     return render_not_implemented(request)
 
 
-def reserve(request, copy, non_standard_user_id=False):
+def reserve(request, copy, non_standard_user_id=False):  # when non_standard_user_id is set then this view allows also renting
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.add_reservation'):
         return render_forbidden(request)
     try:
         book_copy = BookCopy.objects.get(id=copy)
     except BookCopy.DoesNotExist:
         return render_not_found(request, item_name='Book copy')
-    book_desc = get_book_details(book_copy)
     reserved = {}
     rented = {}
     post = request.POST
@@ -571,7 +575,7 @@ def reserve(request, copy, non_standard_user_id=False):
                 try:
                     [y, m, d] = map(int,post['from'].split('-'))
                     r.start_date = date(y, m, d)
-                except:  # TODO jak to wyjątek
+                except:  # TODO jaki to wyjątek
                     reserved.update({'error' : 'error - possibly incorrect date format'})
                     failed = True
             else:
@@ -586,7 +590,7 @@ def reserve(request, copy, non_standard_user_id=False):
                     if (r.end_date - r.start_date).days > config.get_int('rental_duration'):
                         reserved.update({'error' : 'You can\'t reserve for longer than %d days' % config.get_int('rental_duration')})
                         failed = True
-                except:  # TODO jak to wyjątek
+                except:  # TODO jaki to wyjątek
                     reserved.update({'error' : 'error - possibly incorrect date format'})
                     failed = True
             else:
@@ -600,9 +604,9 @@ def reserve(request, copy, non_standard_user_id=False):
                 reserved.update({'msg' : config.get_str('message_book_reserved') % (r.start_date.isoformat(), r.end_date.isoformat())})
                 reserved.update({'from' : r.start_date.isoformat()})
                 reserved.update({'to' : r.end_date.isoformat()})
-        elif 'action' in post and post['action'].lower() == 'rent' and request.user.has_perm('baseapp.add_rental'):
+        elif 'action' in post and post['action'].lower() == 'rent' and request.user.has_perm('baseapp.add_rental') and is_book_copy_rentable(book_copy):
                 r.start_date = date.today()
-                r.end_date = date.today() + timedelta(config.get_int('rental_duration'))
+                r.end_date = date.today() + timedelta(book_copy_status(book_copy))
                 try:
                     if 'to' in post and post['to'] != '':
                         [y, m, d] = map(int,post['to'].split('-'))
@@ -610,7 +614,7 @@ def reserve(request, copy, non_standard_user_id=False):
                             r.end_date = date(y, m, d)
                 except:
                     print 'error in reserve - failed when renting'
-                    pass
+                    pass  # TODO
                 r.save()
                 rental = Rental(reservation=r, start_date=date.today(), who_handed_out=request.user)
                 rental.save()
@@ -618,6 +622,7 @@ def reserve(request, copy, non_standard_user_id=False):
                 rented.update({'until' : r.end_date.isoformat()})
                 reserved.update({'ok' : False})
 
+    book_desc = get_book_details(book_copy)
 
     return render_response(request, 'reserve.html',
         {
@@ -631,5 +636,28 @@ def reserve(request, copy, non_standard_user_id=False):
     )
 
 
+def cancel_all_my_reserevations(request):
+    return cancel_all_user_resevations(request, request.user.id)
+
+
 def cancel_all_user_resevations(request, user_id):
-    return render_not_implemented(request)
+    user = User.objects.get(id=user_id)
+    canceller = request.user
+    post = request.POST
+
+    if request.method == 'POST' and 'sure' in post and post['sure'] == 'true':
+        for r in Reservation.objects.filter(for_whom=user).filter(Q_reservation_active):
+            cancel_reservation(r, canceller)
+    
+        return render_response(request, 'reservations_cancelled.html',
+            { 'first_name' : user.first_name,
+              'last_name'  : user.last_name,
+              'email'      : user.email,
+            })
+
+    else:
+        return render_response(request, 'cancel_reservations.html', 
+            { 'first_name' : user.first_name,
+              'last_name'  : user.last_name,
+              'email'      : user.email,
+            })

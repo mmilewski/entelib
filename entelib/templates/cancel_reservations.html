@@ -1,0 +1,19 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block title %}Cancel all reservations{% endblock %}
+
+{% block header %}Cancel all reservations{% endblock %}
+
+{% block content %}
+<b>
+    {{ first_name }} {{ last_name }}
+    <br>
+    {{ email|urlize }}
+</b>
+    <form action='.' method='post'>
+        <input type='hidden' name='sure' value='true'>
+        <input type='submit' name='' value='Cancel all'>
+    </form>
+<br />
+<a href='../new/'>Rent something else.</a>
+{% endblock %}

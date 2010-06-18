@@ -301,6 +301,11 @@ class Reservation(models.Model):
 
     class Admin:
         pass
+    
+    class Meta:
+        permissions = (
+            ("change_own_reservation", "Can change owned reservations"),
+            )
 
     def __unicode__(self):
         return u'For Mr/Ms ' + self.for_whom.first_name + u' ' + self.for_whom.last_name
