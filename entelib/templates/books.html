@@ -4,7 +4,7 @@
 
 {% block title %}Book list{% endblock %}
 
-{% block header %}Book list{% endblock %}
+{% block header %} {% if for_whom %} {{ for_whom }} {% else %} Book list {% endif %} {% endblock %}
 
 {% block content %}
     <div class="tip">

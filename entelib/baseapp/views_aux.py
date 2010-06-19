@@ -280,3 +280,14 @@ def cancel_all_user_resevations(librarian, user):
         pass  # TODO może jeszcze coś się przyda?
 
     return True
+
+
+def non_standard_username(user_id):
+    '''
+    Return unicode string containing users first and last name if user_id is correct, None otherwise.
+    '''
+    try:
+        u = User.objects.get(id=non_standard_user_id)
+        return u.first_name + ' ' + u.last_name
+    except:
+        return None

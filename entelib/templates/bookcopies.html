@@ -4,7 +4,7 @@
 
 {% block title %}{{ book.title }}{% endblock %}
 
-{% block header %}Book copies{% endblock %}
+{% block header %}{% if for_whom %} {{ for_whom }} {% else %} Book copies {% endif %} {% endblock %}
 
 {% block content %}
     <script type="text/javascript">

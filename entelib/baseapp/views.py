@@ -6,7 +6,7 @@ from entelib.baseapp.models import *
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
-from views_aux import render_forbidden, render_response, filter_query, get_book_details, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, book_copy_status, get_locations_for_book, Q_reservation_active, cancel_reservation
+from views_aux import render_forbidden, render_response, filter_query, get_book_details, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, book_copy_status, get_locations_for_book, Q_reservation_active, cancel_reservation, non_standard_username
 from reports import get_report_data, generate_csv
 from entelib import settings
 from config import Config
@@ -132,7 +132,6 @@ def default(request):
 def show_books(request, non_standard_user_id=False):
     if not request.user.is_authenticated():
         return render_forbidden(request)
-    config = Config()
     book_url = u'/entelib/books/%d/' if non_standard_user_id == False else u'/entelib/users/%d/reservations/new/book/%s/' % (int(non_standard_user_id), '%d')
     search_data = {}                    # data of searching context
     selected_categories_ids = []        # ids of selected categories -- needed to reselect them on site reload
@@ -196,7 +195,12 @@ def show_books(request, non_standard_user_id=False):
     search_data.update({'categories' : search_categories,
                         'categories_select_size' : min(len(search_categories), config.get_int('categories_select_size')),
                         })
+    #
+
+    for_whom = non_standard_username(non_standard_user_id)
+
     context = {
+        'for_whom' : for_whom,
         'books' : books,
         'search' : search_data,
         'can_add_book' : request.user.has_perm('baseapp.add_book'),
@@ -252,8 +256,12 @@ def show_book(request, book_id, non_standard_user_id=False):
         'locations' : search_locations,
         'copies_location_select_size': min(len(search_locations), config.get_int('copies_location_select_size')),      # count of elements displayed in <select> tag
         }
+
+    for_whom = non_standard_username(non_standard_user_id)
+
     return render_response(request, 'bookcopies.html', { 'book' : book_desc,
                                                          'search' : search_data,
+                                                         'for_whom' : for_whom,
                                                          'can_add_bookcopy' : request.user.has_perm('baseapp.add_bookcopy'),
                                                          'only_available_checked' : 'yes' if 'available' in request.POST else ''})
 
@@ -624,11 +632,14 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
 
     book_desc = get_book_details(book_copy)
 
+    for_whom = non_standard_username(non_standard_user_id)
+
     return render_response(request, 'reserve.html',
         {
             'book' : book_desc,
             'reserved' : reserved,
             'rented' : rented,
+            'for_whom' : for_whom,
             'can_reserve' : request.user.has_perm('baseapp.add_reservation') and book_copy.state.is_visible,
             'can_rent' : request.user.has_perm('baseapp.add_rental') and non_standard_user_id,
             'rental_possible' : is_book_copy_rentable(book_copy)

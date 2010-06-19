@@ -1,6 +1,6 @@
 {% extends 'bookcopy_base.html' %}
 
-{% block header %}Book reservation{% endblock %}
+{% block header %}{% if for_whom %} {{ for_whom }} {% else %} Book reservation {% endif %} {% endblock %}
 
 {% block form %}
     {% if rented.until %}
