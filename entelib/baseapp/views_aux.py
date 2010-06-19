@@ -295,4 +295,19 @@ def non_standard_username(user_id):
 
 def when_copy_reserved(book_copy):
     reservations = Reservation.objects.filter(book_copy=book_copy).filter(Q_reservation_active).filter(start_date__lte=today() + timedelta(config.get_int('when_reserved_period')))
-    return [{'from' : r.start_date, 'to' : r.end_date} for r in reservations]
+    list = [(r.start_date, r.end_date) for r in reservations]
+    list.sort()
+    new_list = []
+    lasta = today()
+    lastb = today()
+    for (a, b) in list:
+        if a > lastb:
+            new_list.append((lasta, lastb))
+            lasta = a
+            lastb = b
+        else:
+            lastb = max(b, lastb)
+    if new_list[-1][1] != lastb:
+        new_list.append((lasta, lastb))
+
+    return [{'from' : a, 'to' : b} for (a,b) in new_list]
