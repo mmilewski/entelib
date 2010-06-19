@@ -257,7 +257,7 @@ def mark_available(book_copy):
 
 
 def cancel_reservation(reservation, user):
-    if reservation.for_whom <> user and not user.has_perm("baseapp.change_reservation") or\
+    if reservation.for_whom != user and not user.has_perm("baseapp.change_reservation") or\
      user == reservation.for_whom and not user.has_perm("baseapp.change_own_reservation"):
             raise CancelReservationError("Not permitted")
 
@@ -267,7 +267,7 @@ def cancel_reservation(reservation, user):
 
     return True
 
-    
+
 def cancel_all_user_resevations(librarian, user):
     '''
     Desc:
@@ -278,6 +278,5 @@ def cancel_all_user_resevations(librarian, user):
             cancel_reservation(r, librarian)
     except CancelReservationError:
         pass  # TODO może jeszcze coś się przyda?
-    
+
     return True
-    

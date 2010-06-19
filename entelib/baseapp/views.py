@@ -648,7 +648,7 @@ def cancel_all_user_resevations(request, user_id):
     if request.method == 'POST' and 'sure' in post and post['sure'] == 'true':
         for r in Reservation.objects.filter(for_whom=user).filter(Q_reservation_active):
             cancel_reservation(r, canceller)
-    
+
         return render_response(request, 'reservations_cancelled.html',
             { 'first_name' : user.first_name,
               'last_name'  : user.last_name,
@@ -656,7 +656,7 @@ def cancel_all_user_resevations(request, user_id):
             })
 
     else:
-        return render_response(request, 'cancel_reservations.html', 
+        return render_response(request, 'cancel_reservations.html',
             { 'first_name' : user.first_name,
               'last_name'  : user.last_name,
               'email'      : user.email,

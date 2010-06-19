@@ -1,4 +1,4 @@
-#-*- coding=utf-8 -*- 
+#-*- coding=utf-8 -*-
 
 
 # our base exception
@@ -12,6 +12,3 @@ class ReservationError(EntelibError):
 
 class CancelReservationError(ReservationError):
     pass
-
-
-
