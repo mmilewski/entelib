@@ -261,11 +261,15 @@ def show_book(request, book_id, non_standard_user_id=False):
 
     for_whom = non_standard_username(non_standard_user_id)
 
+    last_date = date.today() + timedelta(config.get_int('when_reserved_period'))
+
     return render_response(request, 'bookcopies.html', { 'book' : book_desc,
+                                                         'last_date': last_date,
                                                          'search' : search_data,
                                                          'for_whom' : for_whom,
                                                          'can_add_bookcopy' : request.user.has_perm('baseapp.add_bookcopy'),
-                                                         'only_available_checked' : 'yes' if 'available' in request.POST else ''})
+                                                         'only_available_checked' : 'yes' if 'available' in request.POST else '',
+                                                         'time_bar': True})
 
 
 def show_book_copy(request, bookcopy_id):

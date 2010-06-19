@@ -7,9 +7,11 @@
 {% block header %}{% if for_whom %} {{ for_whom }} {% else %} Book copies {% endif %} {% endblock %}
 
 {% block content %}
+    {% if not time_bar %}}
     <script type="text/javascript">
       $(document).ready(function()  { $("#booklist").tablesorter( {sortList: [[1,0], [2,0]]} ); } );
     </script>
+    {% endif %}
 
     <h2>Title: {{ book.title }}</h2>
 
@@ -99,6 +101,7 @@
         {% if book.items %}
             <table id="booklist" class="tablesorter booklist">
                 <thead>
+                    <tr>
                     <th></th>
                     <th>Location</th>
                     <th title="aka Shelf mark">Id</th>
@@ -106,9 +109,16 @@
                     <th>Publisher</th>
                     <th>Year</th>
                     <th>Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
+                    {% if time_bar %}
+                    <tr id='tr_range'></tr>
+                    {% endif %}
                 {% for item in book.items %}
+                    {% if time_bar %}
+                    <tr id='tr_{{ item.shelf_mark }}'></tr>
+                    {% endif %}
                     <tr>
                         <td class="url"><a href='{{ item.url }}'><img src="{{MEDIA_URL}}/images/details.png"></a></td>
                         <td class="location">{{ item.location }}</td>
@@ -126,6 +136,30 @@
                             </ul>
                         </td>
                     </tr>
+                    {% if time_bar %}
+                    <script type='text/javascript'>
+                    <!--
+                        $(document).ready(function()
+                        {
+                            array = new Array();
+                            i = 0;
+                            
+                            {% for pair in item.when_reserved %}
+                                pair = new Array(2);
+                                pair[0] = "{{ pair.from }}";
+                                pair[1] = "{{ pair.to }}";
+                                array[i] = pair;
+                                i++;
+                            {% endfor %}
+                            
+                            item_last_day = "{{ last_date }}";
+                            item_id = "tr_{{ item.shelf_mark }}";
+                            
+                            make_time_bar(array, i, item_last_day, item_id);
+                        })
+                    //-->
+                    </script>
+                    {% endif %}
                 {% endfor %}
                 </tbody>
             </table>
@@ -134,5 +168,66 @@
         {% endif %}
     </div>
     {% go_back_link "Go back" %}
+
+    <script type='text/javascript'>
+    <!--
+        $(document).ready(function()
+        {
+            var posX = 0;
+            var posY = 0;
+            
+            $(".green").mousemove(function(e)
+            {
+                if (!e) var e = window.event;
+                $("#cloud").html($('input[name=val]', this).val());
+                $("#cloud").show();
+                if (e.pageX || e.pageY)
+                {
+                    posX =  e.pageX - document.body.scrollLeft -
+                            document.documentElement.scrollLeft + 10;
+                    posY = e.pageY - document.body.scrollTop -
+                            document.documentElement.scrollTop - 30;
+                }
+                else
+                    if (e.clientX || e.clientY)
+                    {
+                        posX = e.clientX + 10;
+                        posY = e.clientY - 30;
+                    }
+                $('#cloud').css({'left': posX, 'top': posY}); 
+            });            
+            $(".green").mouseout(function()
+            {
+                $("#cloud").hide(); 
+            });
+            $(".red").mousemove(function(e)
+            {
+                
+                if (!e) var e = window.event;
+                $("#cloud").html($('input[name=val]', this).val());
+                $("#cloud").show();
+                if (e.pageX || e.pageY)
+                {
+                    posX =  e.pageX - document.body.scrollLeft -
+                            document.documentElement.scrollLeft + 10;
+                    posY = e.pageY - document.body.scrollTop -
+                            document.documentElement.scrollTop - 30;
+                }
+                else
+                    if (e.clientX || e.clientY)
+                    {
+                        posX = e.clientX + 10;
+                        posY = e.clientY - 30;
+                    }
+                $('#cloud').css({'left': posX, 'top': posY}); 
+            });            
+            $(".red").mouseout(function()
+            {
+                $("#cloud").hide(); 
+            })
+        })
+    //-->
+    </script>
+    <div id="cloud" class='cloud'></div>
 
 {% endblock %}

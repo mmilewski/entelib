@@ -47,6 +47,37 @@ h1, h2
     margin: 0.1em;
 }
 
+.green
+{
+    background-color: green;
+}
+
+.red
+{
+    background-color: red;
+}
+
+#tr_range
+{
+    font-weight: bold;
+}
+
+.no_padding_and_margin
+{
+    padding: 0;
+    margin: 0;
+}
+
+.cloud
+{
+    position: fixed; 
+    background-color:#dedede; 
+    border: solid 1px; 
+    padding: 0.1em; 
+    display: none; 
+    z-index: 1000000;
+}
+
 table
 {
     border-collapse: collapse;

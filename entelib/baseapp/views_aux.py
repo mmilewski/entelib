@@ -307,7 +307,8 @@ def when_copy_reserved(book_copy):
             lastb = b
         else:
             lastb = max(b, lastb)
-    if new_list[-1][1] != lastb:
-        new_list.append((lasta, lastb))
+    if new_list:
+        if new_list[-1][1] != lastb:
+            new_list.append((lasta, lastb))
 
     return [{'from' : a, 'to' : b} for (a,b) in new_list]
