@@ -5,6 +5,7 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse
 from entelib.baseapp.models import *
 from django.template import RequestContext
 from django.contrib import auth
+from django.contrib.auth.models import Group
 from django.db.models import Q
 from views_aux import render_forbidden, render_response, filter_query, get_book_details, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, book_copy_status, get_locations_for_book, Q_reservation_active, cancel_reservation, non_standard_username, when_copy_reserved
 from reports import get_report_data, generate_csv
@@ -288,22 +289,41 @@ def show_book_copy(request, bookcopy_id):
 def show_users(request):
     if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
         return render_forbidden(request)
-    dict = {}
+    context = {}
     if request.method == 'POST':
-        request_first_name = request.POST['first_name'] if 'first_name' in request.POST else ''
-        request_last_name = request.POST['last_name'] if 'last_name' in request.POST else ''
-        request_email = request.POST['email'] if 'email' in request.POST else ''
+        request_first_name   = request.POST['first_name'] if 'first_name' in request.POST else ''
+        request_last_name    = request.POST['last_name'] if 'last_name' in request.POST else ''
+        request_email        = request.POST['email'] if 'email' in request.POST else ''
+        request_is_librarian = ('is_librarian' in request.POST)
         user_list = []
+
+        # filter by beeing in Librarians group
+        librarians_group = Group.objects.get(name='Librarians')
+        if request_is_librarian:
+            is_librarian = lambda u: librarians_group in u.groups.all()
+        else:
+            is_librarian = lambda u: True
+
         if 'action' in request.POST and request.POST['action'] == 'Search':
-            user_list = [ {'last_name' : u.last_name, 'first_name' : u.first_name, 'email' : u.email,'url' : unicode(u.id) + u'/'}
-                          for u in User.objects.filter(first_name__icontains=request_first_name).filter(last_name__icontains=request_last_name).filter(email__icontains=request_email) ]
-        dict = {
-            'users' : user_list,
-            'first_name' : request_first_name,
-            'last_name' : request_last_name,
-            'email' : request_email,
+            user_list = [ {'username'   : u.username,    # rather temporary here (need this when defining location-librarian relation).
+                           'last_name'  : u.last_name,
+                           'first_name' : u.first_name,
+                           'email'      : u.email,
+                           'url'        : "%d/" % u.id
+                           }
+                          for u in User.objects.filter(first_name__icontains=request_first_name)
+                                               .filter(last_name__icontains=request_last_name)
+                                               .filter(email__icontains=request_email)
+                          if is_librarian(u)
+                        ]
+        context = {
+            'users'        : user_list,
+            'first_name'   : request_first_name,
+            'last_name'    : request_last_name,
+            'email'        : request_email,
+            'is_librarian' : request_is_librarian,
             }
-    return render_response(request, 'users.html', dict)
+    return render_response(request, 'users.html', context)
 
 
 def show_user(request, user_id):

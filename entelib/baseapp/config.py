@@ -1,7 +1,18 @@
 #-*- coding=utf-8 -*-
 
 from entelib.baseapp.models import Configuration
-import json
+
+# where is json?
+try:
+    from django.utils import simplejson as json
+except:
+    try:
+        import json
+    except:
+        try:
+            import simplejson as json
+        except:
+            raise
 
 
 class Config(object):

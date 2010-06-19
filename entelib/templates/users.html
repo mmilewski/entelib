@@ -11,18 +11,21 @@
         <form action='.' method='post'>
             <table>
                 <tr>
-                    <td>Name: </td>
+                    <td>First name: </td>
                     <td><input type='text' name='first_name' value='{{ first_name }}'></td>
                 </tr><tr>
-                    <td>Surname: </td>
+                    <td>Last name: </td>
                     <td><input type='text' name='last_name' value='{{ last_name }}'></td>
                 </tr><tr>
                     <td>Email: </td>
                     <td><input type='text' name='email' value='{{ email|urlize }}'></td>
                 </tr><tr>
-                    <td></td><td>
-                        <input type='submit'  name='action' value='Search'>
-                    </td></tr>
+                    <td>Only librarians: </td>
+                    <td><input type='checkbox' name='is_librarian' {%if is_librarian %}checked="checked"{%endif%}></td>
+                </tr><tr>
+                    <td></td>
+                    <td><input type='submit'  name='action' value='Search'></td>
+                </tr>
             </table>
         </form>
     </div>
@@ -30,7 +33,7 @@
     <div style='margin-top: 1em'>
         <ul class='spaces'>
             {% for user in users %}
-                <li><b><a href='{{ user.url }}'>{{ user.first_name }} {{ user.last_name }} ({{ user.email }})</a></b></li>
+                <li><b><a href='{{ user.url }}'>{{user.username}}, {{ user.first_name }} {{ user.last_name }} ({{ user.email }})</a></b></li>
             {% empty %}
                 <b>No users.</b>
             {% endfor %}

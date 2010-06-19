@@ -159,6 +159,7 @@ class Location(models.Model):
     building = models.ForeignKey(Building, blank=False, null=False)
     details = models.CharField(max_length=CFG.location_name_len)
     remarks = models.CharField(max_length=CFG.location_remarks_len, blank=True)
+    maintainer = models.ManyToManyField(User, blank=True, null=True, verbose_name='Maintainers')
 
     def __unicode__(self):
         return u'%s: %s' % (self.building.name, self.details)

@@ -16,7 +16,7 @@ configuration_value_len = 256
 configuration_descirption_len = 128
 
 location_name_len = 30
-location_remarks_len = 50
+location_remarks_len = 70
 
 building_name_len = 30
 building_remarks_len = 50
