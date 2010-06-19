@@ -6,7 +6,7 @@ from entelib.baseapp.models import *
 from django.template import RequestContext
 from django.contrib import auth
 from django.db.models import Q
-from views_aux import render_forbidden, render_response, filter_query, get_book_details, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, book_copy_status, get_locations_for_book, Q_reservation_active, cancel_reservation, non_standard_username
+from views_aux import render_forbidden, render_response, filter_query, get_book_details, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, book_copy_status, get_locations_for_book, Q_reservation_active, cancel_reservation, non_standard_username, when_copy_reserved
 from reports import get_report_data, generate_csv
 from entelib import settings
 from config import Config
@@ -242,6 +242,7 @@ def show_book(request, book_id, non_standard_user_id=False):
             'year'          : elem.year,
             'is_available'  : elem.state.is_available,
             'is_reservable' : is_copy_reservable,    # TODO: this should check if one can reserve copy and whether book is available for reserving (whatever this means)
+            'when_reserved' : when_copy_reserved(elem),
             })
     book_desc = {
         'id'          : book.id,

@@ -291,3 +291,8 @@ def non_standard_username(user_id):
         return u.first_name + ' ' + u.last_name
     except:
         return None
+
+
+def when_copy_reserved(book_copy):
+    reservations = Reservation.objects.filter(book_copy=book_copy).filter(Q_reservation_active).filter(start_date__lte=today()+timedelta(config.get_int('when_reserved_period')))
+    return [{'from' : r.start_date, 'to' : r.end_date} for r in reservations]
