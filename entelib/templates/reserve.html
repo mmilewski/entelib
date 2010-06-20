@@ -40,6 +40,19 @@
                             <td></td>
                             <td><input type='submit' name='action' value='rent' {% if not rental_possible %} disabled {% endif %} ></td>
                             <td></td>
+                            <div class="tip">
+                                <ol>
+                                    <li>
+                                        When renting "From:" field is ignored - books are always rented from today.
+                                    </li>
+                                    <li>
+                                        When renting "To:" field means until when you rent the book. When left blank max available period is set.
+                                    </li>
+                                    <li>
+                                        When renting and "To:" field is set to longer than max available period, max available period is used instead.
+                                    </li>
+                                </ol>
+                            </div>
                     {% endif %}
                         </tr>
                 </table>
