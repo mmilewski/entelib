@@ -19,10 +19,18 @@ from datetime import date, datetime, timedelta
 config = Config()
 
 
-def load_default_config(request):
-    from dbconfigfiller import fill_config
-    fill_config()
-    return HttpResponseRedirect('/')
+def load_default_config(request, do_it=0):
+    '''
+    Restores default values to config. This is rather for developement than production usage.
+    '''
+    if not (request.user.is_authenticated() and request.user.is_staff):
+        return render_forbidden(request)
+
+    if do_it:
+        from dbconfigfiller import fill_config
+        fill_config()
+        return render_response(request, 'load_default_config.html', {})
+    return render_response(request, 'load_default_config.html', {})
 
 
 def show_config_options(request):
@@ -54,7 +62,7 @@ def show_email_list(request):
     user = request.user
 
     # auth
-    if not all([user.is_authenticated(), user.has_perm('baseapp.list_emaillogs')]):
+    if not all([user.is_authenticated(), user.has_perm('baseapp.list_emaillog')]):
         return render_forbidden(request)
 
     return render_response(request, tpl_email_list, context)

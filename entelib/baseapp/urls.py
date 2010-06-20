@@ -71,7 +71,7 @@ urlpatterns = patterns(
 
     # config
     (r'^config/$', view.show_config_options),
-    (r'load_default_config', view.load_default_config),
+    (r'load_default_config/(?P<do_it>(\d))?/?$', view.load_default_config),
 
     # admin panel urls
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),
