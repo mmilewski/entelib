@@ -1,18 +1,25 @@
 {% extends 'reports.html' %}
 
 {% block report %}
+    <script type="text/javascript">
+      $(document).ready(function()  { $("#booklist").tablesorter(  ); } );
+    </script>
     <div style='margin-top: 1em'>
-            <table class='booklist'>
+            <table class="booklist tablesorter" id="booklist">
+              <thead>
                 <tr>
                     <th>Name</th>
                     <th>Number of cancels</th>
                 </tr>
+              </thead>
+              <tbody>
                 {% for user in report %}
                 <tr>
                     <td>{{ user.name }}</td>
                     <td>{{ user.num_of_cancels }}</td>
                 </tr>
                 {% endfor %}
+              </tbody>
             </table>
     </div>
 {% endblock %}
