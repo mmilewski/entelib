@@ -294,6 +294,8 @@ def non_standard_username(user_id):
 
 
 def when_copy_reserved(book_copy):
+    config = Config()
+
     last_date = today() + timedelta(config.get_int('when_reserved_period'))
     if book_copy.state.is_available == False:
         return [{'from': today(), 'to': last_date}]
