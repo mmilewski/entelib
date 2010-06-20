@@ -18,8 +18,9 @@
       -->
     <div id='menu' style="clear:both;">
       <ul>
-            {% if can_list_emaillog %}             <li><a href="/entelib/emaillog/">Email logs</a></li>             {% endif %}
+                                                   <li><a href="/entelib/load_default_config/">Load default config</a></li>
             {% if can_list_config_options %}       <li><a href="/entelib/config/">Configuration</a></li>            {% endif %}
+            {% if can_list_emaillog %}             <li><a href="/entelib/emaillog/">Email logs</a></li>             {% endif %}
       </ul>
     </div>
 {% endblock %}

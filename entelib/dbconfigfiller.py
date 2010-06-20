@@ -9,6 +9,7 @@ def _svd(config, key, value, desc):
 def fill_config():
     from baseapp.config import Config
     config = Config()
+    config.clear(truncate_model=True)
 
     # registration
     # config['user_after_registration_groups'] = ['Readers']                         # User joins these groups right after he is registered

@@ -32,7 +32,7 @@ class Config(object):
         ''' Clears cache. If truncate_model is set, removes all data from Configuration model. '''
         self._cached_data = {}
         if truncate_model:
-            Configuration.object.all().delete()
+            Configuration.objects.all().delete()
 
     def __getitem__(self, key):
         if key in self._cached_data:

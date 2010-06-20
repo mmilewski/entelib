@@ -19,6 +19,12 @@ from datetime import date, datetime, timedelta
 config = Config()
 
 
+def load_default_config(request):
+    from dbconfigfiller import fill_config
+    fill_config()
+    return HttpResponseRedirect('/')
+
+
 def show_config_options(request):
     '''
     Handles listing config options from Configuration model (also Config class).

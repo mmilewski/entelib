@@ -69,18 +69,13 @@ urlpatterns = patterns(
     # email logs
     (r'^emaillog/$', view.show_email_list),
 
+    # config
     (r'^config/$', view.show_config_options),
-
-    # admin docs urls
-    (r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    (r'^admin/doc$', get_redirect_function_to_url('/entelib/admin/doc/')),
+    (r'load_default_config', view.load_default_config),
 
     # admin panel urls
-    ## allows to change password from CustomUserForm
-    # (r'^admin/baseapp/customuser/(?P<uid>\d+)/(?P<rest>.+)', 'django.views.generic.simple.redirect_to', {'url': '/entelib/admin/auth/user/%(uid)s/%(rest)s'}),
-    ## displays custom user when trying to show auth.user - ugly hack
-    # (r'^admin/auth/user/(?P<uid>\d+)/$', 'django.views.generic.simple.redirect_to', {'url': '/entelib/admin/baseapp/customuser/%(uid)s/'}),
-    ## redirects admin pages
+    (r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    (r'^admin/doc$', get_redirect_function_to_url('/entelib/admin/doc/')),
     (r'^admin/', include(admin.site.urls)),
     (r'^admin$', get_redirect_function_to_url('/entelib/admin/')),
 
