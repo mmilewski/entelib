@@ -7,7 +7,7 @@
 {% block header %}{% if for_whom %} {{ for_whom }} {% else %} Book copies {% endif %} {% endblock %}
 
 {% block content %}
-    {% if not time_bar %}}
+    {% if not time_bar %}
     <script type="text/javascript">
       $(document).ready(function()  { $("#booklist").tablesorter( {sortList: [[1,0], [2,0]]} ); } );
     </script>
@@ -39,7 +39,7 @@
       <p>2. Selecting "Any" has effect only iff nothing else is selected. If "Any" and sth else is selected, then "Any" would be deselected</p>
     </div>
     <div class='content_form'>
-        <form action='.' method='post'>
+        <form action='.#book_copies' method='post'>
             <table>
                 <tr>
                     <td>Location: </td>
@@ -79,8 +79,12 @@
     <div class="book_copies">
       <h3 id="book_copies">Copies of this book:</h3>
       <div class="tip">
-        <p>1. Hold shift and then press header to select by multiple columns.</p>
-        <p>2. If you reserve book that is unavailable, you will be <em>unable</em> to rent it.</p>
+        <ol>
+          <li><p>Hold shift and then press header to select by multiple columns.</p></li>
+          <li><p>If you reserve book that is unavailable, you will be <em>unable to rent it</em>.</p></li>
+          <li><p>There are two functionalities excluding each other now: displaying time bar and column sorting. You can choose one of them
+              setting enable_time_bar to 0 or 1 in <a href="/entelib/admin/baseapp/configuration/enable_time_bar/">configuration panel</a>.</p></li>
+        </ol>
       </div>
         <!-- <ul class='booklist'>
         {% for item in book.items %}
