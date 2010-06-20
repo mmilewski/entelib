@@ -50,11 +50,13 @@ h1, h2
 .green
 {
     background-color: green;
+    border-width: 0 !important;
 }
 
 .red
 {
     background-color: red;
+    border-width: 0 !important;
 }
 
 #tr_range

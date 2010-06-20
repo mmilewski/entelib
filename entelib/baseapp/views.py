@@ -269,7 +269,7 @@ def show_book(request, book_id, non_standard_user_id=False):
                                                          'for_whom' : for_whom,
                                                          'can_add_bookcopy' : request.user.has_perm('baseapp.add_bookcopy'),
                                                          'only_available_checked' : 'yes' if 'available' in request.POST else '',
-                                                         'time_bar': True})
+                                                         'time_bar': config.get_bool('enable_time_bar')})
 
 
 def show_book_copy(request, bookcopy_id):

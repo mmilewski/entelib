@@ -295,19 +295,40 @@ def non_standard_username(user_id):
 
 def when_copy_reserved(book_copy):
     reservations = Reservation.objects.filter(book_copy=book_copy).filter(Q_reservation_active).filter(start_date__lte=today() + timedelta(config.get_int('when_reserved_period')))
+    active_rentals = Rental.objects.filter(reservation__book_copy=book_copy).filter(end_date__isnull=True)
+
     list = [(r.start_date, r.end_date) for r in reservations]
+    if active_rentals:
+        active_rental = active_rentals[0]
+        list.append((today(), active_rental.reservation.end_date))
+
     list.sort()
+    last_date = today() + timedelta(config.get_int('when_reserved_period'))
     new_list = []
-    lasta = today()
-    lastb = today()
-    for (a, b) in list:
+
+    if not list:
+        return new_list
+
+    lasta = list[0][0]
+    lastb = list[0][1]
+    if lastb > last_date:
+        lastb = last_date
+
+    for (a, b) in list[1:]:
         if a > lastb:
             new_list.append((lasta, lastb))
             lasta = a
             lastb = b
+            if lastb > last_date:
+                lastb = last_date
         else:
             lastb = max(b, lastb)
-    if new_list:
+            if lastb > last_date:
+                lastb = last_date
+
+    if not new_list:
+        new_list.append((lasta, lastb))
+    else:
         if new_list[-1][1] != lastb:
             new_list.append((lasta, lastb))
 

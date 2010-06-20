@@ -44,6 +44,7 @@ def fill_config():
     _svd(config, 'list_only_existing_categories_in_search',  True,               "True iff in booklist (book search, not book copy search) only those categories will be listed, that exists a book (in database) with such category.")
     _svd(config, 'cut_categories_list_to_found_books',       False,              "True iff in booklist (book search, not book copy search) only those categories will be listed, that exists a book (in results) with such category.")
     _svd(config, 'when_reserved_period',                     90,                 "When listing book copies, it says for how many days forward user will be shown when a copy is reserved.")
+    _svd(config, 'enable_time_bar',                          True,               "Choose between table sorting and time bars showing in book copies view.")
 
     # misc
     # config['is_cost_center_visible_to_anyone'] = True                              # True iff copy's cost center info is visible to anyone (= no perms required)

@@ -12,8 +12,8 @@ make_time_bar = function(array, i, item_last_day, item_id)
     last_day = new Date(parseInt(temp[0], 10), parseInt(temp[1], 10) - 1, parseInt(temp[2], 10));
     last = last_day.format();
     
-    $("#tr_range").html("<td style='text-align: left; border: 0' colspan='6'>Today</td>" + 
-                        "<td style='text-align: right; border: 0'>" + 
+    $("#tr_range").html("<td style='text-align: left; border: 0' colspan='4'>Today</td>" + 
+                        "<td style='text-align: right; border: 0' colspan='3'>" + 
                         last + "</td>");
                         
     period = (last_day - today) / one_day + 1;
@@ -79,7 +79,7 @@ make_time_bar = function(array, i, item_last_day, item_id)
     interval = (last_day - to_next_date) / one_day + 1;
     td_len = Math.floor(interval * day_len);
     if (td_len != 0)
-        str +=  "<td class='green width='" + 
+        str +=  "<td class='green' width='" + 
                 td_len + "px'><input type='hidden' name='val', value='Rentable<br>" + 
                 to_next + " : " + last + 
                "'></td>";
