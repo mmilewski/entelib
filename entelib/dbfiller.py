@@ -278,8 +278,23 @@ for (name, re, desc) in phone_types:
 # src: http://docs.djangoproject.com/en/dev/topics/auth/#creating-users
 # from django.contrib.auth.models import User
 def add_superuser():
+    user = User.objects.create_user('superadmin', 'master-over-masters@super.net', 'superadmin')
+    user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Superadmino', u'Superdomino', True, True
+    ph = Phone(type=PhoneType.objects.get(id=1), value="432-765-098")
+    ph.save()
+    profile = user.get_profile()
+    profile.phone.add(ph)
+    ph = Phone(type=PhoneType.objects.get(id=2), value="superadmino.superdominko")
+    ph.save()
+    profile.phone.add(ph)
+    profile.building = Building.objects.get(pk=1)
+    profile.save()
+    user.save()
+
+
+def add_admin():
     user = User.objects.create_user('admin', 'domin@bosses.net', 'admin')
-    user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Admino', u'Domino', True, True
+    user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Admino', u'Domino', True, False
     ph = Phone(type=PhoneType.objects.get(id=1), value="333-444-555")
     ph.save()
     profile = user.get_profile()
@@ -322,36 +337,44 @@ def add_everyday_user():
 
 # add users
 add_superuser()
+add_admin()
 add_librarian()
 add_everyday_user()
 
 
 # add few groups
-def readd_group(group_name, perms=[]):
+def readd_group(group_name, perms=[], direct_add=False):
     '''
     Add permission from perms to group_name group.
     If group doesn't exist, new one is created.
+    It direct_add is True, then perms is assumed to be Permission's instance. Otherwise it should be a string.
     '''
     g = None
     try:
         # read group from db
         g = Group.objects.get(name=group_name)
-    except:
+    except Group.DoesNotExist:
         # or create a new one
         g = Group(name=group_name)
         g.save()
     for perm in perms:
-        p = Permission.objects.get(codename=perm)
+        if direct_add:
+            p = perm
+        else:
+            p = Permission.objects.get(codename=perm)
         g.permissions.add(p)
     g.save()
 
 print "Adding app specific groups"
-readers_perms = ['list_books', 'view_own_profile', 'add_reservation', 'change_own_reservation', 'add_bookrequest',]
-vips_perms = ['list_reports', 'list_users', ]
+from django.contrib.auth.models import Permission
+admins_perms     = Permission.objects.all()
+readers_perms    = ['list_books', 'view_own_profile', 'add_reservation', 'change_own_reservation', 'add_bookrequest',]
+vips_perms       = ['list_reports', 'list_users', ]
 librarians_perms = ['list_users', 'add_rental', 'change_reservation', 'change_rental']
-readd_group('Readers', perms=readers_perms)  # TODO: fill permissions
-readd_group('VIPs', perms=vips_perms)
+readd_group('Readers',    perms=readers_perms)
+readd_group('VIPs',       perms=vips_perms)
 readd_group('Librarians', perms=librarians_perms)
+readd_group('Admins',     perms=admins_perms, direct_add=True)
 
 
 from dbconfigfiller import fill_config
@@ -361,13 +384,16 @@ config = fill_config()
 
 # add user
 print "Adding default user to some groups"
+u = User.objects.get(username='admin')
+for group_name in config.get_list('user_after_registration_groups'):
+    u.groups.add(Group.objects.get(name=group_name))
+    u.groups.add(Group.objects.get(name="Admins"))
+
 u = User.objects.get(username='user')
 for group_name in config.get_list('user_after_registration_groups'):
-    print group_name
     u.groups.add(Group.objects.get(name=group_name))
 
 u = User.objects.get(username='lib')
 for group_name in config.get_list('user_after_registration_groups'):
-    print group_name
     u.groups.add(Group.objects.get(name=group_name))
     u.groups.add(Group.objects.get(name="Librarians"))
