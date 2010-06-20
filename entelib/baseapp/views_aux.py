@@ -167,7 +167,7 @@ def is_reservation_active(r):
         return False
 
 
-# Q object filtering Reservation objects to be only active (maybe after few days)
+# Q object filtering Reservation objects to be only active (available for renting) (maybe after few days)
 Q_reservation_active = Q(when_cancelled=None) & Q(rental=None) & Q(end_date__gte=today())
 
 
@@ -287,7 +287,7 @@ def non_standard_username(user_id):
     Return unicode string containing users first and last name if user_id is correct, None otherwise.
     '''
     try:
-        u = User.objects.get(id=non_standard_user_id)
+        u = User.objects.get(id=user_id)
         return u.first_name + ' ' + u.last_name
     except:
         return None
