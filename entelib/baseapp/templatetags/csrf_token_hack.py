@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django import template, VERSION
 
 # see http://docs.djangoproject.com/en/dev/howto/custom-template-tags/

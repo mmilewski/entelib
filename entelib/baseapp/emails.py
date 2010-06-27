@@ -1,4 +1,4 @@
-#-*- coding=utf-8 -*-
+# -*- coding: utf-8 -*-
 
 from django.template import loader, Context
 from django.core.mail import send_mail as django_send_mail

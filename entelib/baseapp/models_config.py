@@ -1,4 +1,4 @@
-# -*- coding=utf-8 -*-
+# -*- coding: utf-8 -*-
 
 #TODO: wymyślić jakiś sensowny sposób ułożenia tych zmiennych. Chyba że po prostu każdą wartość będziemy definiować pod istniejącymi. Co chyba nie jest rzadkim rozwiążązaniem...
 '''

@@ -1,4 +1,4 @@
-#-*- coding=utf-8 -*-
+# -*- coding: utf-8 -*-
 
 from entelib.baseapp.models import Configuration
 

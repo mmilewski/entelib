@@ -1,4 +1,4 @@
-#-*- coding=utf-8 -*-
+# -*- coding: utf-8 -*-
 
 from views_aux import get_book_details, book_copy_status
 from entelib.baseapp.models import Reservation, Rental, BookCopy, Book, User

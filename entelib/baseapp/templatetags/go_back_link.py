@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from baseapp.config import Config
 from django import template
 

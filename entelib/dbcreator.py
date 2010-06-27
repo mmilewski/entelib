@@ -1,4 +1,4 @@
-#-*- coding=utf-8 -*-
+# -*- coding: utf-8 -*-
 
 #
 # Pass argument 'new' to create db from scratch.

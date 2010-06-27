@@ -1,4 +1,4 @@
-#-*- coding=utf-8 -*-
+# -*- coding: utf-8 -*-
 
 from entelib.baseapp.models import Reservation, Rental, BookCopy, Book, User, Location
 from django.template import RequestContext
