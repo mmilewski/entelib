@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 # Django settings for entelib project.
 import os
+from os.path import abspath, dirname, join
+PROJECT_PATH = dirname(abspath(__file__))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
 
 # if True checks whether given password matches one in database.
 CHECK_PASSWORD_ON_AUTH = True
@@ -15,7 +18,8 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'sqlite3'    # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'database/database.db'      # Or path to database file if using sqlite3.
+#DATABASE_NAME = 'database/database.db'      # Or path to database file if using sqlite3.
+DATABASE_NAME = join(PROJECT_PATH,'database/database.db')
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
@@ -41,7 +45,7 @@ USE_I18N = False
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
 #MEDIA_ROOT = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'media')
-MEDIA_ROOT = 'media/'
+MEDIA_ROOT = join(PROJECT_PATH,'media') + os.sep
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -81,8 +85,8 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    'templates',
-    'email',
+    join(PROJECT_PATH,'templates'),
+    join(PROJECT_PATH,'email'),
 )
 
 INSTALLED_APPS = (
