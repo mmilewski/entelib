@@ -336,3 +336,7 @@ div.config_options_wrapper dt.key img {
 div.config_options_wrapper dd.value {
     font-size: 110%;
 }
+
+.tb_stripes {
+    background-image: url('/media/images/tb_stripes.png') !important;
+}

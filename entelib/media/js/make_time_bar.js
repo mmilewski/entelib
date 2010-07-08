@@ -26,9 +26,11 @@ make_time_bar = function(array, i, item_last_day, item_id)
     to_date = today;
     
     str =   "<td colspan='7' style='padding: 0; margin: 0;' class='no_padding_and_margin'>" + 
-            "<table style='border: solid 1px; height: 1em' width='" + 
-            len + 
-            "px'><tr>";
+            "<table style='border: solid 1px; height: 1em' width='100%" + 
+    //            len +
+            "'><tr>";
+
+            // "px'><tr>";
     
     $.each(array, function(index, value)
     {
@@ -43,7 +45,7 @@ make_time_bar = function(array, i, item_last_day, item_id)
         td_len = Math.floor(interval * day_len);
         if (td_len != 0)
             str +=  "<td class='green' width='" + 
-                    td_len + "px'><input type='hidden' name='val', value='Rentable<br>" + 
+                    100*td_len/len + "%'><input type='hidden' name='val', value='Rentable<br>" + 
                     to_next + " : " + 
                     from_prev + 
                     "'></td>";
@@ -59,8 +61,8 @@ make_time_bar = function(array, i, item_last_day, item_id)
         interval = (to_date - from_date) / one_day + 1;
         td_len = Math.floor(interval * day_len);
         if (td_len != 0)
-            str +=  "<td class='red' width='" + 
-                    td_len + "px'><input type='hidden' name='val', value='Not rentable<br>" + 
+            str +=  "<td class='red tb_stripes' width='" + 
+                    100*td_len/len + "%'><input type='hidden' name='val', value='Not rentable<br>" + 
                     from + " : " + to + 
                     "'></td>";
     });
@@ -80,7 +82,7 @@ make_time_bar = function(array, i, item_last_day, item_id)
     td_len = Math.floor(interval * day_len);
     if (td_len != 0)
         str +=  "<td class='green' width='" + 
-                td_len + "px'><input type='hidden' name='val', value='Rentable<br>" + 
+                100*td_len/len + "%'><input type='hidden' name='val', value='Rentable<br>" + 
                 to_next + " : " + last + 
                "'></td>";
     
