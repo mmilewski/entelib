@@ -617,12 +617,12 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
     if request.method == 'POST':
         r = Reservation(who_reserved=request.user, book_copy=book_copy, for_whom=user)
         if 'action' in post and post['action'].lower() == 'reserve':
-            failed = False  # TODO rozwiązać to ładniej
+            failed = False  # TODO rozwiazac to ladniej
             if 'from' in post and post['from'] != u'':
                 try:
                     [y, m, d] = map(int,post['from'].split('-'))
                     r.start_date = date(y, m, d)
-                except:  # TODO jaki to wyjątek
+                except:  # TODO jaki to wyjatek
                     reserved.update({'error' : 'error - possibly incorrect date format'})
                     failed = True
             else:
@@ -637,7 +637,7 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
                     if (r.end_date - r.start_date).days > config.get_int('rental_duration'):
                         reserved.update({'error' : 'You can\'t reserve for longer than %d days' % config.get_int('rental_duration')})
                         failed = True
-                except:  # TODO jaki to wyjątek
+                except:  # TODO jaki to wyjatek
                     reserved.update({'error' : 'error - possibly incorrect date format'})
                     failed = True
             else:

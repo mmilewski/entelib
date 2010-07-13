@@ -181,16 +181,16 @@ def reservation_status(reservation):
     all = Reservation.objects.filter(book_copy=reservation.book_copy).filter(rental=None).filter(when_cancelled=None).filter(end_date__gte=today())
     if reservation not in all:
         return 'Incorrect reservation'
-    # książka wypożyczona:
+    # ksiazka wypozyczona:
     if Rental.objects.filter(reservation__book_copy=reservation.book_copy).filter(end_date=None).count() > 0:
         return 'This copy is currently rented.'
-    # książka niedostępna
+    # ksiazka niedostepna
     if reservation.book_copy.state.is_available == False:
         return 'This copy is currently not available (' + reservation.book_copy.state.name + ').'
-    # rezerwacja jest do przodu i są jakieś inne po drodze:
+    # rezerwacja jest do przodu i sa jakies inne po drodze:
     if reservation.start_date > today() and all.filter(start_date__lt=reservation.start_date).count() > 0:
         return 'There are reservations before this one starts.'
-    # jakaś starsza jest aktywna
+    # jakas starsza jest aktywna
     if all.filter(id__lt=reservation.id).filter(start_date__lte=today()).filter(Q_reservation_active).count() > 0:  # WARNING: this might need modification if additional conditions are added to definition of active reservation
         return 'Reservation not first'
     max_allowed = config.get_int('rental_duration')
@@ -250,7 +250,7 @@ def rent(reservation, librarian):
 
 
 def mark_available(book_copy):
-    reservations = Reservation.objects.filter(rental=None).filter(start_date__lte=date.today)  # TODO tylko aktywne? jak rozwiązać sytuację, jak ktoś zarezerwował od jutra?
+    reservations = Reservation.objects.filter(rental=None).filter(start_date__lte=date.today)  # TODO tylko aktywne? jak rozwiazac sytuacje, jak ktos zarezerwowal od jutra?
     if reservations.count() > 0:
         reservations[0].active_since = today()
         # TODO notify user he can rent the book
@@ -277,7 +277,7 @@ def cancel_all_user_resevations(librarian, user):
         for r in Reservation.objects.filter(for_whom=user).filter(Q_reservation_active):
             cancel_reservation(r, librarian)
     except CancelReservationError:
-        pass  # TODO może jeszcze coś się przyda?
+        pass  # TODO moze jeszcze cos sie przyda?
 
     return True
 
