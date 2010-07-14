@@ -46,7 +46,7 @@ class PageLogger(object):
     Handles user logging in and allows to assert reponse for given url.
     '''
 
-    fixtures = ['logindata.json']
+    fixtures = ['active_user.json']
     username = 'testname'
     userpassword = 'admin'
 

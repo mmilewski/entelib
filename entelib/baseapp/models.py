@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from django.contrib.auth.models import User, UserManager, Permission
+from django.contrib.auth.models import User  #, UserManager, Permission
 import models_config as CFG
 from django.db.models import signals
-import settings
+#import settings
 
 APPLICATION_NAME = 'baseapp'     # should be read from somewhere, I think
 
@@ -31,19 +31,45 @@ class EmailLog(models.Model):
 
 class Configuration(models.Model):
     '''
-    Key,Value pairs.
+    Here all config options are stored as (key, value) pairs.
+    Any option can be customized by user in UserConfiguration model, 
+    but only if can_override is True.
+    If user will customize option that has can_override=False, it will has no effect.
     '''
     key = models.CharField(max_length=CFG.configuration_key_len, primary_key=True)
     value = models.CharField(max_length=CFG.configuration_value_len)
     description = models.CharField(max_length=CFG.configuration_descirption_len)
+    can_override = models.BooleanField(default=True)
 
     def __unicode__(self):
-        return u'%s => %s' % (self.key, self.value)
+        can_override_str = '+' if self.can_override else '-'
+        return u'[%s] %s => %s' % (can_override_str, self.key, self.value)
 
     class Meta:
         permissions = (
             ('list_config_options', "Can list configuration's options"),
             )
+
+
+class UserConfiguration(models.Model):
+    '''
+    Set of options overrided by user. Option is overrided only if can_override is True in Configuration model.
+    This model contains only overrided values, NOT all - so it is a subset 
+    of Configuration if only keys are considered.
+    If user will customize option that has can_override=False, it will has no effect.
+    '''
+    option = models.ForeignKey(Configuration)
+    user = models.ForeignKey(User)
+    value = models.CharField(max_length=CFG.configuration_value_len)
+
+    class Meta:
+        verbose_name = 'Configuration per user'
+        verbose_name_plural = 'Configurations per user'
+        unique_together = (('option', 'user'),)
+    
+    def __unicode__(self):
+        can_override_str = '+' if self.option.can_override else '-'
+        return u"[%s] %s => %s" % (can_override_str, self.option.key, self.value)
 
 
 class PhoneType(models.Model):
@@ -375,6 +401,6 @@ class Rental(models.Model):
 #     )
 
 
-# Defined model list contains all classes where has_perm will look for permissions.
-# If you know how to do this automaticaly, feel free to update :) I think it's possible. It's enough to walk through all classes and check for Meta inner class existance
-_defined_models = [Configuration, PhoneType, Phone, User, UserProfile, Location, State, Publisher, Picture, Author, Book, CostCenter, BookCopy, Reservation, Rental]
+## Defined model list contains all classes where has_perm will look for permissions.
+## If you know how to do this automaticaly, feel free to update :) I think it's possible. It's enough to walk through all classes and check for Meta inner class existance
+#_defined_models = [Configuration, PhoneType, Phone, User, UserProfile, Location, State, Publisher, Picture, Author, Book, CostCenter, BookCopy, Reservation, Rental]

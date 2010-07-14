@@ -147,6 +147,7 @@ def default(request):
 def show_books(request, non_standard_user_id=False):
     if not request.user.is_authenticated():
         return render_forbidden(request)
+    config.set_user(request.user)
     book_url = u'/entelib/books/%d/' if non_standard_user_id == False else u'/entelib/users/%d/reservations/new/book/%s/' % (int(non_standard_user_id), '%d')
     search_data = {}                    # data of searching context
     selected_categories_ids = []        # ids of selected categories -- needed to reselect them on site reload

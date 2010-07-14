@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from django.test import TestCase
-from page_logger import *
+#from django.test import TestCase
+#from page_logger import *
 
 # from baseapp.models import CustomUser
-from django.contrib.auth.models import Permission
+#from django.contrib.auth.models import Permission
 
 
 # class CustomUserTest(TestCase, PageLogger):

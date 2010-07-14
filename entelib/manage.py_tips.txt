@@ -1,0 +1,18 @@
+
+Data dumping
+==================================================
+a) dump whole db content (dump is a json file). indent argument is very important!
+./manage.py dumpdata --indent 4  baseapp
+./manage.py dumpdata --indent 4  baseapp  >  my_fixture.json
+
+b) dump selected models
+./manage.py dumpdata --indent 4 baseapp.UserConfiguration baseapp.Configuration
+
+
+
+Testing
+--------------------------------------------------
+Fixtures are in baseapp/fixtures. Fixture is a smallest subset of records needed by test case.
+
+
+baseapp.UserConfiguration

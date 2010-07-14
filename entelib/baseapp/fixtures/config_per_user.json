@@ -1,0 +1,60 @@
+[
+
+    {
+        "pk": 1, 
+        "model": "baseapp.userconfiguration", 
+        "fields": {
+            "option": "reservation_rush", 
+            "value": "12",
+            "user" : 1
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "baseapp.userconfiguration", 
+        "fields": {
+            "option": "rental_duration", 
+            "value": "90",
+            "user" : 1
+        }
+    },
+
+
+    {
+        "pk": "more_than_gray", 
+        "model": "baseapp.configuration", 
+        "fields": {
+            "can_override": false, 
+            "description": "try black", 
+            "value": "black"
+        }
+    }, 
+    {
+        "pk": "more_than_override", 
+        "model": "baseapp.configuration", 
+        "fields": {
+            "can_override": true, 
+            "description": "default",
+            "value": "black"
+        }
+    }, 
+    {
+        "pk": "rental_duration", 
+        "model": "baseapp.configuration", 
+        "fields": {
+            "can_override": false, 
+            "description": "For how long you rent a book", 
+            "value": "30"
+        }
+    }, 
+    {
+        "pk": "reservation_rush", 
+        "model": "baseapp.configuration", 
+        "fields": {
+            "can_override": true, 
+            "description": "How quick you need to rent reserved book when it becomes available", 
+            "value": "4"
+        }
+    }
+
+]

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User         # for reregistering User with modified UserAdmin
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AdminPasswordChangeForm     # for MyUserAdmin
-from entelib.baseapp.models import EmailLog, Building, Location, Configuration, State, Publisher, Picture, Author, Book, BookCopy, BookRequest, Reservation, Rental, Phone, PhoneType, CostCenter, Category, UserProfile
+from entelib.baseapp.models import EmailLog, Building, Location, Configuration, UserConfiguration, State, Publisher, Picture, Author, Book, BookCopy, BookRequest, Reservation, Rental, Phone, PhoneType, CostCenter, Category, UserProfile
 
 admin.site.disable_action('delete_selected')
 
@@ -56,5 +56,5 @@ admin.site.register(User, MyUserAdmin)
 
 
 # register models in admin's site
-for model in [EmailLog, Building, Location, Configuration, State, Publisher, Picture, Author, Book, BookCopy, BookRequest, Reservation, Rental, Phone, PhoneType, CostCenter, Category, UserProfile]:
+for model in [EmailLog, Building, Location, Configuration, UserConfiguration, State, Publisher, Picture, Author, Book, BookCopy, BookRequest, Reservation, Rental, Phone, PhoneType, CostCenter, Category, UserProfile]:
     admin.site.register(model)
