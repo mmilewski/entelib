@@ -48,7 +48,7 @@ def default_email(recipients, template, context, subject=None, sender=None):
     t = loader.get_template(template)
     msg = t.render(context)
     sender = sender if sender else Config().get_str('default_email_sender')
-    subject = subject if subject else 'NSN library notification'
+    subject = subject if subject else Config().get_str('default_email_subject')
     send(subject, msg, sender, recipients)
 
 

@@ -1,4 +1,7 @@
-<div style="text-align:center;">
-  <h1>404 error page : {{ request_path }}</h1>
-  <marquee style="width:25%; color:red;">best regards</marquee>
-</div>
+{% extends 'base_with_top_menu.html' %}
+
+{% block title %}Entelib{% endblock %}
+
+{% block header %}Entelib{% endblock %}
+
+{% block content %}<h2>Error 404: Not Found</h2>{% endblock %}/div>

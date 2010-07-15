@@ -67,7 +67,7 @@ urlpatterns = patterns(
     (r'^report/$', view.show_reports),
 
     # email logs
-    (r'^emaillog/$', view.show_email_list),
+    (r'^emaillog/$', view.show_email_log),
 
     # config
     (r'^config/$', view.show_config_options),

@@ -23,8 +23,9 @@ def render_response(request, template, context={}):
                      })
     # as far as we use perms with following convention, we can pass perms to templates easily:
     # if in-code perm's name is list_book, then template gets can_list_books variable
-    baseapp_perms = ['list_books', 'add_bookrequest', 'list_bookrequests', 'view_own_profile', 'list_users', 'list_reports', 'list_cost_centers',
-                     'list_emaillog', 'list_config_options', 'load_default_config', 'edit_option']
+    baseapp_perms = ['list_books', 'add_bookrequest', 'list_bookrequests', 'view_own_profile',
+                     'list_users', 'list_reports', 'list_cost_centers', 'list_emaillog',
+                     'list_config_options', 'load_default_config', 'edit_option']
     for perm_name in baseapp_perms:
         perm_fullname = 'can_' + perm_name
         if user.has_perm('baseapp.' + perm_name):
@@ -38,7 +39,7 @@ def render_response(request, template, context={}):
 
 
     for key, value in context.items():
-        context[key] = callable(value) and value() or value
+        context[key] = value() if callable(value) else value
     return render_to_response(
         template,
         context,
@@ -61,7 +62,7 @@ def render_not_found(request, **kwargs):
     return render_response(request, 'not_found.html', context)
 
 
-def filter_query(class_name, Q_none, Q_all, constraints):
+def filter_query(class_name, Q_none, constraints):
     '''
     Desc:
         Applies many filters on class' object list. A filter may require all or any of it's conditions to be met.
@@ -76,7 +77,7 @@ def filter_query(class_name, Q_none, Q_all, constraints):
             Q_fun - function taking a unicode string and returning Q object. E.g. "lambda x: Q(some_field__icontains=x)"
 
     Return:
-        [class_name] - list of class_name objects matching all predicates
+        [objects] - list of class_name objects matching all predicates
     '''
 
     result = class_name.objects.all()
@@ -86,8 +87,7 @@ def filter_query(class_name, Q_none, Q_all, constraints):
         if any:
             result = result.filter(reduce(lambda q,y: q | Q_fun(y), keywords, Q_none))
         else:
-            #result = result.filter(reduce(lambda q,x: q & Q_fun(x), keywords, Q_all))
-            for keyword in keywords:  # this should deal with filtering objects which has e.g. many authors
+            for keyword in keywords:  # this should deal with filtering objects which have e.g. many authors
                 result = result.filter(Q_fun(keyword))
     return result.distinct()
 
@@ -101,13 +101,15 @@ def get_book_details(book_copy):
     Return:
         Dictionary describing book copy
     '''
+    status = book_copy_status(book_copy)
     book_desc = {
         'title'          : book_copy.book.title,
         'shelf_mark'     : book_copy.shelf_mark,
         'authors'        : [a.name for a in book_copy.book.author.all()],
         'location'       : unicode(book_copy.location),
-        'state'          : unicode(book_copy.state) + '. ' + ("Available for %d days." % book_copy_status(book_copy)) if is_book_copy_rentable(book_copy) \
-                                                                                                                     else book_copy_status(book_copy),
+        'state'          : ("Available for %d days." % status.rental_possible_for_days())
+                               if status.is_available()
+                           else status.why_not_available(),
         'publisher'      : unicode(book_copy.publisher),
         'year'           : book_copy.year,
         'cost_center'    : unicode(book_copy.cost_center),
@@ -151,7 +153,7 @@ def get_phones_for_user(user):
 def is_reservation_rentable(reservation):
     '''
     Desc:
-        Returns non zero integer or non empty string (which evaluates to True) if a reserved book can be rented; False otherwise
+        Returns True if a reserved book can be rented; False otherwise
     '''
     status = reservation_status(reservation)
     if isinstance(status, int) and status >= 0:
@@ -160,14 +162,17 @@ def is_reservation_rentable(reservation):
         return False
 
 
-def is_reservation_active(r):
+# TODO: delete following
+# the following seems both unnecessary and incorrect
+'''
+def is_reservation_active(r): <<>>
     if r.when_cancelled == None and r.rental == None and r.end_date <= today():
         return True
     else:
         return False
+'''
 
-
-# Q object filtering Reservation objects to be only active (available for renting) (maybe after few days)
+# Q object filtering Reservation objects to be only active (wich means not rented nor cancelled nor expired)
 Q_reservation_active = Q(when_cancelled=None) & Q(rental=None) & Q(end_date__gte=today())
 
 
@@ -178,20 +183,24 @@ def reservation_status(reservation):
             integer means for how many days book can be rented
             string is explaining why rental is not possible
     '''
-    all = Reservation.objects.filter(book_copy=reservation.book_copy).filter(rental=None).filter(when_cancelled=None).filter(end_date__gte=today())
+    all = Reservation.objects.filter(book_copy=reservation.book_copy)\
+                             .filter(rental=None)\
+                             .filter(when_cancelled=None)\
+                             .filter(end_date__gte=today())
     if reservation not in all:
         return 'Incorrect reservation'
-    # ksiazka wypozyczona:
+    # book rented:
     if Rental.objects.filter(reservation__book_copy=reservation.book_copy).filter(end_date=None).count() > 0:
-        return 'This copy is currently rented.'
-    # ksiazka niedostepna
+        return 'Copy rented.'
+    # book unavailable:
     if reservation.book_copy.state.is_available == False:
-        return 'This copy is currently not available (' + reservation.book_copy.state.name + ').'
-    # rezerwacja jest do przodu i sa jakies inne po drodze:
+        return 'Copy not available (' + reservation.book_copy.state.name + ').'
+    # reservation cannot be purchased for there are some reservation before this one starts
     if reservation.start_date > today() and all.filter(start_date__lt=reservation.start_date).count() > 0:
         return 'There are reservations before this one starts.'
-    # jakas starsza jest aktywna
-    if all.filter(id__lt=reservation.id).filter(start_date__lte=today()).filter(Q_reservation_active).count() > 0:  # WARNING: this might need modification if additional conditions are added to definition of active reservation
+    # some older reservation is active
+    if all.filter(id__lt=reservation.id).filter(start_date__lte=today()).filter(Q_reservation_active).count() > 0:
+        # WARNING: this might need modification if additional conditions are added to definition of active reservation
         return 'Reservation not first'
     max_allowed = config.get_int('rental_duration')
     try:
@@ -202,70 +211,118 @@ def reservation_status(reservation):
 
 
 def is_book_copy_rentable(book_copy):
-    status = book_copy_status(book_copy)
-    if isinstance(status ,int) and status >= 0:
-        return True
-    else:
-        return False
+    return book_copy_status(book_copy).is_available()
+
+
+class BookCopyStatus(object):
+
+    def __init__(self, available, nr_of_days=0, explanation=u''):
+        self.available = available
+        self.nr_of_days = nr_of_days
+        self.explanation = explanation
+
+    def is_available(self):
+        return self.available
+
+    def why_not_available(self):
+        if self.is_available():
+            raise ValueError('BookCopyStatus.why_not_available error: available')
+        return self.explanation
+
+    def rental_possible_for_days(self):
+        if not self.is_available():
+            raise ValueError('BookCopyStatus.rental_possible_for error: rental not possible.')
+        else:
+            return self.nr_of_days
+
+    def set(self, available=None, nr_of_days=None, explanation=None):
+        if available is not None:
+            self.available = available
+        if nr_of_days is not None:
+            self.nr_of_days = nr_of_days
+        if explanation is not None:
+            self.explanation = explanation
+        return self
 
 
 def book_copy_status(book_copy):
     '''
     Desc:
-        Returns book copy status.
+        Returns book copy status object.
 
     Arg:
         book_copy is BookCopy object.
 
     Returns:
-        integer n mean's rentable for n days. String explains why not rentable.
+        BookCopyStatus object
     '''
+    # why would a copy be unavailable
+    status = BookCopyStatus(available=False)
     if book_copy.state.is_available == False:
-        return  u'Unavailable'
-    elif Rental.objects.filter(reservation__book_copy=book_copy).filter(end_date__isnull=True).count() > 0:
-        return  u'Rented'
-    elif Reservation.objects.filter(book_copy=book_copy).filter(start_date__lte=today()).filter(end_date__gt=today()).filter(when_cancelled=None).filter(rental=None).count() > 0:
-        return u'Reserved'
+        return  status.set(explanation=u'Unavailable: ' + book_copy.state.name)
+    elif Rental.objects.filter(reservation__book_copy=book_copy)\
+                       .filter(end_date__isnull=True)\
+                       .count() > 0:
+        return  status.set(explanation=u'Rented')
+    elif Reservation.objects.filter(book_copy=book_copy)\
+                            .filter(start_date__lte=today())\
+                            .filter(Q_reservation_active)\
+                            .count() > 0:
+        return status.set(explanation=u'Reserved')
+
+    # copy isn't rented or reserved, it's available
+    status.set(available=True)
 
     max_allowed = config.get_int('rental_duration')
     try:
-        max_possible = (min([r.start_date for r in
-            Reservation.objects.filter(book_copy=book_copy).filter(end_date__gt=today()).filter(when_cancelled=None).filter(rental=None)]) - today()).days
+        # when nearest active reservation starts - counted in days from now
+        max_possible = (
+                min([r.start_date for r in Reservation.objects.filter(book_copy=book_copy).filter(Q_reservation_active)])\
+                - today()
+            ).days
         if max_possible < 0:
-            max_possible = 0
+            # this should not happen
+            raise EntelibError('book_copy_status error: copy reserved')
     except ValueError:
+        # this means there were no active reservations, so min([]) was called
         max_possible = max_allowed
-    return min(max_allowed, max_possible)
+    return status.set(nr_of_days=min(max_allowed, max_possible))
 
 
 def rent(reservation, librarian):
+    '''
+Desc:
+    Librarian rents book indicated by reservation.
+    '''
     rentable = is_reservation_rentable(reservation) and librarian.has_perm('baseapp.add_rental')
-    if rentable:
-        rental = Rental(reservation=reservation, who_handed_out=librarian, start_date=datetime.now())
-        rental.save()
-        mail.made_rental(rental)
-        return True
-    else:
-        return False
+    if not rentable:
+        raise RentingError("Rental not possible.")
+    rental = Rental(reservation=reservation, who_handed_out=librarian, start_date=datetime.now())
+    rental.save()
+    mail.made_rental(rental)
 
 
 def mark_available(book_copy):
-    reservations = Reservation.objects.filter(rental=None).filter(start_date__lte=date.today)  # TODO tylko aktywne? jak rozwiazac sytuacje, jak ktos zarezerwowal od jutra?
-    if reservations.count() > 0:
-        reservations[0].active_since = today()
-        # TODO notify user he can rent the book
+    '''
+Desc:
+    If there is an active reservation awaiting for this copy, let it know.
+    '''
+    reservations = Reservation.objects.filter(Q_reservation_active).filter(start_date__lte=date.today)
+    if reservations.count() > 0:  # TODO: this probably can be done more effectively
+        first_reservation = reservations[0]
+        first_reservation.active_since = today()
+        first_reservation.save()
+        mail.notify_book_copy_available(first_reservation)
 
 
 def cancel_reservation(reservation, user):
     if reservation.for_whom != user and not user.has_perm("baseapp.change_reservation") or\
      user == reservation.for_whom and not user.has_perm("baseapp.change_own_reservation"):
-            raise CancelReservationError("Not permitted")
+            raise CancelReservationError("Not enough privileges")
 
     reservation.who_cancelled = user
     reservation.when_cancelled = now()
     reservation.save()
-
-    return True
 
 
 def cancel_all_user_resevations(librarian, user):
@@ -273,16 +330,11 @@ def cancel_all_user_resevations(librarian, user):
     Desc:
         all active user's resrvations are cancelled by librarian (which might be the same as user)
     '''
-    try:
-        for r in Reservation.objects.filter(for_whom=user).filter(Q_reservation_active):
-            cancel_reservation(r, librarian)
-    except CancelReservationError:
-        pass  # TODO moze jeszcze cos sie przyda?
-
-    return True
+    for r in Reservation.objects.filter(for_whom=user).filter(Q_reservation_active):
+        cancel_reservation(r, librarian)
 
 
-def non_standard_username(user_id):
+def user_full_name(user_id):
     '''
     Return unicode string containing users first and last name if user_id is correct, None otherwise.
     '''
@@ -294,6 +346,12 @@ def non_standard_username(user_id):
 
 
 def when_copy_reserved(book_copy):
+    '''
+Marcin:
+This is Adi's function. It is used with the timebar.
+Im not touching it for we are going to work with the time bar, and this may come useless anyway.
+mbr
+    '''
     config = Config()
 
     last_date = today() + timedelta(config.get_int('when_reserved_period'))
