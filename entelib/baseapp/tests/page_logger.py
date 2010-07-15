@@ -38,7 +38,10 @@ def was_redirected(response, url_suffix=None):
     '''
     if not url_suffix:
         url_suffix = ''
-    return response.status_code in [301, 302] and response['Location'].endswith(url_suffix)
+    location = response['Location']
+    if '?' in location:
+        location = location[:location.index('?')]
+    return response.status_code in [301, 302] and location.endswith(url_suffix)
 
 
 class PageLogger(object):
