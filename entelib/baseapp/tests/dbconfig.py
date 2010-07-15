@@ -285,10 +285,55 @@ class UserConfigurationTest(TestCase):
         self.assertTrue(key in c)
 
     def test_key_not_exists(self):
+        ''' Checks if False is returned if key does not exist. '''
         key = 'hello_world'
         c = self.c
         self.assertTrue(key not in c)
         self.assertFalse(key in c)
         self.assertFalse(c.has_key(key))
+
+
+    def test_set_can_override(self):
+        ''' Checks if can_override property can be changed as required.'''
+        c = self.c
+        self.assertFalse(c.can_override('rental_duration'))
+        c.set_can_override('rental_duration', True)
+        self.assertTrue(c.can_override('rental_duration'))
+        c.set_can_override('rental_duration', False)
+        self.assertFalse(c.can_override('rental_duration'))
+
+    def test_get_all_options(self):
+        ''' Checks getting all options. '''
+        options = [('more_than_gray',     'black', False),
+                   ('more_than_override', 'black', True),
+                   ('rental_duration',         30, False),
+                   ('reservation_rush',        12, True),
+                   ('turtle_is_slow',        True, False),
+                   ]
+        c = self.c
+        # co == config_options. [ (key, config_option) ], where config_option is instance of Config.Option
+        co = list(sorted(c.get_all_options().items()))
+        self.assertEqual(len(options), len(co))
         
+        # checks keys
+        self.assertEqual(options[0][0], co[0][0])
+        self.assertEqual(options[1][0], co[1][0])
+        self.assertEqual(options[2][0], co[2][0])
+        self.assertEqual(options[3][0], co[3][0])
+        self.assertEqual(options[4][0], co[4][0])
+        
+        # check values
+        self.assertEqual(options[0][1], c.as_str(co[0][1].value))
+        self.assertEqual(options[1][1], c.as_str(co[1][1].value))
+        self.assertEqual(options[2][1], c.as_int(co[2][1].value))
+        self.assertEqual(options[3][1], c.as_int(co[3][1].value))
+        self.assertEqual(options[4][1], c.as_bool(co[4][1].value))
+
+        # check can_override
+        self.assertEqual(options[0][2], co[0][1].can_override)
+        self.assertEqual(options[1][2], co[1][1].can_override)
+        self.assertEqual(options[2][2], co[2][1].can_override)
+        self.assertEqual(options[3][2], co[3][1].can_override)
+        self.assertEqual(options[4][2], co[4][1].can_override)
+         
         

@@ -55,6 +55,15 @@
             "description": "How quick you need to rent reserved book when it becomes available", 
             "value": "4"
         }
+    },
+    {
+        "pk": "turtle_is_slow", 
+        "model": "baseapp.configuration", 
+        "fields": {
+            "can_override": false, 
+            "description": "hmmm, turtles", 
+            "value": "1"
+        }
     }
 
 ]

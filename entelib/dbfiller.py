@@ -368,7 +368,7 @@ def readd_group(group_name, perms=[], direct_add=False):
 print "Adding app specific groups"
 from django.contrib.auth.models import Permission
 admins_perms     = Permission.objects.all()
-readers_perms    = ['list_books', 'view_own_profile', 'add_reservation', 'change_own_reservation', 'add_bookrequest',]
+readers_perms    = ['list_books', 'view_own_profile', 'add_reservation', 'change_own_reservation', 'add_bookrequest', 'list_config_options', 'edit_option']
 vips_perms       = ['list_reports', 'list_users', ]
 librarians_perms = ['list_users', 'add_rental', 'change_reservation', 'change_rental']
 readd_group('Readers',    perms=readers_perms)

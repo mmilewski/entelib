@@ -1,0 +1,39 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% load go_back_link %}
+
+{% block title %}Edit config option{% endblock %}
+
+{% block header %}Edit config option - {{form.option_key}}{% endblock %}
+
+{% block content %}
+
+{% go_back_link "Go back" %}
+
+{% if form %}
+<div class="formWrapper">
+  <form class="edit_option_form" action="." method="POST">
+    <table class="basic_fields">
+      <tbody>
+        {% if form.non_field_errors %}
+        <tr><td>{{form.non_field_errors}}</td></tr>
+        {% endif %}
+        <tr><td><span class="label">Key:</span> {{form.option_key}} </td> </tr>
+        <tr><td><span class="label">Description:</span> {{form.description}} </td> </tr>
+        <tr><td><span class="label">Can override:</span> {{form.can_override}} </td> </tr>
+        <tr><td >
+            <span class="label">Value:</span>
+            {{ form.value.errors }}
+            {{ form.value }}
+        </td></tr>
+        
+        <tr> <th></th> <td><input type="submit" value="Save changes"/></td> </tr>
+      </tbody>
+    </table>
+  </form>
+</div>
+
+{% go_back_link "Go back" %}
+{% endif %}
+
+{% endblock %}

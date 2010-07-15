@@ -48,6 +48,8 @@ class Configuration(models.Model):
     class Meta:
         permissions = (
             ('list_config_options', "Can list configuration's options"),
+            ('load_default_config', "Can load default values of configuration"),
+            ('edit_option', "Can edit config option"),
             )
 
 

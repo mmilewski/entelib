@@ -12,7 +12,7 @@ from reports import get_report_data, generate_csv
 from entelib import settings
 from config import Config
 # from django.contrib.auth.decorators import permission_required
-from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm
+from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm, ConfigOptionEditForm
 import baseapp.emails as mail
 from datetime import date, datetime, timedelta
 
@@ -23,7 +23,7 @@ def load_default_config(request, do_it=0):
     '''
     Restores default values to config. This is rather for developement than production usage.
     '''
-    if not (request.user.is_authenticated() and request.user.is_staff):
+    if not all([user.is_authenticated(), user.has_perm('baseapp.load_default_config')]):
         return render_forbidden(request)
 
     if do_it:
@@ -37,19 +37,56 @@ def show_config_options(request):
     '''
     Handles listing config options from Configuration model (also Config class).
     '''
-    tpl_opts = 'config/list.html'
-    opts = Configuration.objects.all()
-    context = {
-        'options' : opts,
-        }
     user = request.user
-
     # auth
     if not all([user.is_authenticated(), user.has_perm('baseapp.list_config_options')]):
         return render_forbidden(request)
 
+    tpl_opts = 'config/list.html'
+    config = Config(user=user)
+    opts = config.get_all_options().values()
+    lex_by_key = lambda a,b : -1 if a.key < b.key else (1 if a.key > b.key else 0)
+    opts.sort(cmp=lex_by_key)
+    context = {
+        'options' : opts,
+        }
     return render_response(request, tpl_opts, context)
 
+
+def edit_config_option(request, option_key, edit_form=ConfigOptionEditForm):
+    '''
+    Handles editing config option by user.
+    '''
+    user = request.user
+
+    # auth
+    if not all([user.is_authenticated(), user.has_perm('baseapp.edit_option')]):
+        return render_forbidden(request)
+    
+    tpl_edit_option = 'config/edit_option.html'
+    context = {}
+    config = Config(user)
+    if option_key not in config:
+        return render_not_found(request, item_name='Config option')
+
+    form_initial = {'value': config[option_key]}
+    # redisplay form
+    if request.method == 'POST':
+        form = edit_form(user=user, option_key=option_key, data=request.POST, initial=form_initial)
+        if form.is_valid():
+            form.save()
+            return render_response(request, tpl_edit_option, context)
+    # display fresh new form
+    else:
+        form = edit_form(user=user, option_key=option_key, initial=form_initial)
+
+    form.option_key = option_key
+    form.description = config.get_description(option_key)
+    form.can_override = config.can_override(option_key)
+    context['form'] = form
+    return render_response(request, tpl_edit_option, context)
+
+    
 
 def show_email_list(request):
     '''

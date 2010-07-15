@@ -7,13 +7,41 @@ from config import Config
 
 attrs_dict = { 'class': 'required' }
 
-# see http://code.google.com/p/django-registration/source/browse/trunk/registration/forms.py
+
+
+class ConfigOptionEditForm(forms.Form):
+    '''
+    Form for editing config's option.
+    '''
+    def __init__(self, user, option_key, *args, **kwargs):
+        super(ConfigOptionEditForm, self).__init__(*args, **kwargs)
+        self.user = user
+        self.option_key = option_key
+
+    value = forms.CharField(required=True)
+
+    def clean_value(self):
+        if not 'value' in self.cleaned_data:
+            raise forms.ValidationError(u'Value must have any value')
+        return self.cleaned_data['value']
+
+    def clean(self):
+        config = Config(self.user)
+        key = self.option_key
+        if not config.can_override(key):
+            raise forms.ValidationError(u"Key %s cannot be overriden" % (key,))
+
+    def save(self):
+        key = self.option_key
+        config[key] = self.cleaned_data['value']
 
 
 class BookRequestForm(forms.Form):
     '''
     Form for requesting book. Users can add their propositions of books,
     they would like to have in the library.
+
+    see:  http://code.google.com/p/django-registration/source/browse/trunk/registration/forms.py
     '''
     def _books_choice_list():
         na = (0, '-- not applicable --')

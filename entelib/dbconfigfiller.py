@@ -1,15 +1,16 @@
-
+from random import choice
 
 def _svd(config, key, value, desc):
     ''' SVD ~~> set value description. '''
     config[key] = value
     config.set_description(key, desc)
+    config.set_can_override(key, choice([True,False]))
 
 
 def fill_config():
     from baseapp.config import Config
     config = Config()
-    config.clear(truncate_model=True)
+    config.clear(truncate_config=True)
 
     # registration
     # config['user_after_registration_groups'] = ['Readers']                         # User joins these groups right after he is registered

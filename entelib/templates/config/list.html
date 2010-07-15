@@ -14,11 +14,14 @@
       </ol>
     </div>
 
+    {% go_back_link "Go back" %}
+
     <div class="config_options_wrapper">
       {% if options %}
       {% for opt in options %}
       <div class="option">
-        <dt class="key">{{opt.key}} <a href="/entelib/admin/baseapp/configuration/{{opt.key}}/"><img src="/media/images/edit.png" alt="edit"></a></dt>
+        <!-- <dt class="key">{{opt.key}} <a href="/entelib/admin/baseapp/configuration/{{opt.key}}/"><img src="/media/images/edit.png" alt="edit"></a></dt> -->
+        <dt class="key">{{opt.key}}    {%if opt.can_override%}<a href="{{opt.key}}/"><img src="/media/images/edit.png" alt="edit"></a> {%endif%}  </dt>
         <dd class="value">{{opt.value}}</dd>
         <dd class="desc">{{opt.description}}</dd>
       </div>
@@ -27,4 +30,7 @@
       <p>No config options were found.</p>
       {% endif %}
     </div>
+
+    {% go_back_link "Go back" %}
+
 {% endblock %}

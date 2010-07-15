@@ -337,6 +337,14 @@ div.config_options_wrapper dd.value {
     font-size: 110%;
 }
 
+form.edit_option_form td span.label {
+    font-weight: bold;
+}
+form.edit_option_form td input#id_value {
+    min-width: 25em;
+    width: 100%;
+}
+
 .tb_stripes {
     background-image: url('/media/images/tb_stripes.png') !important;
 }

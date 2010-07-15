@@ -71,6 +71,7 @@ urlpatterns = patterns(
 
     # config
     (r'^config/$', view.show_config_options),
+    (r'^config/(?P<option_key>(\w+))/$', view.edit_config_option),
     (r'load_default_config/(?P<do_it>(\d))?/?$', view.load_default_config),
 
     # admin panel urls
