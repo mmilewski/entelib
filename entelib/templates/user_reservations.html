@@ -9,18 +9,28 @@
 {% block content %}
 <b>
     {{ first_name }} {{ last_name }}
-    <br>
+    <br \>
     {{ email|urlize }}
+    <br \>
+    {{ message }}
 </b>
 
 <ul class='spaces'>
     {% for reservation in reservations %}
         <li>
-            <form action='.' method='post'>
-                <b><a href='{{reservation.url}}'> {{ reservation.title }}</a></b>
-                <input type='hidden' name='reservation_id' value='{{ reservation.id }}'>
-                <input type='submit' name='action' value='Rent' {% if reservation.rental_impossible %} disabled {% endif %}>
-            </form>
+            <b><a href='{{reservation.url}}'> {{ reservation.title }}</a></b>
+            {% if can_rent %}
+                <form action='.' method='post'>
+                    <input type='hidden' name='rent' value='{{ reservation.id }}'>
+                    <input type='submit' name='action' value='Rent' {% if reservation.rental_impossible %} disabled {% endif %}>
+                </form>
+            {% endif %}
+            {% if can_cancel %}
+                <form action='.' method='post'>
+                    <input type='hidden' name='cancel' value='{{ reservation.id }}'>
+                    <input type='submit' name='action' value='Cancel'>
+                </form>
+            {% endif %}
             <ul>
                 <li>Shelf mark: {{ reservation.shelf_mark }}</li>
                 <li>Authors: {{ reservation.authors|join:', ' }}</li>

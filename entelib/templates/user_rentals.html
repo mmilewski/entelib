@@ -12,6 +12,7 @@
         <br>
         {{ email|urlize }}
     </b>
+    {% block message %}{% endblock %}
     <ul class='spaces'>
         {% for rental in rentals %}
             <li><b>{{ rental.title }}</b>{% block return %}{% endblock %}
@@ -19,7 +20,7 @@
                     <li>Authors: {{ rental.authors|join:', ' }}</li>
                     <li>From: {{ rental.from_date }}</li>
                     <li>To: {{ rental.to_date }}</li>
-                    <li>Shelf mark: {{ rental.shelf_mark }}</li>
+                    <li>ID: {{ rental.shelf_mark }}</li>
                 </ul>
             </li>
         {% empty %}
