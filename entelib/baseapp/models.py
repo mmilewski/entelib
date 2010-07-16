@@ -117,7 +117,7 @@ class UserProfile(models.Model):
         permissions = (
             ("list_users", "Can list users"),
             ('view_own_profile', 'Can view his own profile'),
-            ('view_others_profil', "Can view other people' profile"),
+            ('view_others_profile', "Can view other people' profile"),
             ('list_reports', 'Can list reports'),     # FIXME: this shouldn't be here, but I don't know where is the right place for that, since no Report model is defined
         )
 

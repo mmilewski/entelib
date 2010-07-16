@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-
+# TODO we need some consequence: either we write a full path in imports starting with entelib or we don't  - mbr
 from entelib.baseapp.models import Reservation, Rental, BookCopy, Book, User, Location
+from django.core.exceptions import PermissionDenied
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
@@ -8,8 +9,8 @@ from datetime import date, datetime, timedelta
 from config import Config
 from django.db.models import Q
 from entelib import settings
-import baseapp.emails as mail
 from baseapp.exceptions import *
+import baseapp.emails as mail
 
 config = Config()
 today = date.today
@@ -294,12 +295,92 @@ def rent(reservation, librarian):
 Desc:
     Librarian rents book indicated by reservation.
     '''
-    rentable = is_reservation_rentable(reservation) and librarian.has_perm('baseapp.add_rental')
-    if not rentable:
-        raise RentingError("Rental not possible.")
+    if not librarian.has_perm('baseapp.add_rental'):
+        raise PermissionDenied
+    if not is_reservation_rentable(reservation):
+        raise PermissionDenied('Reservation not rentable.')
     rental = Rental(reservation=reservation, who_handed_out=librarian, start_date=datetime.now())
     rental.save()
     mail.made_rental(rental)
+    
+
+def return_rental(librarian, rental_id):
+    '''
+Desc:
+    librarian receives book from rental
+
+Args:
+    librarian - accepts returnal
+    rental_id - id of rental being ended
+    '''
+    # not everyone can return book
+    if not librarian.has_perm('baseapp.change_rental'):
+        raise PermissionDenied
+
+    returned_rental = Rental.objects.get(id=rental_id)
+    # can't return a rental twice
+    if returned_rental.end_date is not None:
+        raise Rental.DoesNotExist('Rental already returned')
+        
+    # actual returning
+    returned_rental.who_received = librarian
+    returned_rental.end_date = datetime.now()
+    returned_rental.save()
+    mark_available(returned_rental.reservation.book_copy)   # someone might be waiting for that book
+
+
+def show_user_rentals(request, user_id=False):
+    '''
+Desc:
+    Shows user's current rentals. Allows returning books.
+    '''
+    if not user_id:
+        user = request.user
+    else:
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return render_not_found(request, item_name='User')
+
+    post = request.POST  # a shorthand
+
+    context = { 'first_name' : user.first_name,
+                'last_name' : user.last_name,
+                'email' : user.email,
+                }
+
+    # Return button clicked for a rental:
+    # but we care about it only if he is supposed to
+    if request.user.has_perm('baseapp.change_rental') and\
+       request.method == 'POST' and\
+       'returned' in post:
+        try:
+            return_rental(librarian=request.user, rental_id=post['returned'])
+            context['message'] = 'Successfully returned'
+        except Rental.DoesNotExist:
+            return render_not_found(request, item_name='Rental')
+        except PermissionDenied:  # this might happen if user doesn't have 'change_rental' permission
+            return render_forbidden
+        
+    # find user's rentals
+    user_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(end_date__isnull=True)
+    # and put them in a dict:
+    rent_list = [ {'id' : r.id,
+                   'shelf_mark' : r.reservation.book_copy.shelf_mark,
+                   'title' : r.reservation.book_copy.book.title,
+                   'authors' : [a.name for a in r.reservation.book_copy.book.author.all()],
+                   'from_date' : r.start_date,
+                   'to_date' : r.reservation.end_date,
+                  }
+                  for r in user_rentals ]
+
+    # put rentals into context
+    context['rentals'] = rent_list
+
+    # if user can change rentals then he can return books
+    template = 'user_rentals_return_allowed.html' if request.user.has_perm('baseapp.change_rental') else 'user_rentals.html'
+
+    return render_response(request, template, context)
 
 
 def mark_available(book_copy):
@@ -315,10 +396,74 @@ Desc:
         mail.notify_book_copy_available(first_reservation)
 
 
+def show_user_reservations(request, user_id=False):
+    if not user_id:
+        user = request.user
+    else:
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return render_not_found(request, item_name='User')
+
+    # prepare some data
+    context = { 'first_name'     : user.first_name,
+                'last_name'      : user.last_name,
+                'email'          : user.email,
+                'cancel_all_url' : 'cancel-all/',
+                'can_rent'       : request.user.has_perm('baseapp.add_rental'),
+                'can_cancel'     : (request.user == user and user.has_perm('baseapp.change_own_reservation'))\
+                                   or\
+                                   request.user.has_perm('baseapp.change_reservation'),
+                }
+
+    if request.method == 'POST':
+        post = request.POST
+        # if user is allowed to rent books, and there is a request for a rental
+        if 'rent' in post:
+            try:
+                reservation = Reservation.objects.get(id=post['rent'])
+            except Reservation.DoesNotExist:
+                return render_not_found(request, item_name='Reservation')
+            # rent him reserved book
+            rent(reservation, request.user)
+            context.update({'message' : 'Successfully rented until ' + str(reservation.end_date)})
+
+        # if user is wants to cancel reservation:
+        if 'cancel' in post:
+            try:
+                reservation = Reservation.objects.get(id=post['cancel'])
+            except Reservation.DoesNotExist:
+                return render_not_found(request, item_name='Reservation')
+            # cancel reservation
+            cancel_reservation(reservation, request.user)
+            context.update({'message' : 'Cancelled.'})  # TODO: maybe we want undo option for that
+
+    # find user active reservations
+    user_reservations = Reservation.objects.filter(for_whom=user)\
+                                           .filter(Q_reservation_active)
+    print user_reservations.count()
+    # prepare user reservations
+    reservation_list = [ {'id' : r.id,
+                          'url' : unicode(r.id) + u'/',
+                          'book_copy_id' : r.book_copy.id,
+                          'shelf_mark' : r.book_copy.shelf_mark,
+                          'rental_impossible' : '' if is_reservation_rentable(r) else reservation_status(r),
+                          'title' : r.book_copy.book.title,
+                          'authors' : [a.name for a in r.book_copy.book.author.all()],
+                          'from_date' : r.start_date,
+                          'to_date' : r.end_date,
+                         } for r in user_reservations]
+    print len(reservation_list)
+
+    context.update({'reservations' : reservation_list}),
+
+    return render_response(request, 'user_reservations.html', context)
+
+
 def cancel_reservation(reservation, user):
     if reservation.for_whom != user and not user.has_perm("baseapp.change_reservation") or\
      user == reservation.for_whom and not user.has_perm("baseapp.change_own_reservation"):
-            raise CancelReservationError("Not enough privileges")
+            raise PermissionDenied
 
     reservation.who_cancelled = user
     reservation.when_cancelled = now()

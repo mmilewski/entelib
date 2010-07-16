@@ -1,23 +1,24 @@
 # -*- coding: utf-8 -*-
 # TODO: poprawic sprawdzanie uprawnien na poczatku widokow
 
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render_to_response
 from django.http import Http404, HttpResponseRedirect, HttpResponse
-from entelib.baseapp.models import *
+from django.contrib.auth.decorators import permission_required, login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.template import RequestContext
 from django.contrib import auth
 from django.contrib.auth.models import Group
 from django.db.models import Q
 from views_aux import render_forbidden, render_response, filter_query, get_book_details, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, get_locations_for_book, Q_reservation_active, cancel_reservation, when_copy_reserved
+from reports import get_report_data, generate_csv
+from config import Config
+from datetime import date, datetime, timedelta
+from entelib import settings
+from entelib.baseapp.models import *
+from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm, ConfigOptionEditForm
 import baseapp.views_aux as aux
 import baseapp.emails as mail
-from reports import get_report_data, generate_csv
-from entelib import settings
-from config import Config
-from django.contrib.auth.decorators import permission_required, login_required
-from django.contrib.admin.views.decorators import staff_member_required
-from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm, ConfigOptionEditForm
-from datetime import date, datetime, timedelta
 
 
 config = Config()
@@ -105,8 +106,6 @@ def request_book(request, request_form=BookRequestForm):
     Handles requesting for book by any user.
     '''
     user = request.user
-    # if not all([user.is_authenticated(), user.has_perm('baseapp.add_bookrequest')]):
-    #     return render_forbidden(request)
 
     template = 'book_request.html'
     context = {}
@@ -175,6 +174,11 @@ def default(request):
 
 
 @login_required
+def my_new_reservation(request): # that is kinda hack, but I couldn't think of any better way of doing that
+    return HttpResponseRedirect('/entelib/books/')
+
+
+@login_required
 def show_books(request, non_standard_user_id=False):
     '''
 Desc:
@@ -187,7 +191,7 @@ Args:
     # data for the template
     book_url = u'/entelib/books/%d/'    # where you go after clicking "search" button
     if non_standard_user_id is not False:  # and where you go if there is a non std user given
-        book_url = u'/entelib/users/%d/reservations/new/book/%s/' % (non_standard_user_id, '%d')
+        book_url = u'/entelib/users/%d/reservations/new/book/%s/' % (int(non_standard_user_id), '%d')
     config.set_user(request.user)
     search_data = {}                    # data of searching context
     selected_categories_ids = []        # ids of selected categories -- needed to reselect them on site reload
@@ -267,7 +271,7 @@ Args:
 def show_book(request, book_id, non_standard_user_id=False):
     config = Config()
     # if we have a non_standard_user we treat him special
-    url_for_non_standard_users = u'/entelib/users/%d/reservations/new/bookcopy/%s/' % (non_standard_user_id, u'%d')
+    url_for_non_standard_users = u'/entelib/users/%d/reservations/new/bookcopy/%s/' % (int(non_standard_user_id), u'%d')
     show_url = u'/entelib/bookcopy/%d/' if non_standard_user_id == False else url_for_non_standard_users
     reserve_url = u'/entelib/bookcopy/%d/reserve/' if non_standard_user_id == False else url_for_non_standard_users
     # do we have such book?
@@ -361,12 +365,12 @@ def show_users(request):
         request_is_librarian = ('is_librarian' in request.POST)
         user_list = []
 
-        # filter by beeing in Librarians group
-        librarians_group = Group.objects.get(name='Librarians')  # TODO: this needs to read from somewhere
-        if request_is_librarian:
-            is_to_be_shown = lambda u: librarians_group in u.groups.all()
-        else:
-            is_to_be_shown = lambda u: True
+        # # filter by beeing in Librarians group
+        # librarians_group = Group.objects.get(name='Librarians')  # TODO: this needs to read from somewhere (update: if we ever decide to use it)
+        # if request_is_librarian:
+        #     is_to_be_shown = lambda u: librarians_group in u.groups.all()
+        # else:
+        #     is_to_be_shown = lambda u: True
 
         # searching for users
         if 'action' in request.POST and request.POST['action'] == 'Search':
@@ -379,7 +383,7 @@ def show_users(request):
                           for u in User.objects.filter(first_name__icontains=request_first_name)
                                                .filter(last_name__icontains=request_last_name)
                                                .filter(email__icontains=request_email)
-                          if is_to_be_shown(u)
+        #                  if is_to_be_shown(u)  # this was used when filtering librarians was used
                         ]
         # we want search values back in appropriate fields
         search_data = {
@@ -431,133 +435,50 @@ def edit_user_profile(request, profile_edit_form=ProfileEditForm):
                 'reservations' : 'reservations/',
                 }
     if request.method == 'POST':
+        # use data from post to fill form
         form = profile_edit_form(user=user, data=request.POST)
         if form.is_valid():
             form.save()
+            # if form submission succeeded notify of that and show new form
             context.update({'form_content' : profile_edit_form(user=user),
                             'edit_info'    : 'Edit successful',})
             return render_response(request, 'profile.html', context)
     else:
+        # no POST implies fresh form
         form = profile_edit_form(user=user)
 
+    # add form to context
     context['form_content'] = form
 
     return render_response(request, 'profile.html', context)
 
-
+@login_required
+@permission_required('baseapp.list_users')
 def show_user_rentals(request, user_id):
-    if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
-        return render_forbidden(request)
-    try:
-        user = User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        return render_not_found(request, item_name='User')
-    post = request.POST
-    if request.method == 'POST' and 'returned' in post:
-        try:
-            returned_rental = Rental.objects.get(id=post['returned'])
-        except Rental.DoesNotExist:
-            return render_not_found(request, item_name='Rental')
-        returned_rental.who_received = request.user
-        returned_rental.end_date = datetime.now()
-        returned_rental.save()
-        mark_available(returned_rental.reservation.book_copy)
-    user_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(who_received__isnull=True)
-    rent_list = [ {'id' : r.id,
-                   'shelf_mark' : r.reservation.book_copy.shelf_mark,
-                   'title' : r.reservation.book_copy.book.title,
-                   'authors' : [a.name for a in r.reservation.book_copy.book.author.all()],
-                   'from_date' : r.start_date,
-                   'to_date' : r.reservation.end_date,
-                  }
-                  for r in user_rentals ]
-
-    return render_response(request,
-        'user_books.html',
-        { 'first_name' : user.first_name,
-          'last_name' : user.last_name,
-          'email' : user.email,
-          'rentals' : rent_list,
-        }
-    )
+    return aux.show_user_rentals(request, user_id)
 
 
+@login_required
 def show_my_rentals(request):
-    if not request.user.is_authenticated():
-        return render_forbidden(request)
-    try:
-        user = User.objects.get(id=request.user.id)
-    except User.DoesNotExist:
-        return render_not_found(request, item_name='User')
-
-    user_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(who_received__isnull=True)
-    rent_list = [ {'id' : r.id,
-                   'shelf_mark' : r.reservation.book_copy.shelf_mark,
-                   'title' : r.reservation.book_copy.book.title,
-                   'authors' : [a.name for a in r.reservation.book_copy.book.author.all()],
-                   'from_date' : r.start_date,
-                   'to_date' : r.reservation.end_date,
-                  }
-                    for r in user_rentals ]
-
-    return render_response(request,
-        'my_rentals.html',
-        { 'user_id'     : user.id,
-          'first_name'  : user.first_name,
-          'last_name'   : user.last_name,
-          'email'       : user.email,
-          'rentals'     : rent_list,
-        }
-    )
+    return aux.show_user_rentals(request)
 
 
+@login_required
+@permission_required('baseapp.list_users')
 def show_user_reservations(request, user_id):
-    if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_users'):
-        return render_forbidden(request)
-    try:
-        user = User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        return render_not_found(request, item_name='User')
-    if request.method == 'POST':
-        post = request.POST
-        librarian = request.user
-        if 'reservation_id' in post:
-            try:
-                reservation = Reservation.objects.get(id=post['reservation_id'])
-            except Reservation.DoesNotExist:
-                return render_not_found(request, item_name='Reservation')
-            rent(reservation, librarian)
-
-    user_reservations = Reservation.objects.filter(for_whom=user).filter(rental=None).filter(when_cancelled=None)
-    reservation_list = [ {'id' : r.id,
-                          'url' : unicode(r.id) + u'/',
-                          'book_copy_id' : r.book_copy.id,
-                          'shelf_mark' : r.book_copy.shelf_mark,
-                          'rental_impossible' : '' if is_reservation_rentable(r) else reservation_status(r),
-                          'title' : r.book_copy.book.title,
-                          'authors' : [a.name for a in r.book_copy.book.author.all()],
-                          'from_date' : r.start_date,
-                          'to_date' : r.end_date,
-                         } for r in user_reservations]
-    return render_response(request,
-        'user_reservations.html',
-        { 'first_name' : user.first_name,
-          'last_name' : user.last_name,
-          'email' : user.email,
-          'reservations' : reservation_list,
-          'cancel_all_url' : 'cancel-all/',
-        }
-    )
+    return aux.show_user_reservations(request, user_id)
 
 
+@login_required
 def show_my_reservations(request):
-    if not request.user.is_authenticated():
-        return render_forbidden(request)
-    try:
-        user = User.objects.get(id=request.user.id)
-    except User.DoesNotExist:
-        return render_not_found(request, item_name='User')
+    return aux.show_user_reservations(request)
 
+
+# the following is archive version of show_my_reservations. It's done more genericaly now
+''' 
+@login_required
+def show_my_reservations(request):
+    user = request.user
     post = request.POST
     if request.method == 'POST' and 'reservation_id' in post:
         print 'Cancelling ' + post['reservation_id']
@@ -583,11 +504,12 @@ def show_my_reservations(request):
           'cancel_all_url' : 'cancel-all/',
         }
     )
+'''
 
 
+@login_required
+@permission_required('baseapp.list_reports')
 def show_reports(request):
-    if not request.user.is_authenticated() or not request.user.has_perm('baseapp.list_reports'):
-        return render_forbidden(request)
     report_types = [{'name': u'Library status', 'value': u'status'},
                     {'name': u'Most often rented books', 'value': u'most_often_rented'},
                     {'name': u'Most often reserved books', 'value': u'most_often_reserved'},

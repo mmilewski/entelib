@@ -46,6 +46,7 @@ urlpatterns = patterns(
     #user profile
     (r'^profile/$', view.edit_user_profile),
     (r'^profile/reservations/$', view.show_my_reservations),
+    (r'^profile/reservations/new/$', view.my_new_reservation),
     (r'^profile/reservations/cancel-all/$', view.cancel_all_my_reserevations),
     (r'^profile/rentals/$', view.show_my_rentals),
 
