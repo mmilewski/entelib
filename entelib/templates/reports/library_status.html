@@ -1,9 +1,11 @@
 {% extends 'reports.html' %}
 
 {% block report %}
+    {% if display_tips %}
     <div class="tip">
       <p>Sorting as not available here, because current script doesn't cooperate well with row- and colspans.</p>
     </div>
+    {% endif %}
 
     <div style='margin-top: 1em'>
             <table class='booklist'>

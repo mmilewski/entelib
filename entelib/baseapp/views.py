@@ -10,9 +10,11 @@ from django.template import RequestContext
 from django.contrib import auth
 from django.contrib.auth.models import Group
 from django.db.models import Q
-from views_aux import render_forbidden, render_response, filter_query, get_book_details, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, get_locations_for_book, Q_reservation_active, cancel_reservation, when_copy_reserved
-from reports import get_report_data, generate_csv
-from config import Config
+from baseapp.models import *
+from baseapp.views_aux import render_forbidden, render_response, filter_query, get_book_details, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, get_locations_for_book, Q_reservation_active, cancel_reservation, when_copy_reserved
+from baseapp.reports import get_report_data, generate_csv
+from baseapp.utils import pprint
+from baseapp.config import Config
 from datetime import date, datetime, timedelta
 from entelib import settings
 from entelib.baseapp.models import *
@@ -20,6 +22,7 @@ from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm, Co
 import baseapp.views_aux as aux
 import baseapp.emails as mail
 
+from django.contrib import messages
 
 @permission_required('baseapp.load_default_config')
 def load_default_config(request, do_it=False):
@@ -67,7 +70,10 @@ def edit_config_option(request, option_key, edit_form=ConfigOptionEditForm):
         form = edit_form(user=user, option_key=option_key, data=request.POST, initial=form_initial)
         if form.is_valid():
             form.save()
-            return render_response(request, tpl_edit_option, context)
+            value = request.POST['value']
+            msg = 'Key %s has now value %s' % (option_key, value)
+            messages.success(request, msg)
+            return HttpResponseRedirect('/entelib/config/')
     # display fresh new form
     else:
         form = edit_form(user=user, option_key=option_key, initial=form_initial)
@@ -78,7 +84,7 @@ def edit_config_option(request, option_key, edit_form=ConfigOptionEditForm):
     context['form'] = form
     return render_response(request, tpl_edit_option, context)
 
-    
+
 @permission_required('baseapp.list_emaillog')
 def show_email_log(request):
     '''
@@ -141,6 +147,7 @@ def register(request, action, registration_form=RegistrationForm, extra_context=
                 form = registration_form(data=request.POST, files=request.FILES)
                 if form.is_valid():
                     new_user = form.save()
+                    messages.success(request, 'User registered.')
                     return HttpResponseRedirect('/entelib/')
             # display form
             else:
@@ -310,8 +317,14 @@ def show_book(request, book_id, non_standard_user_id=False):
         'items'       : curr_copies,
         'categories'  : [c.name for c in book.category.all()],
         }
+    locations_for_book = get_locations_for_book(book.id)
+    if not locations_for_book:
+        messages.warning('get_locations_for_book(%d): Book not found - wrong id' % book_id)
     search_locations  = [{'name' : '-- Any --', 'id' : 0}]
-    search_locations += [{'name' : unicode(l), 'id' : l.id, 'selected': l.id in selected_locations}  for l in get_locations_for_book(book.id)]
+    search_locations += [{'name' : unicode(loc),
+                          'id' : loc.id,
+                          'selected': loc.id in selected_locations}
+                         for loc in locations_for_book]
     search_data = {
         'locations' : search_locations,
         'copies_location_select_size': min(len(search_locations), config.get_int('copies_location_select_size')),      # count of elements displayed in <select> tag
@@ -426,18 +439,33 @@ def edit_user_profile(request, profile_edit_form=ProfileEditForm):
                 'rentals'      : 'rentals/',
                 'reservations' : 'reservations/',
                 }
+    # phones are list of 3-tuples: phone_type_id, phone_type, value
+    phones = [ (p.type.id, p.type.name, p.value) for p in user.get_profile().phone.all() ]
+    # initial values for phones
+    phones_initial = {}
+    for i, phone in enumerate(phones):
+        phones_initial['phoneType' + str(i)] = phone[0]     # type id
+        phones_initial['phoneValue' + str(i)] = phone[2]    # value
+    
+    # prepare initial data
+    form_initial = {'email'        : user.email,
+                    }
+    if user.get_profile().building:
+        form_initial['work_building'] = user.get_profile().building.id 
+    form_initial.update(phones_initial)
+
+    # handle request    
     if request.method == 'POST':
         # use data from post to fill form
-        form = profile_edit_form(user=user, data=request.POST)
+        form = profile_edit_form(user=user, data=request.POST, initial=form_initial)
         if form.is_valid():
+            # notify data changed and display profile
             form.save()
-            # if form submission succeeded notify of that and show new form
-            context.update({'form_content' : profile_edit_form(user=user),
-                            'edit_info'    : 'Edit successful',})
-            return render_response(request, 'profile.html', context)
+            messages.success(request, 'Profile details updated.')
+            return HttpResponseRedirect('/entelib/profile/')
     else:
-        # no POST implies fresh form
-        form = profile_edit_form(user=user)
+        # no POST implies fresh form with profiles' data
+        form = profile_edit_form(user=user, initial=form_initial)
 
     # add form to context
     context['form_content'] = form
@@ -471,7 +499,7 @@ def show_my_reservations(request):
     user = request.user
     post = request.POST
     if request.method == 'POST' and 'reservation_id' in post:
-        print 'Cancelling ' + post['reservation_id']
+        pprint('Cancelling ' + post['reservation_id'])
         cancel_reservation(Reservation.objects.get(id=post['reservation_id']), request.user)
 
     user_reservations = Reservation.objects.filter(for_whom=user).filter(Q_reservation_active)

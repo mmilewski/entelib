@@ -39,6 +39,7 @@
                             <td></td>
                             <td><input type='submit' name='action' value='rent' {% if not rental_possible %} disabled {% endif %} ></td>
                             <td></td>
+                            {% if display_tips %}
                             <div class="tip">
                                 <ol>
                                     <li>
@@ -52,6 +53,7 @@
                                     </li>
                                 </ol>
                             </div>
+                            {% endif %}
                     {% endif %}
                         </tr>
                 </table>

@@ -16,7 +16,7 @@ class CustomUserModelBackend(ModelBackend):
             else:
                 return None     # None means auth failed
         except User.DoesNotExist:
-            print "User %s doesn't exist" % username
+            pprint("User %s doesn't exist" % username)
             return None
 
 

@@ -1,20 +1,30 @@
 [
-        {
-          "pk": 1,
-          "model": "auth.user",
-          "fields": {
-                      "username": "testname",
-                      "first_name": "MyFirstName",
-                      "last_name": "MyLastName",
-                      "is_active": true,
-                      "is_superuser": true,
-                      "is_staff": true,
-                      "last_login": "2010-05-27 12:59:31",
-                      "groups": [],
-                      "user_permissions": [],
-                      "password": "sha1$e19f4$7f4f1c3a1d96dbe207fc9dfcc021b74c99736b22",
-                      "email": "My@cool.email",
-                      "date_joined": "2010-05-27 12:59:31"
-                    }
+    {
+        "pk": 1,
+        "model": "auth.user",
+        "fields": {
+            "username": "testname",
+            "first_name": "MyFirstName",
+            "last_name": "MyLastName",
+            "is_active": true,
+            "is_superuser": true,
+            "is_staff": true,
+            "last_login": "2010-05-27 12:59:31",
+            "groups": [],
+            "user_permissions": [],
+            "password": "sha1$e19f4$7f4f1c3a1d96dbe207fc9dfcc021b74c99736b22",
+            "email": "My@cool.email",
+            "date_joined": "2010-05-27 12:59:31"
+          }
+    },
+    {
+        "pk": 1, 
+        "model": "baseapp.userprofile", 
+        "fields": {
+            "building": null, 
+            "phone": [],
+            "user": 1, 
+            "shoe_size": null
         }
+    }
 ]

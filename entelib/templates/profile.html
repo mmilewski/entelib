@@ -1,23 +1,38 @@
 {% extends 'user.html' %}
 
+{% load go_back_link %}
+
 {% block edit_form %}
+<div class="editingWrapper">
+  <h2>Edit your profile</h2>
+    {% if display_tips %}
+    <div class="tip">
+      <ol>
+        <li><p>To remove chosen phone make it's value empty.</p></li>
+        <li><p>To change any part of your data, password is required. Make sure you typed it.</p></li>
+      </ol>
+    </div>
+    {% endif %}
     <div style='margin-top: 2em;'>
-        <b>Edit your profile (empty field = no edit)</b>
         <div class='content_form' style='margin-top: 1em'>
             <form action='.' method='POST' class='registration_form'>
                 {{ form_content.non_field_errors }}
                 <table>
                     {% for field in form_content %}
                         <tr>
-                            <td>{{ field.label_tag }}: </td>
+                            <td>{%if field.label_tag|removetags:"label" %}{{ field.label_tag }}:{%endif%}</td>
                             <td>{{ field }}</td>
                             <td>{{ field.errors }}</td>
                         </tr>
                     {% endfor %}
-                    <tr><td></td><td><input type='submit' value='Submit'></td><td></td></tr>
+                    <tr><td></td><td><input type="submit" value="Update profile"></td><td></td></tr>
                 </table>
             </form>
         </div>
         <b>{{ edit_info }}</b>
     </div>
+</div>
+
+{% go_back_link "Go back" %}
+
 {% endblock %}

@@ -7,12 +7,13 @@
 {% block header %}List of configurable options{% endblock %}
 
 {% block content %}
+    {% if display_tips %}
     <div class="tip">
       <ol>
-        <li><p>Options can be edited via admin panel (the only way now).</p></li>
         <li><p>0 and 1 usually mean boolean False and True. In general option's name should tell you what is it's type.</p></li>
       </ol>
     </div>
+    {% endif %}
 
     {% go_back_link "Go back" %}
 

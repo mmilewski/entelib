@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.contrib.auth.models import Group, User
-from baseapp.models import Book, BookRequest
+from baseapp.models import Book, BookRequest, Building, PhoneType, Phone
 # from baseapp.models import CustomUser
 from config import Config
+from baseapp.utils import pprint
+from copy import copy
 
 attrs_dict = { 'class': 'required' }
 
@@ -30,9 +32,11 @@ class ConfigOptionEditForm(forms.Form):
         key = self.option_key
         if not config.can_override(key):
             raise forms.ValidationError(u"Key %s cannot be overriden" % (key,))
+        return self.cleaned_data
 
     def save(self):
         key = self.option_key
+        config = Config(self.user)
         config[key] = self.cleaned_data['value']
 
 
@@ -48,7 +52,6 @@ class BookRequestForm(forms.Form):
         return [na] + [(b.id,b.title) for b in Book.objects.all().order_by('title')]
 
     book = forms.ChoiceField(choices=_books_choice_list(), label="Book")
-
     info = forms.CharField(widget=forms.Textarea,
                            label=(u'Information about book you request'),
                            required=True,
@@ -65,7 +68,7 @@ class BookRequestForm(forms.Form):
         return self.cleaned_data['info']
 
     def clean_book(self):
-        # field exists at all
+        # field doesn't exist at all
         if not 'book' in self.cleaned_data:
             raise forms.ValidationError(u"Form data corrupted. Book field wasn't found.")
         # id==0 is a special case - but it's correct
@@ -83,7 +86,6 @@ class BookRequestForm(forms.Form):
         config = Config()
         min_info_len = config.get_int('book_request_info_min_len')
         if 'info' in self.cleaned_data:
-            print self.cleaned_data['info']
             info_len = len(self.cleaned_data['info'])
             if info_len < min_info_len:
                 raise forms.ValidationError(u'Your request is too short. Should be at least %d, but was %d' % (min_info_len, info_len))
@@ -98,6 +100,19 @@ class BookRequestForm(forms.Form):
         req.save()
 
 
+class ProfileEditChoiceList:
+    @staticmethod
+    def buildings():
+        ''' Builds list od 2-tuples containing Buildings. '''
+        choice_list =  [ (0, u'--- not specified ---')]
+        choice_list += [(b.id, b.name)  for b in Building.objects.order_by('name').all()] 
+        return choice_list
+
+    @staticmethod
+    def phone_types():
+        ''' Builds list of 2-tuples containing PhoneTypes. '''
+        return [(pt.id, pt.name) for pt in PhoneType.objects.order_by('name').all()]
+    
 class ProfileEditForm(forms.Form):
     '''
     Form for editing user profile.
@@ -106,13 +121,38 @@ class ProfileEditForm(forms.Form):
 
     Empty field = no edition.
     '''
+
+    phone_prefix = 'phone'
+    phone_type_prefix = phone_prefix + 'Type'
+    phone_value_prefix = phone_prefix + 'Value'
+    
+    
+    work_building = forms.ChoiceField(choices=ProfileEditChoiceList.buildings(), label="Building I work in")
+    email = forms.EmailField(label=(u'E-mail'), required=False)
+
+    phoneType0 = forms.ChoiceField(choices=ProfileEditChoiceList.phone_types(), label='Phone 0', required=False)
+    phoneValue0 = forms.CharField(label='', required=False)
+
+    phoneType1 = forms.ChoiceField(choices=ProfileEditChoiceList.phone_types(), label='Phone 1', required=False)
+    phoneValue1 = forms.CharField(label='', required=False)
+
+    phoneType2 = forms.ChoiceField(choices=ProfileEditChoiceList.phone_types(), label='Phone 2', required=False)
+    phoneValue2 = forms.CharField(label='', required=False)
+
+    phoneType3 = forms.ChoiceField(choices=ProfileEditChoiceList.phone_types(), label='Phone 3', required=False)
+    phoneValue3 = forms.CharField(label='', required=False)
+
+    phoneType4 = forms.ChoiceField(choices=ProfileEditChoiceList.phone_types(), label='Phone 4', required=False)
+    phoneValue4 = forms.CharField(label='', required=False)
+
     current_password = forms.CharField(widget=forms.PasswordInput(render_value=False),
-        label=(u'Current password'), required=False)
-    email = forms.EmailField(label=(u'New email'), required=False)
+        label=(u'Current password'), required=True)
     password1 = forms.CharField(widget=forms.PasswordInput(render_value=False),
         label=(u'New password'), required=False)
     password2 = forms.CharField(widget=forms.PasswordInput(render_value=False),
         label=(u'New password (again)'), required=False)
+
+    
 
 
     def __init__(self, user, *args, **kwargs):
@@ -133,7 +173,7 @@ class ProfileEditForm(forms.Form):
 
     def clean(self):
         '''
-        Verify that the values typed into the new password fields match.
+        Check if passwords matches (these are 'new password' and 'again new password')
         '''
         if not ('password1' in self.cleaned_data and 'password2' in self.cleaned_data):
             return self.cleaned_data
@@ -142,15 +182,206 @@ class ProfileEditForm(forms.Form):
         return self.cleaned_data
 
 
+    def clean_phone_type(self, key_name):
+        data = self.cleaned_data
+        return data[key_name] if key_name in data else ''
+
+    def clean_phone_value(self, key_name):
+        data = self.cleaned_data
+        return data[key_name].strip() if key_name in data else ''
+ 
+    def clean_phoneType0(self):
+        return self.clean_phone_type('phoneType0')
+        
+    def clean_phoneType1(self):
+        return self.clean_phone_type('phoneType1')
+        
+    def clean_phoneType2(self):
+        return self.clean_phone_type('phoneType2')
+        
+    def clean_phoneType3(self):
+        return self.clean_phone_type('phoneType3')
+        
+    def clean_phoneType4(self):
+        return self.clean_phone_type('phoneType4')
+
+    def clean_phoneValue0(self):
+        return self.clean_phone_value('phoneValue0')
+
+    def clean_phoneValue1(self):
+        return self.clean_phone_value('phoneValue1')
+
+    def clean_phoneValue2(self):
+        return self.clean_phone_value('phoneValue2')
+
+    def clean_phoneValue3(self):
+        return self.clean_phone_value('phoneValue3')
+
+    def clean_phoneValue4(self):
+        return self.clean_phone_value('phoneValue4')
+
+
+    def get_cleaned_phones(self, cleaned_data):
+        '''
+        Gets info dealing with phones from cleaned_data. So returns a subset (subdictionary :>)
+        of cleaned_data
+        '''
+        cleaned_phones = {}
+        for k, v in cleaned_data.items():
+            if k.startswith(self.phone_prefix):
+                if k.startswith(self.phone_type_prefix):
+                    v = int(v)
+                cleaned_phones[k] = v
+        return cleaned_phones
+
+
+    def transform_cleaned_phones_to_list_of_phones(self, cleaned_phones):
+        ''' 
+        Transforms cleaned_phones dict to list of pairs: (phone_type, phone_value) -- both of these values 
+        must exists. 
+        
+        Elements without it's pair will be omitted in result.
+        
+        If element's value after striping is empty, then related key will be omitted in result. 
+        '''
+        phones = []
+        for i in range(len(cleaned_phones)):                 # this range is a bit (at most twice) too wide, but it doesn't hurt permormance
+            type_pref = self.phone_type_prefix + str(i)
+            value_pref = self.phone_value_prefix + str(i)
+            if (type_pref in cleaned_phones) and (value_pref in cleaned_phones):
+                if cleaned_phones[value_pref].strip():                             # don't allow empty entries
+                    phones.append( (cleaned_phones[type_pref], cleaned_phones[value_pref]) )
+        return phones
+
+
+    def extract_phones_to_add(self, user_phones, sent_phones):
+        '''
+        Desc:
+            Using sets language: it returns sent_phones\user_phones (where '\' means sets difference) 
+            -- these are phones to be added to user's profile.
+    
+        Args:
+            user_phones -- list of Phone instances. Can be obtained from user profile.
+            sent_phones -- list of 2-tuples (phone_type_id, phone_value). Can be obtained
+                           from self.transform_cleaned_phones_to_list_of_phones()
+        
+        Return:
+            List of 2-tuples: (phone_type_id, phone_value)
+        '''
+        phones_to_add = copy(sent_phones)
+        for user_phone in user_phones:
+            phone_tuple = (user_phone.type.id, user_phone.value)
+            if phone_tuple in phones_to_add:        # if phone is not new
+                phones_to_add.remove(phone_tuple)
+        return phones_to_add
+
+
+    def extract_phones_to_remove(self, user_phones, sent_phones):
+        '''
+        Desc:
+            Returns user_phone\sent_phones, using sets language 
+            -- these are phones to be removed from user's profile.
+
+        Args:
+            user_phones -- list of Phone instances. Can be obtained from user profile.
+            sent_phones -- list of 2-tuples (phone_type_id, phone_value). Can be obtained
+                           from self.transform_cleaned_phones_to_list_of_phones()
+        
+        Return:
+            List of 2-tuples: (phone_type_id, phone_value)
+        '''       
+        phones_to_remove = []
+        for user_phone in user_phones:
+            phone_tuple = (user_phone.type.id, user_phone.value)
+            if phone_tuple not in sent_phones:        # if phone is not new                
+                phones_to_remove.append(phone_tuple)
+        return phones_to_remove
+
+
+    def add_phones_to_profile(self, phones_to_add):
+        '''
+        Desc:
+            Adds phones from 2-tuple list to self.user's profile. 
+            If a phone is already there, it will be duplicated.
+        
+        Args:
+            phones_to_add -- list of 2-tuples (phone_type_id, phone_value). Can be 
+                             obtained from self.extract_phones_to_add()
+         '''
+        user_profile = self.user.get_profile()
+        for phone_type_id, phone_value in phones_to_add:
+            new_phone = Phone(type=PhoneType.objects.get(id=phone_type_id),
+                              value = phone_value)
+            new_phone.save()
+            user_profile.phone.add(new_phone)
+        user_profile.save()
+
+
+    def remove_phones_from_profile(self, phones_to_remove):
+        '''
+        Desc:
+            Removes phones from self.user's profile.
+        
+        Args:
+            phones_to_remove -- list of 2-tuples (phone_type_id, phone_value). Can be 
+                                obtained from self.extract_phones_to_remove()
+         '''
+        user_profile = self.user.get_profile()
+        user_phones = user_profile.phone.all()
+
+        for usr_phone in user_phones:
+            for rmv_phone in phones_to_remove:
+                if usr_phone.type.id == rmv_phone[0] and usr_phone.value == rmv_phone[1]:
+                    user_profile.phone.remove(usr_phone)
+        user_profile.save()
+        
+
     def save(self):
         '''
-        Edit user profile.
+        Commit changes in user profile.
+        Returns saved user
         '''
         if self.cleaned_data['email'] != '':
             new_email = self.cleaned_data['email']
             self.user.email = new_email
         if self.cleaned_data['password1'] != '':
             self.user.set_password(self.cleaned_data['password1'])
+        if self.cleaned_data['work_building']:
+            building_id = int(self.cleaned_data['work_building'])
+            user_profile = self.user.get_profile()
+            if building_id > 0:
+                building = Building.objects.get(id=building_id)
+                user_profile.building = building
+            else:
+                user_profile.building = None
+            user_profile.save()
+                
+                
+
+        cleaned_phones   = self.get_cleaned_phones(self.cleaned_data)
+        phones_as_list   = self.transform_cleaned_phones_to_list_of_phones(cleaned_phones)        
+        user_phones      = self.user.get_profile().phone.all()
+        phones_to_add    = self.extract_phones_to_add(user_phones, phones_as_list)
+        phones_to_remove = self.extract_phones_to_remove(user_phones, phones_as_list)
+
+#        pprint('-------------------------- START save -------------------------------')
+#        pprint(' --- cleaned_phones ---')
+#        pprint(cleaned_phones)
+#        pprint(' --- phones_as_list ---')
+#        pprint(phones_as_list)
+#        pprint(' --- user_phones ---')
+#        pprint(user_phones)
+#        pprint(' --- phones to add ---')
+#        pprint(phones_to_add)
+#        pprint(' --- phones to remove ---')
+#        pprint(phones_to_remove)
+#        pprint('-------------------------- END save -------------------------------')
+
+        # removing must go first
+        self.remove_phones_from_profile(phones_to_remove)
+        self.add_phones_to_profile(phones_to_add)
+        
+        # uff, save & return
         self.user.save()
         return self.user
 

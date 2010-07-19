@@ -1,0 +1,93 @@
+[
+    {
+        "pk": 1,
+        "model": "auth.user",
+        "fields": {
+            "username": "testname",
+            "first_name": "MyFirstName",
+            "last_name": "MyLastName",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2010-05-27 12:59:31",
+            "groups": [
+                1
+            ],
+            "user_permissions": [],
+            "password": "sha1$e19f4$7f4f1c3a1d96dbe207fc9dfcc021b74c99736b22",
+            "email": "My@cool.email",
+            "date_joined": "2010-05-27 12:59:31"
+          }
+    },
+
+    
+    {
+        "pk": 1, 
+        "model": "baseapp.userprofile", 
+        "fields": {
+            "building": 1, 
+            "phone": [
+                1
+            ], 
+            "user": 1, 
+            "shoe_size": null
+        }
+    }, 
+
+    
+    {
+        "pk": 1, 
+        "model": "baseapp.building", 
+        "fields": {
+            "remarks": "", 
+            "name": "Skyscraper"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "baseapp.building", 
+        "fields": {
+            "remarks": "", 
+            "name": "Building A"
+        }
+    }, 
+
+    
+    {
+        "pk": 1, 
+        "model": "baseapp.phone", 
+        "fields": {
+            "type": 1, 
+            "value": "100-200-300"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "baseapp.phone", 
+        "fields": {
+            "type": 2, 
+            "value": "superadmino.superdominko"
+        }
+    },
+
+    
+    {
+        "pk": 1, 
+        "model": "baseapp.phonetype", 
+        "fields": {
+            "verify_re": "not used", 
+            "name": "Mobile", 
+            "description": "For mobiles"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "baseapp.phonetype", 
+        "fields": {
+            "verify_re": "not used", 
+            "name": "Skype", 
+            "description": "Skype identifiers"
+        }
+    }
+
+]

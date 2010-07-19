@@ -56,5 +56,6 @@ def fill_config():
     # config['default_go_back_link_name'] = 'Go back to searching.'                  # Name of link displayed when filtering books/copies/...
     _svd(config, 'is_cost_center_visible_to_anyone',    True,                    "True iff copy's cost center info is visible to anyone (= no perms required)")
     _svd(config, 'default_go_back_link_name',           'Go back to searching.', "Name of link displayed when filtering books/copies/...")
+    _svd(config, 'display_tips',                        False,                   "True iff tips are visible")
 
     return config

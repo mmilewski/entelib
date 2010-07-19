@@ -34,10 +34,13 @@
     </div>
 
 
+    {% if display_tips %}
     <div class="tip">
       <p>1. If you use Firefox or Opera you can click and drag to multiselect locations. In Chrome you can use CTRL+click</p>
       <p>2. Selecting "Any" has effect only iff nothing else is selected. If "Any" and sth else is selected, then "Any" would be deselected</p>
     </div>
+    {% endif %}
+
     <div class='content_form'>
         <form action='.#book_copies' method='post'>
             <table>
@@ -78,6 +81,7 @@
 
     <div class="book_copies">
       <h3 id="book_copies">Copies of this book:</h3>
+      {% if display_tips %}
       <div class="tip">
         <ol>
           <li><p>Hold shift and then press header to select by multiple columns.</p></li>
@@ -86,6 +90,8 @@
               setting enable_time_bar to 0 or 1 in <a href="/entelib/admin/baseapp/configuration/enable_time_bar/">configuration panel</a>.</p></li>
         </ol>
       </div>
+      {% endif %}
+
         <!-- <ul class='booklist'>
         {% for item in book.items %}
         <li><b><a href='{{ item.url }}'>>></a></b>:

@@ -7,6 +7,7 @@
 {% block header %}Entelib{% endblock %}
 
 {% block rest %}
+{% if display_tips %}
 <!-- development-only info -->
 <div class="tip" style=" width:80% ; padding: 20px; text-align:center; margin: auto;">
   <p>Use <b>user</b> / <b>user</b> to log in as default user.</p>
@@ -15,6 +16,7 @@
   <p>Use <b>superadmin</b> / <b>superadmin</b> to acquire an extra super power -- absolute power (superuser in django terminology)</p>
 </div>
 <!-- development-only info -->
+{% endif %}
 
 <div id='login'>
 <p>

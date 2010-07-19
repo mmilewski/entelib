@@ -27,13 +27,15 @@
 #     |   |-- (...)
 #     |   `-- PIL
 
+PRINT = lambda x: x
+
 from os.path import abspath, dirname, join, exists
 import sys
 libs_path = join(dirname(abspath(__file__)),'..','libs')
 django_path = join(libs_path,'Django-1.2.1')
 imaging_path = join(libs_path,'Imaging-1.1.7')
-print 'Special Django path %s' % ('was found' if exists(django_path) else "wasn't found at " + django_path)
-print 'Special Imaging path %s' % ('was found' if exists(imaging_path) else "wasn't found at " + imaging_path)
+PRINT('Special Django path %s' % ('was found' if exists(django_path) else "wasn't found at " + django_path))
+PRINT('Special Imaging path %s' % ('was found' if exists(imaging_path) else "wasn't found at " + imaging_path))
 sys.path.insert(0, imaging_path)
 sys.path.insert(0, django_path)
 

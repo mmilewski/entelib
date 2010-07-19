@@ -5,9 +5,13 @@
 {% block header %}Reports{% endblock %}
 
 {% block content %}
+
+{% if display_tips %}
 <div class="tip">
   <p>Sorting is unavailable when you export to CSV.</p>
 </div>
+{% endif %}
+
 
     <script type="text/javascript"> 
     <!--

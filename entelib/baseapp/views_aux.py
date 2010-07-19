@@ -8,7 +8,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from datetime import date, datetime, timedelta
 from config import Config
 from django.db.models import Q
+from django.contrib import messages
 from entelib import settings
+from baseapp.utils import pprint
 from baseapp.exceptions import *
 import baseapp.emails as mail
 
@@ -19,8 +21,10 @@ now = datetime.now
 
 def render_response(request, template, context={}):
     user = request.user
+    config = Config(user)
     context.update( {'go_back_link' : '<a href="javascript: history.go(-1)">Back</a>',
                      'can_access_admin_panel' : user.is_staff or user.is_superuser,
+                     'display_tips' : config.get_bool('display_tips'),
                      })
     # as far as we use perms with following convention, we can pass perms to templates easily:
     # if in-code perm's name is list_book, then template gets can_list_books variable
@@ -134,7 +138,6 @@ def get_locations_for_book(book_id):
     try:
         b = Book.objects.get(id=book_id)
     except Book.DoesNotExist:
-        print 'get_locations_for_book(%d): book not found' % book_id
         return []
     copies = b.bookcopy_set.only('location').all()
     return [ loc for loc in Location.objects.filter(id__in=[c.location.id for c in copies])]

@@ -8,7 +8,7 @@ from config import Config
 
 
 # _from_address = Config().get_str('mail_sender_address')   # is this one incorrect?
-_from_address = Config().get_str('default_email_sender')
+# _from_address = Config().get_str('default_email_sender')
 
 
 def log_email(sender, recipients, subject, body):

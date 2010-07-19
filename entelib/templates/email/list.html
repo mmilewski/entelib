@@ -7,6 +7,7 @@
 {% block header %}List of sent emails{% endblock %}
 
 {% block content %}
+    {% if display_tips %}
     <div class="tip">
       <ol>
         <li><p>For some events only mails are sent. They are: book reserving and book renting. Others will be added soon (just a matter of time).</p></li>
@@ -14,6 +15,8 @@
         <li><p>Known bug: reservation confirmation email says 'Come & rent' even if book is not rentable (i.e. it's unavailable).</p></li>
       </ol>
     </div>
+    {% endif %}
+
     <div class="emails_wrapper">
       {% if emails %}
       <table class="emails">

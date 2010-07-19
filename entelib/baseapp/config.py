@@ -182,6 +182,7 @@ class Config(object):
                 config_option = Configuration.objects.get(key=key)
                 result, created = UserConfiguration.objects.get_or_create(option=config_option, 
                                                                           defaults={'user': self.user, 'value': value})
+                result.value = value
                 result.save()
         
         # update cache

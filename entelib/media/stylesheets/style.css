@@ -348,3 +348,15 @@ form.edit_option_form td input#id_value {
 .tb_stripes {
     background-image: url('/media/images/tb_stripes.png') !important;
 }
+
+ul.userProfile li .label {
+    font-weight: bold;
+}
+
+div.messagesWrapper {
+    padding: .3em 0em;
+    background-color: yellow;
+    border: 1px solid violet;
+}
+div.messagesWrapper ul#messages {
+}

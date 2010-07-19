@@ -30,10 +30,13 @@
 
 
 {% if form_content %}
+{% if display_tips %}
 <div class="usage_info tip">
   <p>If you want to <em>request a book</em> leave book field empty.</p>
   <p>If you want to <em>request a new copy of existing book</em> find appropriate book on a drop-down list.</p>
 </div>
+{% endif %}
+
 <div class="formWrapper">
   <form class="book_request_form" action="." method="POST">
     <table class="basic_fields">

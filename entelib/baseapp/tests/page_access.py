@@ -28,6 +28,13 @@ class PageAccessTest(TestCase, PageLogger):
         self.failUnlessEqual(200, self.get_status_code('/entelib/admin/doc/'))
         self.failUnlessEqual(302, self.get_status_code('/entelib/admin/doc'))
 
+    def test_user_list(self):
+        self.login()
+        self.failUnlessEqual(200, self.get_status_code('/entelib/users/'))
+        
+        ''' Test listing users. '''
+        
+
     def test_books_list(self):
         ''' Tests listing books. '''
         url = '/entelib/books/'

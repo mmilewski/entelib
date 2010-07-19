@@ -132,7 +132,7 @@ for author in authors:
 # # pictures
 
 #
-# TODO: implement
+# TODO: implement filling pictture models
 #
 # picture_descs = [ get_random_text(40) for i in range(pictures_count) ]
 # picture_files = [ ]  # ??
@@ -267,7 +267,6 @@ for copy in copies:
 print "Adding phone types"
 phone_types = [ ('Mobile', '(\+?\d{2,3})?.?\d{3}-\d{3}-\d{3}', 'For mobiles'),
                 ('Skype', '[\d\w\-_.]+', 'Skype identifiers'),
-                ('Morse decoder', '', ''),
                 ]
 for (name, re, desc) in phone_types:
     pt = PhoneType(name=name, verify_re=re, description=desc)
