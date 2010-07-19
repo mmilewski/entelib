@@ -21,10 +21,6 @@ import baseapp.views_aux as aux
 import baseapp.emails as mail
 
 
-config = Config()
-
-
-@login_required
 @permission_required('baseapp.load_default_config')
 def load_default_config(request, do_it=False):
     '''
@@ -36,7 +32,6 @@ def load_default_config(request, do_it=False):
     return render_response(request, 'load_default_config.html', {})
 
 
-@login_required
 @permission_required('baseapp.list_config_options')
 def show_config_options(request):
     '''
@@ -53,7 +48,6 @@ def show_config_options(request):
     return render_response(request, template, context)
 
 
-@login_required
 @permission_required('baseapp.edit_option')
 def edit_config_option(request, option_key, edit_form=ConfigOptionEditForm):
     '''
@@ -85,7 +79,6 @@ def edit_config_option(request, option_key, edit_form=ConfigOptionEditForm):
     return render_response(request, tpl_edit_option, context)
 
     
-@login_required
 @permission_required('baseapp.list_emaillog')
 def show_email_log(request):
     '''
@@ -99,7 +92,6 @@ def show_email_log(request):
     return render_response(request, template, context)
 
 
-@login_required
 @permission_required('baseapp.add_bookrequest')
 def request_book(request, request_form=BookRequestForm):
     '''
@@ -192,7 +184,7 @@ Args:
     book_url = u'/entelib/books/%d/'    # where you go after clicking "search" button
     if non_standard_user_id is not False:  # and where you go if there is a non std user given
         book_url = u'/entelib/users/%d/reservations/new/book/%s/' % (int(non_standard_user_id), '%d')
-    config.set_user(request.user)
+    config = Config(request.user)
     search_data = {}                    # data of searching context
     selected_categories_ids = []        # ids of selected categories -- needed to reselect them on site reload
 
@@ -269,7 +261,7 @@ Args:
 
 @login_required
 def show_book(request, book_id, non_standard_user_id=False):
-    config = Config()
+    config = Config(request.user)
     # if we have a non_standard_user we treat him special
     url_for_non_standard_users = u'/entelib/users/%d/reservations/new/bookcopy/%s/' % (int(non_standard_user_id), u'%d')
     show_url = u'/entelib/bookcopy/%d/' if non_standard_user_id == False else url_for_non_standard_users
@@ -346,14 +338,10 @@ def show_book_copy(request, bookcopy_id):
     return render_response(request, 'bookcopy.html',
         {
             'book' : book_desc,
-            'can_reserve' : request.user.has_perm('baseapp.add_reservation'),
-            # 'can_rent' : request.user.has_perm('baseapp.add_rental'), and  # TODO
-            # 'can_return' : request.user.has_perm('baseapp.change_rental'),  # TODO
         }
     )
 
 
-@login_required
 @permission_required('baseapp.list_users')
 def show_users(request):
     context = {}
@@ -401,7 +389,6 @@ def show_users(request):
     return render_response(request, 'users.html', context)
 
 
-@login_required
 @permission_required('baseapp.list_users')
 def show_user(request, user_id):
     try:
@@ -452,7 +439,6 @@ def edit_user_profile(request, profile_edit_form=ProfileEditForm):
 
     return render_response(request, 'profile.html', context)
 
-@login_required
 @permission_required('baseapp.list_users')
 def show_user_rentals(request, user_id):
     return aux.show_user_rentals(request, user_id)
@@ -463,7 +449,6 @@ def show_my_rentals(request):
     return aux.show_user_rentals(request)
 
 
-@login_required
 @permission_required('baseapp.list_users')
 def show_user_reservations(request, user_id):
     return aux.show_user_reservations(request, user_id)
@@ -507,7 +492,6 @@ def show_my_reservations(request):
 '''
 
 
-@login_required
 @permission_required('baseapp.list_reports')
 def show_reports(request):
     report_types = [{'name': u'Library status', 'value': u'status'},
@@ -520,12 +504,12 @@ def show_reports(request):
     post = request.POST
     if request.method == 'POST':
         search_data = {'from': post['from'], 'to': post['to']}
-        if 'action' in post and post['action'] == u'Export to csv':
+        if 'action' in post and post['action'].lower == u'export to csv':
             if ('from' in post) and ('to' in post) and ('report_type' in post):
                 response = generate_csv(post['report_type'], post['from'], post['to'])
                 return response
 
-        if 'action' in post and post['action'] == u'Show':
+        if 'action' in post and post['action'].lower == u'show':
             if ('from' in post) and ('to' in post) and ('report_type' in post):
                 report_data = get_report_data(post['report_type'], post['from'], post['to'])
                 report = report_data['report']
@@ -549,6 +533,7 @@ def show_reports(request):
     return render_response(request, 'reports.html', {'report_types': report_types, 'select_size': select_size})
 
 
+@permission_required('baseapp.list_users')
 def find_book_for_user(request, user_id, book_id=None):
     if not book_id:
         return show_books(request, user_id)
@@ -556,41 +541,44 @@ def find_book_for_user(request, user_id, book_id=None):
         return show_book(request, book_id, user_id)
 
 
+@permission_required('baseapp.list_users')
 def reserve_for_user(request, user_id, book_copy_id):
     return reserve(request, book_copy_id, user_id)
 
 
+@login_required
 def show_user_reservation(request, user_id, reservation_id):
     return render_not_implemented(request)
 
 
+@permission_required('baseapp.add_reservation')
 def reserve(request, copy, non_standard_user_id=False):  # when non_standard_user_id is set then this view allows also renting
-    if not request.user.is_authenticated() or not request.user.has_perm('baseapp.add_reservation'):
-        return render_forbidden(request)
     try:
         book_copy = BookCopy.objects.get(id=copy)
     except BookCopy.DoesNotExist:
         return render_not_found(request, item_name='Book copy')
-    reserved = {}
-    rented = {}
+    config = Config(user=request.user)
+    reserved = {}   # info on reservation
+    rented = {}     # info on rental
     post = request.POST
-    try:
-        if non_standard_user_id:
+    if non_standard_user_id:
+        try:
             nonstandard_user = User.objects.get(id=non_standard_user_id)
-    except User.DoesNotExist:
-        return render_not_found(request, item_name='User')
-    user = request.user if non_standard_user_id == False else nonstandard_user
+        except User.DoesNotExist:
+            return render_not_found(request, item_name='User')
+    user = request.user if not non_standard_user_id else nonstandard_user
+    # all the work needs to be done if there is some (POST) data sent:
     if request.method == 'POST':
+        # we need reservation, whether we rent or just reserve:
         r = Reservation(who_reserved=request.user, book_copy=book_copy, for_whom=user)
+        # reserve requested:
         if 'action' in post and post['action'].lower() == 'reserve':
-            failed = False  # TODO rozwiazac to ladniej
             if 'from' in post and post['from'] != u'':
                 try:
                     [y, m, d] = map(int,post['from'].split('-'))
                     r.start_date = date(y, m, d)
-                except:  # TODO jaki to wyjatek
-                    reserved.update({'error' : 'error - possibly incorrect date format'})
-                    failed = True
+                except ValueError:
+                    reserved.update({'error' : 'Error - probably incorrect date format.'})
             else:
                 r.start_date = date.today()
             if 'to' in post and post['to'] != u'':
@@ -599,17 +587,14 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
                     r.end_date = date(y, m, d)
                     if (r.end_date - r.start_date).days < 0:
                         reserved.update({'error' : 'Reservation end date must be later than start date'})
-                        failed = True
-                    if (r.end_date - r.start_date).days > config.get_int('rental_duration'):
-                        reserved.update({'error' : 'You can\'t reserve for longer than %d days' % config.get_int('rental_duration')})
-                        failed = True
-                except:  # TODO jaki to wyjatek
+                    if (r.end_date - r.start_date).days > config.get_int('reservation_duration'):
+                        reserved.update({'error' : 'You can\'t reserve for longer than %d days' % config.get_int('reservation_duration')})
+                except ValueError:
                     reserved.update({'error' : 'error - possibly incorrect date format'})
-                    failed = True
             else:
                 reserved.update({'error' : 'You need to specify reservation end date'})
-                failed = True
-            if not failed:
+                # TODO: r.end_date = date.today + timedelta(Config().get_int('reservation_duration'))
+            if 'error' not in reserved:
                 r.save()
                 mail.made_reservation(r)
 
@@ -617,24 +602,30 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
                 reserved.update({'msg' : config.get_str('message_book_reserved') % (r.start_date.isoformat(), r.end_date.isoformat())})
                 reserved.update({'from' : r.start_date.isoformat()})
                 reserved.update({'to' : r.end_date.isoformat()})
-        elif 'action' in post and post['action'].lower() == 'rent' and request.user.has_perm('baseapp.add_rental') and is_book_copy_rentable(book_copy):
-                r.start_date = date.today()
-                r.end_date = date.today() + timedelta(aux.book_copy_status(book_copy).rental_possible_for_days())
-                try:
-                    if 'to' in post and post['to'] != '':
-                        [y, m, d] = map(int,post['to'].split('-'))
-                        if r.end_date > date(y, m, d):
-                            r.end_date = date(y, m, d)
-                except:
-                    print 'error in reserve - failed when renting'
-                    pass  # TODO
+        # renting action requested
+        elif 'action' in post and post['action'].lower() == 'rent':
+            if not request.user.has_perm('baseapp.add_rental'):
+                raise PermissionDenied('User not allowed to rent')
+            if not is_book_copy_rentable(book_copy):
+                raise ValueError('Book copy not rentable.')
+            r.start_date = date.today()  # always rent from now
+            # for how long rental is possible
+            r.end_date = date.today() + timedelta(aux.book_copy_status(book_copy).rental_possible_for_days())
+            try:
+                if 'to' in post and post['to'] != '':
+                    [y, m, d] = map(int,post['to'].split('-'))
+                    # if user wants book for shorter than max allowed period
+                    if r.end_date > date(y, m, d):
+                         r.end_date = date(y, m, d)
                 r.save()
+                # reservation done, rent:
                 rental = Rental(reservation=r, start_date=date.today(), who_handed_out=request.user)
                 rental.save()
-                mail.made_rental(rental)
-                rented.update({'until' : r.end_date.isoformat()})
-                reserved.update({'ok' : False})
-
+                mail.made_rental(rental)  # notifications
+                reserved.update({'msg' : config.get_str('message_book_rented') % r.end_date.isoformat()})
+            except ValueError:
+                reserved.update({'error' : 'error - possibly incorrect date format'})
+            
     book_desc = get_book_details(book_copy)
 
     for_whom = aux.user_full_name(non_standard_user_id)
@@ -643,26 +634,29 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
         {
             'book' : book_desc,
             'reserved' : reserved,
-            'rented' : rented,
             'for_whom' : for_whom,
             'can_reserve' : request.user.has_perm('baseapp.add_reservation') and book_copy.state.is_visible,
-            'can_rent' : request.user.has_perm('baseapp.add_rental') and non_standard_user_id,
             'rental_possible' : is_book_copy_rentable(book_copy)
         }
     )
 
-
+@permission_required('baseapp.change_own_reservation')
 def cancel_all_my_reserevations(request):
-    return cancel_all_user_resevations(request, request.user.id)
+    aux.cancel_user_resevations(user=request.user, canceller=request.user)
+    return render_response(request, 'reservations_cancelled.html', {})
 
-
+@permission_required('baseapp.list_users')
+@permission_required('baseapp.change_reservation')
 def cancel_all_user_resevations(request, user_id):
-    user = User.objects.get(id=user_id)
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        render_not_found(request, item='User')
     canceller = request.user
     post = request.POST
 
     if request.method == 'POST' and 'sure' in post and post['sure'] == 'true':
-        aux.cancel_all_user_resevations(canceller, user)
+        aux.cancel_user_resevations(canceller, user)
 
         return render_response(request, 'reservations_cancelled.html',
             { 'first_name' : user.first_name,

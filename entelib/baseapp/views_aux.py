@@ -470,13 +470,13 @@ def cancel_reservation(reservation, user):
     reservation.save()
 
 
-def cancel_all_user_resevations(librarian, user):
+def cancel_user_resevations(user, canceller):
     '''
     Desc:
         all active user's resrvations are cancelled by librarian (which might be the same as user)
     '''
     for r in Reservation.objects.filter(for_whom=user).filter(Q_reservation_active):
-        cancel_reservation(r, librarian)
+        cancel_reservation(r, canceller)
 
 
 def user_full_name(user_id):

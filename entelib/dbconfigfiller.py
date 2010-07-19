@@ -30,8 +30,10 @@ def fill_config():
     # config['reservation_rush'] = 4                                                 # How quick you need to rent reserved book when it becomes available
     # config['message_book_reserved'] = 'Reservation active since %s till %s'        # Message to show right after user reserves a book. Has to contain exactly to %s which will be filled with reservation start and end date
     _svd(config, 'rental_duration',        30,                                   "For how long you rent a book")
+    _svd(config, 'reservation_duration',   30,                                   "For how long you can reserve a book")
     _svd(config, 'reservation_rush',       4,                                    "How quick you need to rent reserved book when it becomes available")
-    _svd(config, 'message_book_reserved', 'Reservation active since %s till %s', "Message to show right after user reserves a book. Has to contain exactly to %s which will be filled with reservation start and end date")
+    _svd(config, 'message_book_reserved', 'Reservation active since %s till %s', "Message to show right after user reserves a book. Has to contain exactly two `%s` which will be filled with reservation start and end date")
+    _svd(config, 'message_book_rented',   'Rental made untill %s.',              "Message to show right after user rents a book. Has to contain exactly one `%s` which will be filled with rental end date")
 
     # book request
     # config['book_request_info_min_len'] =  10                                      # Minimal length of book request information

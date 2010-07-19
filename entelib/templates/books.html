@@ -53,7 +53,7 @@
     </div>
 
     <div class="book_actions">
-      {% if can_add_book %}
+      {% if perms.baseapp.add_book %}
       <a href="/entelib/admin/baseapp/book/add/" class="add_book">Add new book</a>
       {% endif %}
       {% go_back_link "Go back" %}

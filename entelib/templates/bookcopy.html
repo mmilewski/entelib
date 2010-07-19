@@ -2,14 +2,8 @@
 {% block links %}
     <div class='content_form'>
         <form action='.' method='post'>
-            {% if can_reserve %}
-                | <b><a href='reserve/'>Reserve</a></b> |
-            {% endif %}
-            {% if can_rent %}
-                | <input type='submit' name='action' value='Rent'> |
-            {% endif %}
-            {% if can_return %}
-                | <input type='submit' name='action' value='Return'> |
+            {% if perms.baseapp.add_reservation %}
+                | <b><a href='reserve/'>Reserve/rent</a></b> |
             {% endif %}
         </form>
     </div>

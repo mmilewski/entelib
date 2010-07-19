@@ -64,7 +64,7 @@
     </div>
 
     <div class="bookcopy_actions">
-      {% if can_add_bookcopy %}
+      {% if perms.baseapp.add_bookcopy %}
       <a href="/entelib/admin/baseapp/bookcopy/add/?book={{book.id}}" class="add_bookcopy">Add another copy</a>
       {% endif %}
     </div>
