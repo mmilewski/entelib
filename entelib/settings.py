@@ -74,7 +74,9 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'django.middleware.common.CommonMiddleware',           # see DISALLOWED_USER_AGENTS, APPEND_SLASH, PREPEND_WWW 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -99,11 +101,22 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 
+# message framework's settings
 from django.contrib import messages
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 MESSAGE_LEVEL = messages.DEBUG
 
+# debug toolbar's settings -- see  http://github.com/robhudson/django-debug-toolbar
+INTERNAL_IPS = ('127.0.0.1', '10.154.5.211', )
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
+    'SHOW_TOOLBAR_CALLBACK': None,
+    'EXTRA_SIGNALS': [],
+    'HIDE_DJANGO_SQL': True,
+    'TAG': 'div',
+}
 
+# apps
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -112,6 +125,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.messages',
+    'debug_toolbar',
+    'django_extensions',
     'entelib.baseapp',
 )
 
