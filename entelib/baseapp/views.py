@@ -2,7 +2,7 @@
 # TODO: poprawic sprawdzanie uprawnien na poczatku widokow
 
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib.admin.views.decorators import staff_member_required
@@ -138,6 +138,24 @@ def register(request, action, registration_form=RegistrationForm, extra_context=
         if action in ['logout',]:
             auth.logout(request)
             return HttpResponseRedirect('/entelib/register/newuser/')
+        if action == 'newactiveuser':
+            # commit
+            if request.method == 'POST':
+                form = registration_form(data=request.POST, files=request.FILES)
+                if form.is_valid():
+                    new_user = form.save()
+                    new_user.is_active = True
+                    new_user.save()
+                    messages.success(request, 'User registered and activated.')
+                    return HttpResponseRedirect('/entelib/users/%d/' % new_user.id)
+            # display form
+            else:
+                form = registration_form()
+
+            # prepare response
+            result_context = { 'form_content' : form }
+            result_context.update(extra_context)
+            return render_response(request, tpl_registration_form, result_context)
         else:
             return render_response(request, tpl_logout_first)
     else:   # not authenticated
@@ -371,7 +389,7 @@ def show_users(request):
         request_is_librarian = ('is_librarian' in request.POST)
         user_list = []
 
-        # # filter by beeing in Librarians group
+        # # filter by being in Librarians group
         # librarians_group = Group.objects.get(name='Librarians')  # TODO: this needs to read from somewhere (update: if we ever decide to use it)
         # if request_is_librarian:
         #     is_to_be_shown = lambda u: librarians_group in u.groups.all()
@@ -407,70 +425,56 @@ def show_users(request):
     return render_response(request, 'users.html', context)
 
 
+@permission_required('auth.add_user')
+def add_user(request, registration_form=RegistrationForm):
+    return register(request, 'newactiveuser')
+
+
 @permission_required('baseapp.list_users')
-def show_user(request, user_id):
-    try:
-        user = User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        return render_not_found(request, item_name='User')
-    context = { 'first_name'    : user.first_name,
-          'last_name'     : user.last_name,
-          'email'         : user.email,
-          'phones'        : get_phones_for_user(user),
-          'building'      : user.get_profile().building,
-          'rentals'       : 'rentals/',
-          'reservations'  : 'reservations/',
-        }
-    return render_response(request, 'user.html', context)
+def show_user(request, user_id, redirect_on_success_url='/entelib/users/%d/', profile_edit_form=ProfileEditForm):
+    user_id = int(user_id)
+    edited_user = get_object_or_404(User, id=user_id)
+    return _do_edit_user_profile(request, edited_user, redirect_on_success_url, profile_edit_form)
 
 
-@login_required
-def edit_user_profile(request, profile_edit_form=ProfileEditForm):
-    try:
-        user = User.objects.get(id=request.user.id)
-    except User.DoesNotExist:
-        return render_not_found(request, item_name='User')
-    context = { 'first_name'   : user.first_name,
-                'user_id'      : user.id,
-                'last_name'    : user.last_name,
-                'email'        : user.email,
-                'building'     : user.get_profile().building,
-                'phones'       : get_phones_for_user(user),
-                'rentals'      : 'rentals/',
-                'reservations' : 'reservations/',
-                }
-    # phones are list of 3-tuples: phone_type_id, phone_type, value
-    phones = [ (p.type.id, p.type.name, p.value) for p in user.get_profile().phone.all() ]
-    # initial values for phones
-    phones_initial = {}
-    for i, phone in enumerate(phones):
-        phones_initial['phoneType' + str(i)] = phone[0]     # type id
-        phones_initial['phoneValue' + str(i)] = phone[2]    # value
+def _do_edit_user_profile(request, edited_user, redirect_on_success_url='/entelib/users/%d/', profile_edit_form=ProfileEditForm):
+    ''' 
+    Displays form for editing user's profile.
     
-    # prepare initial data
-    form_initial = {'email'        : user.email,
-                    }
-    if user.get_profile().building:
-        form_initial['work_building'] = user.get_profile().building.id 
-    form_initial.update(phones_initial)
-
-    # handle request    
-    if request.method == 'POST':
+    request.user -- user editing someone's profile (it can be his own profile)
+    edited_user -- user, whose profile will be edited.
+    '''
+    if '%d' in redirect_on_success_url:
+        redirect_on_success_url = redirect_on_success_url % edited_user.id
+    
+    form_initial = profile_edit_form.get_initials_for_user(edited_user)
+    can_change_profile = request.user.id == edited_user.id or request.user.has_perm('auth.change_user')
+    if request.method == 'POST' and can_change_profile:
         # use data from post to fill form
-        form = profile_edit_form(user=user, data=request.POST, initial=form_initial)
+        form = profile_edit_form(edited_user, editor=request.user, data=request.POST, initial=form_initial)
         if form.is_valid():
             # notify data changed and display profile
             form.save()
             messages.success(request, 'Profile details updated.')
-            return HttpResponseRedirect('/entelib/profile/')
+            return HttpResponseRedirect(redirect_on_success_url)
     else:
         # no POST implies fresh form with profiles' data
-        form = profile_edit_form(user=user, initial=form_initial)
+        form = profile_edit_form(edited_user, editor=request.user, initial=form_initial)
 
-    # add form to context
+    # prepare context and render site
+    context = profile_edit_form.build_default_context_for_user(edited_user)
     context['form_content'] = form
-
     return render_response(request, 'profile.html', context)
+
+
+@login_required
+def edit_user_profile(request, redirect_on_success_url=u'/entelib/profile/', profile_edit_form=ProfileEditForm):
+    ''' 
+    Displays form for editing user's profile, where user means request.user
+    '''
+    # well, this is the same that user A edits profile of user B, where A==B
+    return _do_edit_user_profile(request, request.user, redirect_on_success_url, profile_edit_form)
+
 
 @permission_required('baseapp.list_users')
 def show_user_rentals(request, user_id):

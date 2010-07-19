@@ -234,6 +234,13 @@ div.bookcopy_actions a {  /* 'add book copy' link */
     border-bottom: 1px dashed brown;
 }
 
+div.add_new_user a {       /* 'add user' link */
+    background: url('/media/images/add-icon.png') no-repeat;
+    padding: 0 0 .1em 20px;
+    text-decoration: none;
+    border-bottom: 1px dashed brown;
+}
+
 
 div.book_copies > h3#book_copies {
     margin-top: 1.3em;

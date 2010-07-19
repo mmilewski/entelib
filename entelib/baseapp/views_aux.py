@@ -21,6 +21,13 @@ now = datetime.now
 
 def render_response(request, template, context={}):
     user = request.user
+    if user.is_anonymous():
+        return render_to_response(
+            template,
+            context,
+            context_instance=RequestContext(request)
+            )
+    
     config = Config(user)
     context.update( {'go_back_link' : '<a href="javascript: history.go(-1)">Back</a>',
                      'can_access_admin_panel' : user.is_staff or user.is_superuser,

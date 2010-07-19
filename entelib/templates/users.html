@@ -30,6 +30,13 @@
         </form>
     </div>
     {% go_back_link "Go back" %}
+
+    {% if perms.auth.add_user %}
+    <div class="add_new_user">
+      <a href="add/">Add new user</a>
+    </div>
+    {% endif %}
+    
     <div style='margin-top: 1em'>
         <ul class='spaces'>
             {% for user in users %}
