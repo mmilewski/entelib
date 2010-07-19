@@ -151,7 +151,7 @@ def register(request, action, registration_form=RegistrationForm, extra_context=
             result_context.update(extra_context)
             return render_response(request, tpl_registration_form, result_context)
         else:  # action other than newuser
-            return HttpResponseRedirect('/entelib/register/newuser/')
+            return render_not_found(request, item='Action')
 
 
 def logout(request):
@@ -173,12 +173,12 @@ def my_new_reservation(request): # that is kinda hack, but I couldn't think of a
 @login_required
 def show_books(request, non_standard_user_id=False):
     '''
-Desc:
-    Allows to find, and lists searched books.
+    Desc:
+        Allows to find, and lists searched books.
 
-Args:
-    non_standard_user_id is used when librarian is searching for a book in the name of user.
-    In that case non_standard_user_id is most likely different than request.user
+    Args:
+        non_standard_user_id is used when librarian is searching for a book in the name of user.
+        In that case non_standard_user_id is most likely different than request.user
     '''
     # data for the template
     book_url = u'/entelib/books/%d/'    # where you go after clicking "search" button
@@ -236,8 +236,7 @@ Args:
         if config.get_bool('list_only_existing_categories_in_search'):
             categories_from_booklist = list(set([c for b in Book.objects.all() for c in b.category.all()]))
         else:
-            categories_from_booklist = Category.objects.all()      # FIXME: can be fixed to list categories, to which at least one book belong
-                                                                   # I wouldn't do that - mbr
+            categories_from_booklist = Category.objects.all()
 
     # prepare categories for rendering
     search_categories  = [ {'name' : '-- Any --',  'id' : 0} ]
@@ -261,6 +260,9 @@ Args:
 
 @login_required
 def show_book(request, book_id, non_standard_user_id=False):
+    '''
+    Finds all copies of a book.
+    '''
     config = Config(request.user)
     # if we have a non_standard_user we treat him special
     url_for_non_standard_users = u'/entelib/users/%d/reservations/new/bookcopy/%s/' % (int(non_standard_user_id), u'%d')
@@ -283,7 +285,7 @@ def show_book(request, book_id, non_standard_user_id=False):
         # satisfy the availability constraint:
         if 'available' in request.POST:
             if request.POST['available'] == 'available':
-                book_copies = book_copies.filter(state__is_available__exact=True)
+                book_copies = book_copies.filter(state__is_available=True)
     curr_copies = []
     is_copy_reservable = request.user.has_perm('baseapp.add_reservation')
     # create list of dicts of book_copies
@@ -330,6 +332,9 @@ def show_book(request, book_id, non_standard_user_id=False):
 
 @login_required
 def show_book_copy(request, bookcopy_id):
+    '''
+    Shows book copy's details
+    '''
     try:
         book_copy = BookCopy.objects.get(id=bookcopy_id)
     except BookCopy.DoesNotExist:

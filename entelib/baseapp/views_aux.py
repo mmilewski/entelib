@@ -173,7 +173,7 @@ def is_reservation_active(r): <<>>
         return False
 '''
 
-# Q object filtering Reservation objects to be only active (wich means not rented nor cancelled nor expired)
+# Q object filtering Reservation objects to be only active (which means not rented or cancelled or expired)
 Q_reservation_active = Q(when_cancelled=None) & Q(rental=None) & Q(end_date__gte=today())
 
 
@@ -292,8 +292,8 @@ def book_copy_status(book_copy):
 
 def rent(reservation, librarian):
     '''
-Desc:
-    Librarian rents book indicated by reservation.
+    Desc:
+        Librarian rents book indicated by reservation.
     '''
     if not librarian.has_perm('baseapp.add_rental'):
         raise PermissionDenied
@@ -306,12 +306,12 @@ Desc:
 
 def return_rental(librarian, rental_id):
     '''
-Desc:
-    librarian receives book from rental
+    Desc:
+        librarian receives book from rental
 
-Args:
-    librarian - accepts returnal
-    rental_id - id of rental being ended
+    Args:
+        librarian - accepts returnal
+        rental_id - id of rental being ended
     '''
     # not everyone can return book
     if not librarian.has_perm('baseapp.change_rental'):
@@ -331,8 +331,8 @@ Args:
 
 def show_user_rentals(request, user_id=False):
     '''
-Desc:
-    Shows user's current rentals. Allows returning books.
+    Desc:
+        Shows user's current rentals. Allows returning books.
     '''
     if not user_id:
         user = request.user
@@ -385,8 +385,8 @@ Desc:
 
 def mark_available(book_copy):
     '''
-Desc:
-    If there is an active reservation awaiting for this copy, let it know.
+    Desc:
+        If there is an active reservation awaiting for this copy, let it know.
     '''
     reservations = Reservation.objects.filter(Q_reservation_active).filter(start_date__lte=date.today)
     if reservations.count() > 0:  # TODO: this probably can be done more effectively
@@ -492,10 +492,10 @@ def user_full_name(user_id):
 
 def when_copy_reserved(book_copy):
     '''
-Marcin:
-This is Adi's function. It is used with the timebar.
-Im not touching it for we are going to work with the time bar, and this may come useless anyway.
-mbr
+    Marcin:
+    This is Adi's function. It is used with the timebar.
+    Im not touching it for we are going to work with the time bar, and this may come useless anyway.
+    mbr
     '''
     config = Config()
 
