@@ -4,7 +4,7 @@
 
 {% block edit_form %}
 <div class="editingWrapper">
-  <h2>Edit your profile</h2>
+  <h2 id="edit">Edit your profile</h2>
     {% if display_tips %}
     <div class="tip">
       <ol>
@@ -15,7 +15,7 @@
     {% endif %}
     <div style='margin-top: 2em;'>
         <div class='content_form' style='margin-top: 1em'>
-            <form action='.' method='POST' class='registration_form'>
+            <form action='#edit' method='POST' class='registration_form'>
                 {{ form_content.non_field_errors }}
                 <table>
                     {% for field in form_content %}

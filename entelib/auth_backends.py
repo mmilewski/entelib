@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
+from baseapp.utils import pprint
 
 # from django.contrib.auth.models import User as CustomUser  # don't !!
 from django.contrib.auth.models import User

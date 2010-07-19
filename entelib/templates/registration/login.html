@@ -22,13 +22,14 @@
 <p>
 <form action='.' method='post'>
 {% csrf_token %}
+    {{ form.non_field_errors }}
     <table>
         <tr>
             <td>Username: </td>
-            <td><input type="text" name='username' value='' id='username' /></td>
+            <td><input type="text" name='username' value='' id='username' /></td> <td>{{form.username.errors}}</td>
         </tr><tr>
             <td>Password: </td>
-            <td><input type='password' name='password' value='' id='password' /></td>
+            <td><input type='password' name='password' value='' id='password' /></td> <td>{{form.password.errors}}</td>
         </tr><tr>
         <td></td><td>
             <input type='submit' value='Login' />
