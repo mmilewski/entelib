@@ -1,0 +1,464 @@
+[
+    {
+        "pk": 1, 
+        "model": "baseapp.rental", 
+        "fields": {
+            "reservation": 1, 
+            "who_received": null, 
+            "who_handed_out": 3, 
+            "start_date": "2010-07-21 13:59:06", 
+            "end_date": null
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "baseapp.rental", 
+        "fields": {
+            "reservation": 5, 
+            "who_received": null, 
+            "who_handed_out": 3, 
+            "start_date": "2010-07-21 00:00:00", 
+            "end_date": null
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "baseapp.rental", 
+        "fields": {
+            "reservation": 6, 
+            "who_received": null, 
+            "who_handed_out": 3, 
+            "start_date": "2010-07-21 00:00:00", 
+            "end_date": null
+        }
+    }, 
+    
+    
+    
+    
+    
+    
+    {
+        "pk": 1, 
+        "model": "baseapp.reservation", 
+        "fields": {
+            "when_reserved": "2010-07-21 13:58:49",             "who_reserved": 3,            "end_date": "2016-07-22", 
+            "book_copy": 1,             "for_whom": 3,             "active_since": null,             "who_cancelled": null,            "when_cancelled": null, 
+            "start_date": "2013-07-21"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "baseapp.reservation", 
+        "fields": {
+            "when_reserved": "2010-07-20 14:32:16",            "who_reserved": 3,            "end_date": "2016-07-24", 
+            "book_copy": 2,             "for_whom": 3,             "active_since": null,             "who_cancelled": null,            "when_cancelled": null, 
+            "start_date": "2010-07-12"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "baseapp.reservation", 
+        "fields": {
+            "when_reserved": "2010-07-21 14:32:34",             "who_reserved": 3,            "end_date": "2016-07-28", 
+            "book_copy": 4,             "for_whom": 3,             "active_since": null,             "who_cancelled": null,            "when_cancelled": null, 
+            "start_date": "2013-07-22"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "baseapp.reservation", 
+        "fields": {
+            "when_reserved": "2010-07-21 14:32:37",            "who_reserved": 3,            "end_date": "2016-07-30", 
+            "book_copy": 3,             "for_whom": 3,             "active_since": null,            "who_cancelled": null,            "when_cancelled": null, 
+            "start_date": "2010-07-21"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "baseapp.reservation", 
+        "fields": {
+            "when_reserved": "2010-07-21 14:32:57",            "who_reserved": 3,            "end_date": "2016-07-26", 
+            "book_copy": 6,             "for_whom": 3,             "active_since": null,            "who_cancelled": null,            "when_cancelled": null, 
+            "start_date": "2013-07-21"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "baseapp.reservation", 
+        "fields": {
+            "when_reserved": "2010-07-21 14:42:32",             "who_reserved": 3,           "end_date": "2016-07-27",            
+            "book_copy": 5,             "for_whom": 3,             "active_since": null,             "who_cancelled": null,            "when_cancelled": null, 
+            "start_date": "2010-07-21"
+        }
+    }, 
+
+
+
+
+
+
+    {
+        "pk": 1, 
+        "model": "baseapp.book", 
+        "fields": {
+            "category": [], 
+            "author": [], 
+            "title": "Ogniem i mieczem"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "baseapp.book", 
+        "fields": {
+            "category": [ ], 
+            "author": [ ], 
+            "title": "Ksiega robotow"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "baseapp.book", 
+        "fields": {
+            "category": [ ], 
+            "author": [ ], 
+            "title": "Bomba megabitowa"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "baseapp.book", 
+        "fields": {
+            "category": [ ], 
+            "author": [ ], 
+            "title": "Liryki lozenskie"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "baseapp.book", 
+        "fields": {
+            "category": [ ], 
+            "author": [ ], 
+            "title": "Na marne"
+        }
+    }, 
+
+
+
+
+
+
+    {
+        "pk": 1, 
+        "model": "baseapp.bookcopy", 
+        "fields": {
+            "publisher": 9, 
+            "description": "Icwk hdgt a wbzx hwht dgn hmpj", 
+            "shelf_mark": 384247073, 
+            "picture": null, 
+            "toc_url": "", 
+            "publication_nr": 5, 
+            "state": 3, 
+            "book": 2, 
+            "location": 1, 
+            "description_url": "", 
+            "year": 1923, 
+            "toc": "", 
+            "cost_center": 2
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "baseapp.bookcopy", 
+        "fields": {
+            "publisher": 1, 
+            "description": "B swxb hhw ggjdpa rjh i u c ev", 
+            "shelf_mark": 223478297, 
+            "picture": null, 
+            "toc_url": "", 
+            "publication_nr": 5, 
+            "state": 3, 
+            "book": 3, 
+            "location": 2, 
+            "description_url": "", 
+            "year": 1971, 
+            "toc": "", 
+            "cost_center": 2
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "baseapp.bookcopy", 
+        "fields": {
+            "publisher": 2, 
+            "description": "Wyoz dxkcu gt x yt catq xnbra ", 
+            "shelf_mark": 633243942, 
+            "picture": null, 
+            "toc_url": "", 
+            "publication_nr": 7, 
+            "state": 3, 
+            "book": 5, 
+            "location": 4, 
+            "description_url": "", 
+            "year": 1914, 
+            "toc": "", 
+            "cost_center": 2
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "baseapp.bookcopy", 
+        "fields": {
+            "publisher": 5, 
+            "description": "Glosbd cjco rpuddk fpz yug krk", 
+            "shelf_mark": 420593842, 
+            "picture": null, 
+            "toc_url": "", 
+            "publication_nr": 9, 
+            "state": 1, 
+            "book": 3, 
+            "location": 3, 
+            "description_url": "", 
+            "year": 1958, 
+            "toc": "", 
+            "cost_center": 1
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "baseapp.bookcopy", 
+        "fields": {
+            "publisher": 3, 
+            "description": "Uw owqefl ledoks wixpf ax bws ", 
+            "shelf_mark": 237240999, 
+            "picture": null, 
+            "toc_url": "", 
+            "publication_nr": 2, 
+            "state": 3, 
+            "book": 2, 
+            "location": 3, 
+            "description_url": "", 
+            "year": 1992, 
+            "toc": "", 
+            "cost_center": 1
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "baseapp.bookcopy", 
+        "fields": {
+            "publisher": 9, 
+            "description": "Bhuh pzz vnnpr s bk p hyipr vt", 
+            "shelf_mark": 169834535, 
+            "picture": null, 
+            "toc_url": "", 
+            "publication_nr": 6, 
+            "state": 1, 
+            "book": 2, 
+            "location": 4, 
+            "description_url": "", 
+            "year": 2000, 
+            "toc": "", 
+            "cost_center": 2
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "baseapp.bookcopy", 
+        "fields": {
+            "publisher": 1, 
+            "description": "Zp tp vhszd l pfxreu gcl pld t", 
+            "shelf_mark": 377818641, 
+            "picture": null, 
+            "toc_url": "", 
+            "publication_nr": 2, 
+            "state": 1, 
+            "book": 4, 
+            "location": 4, 
+            "description_url": "", 
+            "year": 1901, 
+            "toc": "", 
+            "cost_center": 2
+        }
+    }, 
+   
+    {
+        "pk": 1, 
+        "model": "baseapp.state", 
+        "fields": {
+            "is_visible": true, 
+            "is_available": true, 
+            "name": "OK"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "baseapp.state", 
+        "fields": {
+            "is_visible": true, 
+            "is_available": true, 
+            "name": "Bought & Arrived"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "baseapp.state", 
+        "fields": {
+            "is_visible": true, 
+            "is_available": false, 
+            "name": "Lost"
+        }
+    },
+
+
+
+
+
+
+    
+    {
+        "pk": 1, 
+        "model": "baseapp.building", 
+        "fields": {
+            "remarks": "", 
+            "name": "Skyscraper"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "baseapp.building", 
+        "fields": {
+            "remarks": "", 
+            "name": "Building A"
+        }
+    }, 
+   
+
+
+
+    {
+        "pk": 1, 
+        "model": "baseapp.location", 
+        "fields": {
+            "building": 1, 
+            "remarks": "Kto ma klucz?", 
+            "maintainer": [], 
+            "details": "Room 3"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "baseapp.location", 
+        "fields": {
+            "building": 2, 
+            "remarks": "Klucz na portierni A", 
+            "maintainer": [], 
+            "details": "Room 7"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "baseapp.location", 
+        "fields": {
+            "building": 1, 
+            "remarks": "W remoncie", 
+            "maintainer": [], 
+            "details": "Room 2"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "baseapp.location", 
+        "fields": {
+            "building": 2, 
+            "remarks": "Kto ma klucz?", 
+            "maintainer": [], 
+            "details": "Room 6"
+        }
+    }, 
+    
+
+
+
+
+    {
+        "pk": 1, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "superadmin", 
+            "first_name": "Superadmino", 
+            "last_name": "Superdomino", 
+            "is_active": true, 
+            "is_superuser": true, 
+            "is_staff": true, 
+            "last_login": "2010-07-21 12:05:46", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "sha1$d5c2e$712b38ea8db82877a34eef67ced90f70ad48b69d", 
+            "email": "master-over-masters@super.net", 
+            "date_joined": "2010-07-21 12:05:46"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "admin", 
+            "first_name": "Admino", 
+            "last_name": "Domino", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": true, 
+            "last_login": "2010-07-21 18:14:16", 
+            "groups": [
+            ], 
+            "user_permissions": [], 
+            "password": "sha1$4094e$7ae214188e685006cf4e89d53a5e929595848f36", 
+            "email": "domin@bosses.net", 
+            "date_joined": "2010-07-21 12:05:46"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "lib", 
+            "first_name": "Librariano", 
+            "last_name": "\u015amietano", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": false, 
+            "last_login": "2010-07-21 20:02:16", 
+            "groups": [
+            ], 
+            "user_permissions": [], 
+            "password": "sha1$96fd7$e36ce57c5d66df3be4574722a0748c752932523c", 
+            "email": "librarian@bestbook.travel", 
+            "date_joined": "2010-07-21 12:05:46"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "user", 
+            "first_name": "Grzegorz", 
+            "last_name": "Brz\u0119czyszczykiewicz", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": false, 
+            "last_login": "2010-07-21 12:05:46", 
+            "groups": [
+            ], 
+            "user_permissions": [], 
+            "password": "sha1$e3e97$f0547252a49190183fdaed79bc9293d7b73163c0", 
+            "email": "grzegorz.brz@smigamy.com", 
+            "date_joined": "2010-07-21 12:05:46"
+        }
+    }
+
+
+
+
+]

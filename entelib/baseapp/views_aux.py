@@ -115,14 +115,13 @@ def get_book_details(book_copy):
         Dictionary describing book copy
     '''
     status = book_copy_status(book_copy)
+    copy_state = ("Available for %d days." % status.rental_possible_for_days()) if status.is_available() else status.why_not_available()
     book_desc = {
         'title'          : book_copy.book.title,
         'shelf_mark'     : book_copy.shelf_mark,
         'authors'        : [a.name for a in book_copy.book.author.all()],
         'location'       : unicode(book_copy.location),
-        'state'          : ("Available for %d days." % status.rental_possible_for_days())
-                               if status.is_available()
-                           else status.why_not_available(),
+        'state'          : copy_state,
         'publisher'      : unicode(book_copy.publisher),
         'year'           : book_copy.year,
         'cost_center'    : unicode(book_copy.cost_center),
@@ -273,9 +272,43 @@ def book_copy_status(book_copy):
     Returns:
         BookCopyStatus object
     '''
+    statuses = book_copies_status([book_copy])
+    copy_id, status = statuses.items()[0]
+    return status['status']
+
+
+def get_rentals_for_copies(copies_ids, only=[], related=[]):
+    ''' 
+    Collects and returns list of Renal objects for specified book copies.
     
-    copy_id, status = book_copies_status([book_copy]) 
-    return status
+    Args:
+        copies_ids -- ids of copies for which you want to get rentals.
+        only -- fields one need to use. List of strings. As default 'reservation__book_copy__id' is used.
+        related -- related fields/objects. As default 'reservation__book_copy' is used.
+    '''
+    only_fields = only + ['reservation__book_copy__id']
+    related_fields = related + ['reservation__book_copy']
+    rentals = Rental.objects.only(*only_fields) \
+                            .select_related(*related_fields) \
+                            .filter(reservation__book_copy__id__in=copies_ids) \
+                            .filter(end_date__isnull=True)
+    return rentals
+
+
+def get_reservations_for_copies(copies_ids, only=[], related=[]):
+    ''' 
+    Collects and returns list of Reservation objects for given book copies.
+    
+    Args:
+        copies_ids -- ids of copies for which you want to get reservations. List of ints. 
+        only -- model fields one need to use. List of strings. As default 'book_copy__id' is used.
+    '''
+    only_fields = only + ['book_copy__id']
+    reservations = Reservation.objects.only(*only_fields) \
+                                      .filter(book_copy__id__in=copies_ids) \
+                                      .filter(start_date__lte=today()) \
+                                      .filter(Q_reservation_active)
+    return reservations
 
 
 def book_copies_status(copies):
@@ -303,23 +336,19 @@ def book_copies_status(copies):
         if not kopy.state.is_available:
             result[kopy.id]['status'] = BookCopyStatus(available=False, explanation=u'Unavailable: ' + kopy.state.name) 
     
-    # find rented books
-    rentals = Rental.objects.only('reservation__book_copy__id').select_related('reservation__book_copy') \
-                            .filter(reservation__book_copy__id__in=copies_ids) \
-                            .filter(end_date__isnull=True)
+    # find rented copies
+    rentals = get_rentals_for_copies(copies_ids)
     for rental in rentals:
         result[rental.reservation.book_copy.id]['status'] = BookCopyStatus(available=False, explanation=u'Rented')
     
-    # find reserved books
-    reservations = Reservation.objects.only('book_copy__id').filter(book_copy__id__in=copies_ids) \
-                                      .filter(start_date__lte=today()) \
-                                      .filter(Q_reservation_active)
+    # find reserved copies
+    reservations = get_reservations_for_copies(copies_ids)
     for reservation in reservations:
         result[reservation.book_copy.id]['status'] = BookCopyStatus(available=False, explanation=u'Reserved')
 
     
     max_allowed = config.get_int('rental_duration')
-    rsvs = Reservation.objects.values('book_copy__id').annotate(min_start_date=Min('start_date'))
+    rsvs = Reservation.objects.filter(book_copy__id__in=copies_ids).values('book_copy__id').annotate(min_start_date=Min('start_date'))
     for rsv in rsvs:
         try:
             min_start_date = rsv['min_start_date']
