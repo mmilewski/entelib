@@ -254,7 +254,6 @@ def get_report_data(report_type, from_date, to_date):
 
     elif report_type == u'lost_books':
         reported_data = get_report_data(u'status', u'', u'')
-        pprint(reported_data) 
         book_infos = reported_data['report']
         lost_books = filter(lambda b: not b['status'].is_available(), book_infos)
         return {'report': lost_books, 'template': 'library_status.html', 'error': False}
