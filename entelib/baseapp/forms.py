@@ -534,6 +534,7 @@ class RegistrationForm(forms.Form):
                 user.groups.add(g)
             except Group.DoesNotExist, e:
                 msg = u'Adding user %s to group %s failed. Group not found.' % (user.username, group_name)
+                pprint(msg)
                 # TODO this should be reported
                 # log_warning(msg)
         # save

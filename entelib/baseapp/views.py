@@ -541,12 +541,12 @@ def show_reports(request):
     post = request.POST
     if request.method == 'POST':
         search_data = {'from': post['from'], 'to': post['to']}
-        if 'action' in post and post['action'].lower == u'export to csv':
+        if 'action' in post and post['action'].lower() == u'export to csv':
             if ('from' in post) and ('to' in post) and ('report_type' in post):
                 response = generate_csv(post['report_type'], post['from'], post['to'])
                 return response
 
-        if 'action' in post and post['action'].lower == u'show':
+        elif 'action' in post and post['action'].lower() == u'show':
             if ('from' in post) and ('to' in post) and ('report_type' in post):
                 report_data = get_report_data(post['report_type'], post['from'], post['to'])
                 report = report_data['report']
@@ -566,7 +566,10 @@ def show_reports(request):
                                             'report_types': report_types,
                                             'report': report
                                         })
+        else:
+            messages.info(request, 'show_reports does not understand this action')
 
+            
     return render_response(request, 'reports.html', {'report_types': report_types, 'select_size': select_size})
 
 
@@ -596,7 +599,7 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
         return render_not_found(request, item_name='Book copy')
     config = Config(user=request.user)
     reserved = {}   # info on reservation
-    rented = {}     # info on rental
+#    rented = {}     # info on rental
     post = request.POST
     if non_standard_user_id:
         try:
@@ -653,7 +656,7 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
                     [y, m, d] = map(int,post['to'].split('-'))
                     # if user wants book for shorter than max allowed period
                     if r.end_date > date(y, m, d):
-                         r.end_date = date(y, m, d)
+                        r.end_date = date(y, m, d)
                 r.save()
                 # reservation done, rent:
                 rental = Rental(reservation=r, start_date=date.today(), who_handed_out=request.user)

@@ -3,8 +3,10 @@
 from views_aux import get_book_details, book_copy_status
 from entelib.baseapp.models import Reservation, Rental, BookCopy, Book, User
 from datetime import date, datetime
+from baseapp.utils import pprint
 from django.http import HttpResponse
 import csv
+from baseapp.views_aux import book_copies_status
 
 
 def generate_csv(report_type, from_date, to_date):
@@ -92,56 +94,49 @@ def get_report_data(report_type, from_date, to_date):
 
     if report_type == u'status':
         book_infos = []
-        books = BookCopy.objects.all().order_by('book__title')
+        copies = BookCopy.objects.select_related('id', 'state', 'book__title', 'location', 'location__building', 'shelf_mark') \
+                                 .all().order_by('book__title')
         last_rentals = {}
-        rentals = Rental.objects.all()
+        rentals = Rental.objects.select_related('reservation', 'reservation__book_copy__id').all()
 
         for rental in rentals:
             book_copy_id = rental.reservation.book_copy.id
             start_date = rental.start_date
             if book_copy_id not in last_rentals:
-                last_rentals.update({book_copy_id: {  'when': start_date,
+                last_rentals.update({book_copy_id: {'when'    : start_date,
                                                     'for_whom': rental.reservation.for_whom.first_name + u' ' +
                                                                 rental.reservation.for_whom.last_name,
-                                                    'by_whom':  rental.who_handed_out.first_name + u' ' +
+                                                    'by_whom' : rental.who_handed_out.first_name + u' ' +
                                                                 rental.who_handed_out.last_name}})
             elif last_rentals[book_copy_id]['when'] < start_date:
-                last_rentals.update({book_copy_id: {  'when': start_date,
+                last_rentals.update({book_copy_id: {'when'    : start_date,
                                                     'for_whom': rental.reservation.for_whom.first_name + u' ' +
                                                                 rental.reservation.for_whom.last_name,
-                                                    'by_whom':  rental.who_handed_out.first_name + u' ' +
+                                                    'by_whom' : rental.who_handed_out.first_name + u' ' +
                                                                 rental.who_handed_out.last_name}})
 
-        for book in books:
-            book_details = get_book_details(book)
-            if book.id not in last_rentals:
+        book_infos = []
+        statuses = book_copies_status(copies)
+        for copy_status in statuses.values():
+            if copy_status['copy'].id not in last_rentals:
                 not_rented_yet = True
             else:
                 not_rented_yet = False
-
+        
             if not_rented_yet:
-                for_whom = when = by_whom = u'Not rented yet'
+                for_whom = when = by_whom = 'Not rented yet'
             else:
-                last_rental = last_rentals[book.id]
-                (for_whom, when, by_whom) = (last_rental['for_whom'], last_rental['when'].date(), last_rental['by_whom'])
-
-            title = book_details['title']
-            shelf_mark = book_details['shelf_mark']
-            location = book_details['location']
-
-            status = book_copy_status(book)
-            if isinstance(status, int):
-                status = u'Rentable'
-
-            book_infos.append({ 'title': title,
-                                'shelf_mark': shelf_mark,
-                                'location': location,
-                                'status': status,
-                                'for_whom': for_whom,
-                                'when': when,
-                                'by_whom': by_whom,
+                last_rental = last_rentals[copy_status['copy'].id]
+                (for_whom, when, by_whom) = (last_rental['for_whom'], last_rental['when'].date(), last_rental['by_whom'])            
+            
+            book_infos.append({ 'title'         : copy_status['copy'].book.title,
+                                'shelf_mark'    : copy_status['copy'].shelf_mark,
+                                'location'      : copy_status['copy'].location,
+                                'status'        : copy_status['status'],
+                                'for_whom'      : for_whom,
+                                'when'          : when,
+                                'by_whom'       : by_whom,
                                 'not_rented_yet': not_rented_yet})
-
         return {'report': book_infos, 'template': 'library_status.html', 'error': False}
 
     ###
@@ -258,8 +253,10 @@ def get_report_data(report_type, from_date, to_date):
     ###
 
     elif report_type == u'lost_books':
-        book_infos = get_report_data(u'status', u'', u'')['report']
-        lost_books = filter(lambda b: b['status'] == 'Unavailable', book_infos)
+        reported_data = get_report_data(u'status', u'', u'')
+        pprint(reported_data) 
+        book_infos = reported_data['report']
+        lost_books = filter(lambda b: not b['status'].is_available(), book_infos)
         return {'report': lost_books, 'template': 'library_status.html', 'error': False}
 
     else:

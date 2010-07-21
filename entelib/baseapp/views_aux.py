@@ -13,6 +13,7 @@ from entelib import settings
 from baseapp.utils import pprint
 from baseapp.exceptions import *
 import baseapp.emails as mail
+from django.db.models.aggregates import Min
 
 config = Config()
 today = date.today
@@ -254,6 +255,11 @@ class BookCopyStatus(object):
         if explanation is not None:
             self.explanation = explanation
         return self
+    
+    def __unicode__(self):
+        if self.is_available():
+            return u'Available'
+        return self.explanation
 
 
 def book_copy_status(book_copy):
@@ -267,37 +273,69 @@ def book_copy_status(book_copy):
     Returns:
         BookCopyStatus object
     '''
-    # why would a copy be unavailable
-    status = BookCopyStatus(available=False)
-    if book_copy.state.is_available == False:
-        return  status.set(explanation=u'Unavailable: ' + book_copy.state.name)
-    elif Rental.objects.filter(reservation__book_copy=book_copy)\
-                       .filter(end_date__isnull=True)\
-                       .count() > 0:
-        return  status.set(explanation=u'Rented')
-    elif Reservation.objects.filter(book_copy=book_copy)\
-                            .filter(start_date__lte=today())\
-                            .filter(Q_reservation_active)\
-                            .count() > 0:
-        return status.set(explanation=u'Reserved')
+    
+    copy_id, status = book_copies_status([book_copy]) 
+    return status
 
-    # copy isn't rented or reserved, it's available
-    status.set(available=True)
 
+def book_copies_status(copies):
+    '''
+    Desc:
+        Returns statuses of given copies.
+        
+    Args:
+        copies -- list of BookCopy instances
+        
+    Returns:
+        dict like { copy_id : {'copy' : given_copy_instance,
+                               'status' : BookCopyStatus instance
+                              },
+                    ...
+                  }
+    '''
+    copies_ids = [ c.id for c in copies ]
+
+    result = {}
+    for kopy in copies:
+        result[kopy.id] = {}
+        result[kopy.id]['copy'] = kopy
+        result[kopy.id]['status'] = None
+        if not kopy.state.is_available:
+            result[kopy.id]['status'] = BookCopyStatus(available=False, explanation=u'Unavailable: ' + kopy.state.name) 
+    
+    # find rented books
+    rentals = Rental.objects.only('reservation__book_copy__id').select_related('reservation__book_copy') \
+                            .filter(reservation__book_copy__id__in=copies_ids) \
+                            .filter(end_date__isnull=True)
+    for rental in rentals:
+        result[rental.reservation.book_copy.id]['status'] = BookCopyStatus(available=False, explanation=u'Rented')
+    
+    # find reserved books
+    reservations = Reservation.objects.only('book_copy__id').filter(book_copy__id__in=copies_ids) \
+                                      .filter(start_date__lte=today()) \
+                                      .filter(Q_reservation_active)
+    for reservation in reservations:
+        result[reservation.book_copy.id]['status'] = BookCopyStatus(available=False, explanation=u'Reserved')
+
+    
     max_allowed = config.get_int('rental_duration')
-    try:
-        # when nearest active reservation starts - counted in days from now
-        max_possible = (
-                min([r.start_date for r in Reservation.objects.filter(book_copy=book_copy).filter(Q_reservation_active)])\
-                - today()
-            ).days
-        if max_possible < 0:
-            # this should not happen
-            raise EntelibError('book_copy_status error: copy reserved')
-    except ValueError:
-        # this means there were no active reservations, so min([]) was called
-        max_possible = max_allowed
-    return status.set(nr_of_days=min(max_allowed, max_possible))
+    rsvs = Reservation.objects.values('book_copy__id').annotate(min_start_date=Min('start_date'))
+    for rsv in rsvs:
+        try:
+            min_start_date = rsv['min_start_date']
+            max_possible = (min_start_date - today()).days
+            if max_possible < 0:
+                raise EntelibError('book_copy_status error: copy reserved')
+        except ValueError:
+            max_possible = max_allowed
+        
+        result[rsv['book_copy__id']]['status'] = BookCopyStatus(available=True, nr_of_days=min(max_allowed, max_possible))
+    
+    for result_value in result.values():
+        if not result_value['status']:
+            result_value['status'] = BookCopyStatus(available=True)
+    
+    return result
 
 
 def rent(reservation, librarian):
