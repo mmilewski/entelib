@@ -340,17 +340,24 @@ def book_copies_status(copies):
     # find rented copies
     rentals = get_rentals_for_copies(copies_ids)
     for rental in rentals:
-        result[rental.reservation.book_copy.id]['status'] = BookCopyStatus(available=False, explanation=u'Rented')
+        result_for_copy = result[rental.reservation.book_copy.id] 
+        if not result_for_copy['status']:
+            result_for_copy['status'] = BookCopyStatus(available=False, explanation=u'Rented')
     
     # find reserved copies
     reservations = get_reservations_for_copies(copies_ids)
     for reservation in reservations:
-        result[reservation.book_copy.id]['status'] = BookCopyStatus(available=False, explanation=u'Reserved')
+        result_for_copy = result[reservation.book_copy.id] 
+        if not result_for_copy['status']:
+            result_for_copy['status'] = BookCopyStatus(available=False, explanation=u'Reserved')
 
     
     max_allowed = config.get_int('rental_duration')
     rsvs = Reservation.objects.filter(book_copy__id__in=copies_ids).values('book_copy__id').annotate(min_start_date=Min('start_date'))
     for rsv in rsvs:
+        result_for_copy = result[ rsv['book_copy__id'] ]
+        if result_for_copy['status']:
+            continue
         try:
             min_start_date = rsv['min_start_date']
             max_possible = (min_start_date - today()).days
@@ -358,8 +365,7 @@ def book_copies_status(copies):
                 raise EntelibError('book_copy_status error: copy reserved')
         except ValueError:
             max_possible = max_allowed
-        
-        result[rsv['book_copy__id']]['status'] = BookCopyStatus(available=True, nr_of_days=min(max_allowed, max_possible))
+        result_for_copy['status'] = BookCopyStatus(available=True, nr_of_days=min(max_allowed, max_possible))
     
     for result_value in result.values():
         if not result_value['status']:
