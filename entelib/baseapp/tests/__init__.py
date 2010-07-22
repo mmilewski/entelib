@@ -8,6 +8,8 @@ from baseapp.tests.custom_user import *
 from baseapp.tests.user_profile import *
 from baseapp.tests.rental_helpers import *
 from baseapp.tests.reservation_helpers import *
+from baseapp.tests.views import *
+from baseapp.tests.test_base import *
 from baseapp.tests.reports import *
 
 if PEP8_TEST_ENABLED:

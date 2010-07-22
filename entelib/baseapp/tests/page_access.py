@@ -43,12 +43,6 @@ class PageAccessTest(TestCase, PageLogger):
         self.assert_(page_accessed(self.get_response(url)))         # ... access is granted.
 
 
-    def test_show_first_book(self):
-        ''' Shows first book '''
-        url = '/entelib/books/1/'
-        self.assert_(page_accessed(self.get_response(url)))
-
-
     def test_show_non_existance_book(self):
         ''' Shows first book '''
         url = '/entelib/books/0/'
@@ -105,9 +99,9 @@ non_login_redirect_urls = [
     ('/entelib/config/display_tips/',                   _login_url + '?next=/entelib/config/display_tips/'),
     ('/entelib/load_default_config/1/',                 _login_url + '?next=/entelib/load_default_config/1/'),
     ('/entelib/',                                       _login_url + '?next=/entelib/'),
-    ('/entelib/admin',                                  '/entelib/admin/'),
     ('/entelib/logout',                                 _login_url + '?next=/entelib/'),
     ('/entelib/logout/',                                _login_url + '?next=/entelib/'),
+    ('/entelib/admin',                                  '/entelib/admin/'),
     ]
 
 non_login_urls = [
