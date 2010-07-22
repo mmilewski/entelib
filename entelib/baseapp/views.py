@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-# TODO: poprawic sprawdzanie uprawnien na poczatku widokow
 
 from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
-from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.template import RequestContext
@@ -294,10 +293,11 @@ def show_book(request, book_id, non_standard_user_id=False):
     show_url = u'/entelib/bookcopy/%d/' if non_standard_user_id == False else url_for_non_standard_users
     reserve_url = u'/entelib/bookcopy/%d/reserve/' if non_standard_user_id == False else url_for_non_standard_users
     # do we have such book?
-    try:
-        book = Book.objects.get(id=book_id)
-    except Book.DoesNotExist:
-        return render_not_found(request, item_name='Book')
+    book = get_object_or_404(Book,id=book_id)
+    ## try:
+    ##     book = Book.objects.get(id=book_id)
+    ## except Book.DoesNotExist:
+    ##     return render_not_found(request, item_name='Book')
     # find all visible copies of given book
     book_copies = BookCopy.objects.filter(book=book_id).filter(state__is_visible=True)
     selected_locations = []
@@ -647,7 +647,7 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
             if not request.user.has_perm('baseapp.add_rental'):
                 raise PermissionDenied('User not allowed to rent')
             if not is_book_copy_rentable(book_copy):
-                raise ValueError('Book copy not rentable.')
+                return aux.render_forbidden(request, 'Book copy not rentable')
             r.start_date = date.today()  # always rent from now
             # for how long rental is possible
             r.end_date = date.today() + timedelta(aux.book_copy_status(book_copy).rental_possible_for_days())

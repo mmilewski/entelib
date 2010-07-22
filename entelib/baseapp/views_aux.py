@@ -60,10 +60,11 @@ def render_response(request, template, context={}):
     )
 
 
-def render_forbidden(request):
+def render_forbidden(request, msg=''):
     if not request.user.is_authenticated():
         return HttpResponseRedirect(settings.LOGIN_URL)
-    return render_response(request, 'forbidden.html')
+    context = {'msg' : msg}
+    return render_response(request, 'forbidden.html', context)
 
 
 def render_not_implemented(request):

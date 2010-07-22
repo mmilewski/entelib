@@ -21,4 +21,4 @@ fi
 
 python manage.py validate
 python manage.py test baseapp
-python manage.py runserver_plus 10.154.5.211:8484 || python manage.py runserver_plus 8484
+python manage.py runserver_plus  10.154.4.75:8484 || python manage.py runserver_plus 8484
