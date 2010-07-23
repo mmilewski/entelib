@@ -180,7 +180,7 @@ class Config(object):
             can_override = self.can_override(key, silent=False)
             if self.user and can_override:
                 config_option = Configuration.objects.get(key=key)
-                result, created = UserConfiguration.objects.get_or_create(option=config_option, 
+                result, created = UserConfiguration.objects.get_or_create(option=config_option, user=self.user, 
                                                                           defaults={'user': self.user, 'value': value})
                 result.value = value
                 result.save()

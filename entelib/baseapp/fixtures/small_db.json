@@ -242,22 +242,7 @@
             "app_label": "baseapp"
         }
     }, 
-    {
-        "pk": "6233c19530b706223bd4c7b7232f6449", 
-        "model": "sessions.session", 
-        "fields": {
-            "expire_date": "2010-08-05 14:44:47", 
-            "session_data": "gAJ9cQEoVRJfYXV0aF91c2VyX2JhY2tlbmRxAlUsZW50ZWxpYi5hdXRoX2JhY2tlbmRzLkN1c3Rv\nbVVzZXJNb2RlbEJhY2tlbmRxA1UNX2F1dGhfdXNlcl9pZHEESwJ1LjZmODNhNzQzYjIxMDU4MTVk\nOGM2NTA2NWNiZWJiNTVm\n"
-        }
-    }, 
-    {
-        "pk": "59eea4051e092c26394bbb713d911399", 
-        "model": "sessions.session", 
-        "fields": {
-            "expire_date": "2010-08-06 08:33:07", 
-            "session_data": "gAJ9cQEoVRJfYXV0aF91c2VyX2JhY2tlbmRxAlUsZW50ZWxpYi5hdXRoX2JhY2tlbmRzLkN1c3Rv\nbVVzZXJNb2RlbEJhY2tlbmRxA1UNX2F1dGhfdXNlcl9pZHEESwJ1LjZmODNhNzQzYjIxMDU4MTVk\nOGM2NTA2NWNiZWJiNTVm\n"
-        }
-    }, 
+
     {
         "pk": 1, 
         "model": "sites.site", 
