@@ -243,10 +243,18 @@
         }
     }, 
     {
-        "pk": "be4a3503ef2f91f930e96f1d628eae9c", 
+        "pk": "6233c19530b706223bd4c7b7232f6449", 
         "model": "sessions.session", 
         "fields": {
-            "expire_date": "2010-08-05 13:46:19", 
+            "expire_date": "2010-08-05 14:44:47", 
+            "session_data": "gAJ9cQEoVRJfYXV0aF91c2VyX2JhY2tlbmRxAlUsZW50ZWxpYi5hdXRoX2JhY2tlbmRzLkN1c3Rv\nbVVzZXJNb2RlbEJhY2tlbmRxA1UNX2F1dGhfdXNlcl9pZHEESwJ1LjZmODNhNzQzYjIxMDU4MTVk\nOGM2NTA2NWNiZWJiNTVm\n"
+        }
+    }, 
+    {
+        "pk": "59eea4051e092c26394bbb713d911399", 
+        "model": "sessions.session", 
+        "fields": {
+            "expire_date": "2010-08-06 08:33:07", 
             "session_data": "gAJ9cQEoVRJfYXV0aF91c2VyX2JhY2tlbmRxAlUsZW50ZWxpYi5hdXRoX2JhY2tlbmRzLkN1c3Rv\nbVVzZXJNb2RlbEJhY2tlbmRxA1UNX2F1dGhfdXNlcl9pZHEESwJ1LjZmODNhNzQzYjIxMDU4MTVk\nOGM2NTA2NWNiZWJiNTVm\n"
         }
     }, 
@@ -256,6 +264,41 @@
         "fields": {
             "domain": "example.com", 
             "name": "example.com"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "admin.logentry", 
+        "fields": {
+            "action_flag": 2, 
+            "action_time": "2010-07-23 08:29:50", 
+            "object_repr": "Request for: (Ksi\u0119ga robot\u00f3w) B\u0119d\u0105c robotem w wielkiej korpo", 
+            "object_id": "1", 
+            "change_message": "Changed info.", 
+            "user": 2, 
+            "content_type": 23
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "baseapp.emaillog", 
+        "fields": {
+            "body": "Welcome!\n\nYou have rented Ksi\u0119ga robot\u00f3w by Stanis\u0142aw Lem. You can keep it until TODO: what should I put here?.\n\nHave a nice lecture!\n\nPlease do not reply for this email.\n\nLibrary staff.\n", 
+            "subject": "NSN library notification", 
+            "sent_date": "2010-07-22 15:54:47", 
+            "sender": "NSN library <no-reply@library.nsn.wroc.pl>", 
+            "receiver": "Librariano \u015amietano <librarian@bestbook.travel>"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "baseapp.emaillog", 
+        "fields": {
+            "body": "Welcome!\n\nYou have reserved Ogniem i mieczem by Adam Mickiewicz, Heniu Sienkiewicz, Stanis\u0142aw Lem. You can rent it until 2010-07-26. \n\nPlease come and rent.\n\nPlease do not reply for this email.\n\nLibrary staff.\n", 
+            "subject": "NSN library notification", 
+            "sent_date": "2010-07-22 15:55:17", 
+            "sender": "NSN library <no-reply@library.nsn.wroc.pl>", 
+            "receiver": "Librariano \u015amietano <librarian@bestbook.travel>"
         }
     }, 
     {
@@ -436,6 +479,15 @@
             "can_override": true, 
             "description": "True iff tips are visible", 
             "value": "0"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "baseapp.userconfiguration", 
+        "fields": {
+            "option": "display_tips", 
+            "value": "1", 
+            "user": 3
         }
     }, 
     {
@@ -785,6 +837,16 @@
     }, 
     {
         "pk": 1, 
+        "model": "baseapp.bookrequest", 
+        "fields": {
+            "info": "B\u0119d\u0105c robotem w wielkiej korporacji, dobrze wiedzie\u0107 co\u015b o swoich obowi\u0105zkach.\r\n", 
+            "who": 3, 
+            "when": "2010-07-22 15:54:29", 
+            "book": 2
+        }
+    }, 
+    {
+        "pk": 1, 
         "model": "baseapp.costcenter", 
         "fields": {
             "name": "Good deal"
@@ -890,6 +952,47 @@
             "year": 1936, 
             "toc": "", 
             "cost_center": 1
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "baseapp.reservation", 
+        "fields": {
+            "when_reserved": "2010-07-22 15:54:47", 
+            "who_reserved": 3, 
+            "end_date": "2010-07-22", 
+            "book_copy": 5, 
+            "for_whom": 3, 
+            "active_since": null, 
+            "who_cancelled": null, 
+            "when_cancelled": null, 
+            "start_date": "2010-07-22"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "baseapp.reservation", 
+        "fields": {
+            "when_reserved": "2010-07-22 15:55:10", 
+            "who_reserved": 3, 
+            "end_date": "2010-09-22", 
+            "book_copy": 2, 
+            "for_whom": 3, 
+            "active_since": null, 
+            "who_cancelled": null, 
+            "when_cancelled": null, 
+            "start_date": "2010-09-15"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "baseapp.rental", 
+        "fields": {
+            "reservation": 1, 
+            "who_received": null, 
+            "who_handed_out": 3, 
+            "start_date": "2010-07-22 00:00:00", 
+            "end_date": null
         }
     }, 
     {
@@ -1889,7 +1992,7 @@
             "is_active": true, 
             "is_superuser": false, 
             "is_staff": true, 
-            "last_login": "2010-07-22 13:46:19", 
+            "last_login": "2010-07-23 08:33:06", 
             "groups": [
                 1, 
                 3
@@ -1910,7 +2013,7 @@
             "is_active": true, 
             "is_superuser": false, 
             "is_staff": false, 
-            "last_login": "2010-07-22 13:45:50", 
+            "last_login": "2010-07-22 15:26:04", 
             "groups": [
                 1, 
                 2
@@ -1931,7 +2034,7 @@
             "is_active": true, 
             "is_superuser": false, 
             "is_staff": false, 
-            "last_login": "2010-07-22 13:45:50", 
+            "last_login": "2010-07-22 13:56:37", 
             "groups": [
                 1
             ], 

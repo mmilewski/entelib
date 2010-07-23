@@ -87,7 +87,7 @@ def edit_config_option(request, option_key, edit_form=ConfigOptionEditForm):
 @permission_required('baseapp.list_emaillog')
 def show_email_log(request):
     '''
-    Handles listing all emails (logged messages, not adresses).
+    Handles listing all sent emails (logged messages, not adresses).
     '''
     template = 'email/list.html'
     context = {
@@ -383,10 +383,10 @@ def show_users(request):
     context = {}
     # we only need to do something if some POST data was sent
     if request.method == 'POST':
-        request_first_name   = request.POST['first_name'] if 'first_name' in request.POST else ''
-        request_last_name    = request.POST['last_name'] if 'last_name' in request.POST else ''
-        request_email        = request.POST['email'] if 'email' in request.POST else ''
-        request_is_librarian = ('is_librarian' in request.POST)
+        request_first_name   = request.POST['first_name'].strip() if 'first_name' in request.POST else ''
+        request_last_name    = request.POST['last_name'].strip() if 'last_name' in request.POST else ''
+        request_email        = request.POST['email'].strip() if 'email' in request.POST else ''
+        # request_is_librarian = ('is_librarian' in request.POST)
         user_list = []
 
         # # filter by being in Librarians group
@@ -414,7 +414,7 @@ def show_users(request):
             'first_name'   : request_first_name,
             'last_name'    : request_last_name,
             'email'        : request_email,
-            'is_librarian' : request_is_librarian,
+            # 'is_librarian' : request_is_librarian,
             }
 
         context = {

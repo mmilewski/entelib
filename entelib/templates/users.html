@@ -20,9 +20,6 @@
                     <td>Email: </td>
                     <td><input type='text' name='email' value='{{ search.email|urlize }}'></td>
                 </tr><tr>
-                    <td>Only librarians: </td>
-                    <td><input type='checkbox' name='is_librarian' {%if search.is_librarian %}checked="checked"{%endif%}></td>
-                </tr><tr>
                     <td></td>
                     <td><input type='submit'  name='action' value='Search'></td>
                 </tr>

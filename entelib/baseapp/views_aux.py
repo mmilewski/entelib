@@ -525,7 +525,6 @@ def show_user_reservations(request, user_id=False):
     # find user active reservations
     user_reservations = Reservation.objects.filter(for_whom=user)\
                                            .filter(Q_reservation_active)
-    print user_reservations.count()
     # prepare user reservations
     reservation_list = [ {'id' : r.id,
                           'url' : unicode(r.id) + u'/',
@@ -537,7 +536,6 @@ def show_user_reservations(request, user_id=False):
                           'from_date' : r.start_date,
                           'to_date' : r.end_date,
                          } for r in user_reservations]
-    print len(reservation_list)
 
     context.update({'reservations' : reservation_list}),
 
