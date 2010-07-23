@@ -278,6 +278,7 @@ def show_books(request, non_standard_user_id=False):
         'books' : books,
         'search' : search_data,
         'can_add_book' : request.user.has_perm('baseapp.add_book'),
+        'none_found' : not len(books) and request.method == 'POST'
         }
     return render_response(request, 'books.html', context)
 

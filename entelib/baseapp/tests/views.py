@@ -10,27 +10,19 @@ class TestWithSmallDB(Test):
     '''
     fixtures = ['small_db.json']
 
-class LoadDefaultConfig(TestWithSmallDB):
+class LoadDefaultConfigTest(TestWithSmallDB):
     pass
 
 
-class ShowConfigOptions(TestWithSmallDB):
+class ShowConfigOptionsTest(TestWithSmallDB):
     pass
 
 
-class EditConfigOption(TestWithSmallDB):
+class EditConfigOptionTest(TestWithSmallDB):
     pass
 
 
-class ShowConfigoptions(TestWithSmallDB):
-    pass
-
-
-class EditConfigOption(TestWithSmallDB):
-    pass
-
-
-class ShowEmailLog(TestWithSmallDB):
+class ShowEmailLogTest(TestWithSmallDB):
 
     def setUp(self):
         self.url = '/entelib/emaillog/'
@@ -52,7 +44,7 @@ class ShowEmailLog(TestWithSmallDB):
         self.assertContains(response, 'You have rented', count=1)
 
 
-class RequestBook(TestWithSmallDB):
+class RequestBookTest(TestWithSmallDB):
     def setUp(self):
         self.url = '/entelib/requestbook/'
     
@@ -61,7 +53,7 @@ class RequestBook(TestWithSmallDB):
         all_book_requests = BookRequest.objects.all()
         self.assertEqual(1, all_book_requests.count())
 
-    def test_add_request(self):
+    def test_request_copy(self):
         from entelib.baseapp.models import BookRequest
         self.log_user()
         info = 'Czemu ciagle jej nie ma???'
@@ -73,14 +65,24 @@ class RequestBook(TestWithSmallDB):
         self.assertEqual(2,last_added_book_request.book.id)
         self.assertEqual(info, last_added_book_request.info)
 
+    def test_request_new_book(self):
+        from entelib.baseapp.models import BookRequest
+        self.log_user()
+        info = 'Scialbym jo take inne ksiomrze, kturej tu ni mocie, panocki...'
+        response = self.client.post(self.url, {'book' : '0', 'info' : info})
+        self.assertEqual(200, response.status_code)
+        all_book_requests = BookRequest.objects.all()
+        self.assertEqual(2, all_book_requests.count())
+        last_added_book_request = BookRequest.objects.latest(field_name='id')
+        self.assertEqual(None,last_added_book_request.book)
+        self.assertEqual(info, last_added_book_request.info)
 
 
-
-class Register(TestWithSmallDB):
+class RegisterTest(TestWithSmallDB):
     pass
 
 
-class Logout(TestWithSmallDB):
+class LogoutTest(TestWithSmallDB):
     ''' Test logout view '''
     def setUp(self):
         self.url = '/entelib/logout/'
@@ -113,27 +115,92 @@ class Logout(TestWithSmallDB):
         self.assertEqual(302, self.get_status_code('/entelib/'), "Unexpected access after logout")
 
 
-class Default(TestWithSmallDB):
+class DefaultTest(TestWithSmallDB):
     pass
 
 
-class MyNewReservation(TestWithSmallDB):
+class MyNewReservationTest(TestWithSmallDB):
     pass
 
 
-class ShowBooks(TestWithSmallDB):
+class ShowBooksTest(TestWithSmallDB):
+    def setUp(self):
+        self.url = '/entelib/books/'
+
+    def test_get(self):
+        ''' Test GET method. There should be no books listed '''
+        self.log_user()
+        response = self.client.get(self.url)
+        self.assertEqual(200, response.status_code)
+        self.assertNotContains(response, 'Sorry')
+        self.assertNotContains(response, 'Lem')
+
+    def test_empty_fields(self):
+        self.log_user()
+        response = self.client.post(self.url, {'action' : 'Search', 'author' : '', 'title' : '', 'category' : '0'})
+        self.assertEqual(200, response.status_code)
+        self.assertNotContains(response, 'Sorry')
+        self.assertContains(response, 'Ogniem i mieczem', count=1)
+        self.assertContains(response, 'Mickiewicz', count=1)
+        self.assertContains(response, 'robot', count=1)
+
+    def test_author_lem(self):
+        self.log_user()
+        response = self.client.post(self.url, {'action' : 'Search', 'author' : 'lem', 'title' : '', 'category' : '0'})
+        self.assertEqual(200, response.status_code)
+        self.assertNotContains(response, 'Sorry')
+        self.assertContains(response, 'Ogniem i mieczem', count=1)
+        self.assertContains(response, 'Mickiewicz', count=1)
+        self.assertContains(response, 'robot', count=1)
+
+    def test_author_lem_or_ludek(self):
+        self.log_user()
+        response = self.client.post(self.url, {'action' : 'Search', 'author' : ' lem  ludek', 'title' : '', 'category' : '0', 'author_any' : 'any', })
+        self.assertEqual(200, response.status_code)
+        self.assertNotContains(response, 'Sorry')
+        self.assertContains(response, 'Ogniem i mieczem', count=1)
+        self.assertContains(response, 'Mickiewicz', count=1)
+        self.assertContains(response, 'robot', count=1)
+
+    def test_author_lem_and_ludek(self):
+        self.log_user()
+        response = self.client.post(self.url, {'action' : 'Search', 'author' : ' lem  ludek', 'title' : '', 'category' : '0', })
+        self.assertEqual(200, response.status_code)
+        self.assertContains(response, 'Sorry')
+        self.assertNotContains(response, 'Ogniem i mieczem')
+        self.assertNotContains(response, 'Mickiewicz')
+        self.assertNotContains(response, 'robot')
+
+    def test_thrillers(self):
+        self.log_user()
+        response = self.client.post(self.url, {'action' : 'Search', 'author' : '', 'title' : '', 'category' : '4', })
+        self.assertEqual(200, response.status_code)
+        self.assertNotContains(response, 'Sorry')
+        self.assertContains(response, 'Ogniem i mieczem', count=1)
+        self.assertContains(response, 'Mickiewicz')
+        self.assertNotContains(response, 'robot')
+
+    def test_thrillers_history_horror(self):
+        self.log_user()
+        response = self.client.post(self.url, {'action' : 'Search', 'author' : '', 'title' : '', 'category' : [2, 4, 5], })
+        self.assertEqual(200, response.status_code)
+        self.assertNotContains(response, 'Sorry')
+        self.assertContains(response, 'Ogniem i mieczem', count=1)
+        self.assertContains(response, 'Mickiewicz')
+        self.assertNotContains(response, 'robot')
+
+
+class ShowBookTest(TestWithSmallDB):
+    def setUp(self):
+        self.url1 = '/entelib/books/1/'
+        self.url2 = '/entelib/books/2/'
+
+
+class ShowBookcopyTest(TestWithSmallDB):
     pass
 
 
-class ShowBook(TestWithSmallDB):
-    pass
-
-
-class ShowBookcopy(TestWithSmallDB):
-    pass
-
-
-class ShowUsers(TestWithSmallDB):
+class ShowUsersTest(TestWithSmallDB):
     def setUp(self):
         self.url = '/entelib/users/'
 
@@ -208,73 +275,63 @@ class ShowUsers(TestWithSmallDB):
         self.assertContains(response, 'No users found', count=1)
 
 
-
-
-class AddUser(TestWithSmallDB):
+class AddUserTest(TestWithSmallDB):
     pass
 
 
-class ShowUser(TestWithSmallDB):
+class ShowUserTest(TestWithSmallDB):
     pass
 
 
-class DoEditUserProfile(TestWithSmallDB):
+class DoEditUserProfileTest(TestWithSmallDB):
     pass
 
 
-class EditUserProfile(TestWithSmallDB):
+class EditUserProfileTest(TestWithSmallDB):
     pass
 
 
-class ShowUserRentals(TestWithSmallDB):
+class ShowUserRentalsTest(TestWithSmallDB):
     pass
 
 
-class ShowMyRentals(TestWithSmallDB):
+class ShowMyRentalsTest(TestWithSmallDB):
     pass
 
 
-class ShowUserReservations(TestWithSmallDB):
+class ShowUserReservationsTest(TestWithSmallDB):
     pass
 
 
-class ShowMyReservations(TestWithSmallDB):
+class ShowMyReservationsTest(TestWithSmallDB):
     pass
 
 
-class ShowMyReservations(TestWithSmallDB):
+class ShowReportsTest(TestWithSmallDB):
     pass
 
 
-class ShowReports(TestWithSmallDB):
+class FindBookForUserTest(TestWithSmallDB):
     pass
 
 
-class FindBookForUser(TestWithSmallDB):
+class ReserveForUserTest(TestWithSmallDB):
     pass
 
 
-class ReserveForUser(TestWithSmallDB):
+class ShowUserReservationTest(TestWithSmallDB):
     pass
 
 
-class ShowUserReservation(TestWithSmallDB):
+class ReserveTest(TestWithSmallDB):
     pass
 
 
-class Reserve(TestWithSmallDB):
+class CancelAllMyReserevationsTest(TestWithSmallDB):
     pass
 
 
-class CancelAllMyReserevations(TestWithSmallDB):
-    pass
-
-
-class CancelAllUserResevations(TestWithSmallDB):
-    pass
-
-
-class LoadDefaultConfig(TestWithSmallDB):
+class CancelAllUserResevationsTest(TestWithSmallDB):
     pass
 
 

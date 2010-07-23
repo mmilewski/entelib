@@ -1975,7 +1975,7 @@
             "first_name": "Admino", 
             "last_name": "Domino", 
             "is_active": true, 
-            "is_superuser": false, 
+            "is_superuser": true, 
             "is_staff": true, 
             "last_login": "2010-07-23 08:33:06", 
             "groups": [

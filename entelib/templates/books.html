@@ -71,8 +71,10 @@
                       No authors.
                     {% endif %}
                 </li>
-            {% empty %}
+            {% endfor %}
+            {% if none_found %} 
                 <p><b>Sorry, no books.</b></p>
+            {% endif %}
                 {% if display_tips %}
                 <div class="tip tips">
                   <p>Why nothing was found? Here are some tips:</p>
@@ -85,7 +87,6 @@
                   </ul>
                 </div>
                 {% endif %}
-            {% endfor %}
         </ul>
     </div>
 {% endblock %}
