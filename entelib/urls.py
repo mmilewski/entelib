@@ -7,7 +7,7 @@ import settings
 # admin.autodiscover()
 
 
-# Czy to jest do czegoś potrzebne? Tak
+# Czy to jest do czegos potrzebne? Tak
 def quickhack(request):
     from entelib.baseapp.models import BookCopy
     from django.http import HttpResponse

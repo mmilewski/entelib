@@ -10,7 +10,7 @@ from django.contrib import auth
 from django.contrib.auth.models import Group
 from django.db.models import Q
 from baseapp.models import *
-from baseapp.views_aux import render_forbidden, render_response, filter_query, get_book_details, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, get_locations_for_book, Q_reservation_active, cancel_reservation, when_copy_reserved
+from baseapp.views_aux import render_forbidden, render_response, filter_query, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, get_locations_for_book, Q_reservation_active, cancel_reservation, when_copy_reserved
 from baseapp.reports import get_report_data, generate_csv
 from baseapp.utils import pprint
 from baseapp.config import Config
@@ -367,11 +367,8 @@ def show_book_copy(request, bookcopy_id):
     '''
     Shows book copy's details
     '''
-    try:
-        book_copy = BookCopy.objects.get(id=bookcopy_id)
-    except BookCopy.DoesNotExist:
-        return render_not_found(request, item_name='Book copy')
-    book_desc = get_book_details(book_copy)
+    book_copy = get_object_or_404(BookCopy, id=bookcopy_id)
+    book_desc = aux.get_book_details(book_copy)
     return render_response(request, 'bookcopy.html',
         {
             'book' : book_desc,
@@ -594,20 +591,14 @@ def show_user_reservation(request, user_id, reservation_id):
 
 @permission_required('baseapp.add_reservation')
 def reserve(request, copy, non_standard_user_id=False):  # when non_standard_user_id is set then this view allows also renting
-    try:
-        book_copy = BookCopy.objects.get(id=copy)
-    except BookCopy.DoesNotExist:
-        return render_not_found(request, item_name='Book copy')
+    book_copy = get_object_or_404(BookCopy, id=copy)
     config = Config(user=request.user)
     reserved = {}   # info on reservation
 #    rented = {}     # info on rental
     post = request.POST
     if non_standard_user_id:
-        try:
-            nonstandard_user = User.objects.get(id=non_standard_user_id)
-        except User.DoesNotExist:
-            return render_not_found(request, item_name='User')
-    user = request.user if not non_standard_user_id else nonstandard_user
+        non_standard_user = get_object_or_404(User,id=non_standard_user_id)
+    user = request.user if not non_standard_user_id else non_standard_user
     # all the work needs to be done if there is some (POST) data sent:
     if request.method == 'POST':
         # we need reservation, whether we rent or just reserve:
@@ -667,7 +658,7 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
             except ValueError:
                 reserved.update({'error' : 'error - possibly incorrect date format'})
             
-    book_desc = get_book_details(book_copy)
+    book_desc = aux.get_book_details(book_copy)
 
     for_whom = aux.user_full_name(non_standard_user_id)
 
