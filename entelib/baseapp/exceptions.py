@@ -5,10 +5,5 @@
 class EntelibError(Exception):
     pass
 
-
-class ReservationError(EntelibError):
-    pass
-
-
-class CancelReservationError(ReservationError):
+class EntelibWarning(EntelibError):
     pass

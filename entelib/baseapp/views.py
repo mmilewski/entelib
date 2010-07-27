@@ -1,27 +1,28 @@
 # -*- coding: utf-8 -*-
 
+from datetime import date, datetime, timedelta
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import permission_required, login_required
+from django.contrib import auth
+from django.contrib import messages
+from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
-from django.contrib.auth.decorators import permission_required, login_required
-from django.contrib.admin.views.decorators import staff_member_required
 from django.template import RequestContext
-from django.contrib import auth
-from django.contrib.auth.models import Group
-from django.db.models import Q
+from baseapp.config import Config
+from baseapp.exceptions import EntelibWarning
+from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm, ConfigOptionEditForm
 from baseapp.models import *
-from baseapp.views_aux import render_forbidden, render_response, filter_query, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, get_locations_for_book, Q_reservation_active, cancel_reservation, when_copy_reserved
 from baseapp.reports import get_report_data, generate_csv
 from baseapp.utils import pprint
-from baseapp.config import Config
-from datetime import date, datetime, timedelta
-from entelib import settings
-from entelib.baseapp.models import *
-from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm, ConfigOptionEditForm
+from baseapp.views_aux import render_forbidden, render_response, filter_query, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, get_locations_for_book, Q_reservation_active, cancel_reservation, when_copy_reserved
 import baseapp.views_aux as aux
 import baseapp.emails as mail
+import settings
 
-from django.contrib import messages
+today = date.today
 
 @permission_required('baseapp.load_default_config')
 def load_default_config(request, do_it=False):
@@ -642,13 +643,20 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
                 return aux.render_forbidden(request, 'Book copy not rentable')
             r.start_date = date.today()  # always rent from now
             # for how long rental is possible
-            r.end_date = date.today() + timedelta(aux.book_copy_status(book_copy).rental_possible_for_days())
+            max_end_date = date.today() + timedelta(aux.book_copy_status(book_copy).rental_possible_for_days())
             try:
                 if 'to' in post and post['to'] != '':
                     [y, m, d] = map(int,post['to'].split('-'))
+                    desired_end_date = date(y, m, d)
                     # if user wants book for shorter than max allowed period
-                    if r.end_date > date(y, m, d):
-                        r.end_date = date(y, m, d)
+                    if desired_end_date <= max_end_date :
+                        r.end_date = desired_end_date
+                    else:
+                        raise EntelibWarning("Rental must end before %s." % max_end_date.isoformat())
+                    if r.end_date < today():
+                        raise EntelibWarning("Reservation can't end before today.")
+                else:
+                    r.end_date = max_end_date
                 r.save()
                 # reservation done, rent:
                 rental = Rental(reservation=r, start_date=date.today(), who_handed_out=request.user)
@@ -657,6 +665,8 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
                 reserved.update({'msg' : config.get_str('message_book_rented') % r.end_date.isoformat()})
             except ValueError:
                 reserved.update({'error' : 'error - possibly incorrect date format'})
+            except EntelibWarning, w:
+                reserved.update({'error' : w.message})  # TODO: message is depracated
             
     book_desc = aux.get_book_details(book_copy)
 

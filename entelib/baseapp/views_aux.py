@@ -278,9 +278,9 @@ def book_copy_status(book_copy):
     return status['status']
 
 
-def get_rentals_for_copies(copies_ids, only=[], related=[]):
+def get_active_rentals_for_copies(copies_ids, only=[], related=[]):
     ''' 
-    Collects and returns list of Renal objects for specified book copies.
+    Collects and returns list of Rental objects for specified book copies.
     
     Args:
         copies_ids -- ids of copies for which you want to get rentals.
@@ -338,38 +338,41 @@ def book_copies_status(copies):
             result[kopy.id]['status'] = BookCopyStatus(available=False, explanation=u'Unavailable: ' + kopy.state.name) 
     
     # find rented copies
-    rentals = get_rentals_for_copies(copies_ids)
+    rentals = get_active_rentals_for_copies(copies_ids)
     for rental in rentals:
-        result_for_copy = result[rental.reservation.book_copy.id] 
-        if not result_for_copy['status']:
-            result_for_copy['status'] = BookCopyStatus(available=False, explanation=u'Rented')
+        copy_id = rental.reservation.book_copy.id 
+        if not result[copy_id]['status']:
+            result[copy_id]['status'] = BookCopyStatus(available=False, explanation=u'Rented')
     
-    # find reserved copies
+    # find reserved copies, that can already to be rented
     reservations = get_reservations_for_copies(copies_ids)
     for reservation in reservations:
-        result_for_copy = result[reservation.book_copy.id] 
-        if not result_for_copy['status']:
-            result_for_copy['status'] = BookCopyStatus(available=False, explanation=u'Reserved')
+        copy_id = reservation.book_copy.id
+        if not result[copy_id]['status']:
+            result[copy_id]['status'] = BookCopyStatus(available=False, explanation=u'Reserved')
 
     
     max_allowed = config.get_int('rental_duration')
-    rsvs = Reservation.objects.filter(book_copy__id__in=copies_ids).values('book_copy__id').annotate(min_start_date=Min('start_date'))
+    rsvs = Reservation.objects.filter(book_copy__id__in=copies_ids)\
+                              .filter(Q_reservation_active)\
+                              .values('book_copy__id')\
+                              .annotate(min_start_date=Min('start_date'))
     for rsv in rsvs:
-        result_for_copy = result[ rsv['book_copy__id'] ]
-        if result_for_copy['status']:
+        copy = rsv['book_copy__id']
+        if result[copy]['status']:
             continue
         try:
             min_start_date = rsv['min_start_date']
-            max_possible = (min_start_date - today()).days
+            max_possible = (min_start_date - today()).days - 1
             if max_possible < 0:
-                raise EntelibError('book_copy_status error: copy reserved')
+                raise EntelibError('book_copy_status error: copy reserved') # this should not happen since all active reservations should already have status
         except ValueError:
             max_possible = max_allowed
-        result_for_copy['status'] = BookCopyStatus(available=True, nr_of_days=min(max_allowed, max_possible))
+        result[copy]['status'] = BookCopyStatus(available=True, nr_of_days=min(max_allowed, max_possible))
     
-    for result_value in result.values():
-        if not result_value['status']:
-            result_value['status'] = BookCopyStatus(available=True)
+    for key in result.keys():
+        if not result[key]['status']:
+            result[key]['status'] = BookCopyStatus(available=True, nr_of_days=max_allowed)
     
     return result
 
