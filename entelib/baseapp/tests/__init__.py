@@ -11,6 +11,7 @@ from baseapp.tests.reservation_helpers import *
 from baseapp.tests.views import *
 from baseapp.tests.test_base import *
 from baseapp.tests.reports import *
+from baseapp.tests.time_bar import *
 
 if PEP8_TEST_ENABLED:
     from baseapp.tests.pep8_test import *

@@ -299,7 +299,7 @@ class BookCopy(models.Model):
     description_url = models.CharField(blank=True, max_length=CFG.copy_desc_url_len)       # and/or a link to description
 
     def __unicode__(self):
-        return u'%s [copy]' % (self.book.title,)
+        return u'%s [%d, copy]' % (self.book.title, self.id, )
 
     class Meta:
         verbose_name_plural = 'Book copies'
@@ -337,7 +337,7 @@ class Reservation(models.Model):
             )
 
     def __unicode__(self):
-        return u'For Mr/Ms ' + self.for_whom.first_name + u' ' + self.for_whom.last_name
+        return unicode(self.id) + ', ' + u'For Mr/Ms ' + self.for_whom.first_name + u' ' + self.for_whom.last_name + '. ' + unicode(self.book_copy)
 
 
 class Rental(models.Model):

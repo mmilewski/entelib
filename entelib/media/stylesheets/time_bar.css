@@ -1,0 +1,49 @@
+div.time_barWrapper {
+}
+
+div.group {
+    background-color: lime;
+    display: block;
+    clear: both;
+}
+
+div.group div.red_segment {
+    background-color: #f00;
+    background-image: url('/media/images/tb_stripes.png') !important;
+    color: white;
+}
+div.group div.green_segment {
+    background-color: #0d0;
+}
+
+div.group div.red_segment,
+div.group div.green_segment {
+    display: block;
+    float: left;
+    font-size: 85%;
+    height: 2em;
+    border-bottom: 1px solid black;
+    overflow: hidden;
+}
+
+
+/* div.time_barWrapper { */
+/*     border: 1px solid black; */
+/* } */
+
+div.scaleWrapper {
+    width: 100%;
+    clear:both;
+    display: block;
+}
+
+div.scale_part {
+    height: 1em;
+    float: left;
+    background: yellow url('/media/images/tb_scale_bar.png') repeat-y left top !important;
+}
+
+
+div.time_bar_date_selectorWrapper {
+    text-align: right;
+}

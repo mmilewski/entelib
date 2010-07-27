@@ -59,5 +59,25 @@
 
         {% block links %}
         {% endblock %}
+
+
+        <h3 id="availability">Availability</h3>
+        <div class="time_bar_date_selectorWrapper">
+          <form method="POST" action=".#availability">
+            From: <input class="date" type="text" maxlength="10" name="from_date" value="{{from_date}}" onClick="showKal(this)">
+            To:   <input class="date" type="text" maxlength="10" name="to_date"   value="{{to_date}}"   onClick="showKal(this)">
+            <input type="submit" name="btn_custom_date" value="Show">
+            <br>
+            <input type="submit" name="btn_next_30_days" value="30 days from today">
+            <input type="submit" name="btn_next_60_days" value="60 days from today">
+            <input type="submit" name="btn_next_90_days" value="90 days from today">
+          </form>
+        </div>
+        <div class="time_barWrapper">
+          {% autoescape off %}
+          {{ time_bar_code }}
+          {% endautoescape %}
+        </div>
+
     </div>
 {% endblock %}

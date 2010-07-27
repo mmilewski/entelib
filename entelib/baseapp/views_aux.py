@@ -588,8 +588,11 @@ def when_copy_reserved(book_copy):
     if book_copy.state.is_available == False:
         return [{'from': today(), 'to': last_date}]
 
-    reservations = Reservation.objects.filter(book_copy=book_copy).filter(Q_reservation_active).filter(start_date__lte=today() + timedelta(config.get_int('when_reserved_period')))
-    active_rentals = Rental.objects.filter(reservation__book_copy=book_copy).filter(end_date__isnull=True)
+    reservations = Reservation.objects.filter(book_copy=book_copy) \
+                                      .filter(Q_reservation_active) \
+                                      .filter(start_date__lte=today() + timedelta(config.get_int('when_reserved_period')))
+    active_rentals = Rental.objects.filter(reservation__book_copy=book_copy) \
+                                   .filter(end_date__isnull=True)
 
     list = [(r.start_date, r.end_date) for r in reservations]
     if active_rentals:
@@ -625,4 +628,5 @@ def when_copy_reserved(book_copy):
         if new_list[-1][1] != lastb:
             new_list.append((lasta, lastb))
 
-    return [{'from' : a, 'to' : b} for (a,b) in new_list]
+    result_list = [{'from' : a, 'to' : b} for (a,b) in new_list]
+    return result_list
