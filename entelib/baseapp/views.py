@@ -17,7 +17,7 @@ from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm, Co
 from baseapp.models import *
 from baseapp.reports import get_report_data, generate_csv
 from baseapp.utils import pprint, str_to_date
-from baseapp.time_bar import get_time_bar_code_for_copy
+from baseapp.time_bar import get_time_bar_code_for_copy, TimeBarRequestProcessor
 from baseapp.views_aux import render_forbidden, render_response, filter_query, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, get_locations_for_book, Q_reservation_active, cancel_reservation, when_copy_reserved
 import baseapp.views_aux as aux
 import baseapp.emails as mail
@@ -377,34 +377,10 @@ def show_book_copy(request, bookcopy_id):
         'book' : book_desc,
     }
     
-    if request.method == 'POST':
-        post = request.POST
-        from_date = str_to_date(post['from_date'])
-        to_date = str_to_date(post['to_date'])
-        btn_custom_pressed = 'btn_custom_date' in post
-        btn_next_30_days = 'btn_next_30_days' in post
-        btn_next_60_days = 'btn_next_60_days' in post
-        btn_next_90_days = 'btn_next_90_days' in post
-
-        if btn_next_30_days:
-            from_date = date.today()
-            to_date = from_date + timedelta(30)
-        elif btn_next_60_days:
-            from_date = date.today()
-            to_date = from_date + timedelta(60)
-        elif btn_next_90_days:
-            from_date = date.today()
-            to_date = from_date + timedelta(90)
-    else:
-        from_date = date.today()
-        to_date = date.today() + timedelta(30)      #TODO maybe get from config
-
-    time_bar_context = {
-        'time_bar_code' : get_time_bar_code_for_copy(book_copy, from_date=from_date, to_date=to_date),
-        'from_date': from_date,
-        'to_date': to_date,
-    }
-    context.update(time_bar_context)
+    tb_processor = TimeBarRequestProcessor(request, [book_copy], None)  # default date range
+    tb_context = tb_processor.get_context()    
+    context.update(tb_context)
+    
     return render_response(request, 'bookcopy.html', context)
 
 
@@ -703,15 +679,22 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
 
     for_whom = aux.user_full_name(non_standard_user_id)
 
-    return render_response(request, 'reserve.html',
-        {
-            'book' : book_desc,
-            'reserved' : reserved,
-            'for_whom' : for_whom,
-            'can_reserve' : request.user.has_perm('baseapp.add_reservation') and book_copy.state.is_visible,
-            'rental_possible' : is_book_copy_rentable(book_copy)
-        }
-    )
+
+    context = {
+        'book'            : book_desc,
+        'reserved'        : reserved,
+        'for_whom'        : for_whom,
+        'can_reserve'     : request.user.has_perm('baseapp.add_reservation') and book_copy.state.is_visible,
+        'rental_possible' : is_book_copy_rentable(book_copy),
+    }
+
+    # time bar        
+    tb_processor = TimeBarRequestProcessor(request, [book_copy], None)  # default date range
+    tb_context = tb_processor.get_context()
+    context.update(tb_context)
+
+    return render_response(request, 'reserve.html', context)
+
 
 @permission_required('baseapp.change_own_reservation')
 def cancel_all_my_reserevations(request):

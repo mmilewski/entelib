@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 import random
 from copy import copy
-from baseapp.models import Reservation, BookCopy
-from baseapp.views_aux import Q_reservation_active
 from datetime import date, timedelta
-from baseapp.config import Config
 from fractions import gcd
+from baseapp.utils import pprint, str_to_date
+from baseapp.models import Reservation, BookCopy
 from django.db.models.query_utils import Q
+from django.core.handlers.wsgi import WSGIRequest
 
-try:
-    from baseapp.utils import pprint
-except:
-    from pprint import pprint
+
+def timedelta_as_int(delta):
+    ''' Converts timedelta to integer (days). If delta is int, does nothing.'''
+    if isinstance(delta, timedelta):
+        return delta.days
+    assert isinstance(delta, int)
+    return delta
 
 
 class Segment(object):
@@ -107,8 +110,8 @@ class Segment(object):
         '''
         assert self.check_invariant()
         
-        for hay in haystack:
-            if self.collides_with(hay):
+        for needle in haystack:
+            if self.collides_with(needle):
                 return True
         return False
 
@@ -195,10 +198,12 @@ class TimeBar(object):
         
     def add_segment_between_each_two(self, segments):
         '''
-        Between each two segments adds additional segment.
+        Between each two segments adds additional segment. But only if there is
+        free space for that. Between (1,4,0) and (5,10,0) there is no such space.
         
         Args:
-            segments -- list of Segment objects. All must have the same z-value
+            segments -- list of Segment objects. All must have the same z-value.
+                        Should be sorted by start field.
         '''
         if len(segments) < 2:
             return segments
@@ -210,11 +215,7 @@ class TimeBar(object):
             assert segments[i].z == segments[i+1].z
             old_seg = segments[i]
             modified_segs.append(old_seg)
-            should_add = False
-            if isinstance(segments[i+1].start, date) and isinstance(segments[i].end, date):
-                should_add = (segments[i+1].start - segments[i].end).days > 1
-            else:
-                should_add =  segments[i+1].start - segments[i].end > 1
+            should_add = timedelta_as_int(segments[i+1].start - segments[i].end) > 1
             if should_add:
                 new_seg = Segment(old_seg.end + self.one, segments[i+1].start - self.one , old_seg.z)
                 new_seg.is_available = True
@@ -223,19 +224,31 @@ class TimeBar(object):
         return modified_segs
         
         
-    def split_segments_by_depth(self, segments, sort=True):
+    def split_segments_by_depth(self, segments, sort=False):
         '''
-        Splits segments by z coord. Returns list of lists, one for each group.
-        If sort is True then each group will be sorted.
+        Splits segments by z coord.
+        
+        Args:
+            segments -- list of Segment instances. z values must not cantain any gap,
+                        and must start with 0. So if there are 3 distinct depths, then
+                        z-value of highest is 2.
+            sort -- if True then each group will be sorted.
+        
+        Returns:
+             List of lists, one for each group. Groups' z values are sorted ascending.
+             Groups are sorted by start value, if sort is True.
         '''
         depth = self.get_segments_depth(segments)
         segments_by_depth = []              # list of depth lists
+        
         # prepare list of empty lists
         for i in range(depth): #@UnusedVariable
             segments_by_depth.append([])
+        
         # split segments
         for segment in segments:
             segments_by_depth[segment.z].append(segment)
+        
         # sort each group (lex sort)
         if sort:
             for group in segments_by_depth:
@@ -318,28 +331,31 @@ class TimeBar(object):
         '''
         if not len(group):
             return -1
-        if isinstance(group[-1].end, date) and isinstance(group[0].start, date):
-            group_width = (group[-1].end - group[0].start).days + 1
-        else:
-            group_width = (group[-1].end - group[0].start) + 1
+        group_width = timedelta_as_int(group[-1].end - group[0].start) + 1
         return group_width
     
     
-    def get_html_for_scale(self, group):
+    def get_html_for_scale(self, groups):
         '''
         Returns html for scale (podziałka).
         
         Args:
-            group -- group of segments (list of Segment instances).
+            groups -- groups of segments (list of list of Segment instances).
             
         Raises:
             If group is empty, then raises ValueError
         '''
-        if not group:
-            raise ValueError('Given group is empty: %s' % (repr(group)))
+        if not groups:
+            raise ValueError('Given groups is empty: %s' % (repr(groups)))
+        
+        # count gcd
+        the_gcd = self.gcd_for_group(groups[0])
+        for group in groups:
+            the_gcd = gcd(the_gcd, self.gcd_for_group(group))
+        
+        # create html
+        width = self.get_width_of_group(groups[0])
         html = '<div class="scaleWrapper">'
-        width = self.get_width_of_group(group)
-        the_gcd = self.gcd_for_group(group)
         for i in range(width / the_gcd):
             title = 'one day' if the_gcd == 1 else '%d days' % the_gcd
             html += '<div class="scale_part" style="width: %.3f%%" title="%s">' % (100.0 * the_gcd / width, title)
@@ -350,26 +366,19 @@ class TimeBar(object):
         
     def gcd_for_group(self, group):
         '''
-        Return greates common divisior for lengths of segments in group.
+        Return greates common divisor for lengths of segments in group.
         
         If group is empty, raises ValueError.
         '''
         if not group:
-            raise ValueError('Cannot get gcd for empty group') 
-        if isinstance(group[0].end, date) and isinstance(group[0].start, date):
-            cur_gcd = (group[0].end - group[0].start).days + 1
-            for seg in group:
-                cur_gcd = gcd(cur_gcd, (seg.end - seg.start).days + 1)
-                if cur_gcd < 2:
-                    return cur_gcd
-            return cur_gcd
-        else:
-            cur_gcd = (group[0].end - group[0].start) + 1
-            for seg in group:
-                cur_gcd = gcd(cur_gcd, (seg.end - seg.start) + 1)
-                if cur_gcd < 2:
-                    return cur_gcd
-            return cur_gcd
+            raise ValueError('Cannot get gcd for empty group')
+
+        cur_gcd = timedelta_as_int(group[0].end - group[0].start) + 1
+        for seg in group:
+            cur_gcd = gcd(cur_gcd, timedelta_as_int(seg.end - seg.start) + 1)
+            if cur_gcd < 2:
+                return cur_gcd
+        return cur_gcd
         
         
     def get_html_for_segments(self, grouped_segments):
@@ -396,12 +405,9 @@ class TimeBar(object):
             segs_total_width = 0
             for segment in group:
                 seg_color_class = ['red_segment', 'green_segment'][int(segment.is_available)]       # False ~~> 0, True ~~> 1
-                if isinstance(segment.end, date) and isinstance(segment.start, date):
-                    seg_width = ((segment.end - segment.start).days + 1)
-                else:
-                    seg_width = ((segment.end - segment.start) + 1)
+                seg_width = timedelta_as_int(segment.end - segment.start) + 1
                 segs_total_width += seg_width
-                seg_width_pc = (100.0 * seg_width) / group_width                                      # pc = percentage
+                seg_width_pc = (100.0 * seg_width) / group_width                                    # pc = percentage
                 seg_title = segment.get_html_str()
 
                 html += '<div class="%s" style="width:%.3f%%"  title="%s">' % (seg_color_class, seg_width_pc, seg_title)
@@ -424,7 +430,7 @@ class TimeBar(object):
         pprint(result_segments)
         html = self.get_html_for_segments(result_segments)
         pprint('scale:')
-        scale = self.get_html_for_scale(result_segments[0]) if result_segments else ''
+        scale = self.get_html_for_scale(result_segments) if result_segments else ''
         pprint(scale)
         pprint('html:')
         pprint(html)
@@ -450,10 +456,6 @@ def get_time_bar_code_for_copy(book_copy, from_date, to_date):
     if from_date > to_date:
         return ''
     
-#    reservations = Reservation.objects.filter(book_copy=book_copy) \
-#                                      .filter(Q_reservation_active) \
-#                                      .filter(start_date__lte=date.today() + timedelta(config.get_int('when_reserved_period'))) \
-#                                      .order_by('start_date')
     Q_start_inside_range = Q(start_date__gte=from_date) & Q(start_date__lte=to_date)  #   >   |---<--------|
     Q_end_inside_range   = Q(end_date__gte=from_date) & Q(end_date__lte=to_date)      #       |--------->--|  <
     Q_covers_whole_range = Q(start_date__lte=from_date) & Q(end_date__gte=to_date)    #   |---->----<------|
@@ -479,9 +481,17 @@ def get_time_bar_code_for_copy(book_copy, from_date, to_date):
             filled_group = tb.end_with_value(filled_group, date_range[1])
         if filled_group:
             result_segments.append(filled_group)
+    
+    # if there is no reservations, then add available one-Segment group
+    if not result_segments:
+        group = [Segment(from_date, to_date, is_available=True)]
+        result_segments.append(group)
+    
+    # generate html
     html = tb.get_html_for_segments(result_segments)
 
-    scale = tb.get_html_for_scale(result_segments[0]) if result_segments else ''
+    # add scale (or two scales if there is a lot of colliding segments)
+    scale = tb.get_html_for_scale(result_segments) if result_segments else ''
     if len(result_segments) > 1:
         html = scale + html + scale
     elif len(result_segments) == 1:
@@ -489,6 +499,101 @@ def get_time_bar_code_for_copy(book_copy, from_date, to_date):
     return html
     
     
+class TimeBarRequestProcessor(object):
+    
+    def __init__(self, request_data, copies, default_date_range):
+        '''
+        Args:
+            request_data -- dict-like object, from which one can retrieve info about time bar form.
+                            Usually request.post is a good choice. If None, then default values will be used.
+                            If request_data is request from django's view (WSGIRequest, 
+                            then it will be handled properly (i.e. will look for request.POST).  
+            copies -- list of copies (BookCopy objects) for which time bar will be generated.
+            default_date_range -- 2-tuple or 2-list, default from_, and to_date.
+        '''
+        # request_date
+        self.request = request_data
+        if isinstance(self.request, WSGIRequest):
+            if self.request.method == 'POST':
+                self.request = self.request.POST     
+            else:
+                self.request = None
+
+        # copies
+        self.copies = copies
+        
+        # default_date_range
+        if not default_date_range:
+            default_from_date = date.today() - timedelta(3)
+            default_to_date = default_from_date + timedelta(30)
+            self.default_date_range = [default_from_date, default_to_date]
+        else:
+            self.default_date_range = list(default_date_range)
+        assert len(self.default_date_range) == 2, 'invalid default date range'
+        assert isinstance(self.default_date_range[0], date)
+        assert isinstance(self.default_date_range[1], date)
+        
+                
+    def handle_request(self):
+        '''
+        Reads data from self.request and return dict with data useful for response context.
+
+        If self.request is None, then default values are used (access via GET probably).
+        If self.request is set, then checks what button was pressed (access via POST probably).
+        If start_date or end_date value is incorrect (not valid date), then defaults
+        are used respectively.  
+        ''' 
+        post = self.request
+        result = {}
+        date_range = self.default_date_range
+        if post:
+            btn_custom_hit        = 'tb_btn_custom_date' in post
+            btn_default_range_hit = 'tb_btn_default_range' in post
+            btn_next_30_days_hit  = 'tb_btn_next_30_days' in post
+            btn_next_60_days_hit  = 'tb_btn_next_60_days' in post
+            btn_next_90_days_hit  = 'tb_btn_next_90_days' in post
+            
+            # which button was pressed? What action should be triggered?
+            if btn_custom_hit:
+                date_range = [str_to_date(post['tb_from_date']), str_to_date(post['tb_to_date'])]
+            elif btn_default_range_hit:
+                date_range = self.default_date_range
+            elif btn_next_30_days_hit:
+                date_range = [date.today(), date.today() + timedelta(30)]
+            elif btn_next_60_days_hit:
+                date_range = [date.today(), date.today() + timedelta(60)]
+            elif btn_next_90_days_hit:
+                date_range = [date.today(), date.today() + timedelta(90)]
+
+        # if posted date is incorrect, then set default values
+        date_range[0] = date_range[0] or self.default_date_range[0]    # override if None
+        date_range[1] = date_range[1] or self.default_date_range[1]
+
+        # create result dict        
+        result['date_range'] = date_range
+        return result
+
+
+    def get_context(self):
+        '''
+        Returns request context.
+
+        Returns:
+            dict -- intended to be used like context.update(time_bar_context)
+        ''' 
+        request_values = self.handle_request()
+        from_date, to_date = request_values['date_range']
+        code = get_time_bar_code_for_copy(self.copies[0], from_date=from_date, to_date=to_date)
+        display_time_bar = True
+        context = {
+            'display_time_bar': display_time_bar,
+            'tb_code' : code,
+            'tb_from_date': from_date,
+            'tb_to_date': to_date,
+        }
+        return context
+
+
 if __name__== '__main__': 
     t = TimeBar()
     t.run(False)
