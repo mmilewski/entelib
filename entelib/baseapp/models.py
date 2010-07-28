@@ -339,6 +339,19 @@ class Reservation(models.Model):
     def __unicode__(self):
         return unicode(self.id) + ', ' + u'For Mr/Ms ' + self.for_whom.first_name + u' ' + self.for_whom.last_name + '. ' + unicode(self.book_copy)
 
+    def __eq__(self, other):
+        return \
+          self.id == other.id and \
+          self.book_copy      == other.book_copy and \
+          self.for_whom       == other.for_whom and \
+          self.start_date     == other.start_date and \
+          self.end_date       == other.end_date and \
+          self.who_reserved   == other.who_reserved and \
+          self.when_reserved  == other.when_reserved and \
+          self.who_cancelled  == other.who_cancelled and \
+          self.when_cancelled == other.when_cancelled and \
+          self.active_since   == other.active_since
+
 
 class Rental(models.Model):
     '''
@@ -366,8 +379,14 @@ class Rental(models.Model):
     def __unicode__(self):
         return u'id: ' + unicode(self.id)
 
-
-
+    def __eq__(self, other):
+        return \
+          self.id             == other.id and \
+          self.reservation    == other.reservation and \
+          self.start_date     == other.start_date and \
+          self.end_date       == other.end_date and \
+          self.who_handed_out == other.who_handed_out and \
+          self.who_received   == other.who_received
 
 
 

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from baseapp.tests.test_base import Test
-from baseapp.utils import pprint
+from entelib.baseapp.utils import pprint, today, tomorrow, after_days
 import random
 from datetime import date, timedelta
 from entelib.baseapp.config import Config
-
+from entelib.baseapp.models import Reservation, Rental, User, BookCopy
 
 class TestWithSmallDB(Test):
     '''
@@ -220,37 +220,38 @@ class ShowBookTest(TestWithSmallDB):
         self.assertContains(self.response2, 'Horror')
         self.assertContains(self.response2, 'Sci-Fi')
 
-    def prepare_random(self):
-        from entelib.baseapp.models import Book
-        self.book = random.choice(Book.objects.all())
-        self.url = self.url % self.book.id
-        self.log_user()
-        self.response = self.client.get(self.url)
-
-    def test_random_book_authors_displayed(self):
-        self.prepare_random()
-        for author in self.book.author.all():    # all authors displayed
-            self.assertContains(self.response, author.name, msg_prefix='Authors not displayed properly for book id %d' % self.book.id)
-
-    def test_random_book_categories_displayed(self):
-        self.prepare_random()
-        for category in self.book.category.all():
-            self.assertContains(self.response, category.name, msg_prefix='Categories not displayed properly for book id %d' % self.book.id)
-
-    def test_random_book_all_copies_displayed(self):
-        self.prepare_random()
-        for copy in self.book.bookcopy_set.all():
-            self.assertContains(self.response, copy.shelf_mark, msg_prefix='Categories not displayed properly for book id %d' % self.book.id)
+#    def prepare_random(self):
+#        from entelib.baseapp.models import Book
+#        self.book = random.choice(Book.objects.all())
+#        self.url = self.url % self.book.id
+#        self.log_user()
+#        self.response = self.client.get(self.url)
+#
+#    def test_random_book_authors_displayed(self):
+#        self.prepare_random()
+#        for author in self.book.author.all():    # all authors displayed
+#            self.assertContains(self.response, author.name, msg_prefix='Authors not displayed properly for book id %d' % self.book.id)
+#
+#    def test_random_book_categories_displayed(self):
+#        self.prepare_random()
+#        for category in self.book.category.all():
+#            self.assertContains(self.response, category.name, msg_prefix='Categories not displayed properly for book id %d' % self.book.id)
+#
+#    def test_random_book_all_copies_displayed(self):
+#        self.prepare_random()
+#        for copy in self.book.bookcopy_set.all():
+#            self.assertContains(self.response, copy.shelf_mark, msg_prefix='Categories not displayed properly for book id %d' % self.book.id)
 
     def test_all_books_display(self):
         from entelib.baseapp.models import Book
         for book in Book.objects.all():
             response = self.client.get(self.url % book.id)
-            for author in book.author.all():      # all authors displayed
+            self.assertContains(response, book.title)  # title is displayed
+            for author in book.author.all():           # all authors displayed
                 self.assertContains(response, author.name, msg_prefix='Authors not displayed properly for book id %d' % book.id)
-            for category in book.category.all():  # all categories displayed
+            for category in book.category.all():       # all categories displayed
                 self.assertContains(response, category.name, msg_prefix='Categories not displayed properly for book id %d' % book.id)
-            for copy in book.bookcopy_set.all():   # all copies displayed
+            for copy in book.bookcopy_set.all():        # all copies displayed
                 self.assertContains(response, copy.shelf_mark, msg_prefix='Categories not displayed properly for book id %d' % book.id)
 
 
@@ -283,7 +284,8 @@ class ShowBookcopyTest(TestWithSmallDB):
 
     def test_random_copy_display(self):
         from entelib.baseapp.models import BookCopy
-        copy = random.choice(BookCopy.objects.all())
+        copies = (BookCopy.objects.all())
+        copy = copies[len(copies)*113 % len(copies)]
         self.assert_specific_copy_display_correct(copy)
         
     def test_all_copies_display(self):
@@ -424,10 +426,6 @@ class FindBookForUserTest(TestWithSmallDB):
     pass
 
 
-class ReserveForUserTest(TestWithSmallDB):
-    pass
-
-
 class ShowUserReservationTest(TestWithSmallDB):
     pass
 
@@ -435,6 +433,9 @@ class ShowUserReservationTest(TestWithSmallDB):
 class ReserveTest(TestWithSmallDB):
     def setUp(self):
         self.url = '/entelib/bookcopy/%d/reserve/'
+        self.log_user()
+
+    # general looks
 
     def test_user_doesnt_have_rent_button(self):
         self.log_user()
@@ -447,19 +448,20 @@ class ReserveTest(TestWithSmallDB):
         self.assertContains(response, "<input type='submit' name='action' value='rent'  ></td>")
 
     def test_rent_button_inactive(self):
-        pass
-        #TODO
+        self.log_lib()
+        url = self.url % 3  # permanently unavailable copy
+        response = self.client.get(url)
+        self.assertContains(response, "<td><input type='submit' name='action' value='rent'  disabled  ></td>")
 
-    def assert_rental_made(self, book_copy_id, from_='', to='', **credentials):
-        ''' Just checks if given data allows proper rental. **credentials is optional login data (e.g. username='marek', password='keram') '''
+    
+    # assertions for rentals and reservations
+
+    def assert_rental_made(self, book_copy_id, from_='', to=''):
+        ''' Just checks if given data allows proper rental. '''
         from entelib.baseapp.models import Rental, BookCopy, Reservation
-        if not credentials:
-            self.log_lib()
-        else:
-            self.login(credentials)
         url = self.url % book_copy_id
 
-        # what was it likie before
+        # what was it like before
         rentals_before = list(Rental.objects.all())
         nr_of_rentals_before = len(rentals_before)
 
@@ -490,14 +492,10 @@ class ReserveTest(TestWithSmallDB):
 
         # last reservation is from today
         last_reservation = Reservation.objects.latest('id')
-        self.assertEquals(date.today(), last_reservation.start_date)
+        self.assertEquals(today(), last_reservation.start_date)
         
         # last rental starts today
-        self.assertEquals(last_rental.start_date.date(), date.today())
-
-    def test_admin_rents_book_copy_2(self):
-        book_copy_id = 4
-        self.assert_rental_made(book_copy_id)
+        self.assertEquals(last_rental.start_date.date(), today())
 
     def assert_rental_not_made(self, book_copy_id, from_='', to='', status_code=None):
         from entelib.baseapp.models import Rental, BookCopy, Reservation
@@ -522,94 +520,322 @@ class ReserveTest(TestWithSmallDB):
         if status_code:
             self.assertEquals(status_code, response.status_code)
 
+    def assert_reservation_made(self, copy_id, from_='', to=''):
+        from entelib.baseapp.models import Rental, BookCopy, Reservation
+        url = self.url % copy_id
+
+        # what was it like before
+        rentals_before = list(Rental.objects.all())
+        reservations_before = list(Reservation.objects.all())
+
+        # request
+        response = self.client.post(url, {'action' : 'reserve', 'from' : from_, 'to' : to, })
+        
+        # response code was 200
+        self.assertEquals(200, response.status_code)
+        # and rental was successfull
+        self.assertContains(response, 'Reservation active')
+        
+        # nothing changed in rentals
+        rentals_after = list(Rental.objects.all())
+        self.assertEquals([r for r in rentals_before], [r for r in Rental.objects.all()])
+
+        # what is the last reservation
+        last_reservation = Reservation.objects.latest('id')
+
+        # last reservation is for the copy we just rented
+        self.assertEquals(copy_id, last_reservation.book_copy.id)         
+
+        # last reservation is from today or later
+        self.assert_(last_reservation.start_date >= today())
+
+        # last reservation starts at from
+        if from_:
+            self.assertEquals(from_, last_reservation.start_date.isoformat())
+        else:
+            self.assertEquals(last_reservation.start_date, today())
+
+
+        # last reservations ends at to
+        if to:
+            self.assertEquals(to, last_reservation.end_date.isoformat())
+        else:
+            max_time = timedelta(Config().get_int('rental_duration'))
+            self.assertEquals(last_reservation.start_date + max_time, last_reservation.end_date)
+            
+
+        # nothing changed in reservations except there is one more now
+        last_reservation = Reservation.objects.latest(field_name='id')
+        self.assertEquals((reservations_before + [last_reservation]).sort(), [r for r in Reservation.objects.all()].sort())   # old set + newest == newset
+        self.assertEquals([r for r in reservations_before], [r for r in Reservation.objects.all()][:-1])                      # old set == newset - newest
+
+    def assert_reservation_not_made(self, book_copy_id, from_='', to='', status_code=200):
+        from entelib.baseapp.models import Rental, BookCopy, Reservation
+        url = self.url % book_copy_id
+
+        # situation before
+        rentals_before = list(Rental.objects.all())
+        reservations_before = list(Reservation.objects.all())
+
+        # request
+        response = self.client.post(url, {'action' : 'reserve', 'from' : from_, 'to' : to, })
+
+        # situation after
+        rentals_after = list(Rental.objects.all())
+        reservations_after = list(Reservation.objects.all())
+
+        # no reservation or rental were added
+        self.assertEquals(rentals_before, rentals_after)
+        self.assertEquals(reservations_before, reservations_after)
+
+        # test status code
+        self.assertEquals(status_code, response.status_code)
+
+    
+    # unit tests
+
+    def test_annonymous_cant_reserve(self):
+        self.logout()
+        self.assert_reservation_not_made(0, status_code=302)
+        # non existing book causes redirect, no error
+
+        self.assert_reservation_not_made(4, status_code=302)
+        # existance of a book doesn't change anything
+
+        self.assert_reservation_not_made(4, from_=today().isoformat(), status_code=302)
+        self.assert_reservation_not_made(4, from_=(today() + timedelta(1)).isoformat(), status_code=302)
+        self.assert_reservation_not_made(4, from_=(today() - timedelta(1)).isoformat(), status_code=302)
+        self.assert_reservation_not_made(4, from_=today(), to=today().isoformat(), status_code=302)
+        self.assert_reservation_not_made(4, from_=today(), to=(today() + timedelta(1)).isoformat(), status_code=302)
+        self.assert_reservation_not_made(4, from_=today(), to=(today() - timedelta(1)).isoformat(), status_code=302)
+        self.assert_reservation_not_made(4, from_='marek', to='reset', status_code=302)
+        # even incorrect post should cause no problems
+
+    def test_incorrect_from(self):
+        self.assert_reservation_not_made(4, from_='start date')
+        # from should be a date
+
+    def test_incorrect_to(self):
+        self.assert_reservation_not_made(4, to='end date')
+        # to should be a date
+
+    def test_incorrect_from_and_to(self):
+        self.assert_reservation_not_made(4, from_='blbla', to='hey-ho')
+        # from and to should be dates (random strings given)
+
+    def test_incorrect_book_copy(self):
+        self.assert_reservation_not_made(0, status_code=404)
+        # book copy of id 0 doesn't exist
+
+    def test_incorrect_book_copy_fields_not_empty(self):
+        self.assert_reservation_not_made(0, from_=today().isoformat(), to=today().isoformat(), status_code=404)
+        # book copy of id 0 doesn't exist even if we add some post
+
+    def test_no_from(self):
+        self.assert_reservation_made(4, to=(today() + timedelta(3)).isoformat())
+        # it's ok, should be rented from today
+
+    def test_no_to(self):
+        self.assert_reservation_made(4, from_=(today()+timedelta(3)).isoformat())
+        # it's ok, should be rented for maximum possible time
+
+    def test_start_date_later_than_end_date(self):
+        self.assert_reservation_not_made(4, from_=(today()+timedelta(5)).isoformat(), to=(today()+timedelta(3)).isoformat())
+        # cannot end before it starts
+
+    def test_from_today(self):
+        self.assert_reservation_made(4, from_=today().isoformat())
+        # you sure can rent from today - for maximum time
+
+    def test_empty_fields(self):
+        self.assert_reservation_made(4)
+        # why not - default start and end dates (today, today+max_rental_time)
+
+    def test_till_today(self):
+        self.assert_reservation_made(4, to=today().isoformat())
+        # you can reserve for one day - you just have to return it by then end of the day
+
+    def test_from_today_till_today(self):
+        self.assert_reservation_made(4, from_=today().isoformat(), to=today().isoformat())
+        # ok, just for today
+
+    def test_admin_rents_book_copy(self):
+        book_copy_id = 4
+        self.log_admin()
+        self.assert_rental_made(book_copy_id)
+
     def test_user_cant_rent(self):  # ever
         from entelib.baseapp.models import BookCopy
         self.log_user()
         for book_copy in BookCopy.objects.all():                     # for each book copy
-            self.assert_rental_not_made(book_copy.id, from_=date.today())    # make sure it won't be rented by user (with any post sent)
-            self.assert_rental_not_made(book_copy.id, to=date.today(), status_code=403)
-            self.assert_rental_not_made(book_copy.id, to=date.today()+timedelta(1), status_code=403)
-            self.assert_rental_not_made(book_copy.id, to=date.today()-timedelta(1), status_code=403)
-            self.assert_rental_not_made(book_copy.id, to=date.today()+timedelta(Config().get_int('rental_duration')), status_code=403)
-            self.assert_rental_not_made(book_copy.id, to=date.today()+timedelta(Config().get_int('rental_duration')+1), status_code=403)
-            self.assert_rental_not_made(book_copy.id, to=date.today()+timedelta(Config().get_int('rental_duration')-1), status_code=403)
-            self.assert_rental_not_made(book_copy.id, from_=date.today(), to=date.today()+timedelta(Config().get_int('rental_duration')-1), status_code=403)
-            self.assert_rental_not_made(book_copy.id, from_=date.today()-timedelta(1), to=date.today()+timedelta(Config().get_int('rental_duration')-1), status_code=403)
-            self.assert_rental_not_made(book_copy.id, from_=date.today()+timedelta(1), to=date.today()+timedelta(Config().get_int('rental_duration')-1), status_code=403)
+            self.assert_rental_not_made(book_copy.id, from_=today())    # make sure it won't be rented by user (with any post sent)
+            self.assert_rental_not_made(book_copy.id, to=today(), status_code=403)
+            self.assert_rental_not_made(book_copy.id, to=today()+timedelta(1), status_code=403)
+            self.assert_rental_not_made(book_copy.id, to=today()-timedelta(1), status_code=403)
+            self.assert_rental_not_made(book_copy.id, to=today()+timedelta(Config().get_int('rental_duration')), status_code=403)
+            self.assert_rental_not_made(book_copy.id, to=today()+timedelta(Config().get_int('rental_duration')+1), status_code=403)
+            self.assert_rental_not_made(book_copy.id, to=today()+timedelta(Config().get_int('rental_duration')-1), status_code=403)
+            self.assert_rental_not_made(book_copy.id, from_=today(), to=today()+timedelta(Config().get_int('rental_duration')-1), status_code=403)
+            self.assert_rental_not_made(book_copy.id, from_=today()-timedelta(1), to=today()+timedelta(Config().get_int('rental_duration')-1), status_code=403)
+            self.assert_rental_not_made(book_copy.id, from_=today()+timedelta(1), to=today()+timedelta(Config().get_int('rental_duration')-1), status_code=403)
 
     def test_no_to_date(self):
         self.log_lib()
         book_copy_id = 4
-        self.assert_rental_made(book_copy_id, from_=date.today())
+        self.assert_rental_made(book_copy_id, from_=today().isoformat())
         # ok: default max rental time, from ignored
         
     def test_max_time(self):
         self.log_lib()
         book_copy_id = 4
-        self.assert_rental_made(book_copy_id, to=date.today())
+        self.assert_rental_made(book_copy_id, to=today().isoformat())
         # ok: default max rental time
         
     def test_one_day(self):
         self.log_lib()
         book_copy_id = 4
-        self.assert_rental_made(book_copy_id, to=date.today() + timedelta(1))
+        self.assert_rental_made(book_copy_id, to=(today() + timedelta(1)).isoformat())
         # ok: rental for one day
         
     def test_cant_rent_until_yesterday(self):
         self.log_lib()
         book_copy_id = 4
-        self.assert_rental_not_made(book_copy_id, to=date.today() - timedelta(1))
+        self.assert_rental_not_made(book_copy_id, to=(today() - timedelta(1)).isoformat())
         # no: can't rent until yesterday
         
     def test_rent_for_max_time(self):
         self.log_lib()
         book_copy_id = 4
-        self.assert_rental_made(book_copy_id, to=date.today() + timedelta(Config().get_int('rental_duration')))
+        self.assert_rental_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration'))).isoformat())
         # ok: max rental duration
         
     def test_one_day_too_long(self):
         self.log_lib()
         book_copy_id = 4
-        self.assert_rental_not_made(book_copy_id, to=date.today() + timedelta(Config().get_int('rental_duration') + 1))
+        self.assert_rental_not_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration') + 1)).isoformat())
         # no: too long
         
     def test_one_day_less_than_max(self):
         self.log_lib()
         book_copy_id = 4
-        self.assert_rental_made(book_copy_id, to=date.today() + timedelta(Config().get_int('rental_duration') - 1))
+        self.assert_rental_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration') - 1)).isoformat())
         # ok: one day less than max, from ignored
         
     def test_one_day_less_than_max_from_today(self):
         self.log_lib()
         book_copy_id = 4
-        self.assert_rental_made(book_copy_id, to=date.today() + timedelta(Config().get_int('rental_duration') - 1), from_=date.today())
+        self.assert_rental_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration') - 1)).isoformat(), from_=today())
         # ok: one day less than max, from ignored
         
     def test_one_day_less_than_max_from_yesterday(self):
         self.log_lib()
         book_copy_id = 4
-        self.assert_rental_made(book_copy_id, to=date.today() + timedelta(Config().get_int('rental_duration') - 1), from_=date.today() - timedelta(1))
+        self.assert_rental_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration') - 1)).isoformat(), from_=today() - timedelta(1))
         # ok: one day less than max, from ignored
         
     def test_one_day_less_than_max_from_tomorrow(self):
         self.log_lib()
         book_copy_id = 4
-        self.assert_rental_made(book_copy_id, to=date.today() + timedelta(Config().get_int('rental_duration') - 1), from_=date.today() + timedelta(1))
+        self.assert_rental_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration') - 1)).isoformat(), from_=today() + timedelta(1))
         # ok: one day less than max, from ignored
         
     def test_one_day_too_long_from_tomorrow(self):
         self.log_lib()
         book_copy_id = 4
-        self.assert_rental_not_made(book_copy_id, to=date.today() + timedelta(Config().get_int('rental_duration') + 1), from_=date.today() + timedelta(1))
+        self.assert_rental_not_made(book_copy_id, to=today() + timedelta(Config().get_int('rental_duration') + 1), from_=today() + timedelta(1))
         # no: too long
 
 
+class ReserveForUserTest(ShowBookcopyTest, ReserveTest):
+    ''' Test reserving and renting for one only user (id=1, user),
+        but it saved a LOT of typing (or copying text). '''
+    def setUp(self):
+        self.log_lib()
+        self.url = '/entelib/users/1/reservations/new/bookcopy/%d/'
+
+    # following 3 methods are necessary - otherwise they would be inherited and would fail
+
+    def test_user_cant_rent(self):
+        from entelib.baseapp.models import BookCopy
+        self.log_user()
+        for copy in BookCopy.objects.all():
+            response = self.client.get(self.url % copy.id)
+            self.assertEquals(302, response.status_code)
+
+    def test_user_doesnt_have_rent_button(self):
+        pass
+
+    def test_diffrent_users_get_the_same_page(self):
+        pass
+
+    # if we find a way to make django load fixture in a method manually
+    # the following could be testing all users:
+    # mbr
+
+    # test for every user (except for the one tested automatically e.g. witd id=1)
+#    def test_renting_or_reserving_for_all_users(self):
+#        tests = [met for met in dir(self) if met.startswith('test_')]
+#        from entelib.baseapp.models import User
+#        users = [u.id for u in User.objects.all() if u.id is not 1]
+#        self.url_base = '/entelib/users/%d/reservations/new/bookcopy/%s/'
+#        self.log_lib()
+#        
+#        # for every copy
+#        for user in users:
+#            # run all tests
+#            for test in tests:
+#                # LOAD FIXTURE HERE (not sure that is possible)
+#                self.log_lib()
+#                # prepare url
+#                self.url = self.url_base % (user, '%d')
+#                pprint(test)
+#                self.__getattribute__(test)()
+
 
 class CancelAllMyReserevationsTest(TestWithSmallDB):
-    pass
+    def setUp(self):
+        self.log_user()
+        self.url = '/entelib/profile/reservations/cancel-all/'
+
+    def assert_nothing_happens(self, url):
+        classes = [Reservation, Rental]
+        # before.isoformat(i
+        before = self.get_state(*classes)
+
+        # request
+        response = self.client.get(url)
+
+        # after
+        after = self.get_state(*classes)
+
+        # nothing changed
+        self.assertEquals(before['Rental'], after['Rental'])
+        self.assertEquals(before['Reservation'], after['Reservation'])
+
+        # allow more tests on response
+        self.response = response
+
+    def test_no_reservations_to_cancel(self):
+        # at first there is nothing to cancel
+        self.assert_nothing_happens(self.url)
+
+        # page displayed correctly
+        self.assertEquals(200, self.response.status_code)
+        self.assertContains(self.response, 'Reservations cancelled')
+        self.assertTemplateUsed(self.response, 'reservations_cancelled.html')
+
+    def test_one_reservation_to_cancel(self):
+        user = User.objects.get(id=4)
+        copy = BookCopy.objects.get(id=4)
+        Reservation(for_whom=user, book_copy=copy, who_reserved=user, start_date=today(), end_date=tomorrow()).save()
+        
+        
+
+    def test_rentals_not_touched(self):
+        pass
+
+
 
 
 class CancelAllUserResevationsTest(TestWithSmallDB):
     pass
-
-

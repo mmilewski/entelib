@@ -655,9 +655,9 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
                         reserved.update({'error' : 'You can\'t reserve for longer than %d days' % config.get_int('reservation_duration')})
                 except ValueError:
                     reserved.update({'error' : 'error - possibly incorrect date format'})
-            else:
-                reserved.update({'error' : 'You need to specify reservation end date'})
-                # TODO: r.end_date = date.today + timedelta(Config().get_int('reservation_duration'))
+            elif r.start_date:
+                # reserved.update({'error' : 'You need to specify reservation end date'})
+                r.end_date = r.start_date + timedelta(Config().get_int('reservation_duration'))
             if 'error' not in reserved:
                 r.save()
                 mail.made_reservation(r)
@@ -697,7 +697,7 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
             except ValueError:
                 reserved.update({'error' : 'error - possibly incorrect date format'})
             except EntelibWarning, w:
-                reserved.update({'error' : w.message})  # TODO: message is depracated
+                reserved.update({'error' : str(w)})
             
     book_desc = aux.get_book_details(book_copy)
 

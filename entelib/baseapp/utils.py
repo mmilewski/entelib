@@ -18,3 +18,12 @@ def str_to_date(str):
     else:
         return datetime.date(*values)
     return None
+
+
+def today():
+    return datetime.date.today()
+def tomorrow():
+    return today() + datetime.timedelta(1)
+def after_days(n):
+    today() + datetime.timedelta(n)
+

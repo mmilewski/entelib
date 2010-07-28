@@ -24,5 +24,30 @@ class Test(TestCase, PageLogger):
         self.client.logout()
         self.client.login(username='user', password='user')
 
+    def logout(self):
+        ''' Logs out '''
+        self.client.logout()
+
     def test_nothing(self):
         self.assert_(True)
+
+    def get_state(self, *classes):
+        '''
+        Desc:
+            This is meant for testing sets of model instances, most likely before and after a request
+
+        Return:
+            dictionary of list of all elements of each of classes
+            looks like:
+            {'ClassName1' : [class_name_1_objects] , 'Class2' : [class_2_objects]}
+        '''
+
+        dict = {}
+        
+        # check db state before request
+        for klass in classes:
+            dict.update({klass.__name__ : list(klass.objects.all())})
+        return dict
+        
+
+            
