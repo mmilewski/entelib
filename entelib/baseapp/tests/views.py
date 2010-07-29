@@ -266,9 +266,14 @@ class ShowBookcopyTest(TestWithSmallDB):
         # test ID displayed
         self.assertContains(self.response, copy.shelf_mark, msg_prefix='ID (shelf_mark) not displayed properly for %s' % url)
         # test authors displayed
-        # TODO: the two following lines cause UnicodeDecodeError. Is it written incorrectly, or is it just my machine problem?
-        #for author in copy.book.author.all():
-        #    self.assertContains(self.response, author.name, msg_prefix=u'Author (%s) not displayed for copy %d on %s' % (author.name, copy.id, url))
+        # TODO: the two following lines cause UnicodeDecodeError. Can you please check it on your machine (remove try/except)
+        for author in copy.book.author.all():
+            try:
+                self.assertContains(self.response, author.name, msg_prefix=u'Author (%s) not displayed for copy %d on %s' % (author.name, copy.id, url))
+            except UnicodeDecodeError:
+                pass  # this should work without cathing this exception. Don't know why it doesn't.
+        #pprint(self.response.content.__class__.__name__)
+        #pprint(self.response._charset)
         # test building displayed
         self.assertContains(self.response, copy.location.building.name, msg_prefix='Building (%s) not displayed for copy %d on %s' % (copy.location.building.name, copy.id, url))
         # test room displayed
@@ -285,7 +290,7 @@ class ShowBookcopyTest(TestWithSmallDB):
     def test_random_copy_display(self):
         from entelib.baseapp.models import BookCopy
         copies = (BookCopy.objects.all())
-        copy = copies[len(copies)*113 % len(copies)]
+        copy = copies[len(copies)*113 % len(copies)]  # pseudo-random choice from copies
         self.assert_specific_copy_display_correct(copy)
         
     def test_all_copies_display(self):
