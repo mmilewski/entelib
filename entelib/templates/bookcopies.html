@@ -7,11 +7,6 @@
 {% block header %}{% if for_whom %} {{ for_whom }} {% else %} Book copies {% endif %} {% endblock %}
 
 {% block content %}
-    {% if not time_bar %}
-    <script type="text/javascript">
-      $(document).ready(function()  { $("#booklist").tablesorter( {sortList: [[1,0], [2,0]]} ); } );
-    </script>
-    {% endif %}
 
     <h2>Title: {{ book.title }}</h2>
 
@@ -84,37 +79,25 @@
       {% if display_tips %}
       <div class="tip">
         <ol>
-          <li><p>Hold shift and then press header to select by multiple columns.</p></li>
           <li><p>If you reserve book that is unavailable, you will be <em>unable to rent it</em>.</p></li>
-          <li><p>There are two functionalities excluding each other now: displaying time bar and column sorting. You can choose one of them
-              setting enable_time_bar to 0 or 1 in <a href="/entelib/admin/baseapp/configuration/enable_time_bar/">configuration panel</a>.</p></li>
         </ol>
       </div>
       {% endif %}
 
-        <!-- <ul class='booklist'>
-        {% for item in book.items %}
-        <li><b><a href='{{ item.url }}'>>></a></b>:
-            <ul>
-            <li>Location: {{ item.location }}</li>
-            <li>State: {{ item.state }}</li>
-            <li>Publisher: {{ item.publisher }}</li>
-            <li>Year: {{ item.year }}</li>
-            <li><a href='{{ item.desc_url}}'>External description</a> </li>
-            <li><a href='{{ item.reserve_url }}'>Reserve</a></li>
-            </ul>
-        </li>
-        {% empty %}
-        <b>Sorry, no copies.</b>
-        {% endfor %}
-        </ul> -->
         {% if book.items %}
+
+            <!-- TIME BAR -->
+            {% if display_time_bar %}
+            {% include "time_bar/controls.html" %}
+            {% endif %}
+
+            <!-- LIST OF COPIES -->
             <table id="booklist" class="tablesorter booklist">
                 <thead>
                     <tr>
                     <th></th>
                     <th>Location</th>
-                    <th title="aka Shelf mark">Id</th>
+                    <th title="aka Shelf mark">Shelfmark</th>
                     <th>State</th>
                     <th>Publisher</th>
                     <th>Year</th>
@@ -122,13 +105,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% if time_bar %}
-                    <tr id='tr_range'></tr>
-                    {% endif %}
+
                 {% for item in book.items %}
-                    {% if time_bar %}
-                    <tr id='tr_{{ item.shelf_mark }}'></tr>
+
+                    <!-- TIME BAR for copy -->
+                    {% if item.tb_code and display_time_bar %}
+                    <tr id="tr_{{item.shelf_mark}}"><td colspan="7" style="padding:0;">
+                        {% autoescape off %}
+                        {{ item.tb_code }}
+                        {% endautoescape %}
+                    </td></tr>
                     {% endif %}
+
+                    <!-- COPY's DETAILS -->
                     <tr>
                         <td class="url"><a href='{{ item.url }}'><img src="{{MEDIA_URL}}/images/details.png"></a></td>
                         <td class="location">{{ item.location }}</td>
@@ -146,30 +135,7 @@
                             </ul>
                         </td>
                     </tr>
-                    {% if time_bar %}
-                    <script type='text/javascript'>
-                    <!--
-                        $(document).ready(function()
-                        {
-                            array = new Array();
-                            i = 0;
-                            
-                            {% for pair in item.when_reserved %}
-                                pair = new Array(2);
-                                pair[0] = "{{ pair.from }}";
-                                pair[1] = "{{ pair.to }}";
-                                array[i] = pair;
-                                i++;
-                            {% endfor %}
-                            
-                            item_last_day = "{{ last_date }}";
-                            item_id = "tr_{{ item.shelf_mark }}";
-                            
-                            make_time_bar(array, i, item_last_day, item_id);
-                        })
-                    //-->
-                    </script>
-                    {% endif %}
+
                 {% endfor %}
                 </tbody>
             </table>

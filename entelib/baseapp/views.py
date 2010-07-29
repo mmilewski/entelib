@@ -291,6 +291,8 @@ def show_book(request, book_id, non_standard_user_id=False):
     Finds all copies of a book.
     '''
     config = Config(request.user)
+    context = {}
+    
     # if we have a non_standard_user we treat him special
     url_for_non_standard_users = u'/entelib/users/%d/reservations/new/bookcopy/%s/' % (int(non_standard_user_id), u'%d')
     show_url = u'/entelib/bookcopy/%d/' if non_standard_user_id == False else url_for_non_standard_users
@@ -304,6 +306,7 @@ def show_book(request, book_id, non_standard_user_id=False):
     # find all visible copies of given book
     book_copies = BookCopy.objects.filter(book=book_id).filter(state__is_visible=True)
     selected_locations = []
+
     if request.method == 'POST':
         # satisfy the location constraint:
         if 'location' in request.POST:
@@ -315,6 +318,13 @@ def show_book(request, book_id, non_standard_user_id=False):
             if request.POST['available'] == 'available':
                 book_copies = book_copies.filter(state__is_available=True)
     curr_copies = []
+    
+    # time bar generating
+    tb_processor = TimeBarRequestProcessor(request, None, config)  # default date range
+    tb_context = tb_processor.get_context()
+    tb_copies = tb_processor.get_codes_for_copies(book_copies)
+    context.update(tb_context)
+    
     is_copy_reservable = request.user.has_perm('baseapp.add_reservation')
     # create list of dicts of book_copies
     for elem in book_copies:
@@ -329,6 +339,7 @@ def show_book(request, book_id, non_standard_user_id=False):
             'is_available'  : elem.state.is_available,
             'is_reservable' : is_copy_reservable,    # it allows reserving in template - true if user is allowed to reserve
             'when_reserved' : when_copy_reserved(elem),
+            'tb_code'       : tb_copies.get(elem.id),
             })
     # dict for book
     book_desc = {
@@ -352,16 +363,16 @@ def show_book(request, book_id, non_standard_user_id=False):
         }
 
     for_whom = aux.user_full_name(non_standard_user_id)
-
     last_date = date.today() + timedelta(config.get_int('when_reserved_period'))
 
-    return render_response(request, 'bookcopies.html', { 'book' : book_desc,
-                                                         'last_date': last_date,
-                                                         'search' : search_data,
-                                                         'for_whom' : for_whom,
-                                                         'can_add_bookcopy' : request.user.has_perm('baseapp.add_bookcopy'),
-                                                         'only_available_checked' : 'yes' if 'available' in request.POST else '',
-                                                         'time_bar': config.get_bool('enable_time_bar')})
+    context.update({ 'book'                   : book_desc,
+                     'last_date'              : last_date,
+                     'search'                 : search_data,
+                     'for_whom'               : for_whom,
+                     'can_add_bookcopy'       : request.user.has_perm('baseapp.add_bookcopy'),
+                     'only_available_checked' : 'yes' if 'available' in request.POST else '',
+                     })
+    return render_response(request, 'bookcopies.html', context)
 
 
 @login_required
@@ -369,7 +380,7 @@ def show_book_copy(request, bookcopy_id):
     '''
     Shows book copy's details
     '''
-#    config = Config(request.user)
+    config = Config(request.user)
     book_copy = get_object_or_404(BookCopy, id=bookcopy_id)
     book_desc = aux.get_book_details(book_copy)
     
@@ -377,8 +388,8 @@ def show_book_copy(request, bookcopy_id):
         'book' : book_desc,
     }
     
-    tb_processor = TimeBarRequestProcessor(request, [book_copy], None)  # default date range
-    tb_context = tb_processor.get_context()    
+    tb_processor = TimeBarRequestProcessor(request, None, config)  # default date range
+    tb_context = tb_processor.get_context(book_copy)
     context.update(tb_context)
     
     return render_response(request, 'bookcopy.html', context)
@@ -689,8 +700,8 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
     }
 
     # time bar        
-    tb_processor = TimeBarRequestProcessor(request, [book_copy], None)  # default date range
-    tb_context = tb_processor.get_context()
+    tb_processor = TimeBarRequestProcessor(request, None, config)  # default date range
+    tb_context = tb_processor.get_context(book_copy)
     context.update(tb_context)
 
     return render_response(request, 'reserve.html', context)

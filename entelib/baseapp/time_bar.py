@@ -501,16 +501,18 @@ def get_time_bar_code_for_copy(book_copy, from_date, to_date):
     
 class TimeBarRequestProcessor(object):
     
-    def __init__(self, request_data, copies, default_date_range):
+    def __init__(self, request_data, default_date_range, config):
         '''
         Args:
             request_data -- dict-like object, from which one can retrieve info about time bar form.
                             Usually request.post is a good choice. If None, then default values will be used.
                             If request_data is request from django's view (WSGIRequest, 
-                            then it will be handled properly (i.e. will look for request.POST).  
-            copies -- list of copies (BookCopy objects) for which time bar will be generated.
+                            then it will be handled properly (i.e. will look for request.POST).
             default_date_range -- 2-tuple or 2-list, default from_, and to_date.
+            config -- instance of Config
         '''
+        self.config = config
+        
         # request_date
         self.request = request_data
         if isinstance(self.request, WSGIRequest):
@@ -518,17 +520,16 @@ class TimeBarRequestProcessor(object):
                 self.request = self.request.POST     
             else:
                 self.request = None
-
-        # copies
-        self.copies = copies
         
         # default_date_range
-        if not default_date_range:
-            default_from_date = date.today() - timedelta(3)
-            default_to_date = default_from_date + timedelta(30)
-            self.default_date_range = [default_from_date, default_to_date]
-        else:
+        if default_date_range:
             self.default_date_range = list(default_date_range)
+        else:
+            self.default_date_offset = timedelta(config.get_int('when_reserved_period'))
+            default_from_date = date.today() - timedelta(3)
+            default_to_date = default_from_date + self.default_date_offset
+            self.default_date_range = [default_from_date, default_to_date]
+            
         assert len(self.default_date_range) == 2, 'invalid default date range'
         assert isinstance(self.default_date_range[0], date)
         assert isinstance(self.default_date_range[1], date)
@@ -567,32 +568,56 @@ class TimeBarRequestProcessor(object):
 
         # if posted date is incorrect, then set default values
         date_range[0] = date_range[0] or self.default_date_range[0]    # override if None
-        date_range[1] = date_range[1] or self.default_date_range[1]
+        date_range[1] = date_range[1] or date_range[0] + self.default_date_offset
 
         # create result dict        
         result['date_range'] = date_range
         return result
 
 
-    def get_context(self):
+    def get_context(self, copy=None):
         '''
         Returns request context.
+        
+        Args:
+            copy -- instance of BookCopy. You can use it instead of calling get_code_for_copies([copy])
 
         Returns:
             dict -- intended to be used like context.update(time_bar_context)
+                    { display_time_bar, tb_from_date, tb_to_date, tb_code }, tb_code is present if copy is not None.
         ''' 
         request_values = self.handle_request()
         from_date, to_date = request_values['date_range']
-        code = get_time_bar_code_for_copy(self.copies[0], from_date=from_date, to_date=to_date)
-        display_time_bar = True
+        display_time_bar = self.config.get_bool('enable_time_bar')
         context = {
             'display_time_bar': display_time_bar,
-            'tb_code' : code,
             'tb_from_date': from_date,
             'tb_to_date': to_date,
         }
+        if copy:
+            assert isinstance(copy, BookCopy)
+            code = get_time_bar_code_for_copy(copy, from_date=from_date, to_date=to_date)
+            context['tb_code'] = code
         return context
-
+    
+    def get_codes_for_copies(self, copies):
+        '''
+        Return html for given copy.
+        
+        Args:  
+            copies -- list of copies (BookCopy objects), for which time bar will be generated.
+            
+        Returns:
+            dict { copy.id : time-bar-html-code }
+        '''
+        request_values = self.handle_request()
+        from_date, to_date = request_values['date_range']
+        
+        codes = {}
+        for copy in copies:
+            codes[copy.id] = get_time_bar_code_for_copy(copy, from_date=from_date, to_date=to_date)
+        return codes
+    
 
 if __name__== '__main__': 
     t = TimeBar()
