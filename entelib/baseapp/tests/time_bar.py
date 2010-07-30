@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from entelib.baseapp.utils import pprint
 from entelib.baseapp.time_bar import TimeBar, Segment
-from baseapp.tests.test_base import Test
-from django.test.testcases import TestCase
+from django.test import TestCase
+from baseapp.config import Config
 
 
 class TimeBarSegmentTest(TestCase):
@@ -62,7 +62,7 @@ class TimeBarStartEndWithValueTest(TestCase):
     Tests start_with_value and end_with_value methods.
     '''
     def setUp(self):
-        self.time_bar = TimeBar(one=1)
+        self.time_bar = TimeBar(Config(), one=1)
     
     def test_start_with_value__empty(self):
         t = self.time_bar
@@ -282,7 +282,7 @@ class TimeBarStartEndWithValueTest(TestCase):
 class TimeBarSegmentRelatedMethodsTest(TestCase):
     
     def setUp(self):
-        self.t = TimeBar(one=1)
+        self.t = TimeBar(Config(), one=1)
 
     def test_get_segments_depth__empty(self):
         t = self.t

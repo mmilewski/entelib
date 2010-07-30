@@ -105,6 +105,11 @@ table.booklist th
     border: 1px solid #000;
 }
 
+table.booklist .title,
+table.booklist .authors {
+    text-align: left;
+}
+
 table.booklist .actions {   /* bookcopies.html */
     text-align: left;
     margin: 0.5em 0 0.5em 2em;
@@ -166,6 +171,7 @@ div#menu
     width: 120px;
     float: left;
     overflow: hidden;
+    clear: both;
 }
 
 div#menu ul
@@ -305,6 +311,10 @@ form.registration_form table.basic_fields  td ul.errorlist {
 }
 form.registration_form table.basic_fields  td ul.errorlist li {
     padding: 0;
+}
+
+form.book_search input[type="submit"] {
+    width: 100%;
 }
 
 ul.phones a.skype {

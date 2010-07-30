@@ -1,5 +1,7 @@
 {% extends 'base_with_top_menu.html' %}
 
+{% load go_back_link %}
+
 {% block title %}Request for book{% endblock %}
 
 {% block header %}Request for book{% endblock %}
@@ -12,40 +14,56 @@
         Thank you for your request. You can see <a href="/entelib/admin/baseapp/bookrequest/">all requests here</a>.
       </div>
     </div>
-
-    {% if requested_items %}
-    <div class="requested_wrapper">
-      <h2>Requested items</h2>
-      <ul>
-        {% for item in requested_items %}
-        <li>
-          <dt>{{item.book|default_if_none:'-'}}, {{item.who}}, {{item.when|date:"d.m.Y H:i"}}</dt>
-          <dd style="margin-bottom:1em;">{{item.info}}</dd>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-    {% endif %}
 {% endif %}
-
 
 {% if form_content %}
-{% if display_tips %}
-<div class="usage_info tip">
-  <p>If you want to <em>request a book</em> leave book field empty.</p>
-  <p>If you want to <em>request a new copy of existing book</em> find appropriate book on a drop-down list.</p>
-</div>
+    {% if display_tips %}
+        <div class="usage_info tip">
+            <p>Do you need a book not present in library? Or... all copies of book you need are reserved? Here you can make such suggestion.</p>
+            <p>If you want to <em>request a book</em> set book field to 'not applicable'.</p>
+            <p>If you want to <em>request a new copy of existing book</em> find appropriate book on a drop-down list and give short information why another copy should be bought.</p>
+        </div>
+    {% endif %}
+    
+    <div class="formWrapper">
+        <div class="non_field_errors">
+            {{ form_content.non_field_errors }}
+        </div>
+            
+        <form class="book_request_form" action="." method="POST">
+            <table class="basic_fields">
+            <tbody>
+                <tr>
+                    <td>  {{form_content.book.label}}:<br/>{{form_content.book}}    </td>
+                    <td>  {{form_content.book.errors}}   </td>
+                </tr>
+                <tr>
+                    <td>  {{form_content.info.label}}:<br/>{{form_content.info}}    </td>
+                    <td>  {{form_content.info.errors}}   </td>
+                </tr>
+                <tr> 
+                    <td colspan="2">  <input type="submit" value="Send request"/>  </td>
+                     
+                </tr>
+            </tbody>
+            </table>
+        </form>
+    </div>
 {% endif %}
 
-<div class="formWrapper">
-  <form class="book_request_form" action="." method="POST">
-    <table class="basic_fields">
-      <tbody>
-        {{ form_content }}
-        <tr> <th></th> <td><input type="submit" value="Send request"/></td> </tr>
-      </tbody>
-    </table>
-  </form>
+{% go_back_link "Go back" %}
+
+{% if requested_items and perms.baseapp.list_reports %}
+<h3 id="requested_items">Already requested items</h3>
+<div class="requested_wrapper">
+    <ul>
+        {% for item in requested_items %}
+        <li>
+            <dt>{{item.book|default_if_none:'-'}}, {{item.who}}, {{item.when|date:"d.m.Y H:i"}}</dt>
+            <dd style="margin-bottom:1em;">{{item.info}}</dd>
+        </li>
+        {% endfor %}
+    </ul>
 </div>
 {% endif %}
 

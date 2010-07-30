@@ -90,9 +90,9 @@ class BookRequestForm(forms.Form):
         if 'info' in self.cleaned_data:
             info_len = len(self.cleaned_data['info'])
             if info_len < min_info_len:
-                raise forms.ValidationError(u'Your request is too short. Should be at least %d, but was %d' % (min_info_len, info_len))
+                raise forms.ValidationError(u'Your request is too short. Should be at least %d characters long, but was %d.' % (min_info_len, info_len))
             return self.cleaned_data
-        raise forms.ValidationError(u"Your request doesn't contain any informations. Should be at least %d long" % (min_info_len,))
+        raise forms.ValidationError(u"Your request doesn't contain any information. It should be at least %d characters long." % (min_info_len,))
 
     def save(self):
         info = self.cleaned_data['info']

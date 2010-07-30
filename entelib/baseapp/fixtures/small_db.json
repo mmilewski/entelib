@@ -286,6 +286,35 @@
             "receiver": "Librariano \u015amietano <librarian@bestbook.travel>"
         }
     }, 
+    
+    { 
+        "pk": "tb_max_days_in_date_range", 
+        "model": "baseapp.configuration", 
+        "fields": {
+            "can_override": false, 
+            "description": "Time bar. Max number of days date range can describe. If wider then the range will be shortened.", 
+            "value": "365"
+        }
+    }, 
+    { 
+        "pk": "tb_max_days_to_display_days", 
+        "model": "baseapp.configuration", 
+        "fields": {
+            "can_override": false, 
+            "description": "Time bar. Max number of days in date range, for which scale unit will be one day.", 
+            "value": "10"
+        }
+    }, 
+    { 
+        "pk": "tb_max_days_to_display_weeks", 
+        "model": "baseapp.configuration", 
+        "fields": {
+            "can_override": false, 
+            "description": "Time bar. Max number of days in date range, for which scale unit will be one week (or one day, see tb_max_days_to_display_days).", 
+            "value": "40"
+        }
+    }, 
+
     {
         "pk": "user_after_registration_groups", 
         "model": "baseapp.configuration", 

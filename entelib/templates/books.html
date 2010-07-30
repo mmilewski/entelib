@@ -10,29 +10,29 @@
     {% if display_tips %}
     <div class="tip">
       <ol>
-        <li><p>If you use Firefox or Opera you can click and drag to multiselect locations. In Chrome you can use CTRL+click</p></li>
-        <li><p>Selecting "Any" has effect only iff nothing else is selected. If "Any" and sth else is selected, then "Any" would be deselected</p></li>
+        <li><p>If you use Firefox or Opera you can click and drag to multiselect locations. In Chrome you can use CTRL+click. In IE both ways works.</p></li>
+        <li><p>Selecting "Any" has effect iff nothing else is selected. If "Any" and sth else is selected, then "Any" would be automatically deselected.</p></li>
       </ol>
     </div>
     {%endif%}
+
     <div class='content_form'>
         <form action='.' method='post' class="book_search">
             <table class="book_details">
+            <tbody>
                 <tr class="book_title">
-                    <td>Title: </td>
-                    <td><input type='text' name='title' value='{{ search.title }}'></td>
-                    <td><input type='checkbox' name='title_any' id="title_any" value='any'  {% if search.title_any_checked %} checked {% endif %} ></td>
-                    <td><label for="title_any">Any of keywords</label></td>
+                    <td>Title: <br><input type='text' name='title' value='{{ search.title }}'></td>
+                    <td><input type='checkbox' name='title_any' id="title_any" value='any'  {% if search.title_any_checked %} checked {% endif %} >
+                        <label for="title_any">Any of keywords</label></td>
                 </tr>
                 <tr class="book_author">
-                    <td>Author: </td>
-                    <td><input type='text' name='author' value='{{ search.author }}'></td>
-                    <td><input type='checkbox' name='author_any' id="author_any" value='any'  {% if search.author_any_checked %} checked {% endif %} ></td>
-                    <td><label for="author_any">Any of keywords</label></td>
+                    <td>Author: <br><input type='text' name='author' value='{{ search.author }}'></td>
+                    <td><input type='checkbox' name='author_any' id="author_any" value='any'  {% if search.author_any_checked %} checked {% endif %} >
+                        <label for="author_any">Any of keywords</label></td>
                 </tr>
                 <tr class="book_category">
-                    <td>Category: </td>
                     <td>
+                        Category: <br> 
                         <select name='category' multiple='multiple' size='{{ search.categories_select_size }}'>
                             {% for category in search.categories %}
                                 <option value='{{ category.id }}' {% if category.selected %}selected{% endif %}>{{ category.name }}</option>
@@ -41,15 +41,14 @@
 
                       <!-- <input type='text' name='category' value='{{ search.category }}'> -->
                     </td>
-                    <td><input type='checkbox' name='category_any' id="category_any" value='any'  {% if search.category_any_checked %} checked {% endif %} ></td>
-                    <td><label for="category_any">Any of keywords</label></td>
+                    <td><input type='checkbox' name='category_any' id="category_any" value='any'  {% if search.category_any_checked %} checked {% endif %} >
+                        <label for="category_any">Any of keywords</label></td>
                 </tr>
                 <tr class="book_search">
                     <td></td>
                     <td> <input type='submit' name='action' value='Search'> </td>
-                    <td></td>
-                    <td></td>
                 </tr>
+            </tbody>
             </table>
         </form>
     </div>
@@ -61,32 +60,49 @@
       {% go_back_link "Go back" %}
     </div>
 
+    {% if books %}
+    
+    <script type="text/javascript">
+        $(document).ready(function()  { $("#booklist").tablesorter( {sortList: [[1,0]]} ); } );
+    </script>
+
     <div class="found_books">
-        <ul class='spaces'>
+        <table class="booklist tablesorter" id="booklist">
+        <thead>
+            <tr class="header">
+                <th>Show button</th>
+                <th>Title</th>
+                <th>Authors</th>
+            </tr>
+        </thead>
+        <tbody>
             {% for book in books %}
-                <li class="book"><b><a href='{{ book.url }}'>{{ book.title }}:</a></b>
-                    {% if book.authors %}
-                      {{ book.authors|join:', '}}
-                    {% else %}
-                      No authors.
-                    {% endif %}
-                </li>
+            <tr class="book">
+                <td class="show"><a href='{{ book.url }}'>Show book</a>
+                <td class="title">{{ book.title }}</td>
+                <td class="authors">{% if book.authors %}{{ book.authors|join:', '}}{% else %}No authors.{% endif %}</td>
             {% endfor %}
-            {% if none_found %} 
-                <p><b>Sorry, no books.</b></p>
-            {% endif %}
-                {% if display_tips %}
-                <div class="tip tips">
-                  <p>Why nothing was found? Here are some tips:</p>
-                  <ul style="margin-top:1em;">
-                    <li>Use spaces as separators.</li>
-                    <li>Title, Author and Category are combined with logical AND operator.</li>
-                    <li>Check your query for typos.</li>
-                    <li>Check if "Any" checkboxes are ticked properly.</li>
-                    <li>Your query is too strict.</li>
-                  </ul>
-                </div>
-                {% endif %}
-        </ul>
+            
+        </tbody>
+        </table>
     </div>
+    {% endif %}
+
+    {% if none_found %} 
+        <p><b>Sorry, no books.</b></p>
+    {% endif %}
+    
+    {% if display_tips and none_found %}
+    <div class="tip tips">
+      <p>Why nothing was found? Here are some tips:</p>
+      <ul style="margin-top:1em;">
+        <li>Use spaces as separators.</li>
+        <li>Title, Author and Category are combined with logical AND operator.</li>
+        <li>Check your query for typos.</li>
+        <li>Check if "Any" checkboxes are ticked properly.</li>
+        <li>Your query is too strict.</li>
+      </ul>
+    </div>
+    {% endif %}
+
 {% endblock %}

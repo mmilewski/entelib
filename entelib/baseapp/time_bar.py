@@ -3,10 +3,13 @@ import random
 from copy import copy
 from datetime import date, timedelta
 from fractions import gcd
-from baseapp.utils import pprint, str_to_date
+from baseapp.utils import pprint, str_to_date, create_days_between, week_for_day,\
+    month_for_day
 from baseapp.models import Reservation, BookCopy
 from django.db.models.query_utils import Q
 from django.core.handlers.wsgi import WSGIRequest
+from itertools import groupby
+from baseapp.config import Config
 
 
 def timedelta_as_int(delta):
@@ -119,12 +122,14 @@ class Segment(object):
 
 class TimeBar(object):
     
-    def __init__(self, one=1):
+    def __init__(self, config, one=1):
         '''
         Args:
+            config -- instance of Config.
             one -- smallest portion of data. Like 'one day' or '1'. This may be useful when 
                    you want to test using ints and later use dates instead.
         '''
+        self.config = config
         self.one = one
 
     def get_segments_depth(self, segments):
@@ -335,7 +340,7 @@ class TimeBar(object):
         return group_width
     
     
-    def get_html_for_scale(self, groups):
+    def get_html_of_scale(self, groups):
         '''
         Returns html for scale (podziałka).
         
@@ -348,19 +353,62 @@ class TimeBar(object):
         if not groups:
             raise ValueError('Given groups is empty: %s' % (repr(groups)))
         
-        # count gcd
-        the_gcd = self.gcd_for_group(groups[0])
-        for group in groups:
-            the_gcd = gcd(the_gcd, self.gcd_for_group(group))
+        max_days_to_display_days = self.config.get_int('tb_max_days_to_display_days')
+        max_days_to_display_weeks = self.config.get_int('tb_max_days_to_display_weeks')
+        max_days_to_display_days  = max(1, max_days_to_display_days)    # at least one day
+        max_days_to_display_weeks = max(1, max_days_to_display_weeks)   # at least one day 
+        if max_days_to_display_days >= max_days_to_display_weeks:        # _days should be < _weeks
+            max_days_to_display_days = max_days_to_display_weeks - 1
         
-        # create html
         width = self.get_width_of_group(groups[0])
-        html = '<div class="scaleWrapper">'
-        for i in range(width / the_gcd):
-            title = 'one day' if the_gcd == 1 else '%d days' % the_gcd
-            html += '<div class="scale_part" style="width: %.3f%%" title="%s">' % (100.0 * the_gcd / width, title)
-            html += '</div>'
-        html += '</div>'
+        display_days = width <= max_days_to_display_days
+        display_weeks = (not display_days) and width <= max_days_to_display_weeks
+        display_months = (not display_days) and (not display_weeks)
+        
+        first_day, last_day = groups[0][0].start, groups[0][-1].end
+        days_in_range = create_days_between(first_day, last_day, include_start=True, include_end=True)
+        html = ''
+        if display_days:
+            html = u'<div class="scaleWrapper">'
+            for day in days_in_range:
+                title = unicode(day)
+                html += u'<div class="scale_part" style="width: %.3f%%" title="%s">' % (100.0 / width, title)
+                html += title
+                html += u'</div>'
+            html += u'</div>'            
+        elif display_weeks:
+            weeks_in_range = [week_for_day(day) for day in days_in_range]
+            grouped_weeks = [(key[0],key[1],len(list(group))) for key,group in groupby(weeks_in_range)]  # [year, week_nr, len]
+            display_year = len(set([y for y,n,c in grouped_weeks])) > 1
+            html = u'<div class="scaleWrapper">'
+            for year,week_nr,week_len in grouped_weeks:
+                if display_year:
+                    title = u'%d week of %d' % (week_nr, year)
+                else:
+                    title = u'%d week' % (week_nr,)
+                html += u'<div class="scale_part" style="width: %.3f%%" title="%s">' % (100.0 * week_len / width, title)
+                html += title
+                html += u'</div>'
+            html += u'</div>'
+        elif display_months:
+            months_in_range = [month_for_day(day) for day in days_in_range]
+            grouped_months = [(key[0],key[1],len(list(group))) for key,group in groupby(months_in_range)]  # [year, month_nr, len]
+            display_year = len(set([y for y,m,c in grouped_months])) > 1
+            html = u'<div class="scaleWrapper">'
+            for year,month_nr,week_len in grouped_months:
+                title = u'%d-%d' % (year, month_nr)
+                html += u'<div class="scale_part" style="width: %.3f%%" title="%s">' % (100.0 * week_len / width, title)
+                html += title
+                html += u'</div>'
+            html += u'</div>'
+        else:
+            assert False, 'Unknown type of scale. Are values in configuration correct?'
+
+#        # count gcd
+#        the_gcd = self.gcd_for_group(groups[0])
+#        for group in groups:
+#            the_gcd = gcd(the_gcd, self.gcd_for_group(group))
+        
         return html
         
         
@@ -430,13 +478,13 @@ class TimeBar(object):
         pprint(result_segments)
         html = self.get_html_for_segments(result_segments)
         pprint('scale:')
-        scale = self.get_html_for_scale(result_segments) if result_segments else ''
+        scale = self.get_html_of_scale(result_segments) if result_segments else ''
         pprint(scale)
         pprint('html:')
         pprint(html)
     
     
-def get_time_bar_code_for_copy(book_copy, from_date, to_date):
+def get_time_bar_code_for_copy(config, book_copy, from_date, to_date):
     '''
     Returns time bar's html for given copy and date range.
     
@@ -467,7 +515,7 @@ def get_time_bar_code_for_copy(book_copy, from_date, to_date):
     segments = [ Segment(r.start_date, r.end_date) for r in reservations ]
     # NOTE: if one would like to add some extra informations to segments, it can be done in above line 
 
-    tb = TimeBar(one=timedelta(1))
+    tb = TimeBar(config, one=timedelta(1))
     result_segments = tb.divide_colliding_segments(segments, shuffle=False)
     grouped_segs = tb.split_segments_by_depth(result_segments)
     
@@ -491,7 +539,7 @@ def get_time_bar_code_for_copy(book_copy, from_date, to_date):
     html = tb.get_html_for_segments(result_segments)
 
     # add scale (or two scales if there is a lot of colliding segments)
-    scale = tb.get_html_for_scale(result_segments) if result_segments else ''
+    scale = tb.get_html_of_scale(result_segments) if result_segments else ''
     if len(result_segments) > 1:
         html = scale + html + scale
     elif len(result_segments) == 1:
@@ -534,7 +582,28 @@ class TimeBarRequestProcessor(object):
         assert isinstance(self.default_date_range[0], date)
         assert isinstance(self.default_date_range[1], date)
         
-                
+    def _cut_date_range_if_too_wide(self, date_range):
+        '''
+        Checks if date range is longer then value in config (tb_max_days_in_date_range).
+        If so it would be cut. 
+        Length of range between (2010,1,25) and (2010,1,30) equals 5 days.
+        
+        Args:
+            date_range -- 2-tuple or 2-list of date instances - start and end, where start <= end
+        
+        Returns:
+            "Correct" date range as 2-tuple.
+        '''
+        assert len(date_range) == 2
+        assert isinstance(date_range[0], date)
+        assert isinstance(date_range[1], date)
+        start, end = date_range
+        max_days_in_range = self.config.get_int('tb_max_days_in_date_range')
+        if (end - start).days > max_days_in_range:
+            end = start + timedelta(max_days_in_range)
+        return (start, end)
+
+        
     def handle_request(self):
         '''
         Reads data from self.request and return dict with data useful for response context.
@@ -570,8 +639,9 @@ class TimeBarRequestProcessor(object):
         date_range[0] = date_range[0] or self.default_date_range[0]    # override if None
         date_range[1] = date_range[1] or date_range[0] + self.default_date_offset
 
-        # create result dict        
-        result['date_range'] = date_range
+        # create result dict
+        cut_date_range = self._cut_date_range_if_too_wide(date_range)
+        result['date_range'] = cut_date_range
         return result
 
 
@@ -594,9 +664,10 @@ class TimeBarRequestProcessor(object):
             'tb_from_date': from_date,
             'tb_to_date': to_date,
         }
+
         if copy:
             assert isinstance(copy, BookCopy)
-            code = get_time_bar_code_for_copy(copy, from_date=from_date, to_date=to_date)
+            code = get_time_bar_code_for_copy(self.config, copy, from_date=from_date, to_date=to_date)
             context['tb_code'] = code
         return context
     
@@ -615,11 +686,12 @@ class TimeBarRequestProcessor(object):
         
         codes = {}
         for copy in copies:
-            codes[copy.id] = get_time_bar_code_for_copy(copy, from_date=from_date, to_date=to_date)
+            codes[copy.id] = get_time_bar_code_for_copy(self.config, copy, from_date=from_date, to_date=to_date)
         return codes
-    
 
-if __name__== '__main__': 
-    t = TimeBar()
+
+if __name__== '__main__':
+    config = Config() 
+    t = TimeBar(config)
     t.run(False)
 

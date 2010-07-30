@@ -38,9 +38,11 @@ div.scaleWrapper {
 }
 
 div.scale_part {
+    font-size: 85%;
     height: 1em;
     float: left;
     background: yellow url('/media/images/tb_scale_bar.png') repeat-y left top !important;
+    overflow: hidden;
 }
 
 

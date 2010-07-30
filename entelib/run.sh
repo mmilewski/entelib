@@ -1,10 +1,18 @@
 #!/bin/bash
 
 # runserver docs:
+# ----------
 #  http://docs.djangoproject.com/en/dev/intro/tutorial01/#the-development-server
 #  http://docs.djangoproject.com/en/dev/ref/django-admin/#djadmin-runserver
 
-# Running ./run.sh new  will recreate db.
+# USAGE:
+# ----------
+# ./run.sh new              will create fresh new db and fill it with random data -- see dbfiller.py
+# ./run.sh notest           will run server omitting testing phase
+# ./run.sh smalldb          will load database from smalldb.json fixture. It permanently overrides current db.
+#
+# Combinations of above commands are allowed, but there is no protection against i.e. calling './run.sh smalldb new'
+#
 
 RUN_VALIDATION='python manage.py validate'
 RUN_TESTS='python manage.py test baseapp'
@@ -21,12 +29,6 @@ if [ $# -gt 0 ]; then
     fi
     if [[ (($1 = "notest" || $2 = "notest")) ]]; then
         RUN_TESTS=''
-    # else # to nie b.dzie .adnie dzia.a. z wi.cej ni. jednym argumentem. chyba .e chce ci si. to napisa....
-    #     echo -e "Given ARGUMENT is INCORRECT. Possible commands:"
-    #     echo -e "\tnew - recreate database"
-    #     echo -e "\tnotest - run without running tests"
-    #     echo
-    #     exit 1
     fi
 else
     python dbcreator.py

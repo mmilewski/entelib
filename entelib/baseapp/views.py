@@ -16,9 +16,9 @@ from baseapp.exceptions import EntelibWarning
 from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm, ConfigOptionEditForm
 from baseapp.models import *
 from baseapp.reports import get_report_data, generate_csv
-from baseapp.utils import pprint, str_to_date
+from baseapp.utils import pprint, str_to_date, remove_non_ints
 from baseapp.time_bar import get_time_bar_code_for_copy, TimeBarRequestProcessor
-from baseapp.views_aux import render_forbidden, render_response, filter_query, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, get_locations_for_book, Q_reservation_active, cancel_reservation, when_copy_reserved
+from baseapp.views_aux import render_forbidden, render_response,     filter_query, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, get_locations_for_book, Q_reservation_active, cancel_reservation, when_copy_reserved
 import baseapp.views_aux as aux
 import baseapp.emails as mail
 import settings
@@ -115,7 +115,6 @@ def request_book(request, request_form=BookRequestForm):
         if form.is_valid():
             form.save()
             context['show_confirmation_msg'] = True
-            context['requested_items'] = BookRequest.objects.all()
             return render_response(request, template, context)
     # display fresh new form
     else:
@@ -123,6 +122,7 @@ def request_book(request, request_form=BookRequestForm):
 
     context['form_content'] = form
     context['books'] = Book.objects.all()
+    context['requested_items'] = BookRequest.objects.all()
     return render_response(request, template, context)
 
 
@@ -220,7 +220,9 @@ def show_books(request, non_standard_user_id=False):
         search_title = post['title'].split()
         search_author = post['author'].split()
         selected_categories_ids = map(int, request.POST.getlist('category'))
-        search_data.update({'title' : post['title'], 'author' : post['author'],})  # categories and checkboxes will be added later
+        search_data.update({'title'  : post['title'], 
+                            'author' : post['author'],
+                            })  # categories and checkboxes will be added later
 
         # filter with Title and/or Author
         booklist = aux.filter_query(Book, Q(id__exact='-1'), [
@@ -245,15 +247,15 @@ def show_books(request, non_standard_user_id=False):
             categories_from_booklist = list(set([c for b in Book.objects.only('category').all() for c in b.category.all()]))
 
         # put ticks on previously ticked checkboxes
-        search_data.update({ 'title_any_checked' : 'true' if 'title_any' in post else '',
-                             'author_any_checked' : 'true' if 'author_any' in post else '',
-                             'category_any_checked' : 'true' if 'category_any' in post else '',
+        search_data.update({ 'title_any_checked'      : 'true' if 'title_any' in post else '',
+                             'author_any_checked'     : 'true' if 'author_any' in post else '',
+                             'category_any_checked'   : 'true' if 'category_any' in post else '',
                              })
 
         # prepare each book (add url, list of authors) for rendering
-        books = [{ 'title': book.title,
-                   'url' : book_url % book.id,
-                   'authors' : [a.name for a in book.author.all()]
+        books = [{ 'title'     : book.title,
+                   'url'       : book_url % book.id,
+                   'authors'   : [a.name for a in book.author.all()]
                    } for book in booklist ]
     else:
         # If no POST data was sent, then we don't want to list any books, but we want
