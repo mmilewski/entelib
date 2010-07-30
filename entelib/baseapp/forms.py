@@ -7,6 +7,7 @@ from config import Config
 from baseapp.utils import pprint
 from copy import copy
 from baseapp.views_aux import get_phones_for_user
+from django.core.exceptions import ObjectDoesNotExist
 
 attrs_dict = { 'class': 'required' }
 
@@ -208,6 +209,13 @@ class ProfileEditForm(forms.Form):
         
     def clean_username(self):
         value = self.cleaned_data['username']
+        try:
+            threatened_user = User.objects.get(username=value)
+        except ObjectDoesNotExist:
+            pass
+        else:
+            if threatened_user.id != self.profile_owner.id:
+                raise forms.ValidationError('User %s already exists!' % value)
         if len(value) > 30:
             raise forms.ValidationError('Too long')
         return value

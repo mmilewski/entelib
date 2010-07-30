@@ -48,6 +48,39 @@ class Test(TestCase, PageLogger):
         for klass in classes:
             dict.update({klass.__name__ : list(klass.objects.all())})
         return dict
+
+    def assertStatesEqual(self, dict_a, dict_b):
+        ''' Compares query sets or lists '''
+        names_a = list(dict_a)
+        names_b = list(dict_b)
+
+        names_a.sort()
+        names_b.sort()
+
+        self.assertEquals(names_a, names_b)
+#        print 'names:'
+#        print names_a
+#        print ''
+        
+        for name in names_a:  # or names_b
+            list_a = dict_a[name]
+#            print 'list_a:'
+#            print list_a
+            list_b = dict_b[name]
+#            print 'list_b:'
+#            print list_b
+
+            self.assertEquals(len(list_a), len(list_b))
+
+#            list_a.sort()
+#            print 'list_a sorted'
+#            print list_b
+#            list_b.sort()
+#            print 'list_b sorted'
+#            print list_b
+            map(lambda (i,j): self.failUnlessEqual(i,j), zip(list_a, list_b))
+
+        
         
 
             

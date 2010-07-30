@@ -4,7 +4,7 @@ from entelib.baseapp.utils import pprint, today, tomorrow, after_days
 import random
 from datetime import date, timedelta
 from entelib.baseapp.config import Config
-from entelib.baseapp.models import Reservation, Rental, User, BookCopy
+from entelib.baseapp.models import Reservation, Rental, User, UserProfile, Book, BookCopy, BookRequest, Configuration, Phone
 
 class TestWithSmallDB(Test):
     '''
@@ -18,11 +18,51 @@ class LoadDefaultConfigTest(TestWithSmallDB):
 
 
 class ShowConfigOptionsTest(TestWithSmallDB):
-    pass
+    def setUp(self):
+        self.url = '/entelib/config/'
+        self.log_user()
+
+    def test_all_displayed(self):
+        response = self.client.get(self.url)
+        
+        self.assertContains(response, 'List of configurable options')
+        for c in Configuration.objects.all():
+            self.assertContains(response, c.key)
+        # self.assertContains(response, 'edit.png', count=Configuration.objects.filter(can_override=True).count())
+        # this will fail due to many comments in html code containing 'edit.png' string
+
 
 
 class EditConfigOptionTest(TestWithSmallDB):
-    pass
+    def setUp(self):
+        self.url = '/entelib/config/%s/'
+        self.log_user()
+
+    def test_each_option_gets_displayed(self):
+        for c in Configuration.objects.all():
+            response = self.client.get(self.url % c.key)
+            self.assertContains(response, c.key)
+
+    def test_override_to_the_same_value(self):
+        for c in Configuration.objects.all():
+            if not c.can_override:
+                continue
+            response = self.client.post(self.url % c.key, {'value' : c.value})
+            self.assertRedirects(response, '/entelib/config/')
+            self.assertEquals(c.value, Configuration.objects.get(key=c.key).value)
+
+#    def test_override_append_letter_to_non_ints(self):
+#        for c in Configuration.objects.all():
+#            if not c.can_override:
+#                continue
+#            if isinstance(c.value, int):
+#                continue
+#            response = self.client.post(self.url % c.key, {'value' : c.value + 'a'})
+#            self.assertRedirects(response, '/entelib/config/')
+#            self.assertEquals(c.value + 'a', Configuration.objects.get(key=c.key).value)
+#
+#
+#            #self.assertEquals(200, response.status_code)
 
 
 class ShowEmailLogTest(TestWithSmallDB):
@@ -49,28 +89,31 @@ class ShowEmailLogTest(TestWithSmallDB):
 class RequestBookTest(TestWithSmallDB):
     def setUp(self):
         self.url = '/entelib/requestbook/'
+        self.log_admin()
     
     def test_one_exists(self):
-        from entelib.baseapp.models import BookRequest
         all_book_requests = BookRequest.objects.all()
         self.assertEqual(1, all_book_requests.count())
 
     def test_request_copy(self):
-        from entelib.baseapp.models import BookRequest
-        self.log_user()
-        info = 'Czemu ciagle jej nie ma???'
-        nr_of_requests_before = BookRequest.objects.all().count()           # how many book requests exist before out reqest
-        response = self.client.post(self.url, {'book' : '2', 'info' : info})
-        self.assertEqual(200, response.status_code)
-        nr_of_requests_after = BookRequest.objects.all().count()            # how many book requests exist after out reqest
-        self.assertEqual(nr_of_requests_before + 1, nr_of_requests_after)   # exactly one came in
-        last_added_book_request = BookRequest.objects.latest(field_name='id')
-        self.assertEqual(2,last_added_book_request.book.id)
-        self.assertEqual(info, last_added_book_request.info)
+        info = 'Czemu ciagle jej nie ma?'
+        book_id = 2
+
+        before = self.get_state(BookRequest)
+
+        response = self.client.post(self.url, {'book' : book_id, 'info' : info})
+
+        after = self.get_state(BookRequest)
+
+        self.assertEqual(200, response.status_code)                                     # response ok
+        self.assertEquals(len(before['BookRequest']) + 1, len(after['BookRequest']))    # exactly one came in
+        self.assertTemplateUsed(response, 'book_request.html')                          # correct template
+        self.assertContains(response, 'Thank you')                                      # request made: thanks
+        last_added_book_request = BookRequest.objects.latest(field_name='id')           # our request is last
+        self.assertEqual(book_id, last_added_book_request.book.id)                      # it's for the book we wanted
+        self.assertEqual(info, last_added_book_request.info)                            # and has the text we wanted
 
     def test_request_new_book(self):
-        from entelib.baseapp.models import BookRequest
-        self.log_user()
         info = 'Scialbym jo take inne ksiomrze, kturej tu ni mocie, panocki...'
         response = self.client.post(self.url, {'book' : '0', 'info' : info})
         self.assertEqual(200, response.status_code)
@@ -79,6 +122,18 @@ class RequestBookTest(TestWithSmallDB):
         last_added_book_request = BookRequest.objects.latest(field_name='id')
         self.assertEqual(None,last_added_book_request.book)
         self.assertEqual(info, last_added_book_request.info)
+
+    def test_request_copy_of_not_existing_book(self):
+        self.log_admin()
+        before = self.get_state(BookRequest)
+
+        response = self.client.post(self.url, {'book' : '39', 'info' : 'a taka to dacie rade zalatwic?'})
+
+        after = self.get_state(BookRequest)
+
+        self.assertEqual(before, after)
+        # self.assertContains(response, 'Corrupted') # there are diffrent error messages
+        self.assertEqual(200, response.status_code)
 
 
 class RegisterTest(TestWithSmallDB):
@@ -243,7 +298,6 @@ class ShowBookTest(TestWithSmallDB):
 #            self.assertContains(self.response, copy.shelf_mark, msg_prefix='Categories not displayed properly for book id %d' % self.book.id)
 
     def test_all_books_display(self):
-        from entelib.baseapp.models import Book
         for book in Book.objects.all():
             response = self.client.get(self.url % book.id)
             self.assertContains(response, book.title)  # title is displayed
@@ -266,14 +320,8 @@ class ShowBookcopyTest(TestWithSmallDB):
         # test ID displayed
         self.assertContains(self.response, copy.shelf_mark, msg_prefix='ID (shelf_mark) not displayed properly for %s' % url)
         # test authors displayed
-        # TODO: the two following lines cause UnicodeDecodeError. Can you please check it on your machine (remove try/except)
         for author in copy.book.author.all():
-            try:
-                self.assertContains(self.response, author.name, msg_prefix=u'Author (%s) not displayed for copy %d on %s' % (author.name, copy.id, url))
-            except UnicodeDecodeError:
-                pass  # this should work without cathing this exception. Don't know why it doesn't.
-        #pprint(self.response.content.__class__.__name__)
-        #pprint(self.response._charset)
+            self.assertContains(self.response, author.name, msg_prefix=u'Author (%s) not displayed for copy %d on %s' % (author.name, copy.id, url))
         # test building displayed
         self.assertContains(self.response, copy.location.building.name, msg_prefix='Building (%s) not displayed for copy %d on %s' % (copy.location.building.name, copy.id, url))
         # test room displayed
@@ -288,19 +336,16 @@ class ShowBookcopyTest(TestWithSmallDB):
         # TODO: there was (is) such config option "is_cost_center_visible_to_anyone" but show_book_copy view doesn't care about it...
 
     def test_random_copy_display(self):
-        from entelib.baseapp.models import BookCopy
         copies = (BookCopy.objects.all())
         copy = copies[len(copies)*113 % len(copies)]  # pseudo-random choice from copies
         self.assert_specific_copy_display_correct(copy)
         
     def test_all_copies_display(self):
-        from entelib.baseapp.models import BookCopy
         for copy in BookCopy.objects.all():
             self.assert_specific_copy_display_correct(copy)
         
 
     def test_diffrent_users_get_the_same_page(self):
-        from entelib.baseapp.models import BookCopy
         import re
         copy = random.choice(BookCopy.objects.all())
         self.url = self.url % copy.id
@@ -399,12 +444,137 @@ class ShowUserTest(TestWithSmallDB):
     pass
 
 
-class DoEditUserProfileTest(TestWithSmallDB):
-    pass
-
-
 class EditUserProfileTest(TestWithSmallDB):
-    pass
+    def setUp(self):
+        self.url = '/entelib/profile/'
+
+    def assert_display_some_important_details(self, url, user):
+        response = self.client.get(url)
+
+        self.assertContains(response, user.first_name) 
+        self.assertContains(response, user.last_name) 
+        self.assertContains(response, user.username) 
+        self.assertContains(response, user.email) 
+        for phone in user.userprofile.phone.all():
+            self.assertContains(response, phone.type.name) 
+            self.assertContains(response, phone.value) 
+
+    def test_user_profiles_displayed(self):
+        self.log_user()
+        user = User.objects.get(username='user')
+        self.assert_display_some_important_details(self.url, user)
+
+        self.log_lib()
+        user = User.objects.get(username='lib')
+        self.assert_display_some_important_details(self.url, user)
+
+        self.log_admin()
+        user = User.objects.get(username='admin')
+        self.assert_display_some_important_details(self.url, user)
+
+
+class DoEditUserProfileTest(EditUserProfileTest):
+    def setUp(self):
+        super(self.__class__, self).setUp()
+        self.url_admin = '/entelib/users/%d/'
+        self.log_admin()
+
+    # aux
+
+    def create_post(self, user, password, dict={}):
+        ''' user is User object, password is string '''
+        d0 = {
+            'username' : user.username,
+            'first_name' : user.first_name,
+            'last_name' : user.last_name,
+            'current_password' : password,
+            'email' : user.email,
+            'work_building' : user.userprofile.building_id,
+            'phoneType0'  : '2',
+            'phoneValue0' : '1',
+            'phoneType1'  : '2',
+            'phoneValue1' : '1',
+            'phoneType2'  : '2',
+            'phoneValue2' : '1',
+            'phoneType3'  : '2',
+            'phoneValue3' : '1',
+            'phoneType4'  : '2',
+            'phoneValue4' : '1',
+            'password1' : '',
+            'password2' : '',
+        }
+        d0.update(dict)
+        return d0
+
+    # assertions
+
+    def assert_can_change_own_username(self, user, password):
+        ''' user is User object, password is string '''
+        new_username = 'nowy_username'
+        
+        before = self.get_state(User, UserProfile)
+        
+        self.client.login(username=user.username, password=password)
+        dict = self.create_post(user, password, {'username' : new_username})
+
+        response = self.client.post(self.url, dict)
+        
+        after = self.get_state(User, UserProfile)
+
+        self.assertEquals(new_username, User.objects.get(id=user.id).username)
+        self.assertEquals(len(before['User']), len(after['User']))
+        self.assertEquals((before['UserProfile']), (after['UserProfile']))
+
+    def assert_cannot_change_others_email(self, user, password, other_user_id):
+        ''' user is User object, password is string '''
+
+        new_email = 'some.diffrent.address@other.server.com'
+        self.client.login(username=user.username, password=password)
+        dict = self.create_post(user, password, {'email' : new_email})
+        before = self.get_state(User, UserProfile, Phone)
+        
+
+        response = self.client.post(self.url_admin % other_user_id, {'current_password' : password, 'email' : new_email})
+
+        after = self.get_state(User, UserProfile, Phone)
+        
+        self.assertStatesEqual(before, after)
+        self.assertEquals(302, response.status_code)
+
+    def assert_can_change_field(self, user, password, field_name, new_value, affected_user_id):
+        ''' field_name and new_value are strings '''
+
+        url = self.url_admin % affected_user_id
+        self.client.login(username=user.username, password=password)
+        dict = self.create_post(user, password, {field_name : new_value})
+        
+        response = self.client.post(url, dict)
+
+        value_after_request = User.objects.get(id=affected_user_id).__getattribute__(field_name)
+        self.assertEquals(new_value, value_after_request)
+
+        
+    # tests
+
+    def test_user_can_change_username(self):
+        user = User.objects.get(username='user')
+        self.assert_can_change_own_username(user, 'user')
+
+    def test_user_cannot_change_others_email(self):
+        user = User.objects.get(username='user')
+        password = 'user'
+        password = 'user'
+        for victim in User.objects.all():
+            self.assert_cannot_change_others_email(user, password, victim.id)
+
+    def test_admin_can_change_users_username(self):
+        admin = User.objects.get(username='admin')
+        passwd = 'admin'
+
+        self.assert_can_change_field(admin, passwd, 'username', 'some_', 4)
+        
+        
+
 
 
 class ShowUserRentalsTest(TestWithSmallDB):
@@ -463,7 +633,6 @@ class ReserveTest(TestWithSmallDB):
 
     def assert_rental_made(self, book_copy_id, from_='', to=''):
         ''' Just checks if given data allows proper rental. '''
-        from entelib.baseapp.models import Rental, BookCopy, Reservation
         url = self.url % book_copy_id
 
         # what was it like before
@@ -503,7 +672,6 @@ class ReserveTest(TestWithSmallDB):
         self.assertEquals(last_rental.start_date.date(), today())
 
     def assert_rental_not_made(self, book_copy_id, from_='', to='', status_code=None):
-        from entelib.baseapp.models import Rental, BookCopy, Reservation
         url = self.url % book_copy_id
 
         # situation before
@@ -526,7 +694,6 @@ class ReserveTest(TestWithSmallDB):
             self.assertEquals(status_code, response.status_code)
 
     def assert_reservation_made(self, copy_id, from_='', to=''):
-        from entelib.baseapp.models import Rental, BookCopy, Reservation
         url = self.url % copy_id
 
         # what was it like before
@@ -575,7 +742,6 @@ class ReserveTest(TestWithSmallDB):
         self.assertEquals([r for r in reservations_before], [r for r in Reservation.objects.all()][:-1])                      # old set == newset - newest
 
     def assert_reservation_not_made(self, book_copy_id, from_='', to='', status_code=200):
-        from entelib.baseapp.models import Rental, BookCopy, Reservation
         url = self.url % book_copy_id
 
         # situation before
@@ -670,7 +836,6 @@ class ReserveTest(TestWithSmallDB):
         self.assert_rental_made(book_copy_id)
 
     def test_user_cant_rent(self):  # ever
-        from entelib.baseapp.models import BookCopy
         self.log_user()
         for book_copy in BookCopy.objects.all():                     # for each book copy
             self.assert_rental_not_made(book_copy.id, from_=today())    # make sure it won't be rented by user (with any post sent)
@@ -761,7 +926,6 @@ class ReserveForUserTest(ShowBookcopyTest, ReserveTest):
     # following 3 methods are necessary - otherwise they would be inherited and would fail
 
     def test_user_cant_rent(self):
-        from entelib.baseapp.models import BookCopy
         self.log_user()
         for copy in BookCopy.objects.all():
             response = self.client.get(self.url % copy.id)

@@ -41,16 +41,23 @@ class Configuration(models.Model):
     description = models.CharField(max_length=CFG.configuration_descirption_len)
     can_override = models.BooleanField(default=True)
 
-    def __unicode__(self):
-        can_override_str = '+' if self.can_override else '-'
-        return u'[%s] %s => %s' % (can_override_str, self.key, self.value)
-
     class Meta:
         permissions = (
             ('list_config_options', "Can list configuration's options"),
             ('load_default_config', "Can load default values of configuration"),
             ('edit_option', "Can edit config option"),
             )
+
+    def __unicode__(self):
+        can_override_str = '+' if self.can_override else '-'
+        return u'[%s] %s => %s' % (can_override_str, self.key, self.value)
+
+    def __eq__(self, other):
+        return \
+            self.key          == other.key          and \
+            self.value        == other.value        and \
+            self.description  == other.description  and \
+            self.can_override == other.can_override
 
 
 class UserConfiguration(models.Model):
@@ -87,6 +94,7 @@ class PhoneType(models.Model):
         return unicode(self.name)
 
 
+
 class Phone(models.Model):
     '''
     A broadly defined telephone: VoIP, mobile, fax, ...
@@ -98,9 +106,14 @@ class Phone(models.Model):
     def __unicode__(self):
         return u"%s: %s" % (unicode(self.type), unicode(self.value))
 
+    def __eq__(self, other):
+        return self.id == other.id and \
+               self.type == other.type and \
+               self.value == other.value
 
-class PermisionNotDefined(Exception):
-    pass
+
+# class PermisionNotDefined(Exception):
+#     pass
 
 
 class UserProfile(models.Model):
@@ -123,6 +136,13 @@ class UserProfile(models.Model):
 
     def __unicode__(self):
         return u"%s's profile" % self.user.username
+
+    def __eq__(self, other):
+        return \
+            self.user == other.user and \
+            list(self.phone.all()) == list(other.phone.all()) and \
+            self.building == self.building
+        
 
     # def perm_exists(self, perm):
     #     '''
@@ -259,14 +279,22 @@ class BookRequest(models.Model):
     book = models.ForeignKey(Book, blank=True, null=True)
     info = models.TextField()
 
-    def __unicode__(self):
-        title = self.book.title if self.book else 'n/a'
-        return u'Request for: (%s) %s' % (title, self.info[:30], )
-
     class Meta:
         permissions = (
             ("list_bookrequests", "Can list book requests"),
             )
+
+    def __unicode__(self):
+        title = self.book.title if self.book else 'n/a'
+        return u'Request for: (%s) %s' % (title, self.info[:30], )
+
+    def __eq__(self, other):
+        return \
+            self.id   == other.id   and \
+            self.who  == other.who  and \
+            self.when == other.when and \
+            self.book == other.book and \
+            self.info == other.info
 
 
 class CostCenter(models.Model):
