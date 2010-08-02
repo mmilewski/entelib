@@ -4,7 +4,7 @@ from entelib.baseapp.utils import pprint, today, tomorrow, after_days
 import random
 from datetime import date, timedelta
 from entelib.baseapp.config import Config
-from entelib.baseapp.models import Reservation, Rental, User, UserProfile, Book, BookCopy, BookRequest, Configuration, Phone
+from entelib.baseapp.models import Reservation, Rental, User, UserProfile, Book, BookCopy, BookRequest, Configuration, Phone, Building
 
 class TestWithSmallDB(Test):
     '''
@@ -473,7 +473,7 @@ class EditUserProfileTest(TestWithSmallDB):
         self.assert_display_some_important_details(self.url, user)
 
 
-class DoEditUserProfileTest(EditUserProfileTest):
+class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
     def setUp(self):
         super(self.__class__, self).setUp()
         self.url_admin = '/entelib/users/%d/'
@@ -508,31 +508,33 @@ class DoEditUserProfileTest(EditUserProfileTest):
 
     # assertions
 
-    def assert_can_change_own_username(self, user, password):
-        ''' user is User object, password is string '''
-        new_username = 'nowy_username'
+    def assert_can_change_own_field(self, user, password, field, value):
+        ''' user is User object, password is string 
+            this works only for field of User class - not UserProfile class '''
+        # new_value = 'new_value'  # could be passed as argument
+        new_value = value
         
         before = self.get_state(User, UserProfile)
         
         self.client.login(username=user.username, password=password)
-        dict = self.create_post(user, password, {'username' : new_username})
+        dict = self.create_post(user, password, {field : new_value})
 
         response = self.client.post(self.url, dict)
         
         after = self.get_state(User, UserProfile)
 
-        self.assertEquals(new_username, User.objects.get(id=user.id).username)
+        self.assertEquals(new_value, User.objects.get(id=user.id).__getattribute__(field))
         self.assertEquals(len(before['User']), len(after['User']))
         self.assertEquals((before['UserProfile']), (after['UserProfile']))
 
-    def assert_cannot_change_others_email(self, user, password, other_user_id):
+    def assert_cannot_change_others_field(self, user, password, other_user_id, field, value):
         ''' user is User object, password is string '''
 
         new_email = 'some.diffrent.address@other.server.com'
         self.client.login(username=user.username, password=password)
-        dict = self.create_post(user, password, {'email' : new_email})
-        before = self.get_state(User, UserProfile, Phone)
+        dict = self.create_post(user, password, {field : value})
         
+        before = self.get_state(User, UserProfile, Phone)
 
         response = self.client.post(self.url_admin % other_user_id, {'current_password' : password, 'email' : new_email})
 
@@ -541,40 +543,52 @@ class DoEditUserProfileTest(EditUserProfileTest):
         self.assertStatesEqual(before, after)
         self.assertEquals(302, response.status_code)
 
-    def assert_can_change_field(self, user, password, field_name, new_value, affected_user_id):
-        ''' field_name and new_value are strings '''
+    def assert_can_change_someone_elses_field(self, user, password, field_name, post_variable_name, new_value, affected_user):
+        ''' 
+        field_name           - a string nameing a field
+        new_value            - a string - field's value
+        user, affected_user  - objects of User class
+        
+        '''
 
-        url = self.url_admin % affected_user_id
+        url = self.url_admin % affected_user.id
         self.client.login(username=user.username, password=password)
-        dict = self.create_post(user, password, {field_name : new_value})
+        dict = self.create_post(affected_user, password, {field_name : new_value})
         
         response = self.client.post(url, dict)
 
-        value_after_request = User.objects.get(id=affected_user_id).__getattribute__(field_name)
+        try:  # this takes care of fetching a value from field in either User object or UserProfile object.
+            value_after_request = User.objects.get(id=affected_user.id).__getattribute__(field_name)
+        except AttributeError:
+            value_after_request = UserProfile.objects.get(user=affected_user).__getattribute__(field_name)
         self.assertEquals(new_value, value_after_request)
 
-        
     # tests
 
     def test_user_can_change_username(self):
         user = User.objects.get(username='user')
-        self.assert_can_change_own_username(user, 'user')
+        self.assert_can_change_own_field(user, 'user', 'username', 'Robocop')
+
+    def test_user_can_change_email(self):
+        user = User.objects.get(username='user')
+        self.assert_can_change_own_field(user, 'user', 'email', 'new_email@russia.ru')
+
 
     def test_user_cannot_change_others_email(self):
         user = User.objects.get(username='user')
         password = 'user'
         password = 'user'
         for victim in User.objects.all():
-            self.assert_cannot_change_others_email(user, password, victim.id)
+            self.assert_cannot_change_others_field(user, password, victim.id, 'email', 'no-darn@email.works')
 
     def test_admin_can_change_users_username(self):
         admin = User.objects.get(username='admin')
         passwd = 'admin'
 
-        self.assert_can_change_field(admin, passwd, 'username', 'some_', 4)
-        
-        
+        for user in User.objects.exclude(username='admin'):
+            self.assert_can_change_someone_elses_field(admin, passwd, 'username', 'username', 'some_%d' % user.id, user)
 
+    # TODO: some tests on UserProfile
 
 
 class ShowUserRentalsTest(TestWithSmallDB):
