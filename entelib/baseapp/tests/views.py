@@ -573,6 +573,23 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
         user = User.objects.get(username='user')
         self.assert_can_change_own_field(user, 'user', 'email', 'new_email@russia.ru')
 
+    def test_user_can_change_password(self):
+        self.log_user()
+        user = User.objects.get(username='user')
+        new_password = 'brand_new_passwd'
+
+        dict = self.create_post(user, 'user', {'password1' : new_password, 'password2' : new_password, })
+        
+        response = self.client.post(self.url, dict, follow=True)
+
+        self.assertContains(response, 'updated')
+
+        self.logout()
+        self.client.login(username='user', password=new_password, follow=True)
+        
+        response = self.client.get('/entelib/', follow=True)
+        self.assertContains(response, 'Logged')         # login with new password succeeded
+        self.assertEquals(200, response.status_code)
 
     def test_user_cannot_change_others_email(self):
         user = User.objects.get(username='user')
@@ -588,11 +605,46 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
         for user in User.objects.exclude(username='admin'):
             self.assert_can_change_someone_elses_field(admin, passwd, 'username', 'username', 'some_%d' % user.id, user)
 
-    # TODO: some tests on UserProfile
+    def test_admin_can_change_someone_elses_building(self):
+        admin = User.objects.get(username='admin')
+        passwd = 'admin'
+        
+        for building_to_change_to_id in ['1', '2']:
+            for user in User.objects.all():  # exclude(username='admin'):
+                dict = self.create_post(user, passwd, {'work_building' : building_to_change_to_id})
+                
+                response = self.client.post(self.url_admin % user.id, dict, follow=True)
+                
+                fetched_building = Building.objects.get(id=building_to_change_to_id)
+                self.assertEquals(building_to_change_to_id, str(fetched_building.id))
 
+                changed_building_name = Building.objects.get(id=int(building_to_change_to_id))
+                self.assertContains(response, changed_building_name)
+                self.assertContains(response, 'updated')  # not very universal
 
-class ShowUserRentalsTest(TestWithSmallDB):
-    pass
+    def test_admin_can_change_someone_elses_phone(self):
+        admin = User.objects.get(username='admin')
+        passwd = 'admin'
+
+        for new_phone_type, new_phone_value in [('1', '654 321 012'), ('2', 'smoking.skype')]:
+
+            for phone_nr in xrange(0,5):
+                for user in User.objects.all():  # exclude(username='admin'):
+                    dict = self.create_post(user, passwd, 
+                        {'phoneType%d'  % phone_nr : new_phone_type,
+                         'phoneValue%d' % phone_nr : new_phone_value,
+                        })
+                    
+                    response = self.client.post(self.url_admin % user.id, dict, follow=True)
+                    
+                    fetched_value = User.objects.get(id=user.id).userprofile.phone.all()[phone_nr].value
+                    self.assert_(new_phone_value in [p.value for p in User.objects.get(id=user.id).userprofile.phone.all()])
+
+                    self.assertContains(response, new_phone_value)
+                    self.assertContains(response, 'updated')  # not very universal
+            
+
+class ShowUserRentalsTest(TestWithSmallDB): pass
 
 
 class ShowMyRentalsTest(TestWithSmallDB):
