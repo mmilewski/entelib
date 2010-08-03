@@ -72,6 +72,8 @@ urlpatterns = patterns(
 
     # reports
     (r'^report/$', view.show_reports),
+    # (r'^report/(?P<name>[\w_]+)/$', view.show_reports),
+    (r'^report/(?P<name>(status|most_often_rented|most_often_reserved|black_list|lost_books))/$', view.show_reports),
 
     # email logs
     (r'^emaillog/$', view.show_email_log),

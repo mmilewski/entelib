@@ -8,7 +8,14 @@
 
 {% block content %}
 
-<h2>{{item_name|default_if_none:"Page not found"}} not found</h2>
+{% if item_name %}
+  <h2>{{item_name}} not found</h2>
+{% else %}{% if msg %}
+  <h2>{{msg}}</h2>
+{% else %}
+  <h2>Page not found</h2>
+{% endif %}{% endif %}
+  
 <p>Sorry, but there is nothing to be displayed. What happened?</p>
 <ul>
   <li>You entered wrong query, or</li>
@@ -18,5 +25,7 @@
   <li>Found a bug</li>
   <li>Whatever, end of the world is comming.</li>
 </ul>
+
+{% go_back_link "Go back" %}
 
 {% endblock %}

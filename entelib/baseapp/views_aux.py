@@ -72,6 +72,11 @@ def render_not_implemented(request):
 
 
 def render_not_found(request, **kwargs):
+    ''' 
+    Args:
+        msg        -- displays msg.
+        item_name  -- displays: item_name not found.
+    '''
     context = kwargs
     return render_response(request, 'not_found.html', context)
 

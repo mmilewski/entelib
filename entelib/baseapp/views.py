@@ -7,8 +7,9 @@ from django.contrib import auth
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from baseapp.config import Config
@@ -126,6 +127,7 @@ def request_book(request, request_form=BookRequestForm):
     return render_response(request, template, context)
 
 
+@transaction.commit_on_success
 def register(request, action, registration_form=RegistrationForm, extra_context={}):
     '''
     Handles registration (adding new user) process.
@@ -166,7 +168,7 @@ def register(request, action, registration_form=RegistrationForm, extra_context=
                 form = registration_form(data=request.POST, files=request.FILES)
                 if form.is_valid():
                     new_user = form.save()
-                    messages.success(request, 'User registered.')
+                    messages.success(request, 'User registered, wait for activation.')
                     return HttpResponseRedirect('/entelib/')
             # display form
             else:
@@ -352,13 +354,13 @@ def show_book(request, book_id, non_standard_user_id=False):
         'categories'  : [c.name for c in book.category.all()],
         }
     locations_for_book = get_locations_for_book(book.id)
-    if not locations_for_book:
-        messages.warning('get_locations_for_book(%d): Book not found - wrong id' % book_id)
-    search_locations  = [{'name' : '-- Any --', 'id' : 0}]
-    search_locations += [{'name' : unicode(loc),
-                          'id' : loc.id,
-                          'selected': loc.id in selected_locations}
-                         for loc in locations_for_book]
+    search_locations = []
+    if locations_for_book: 
+        search_locations += [{'name' : '-- Any --', 'id' : 0}]
+        search_locations += [{'name' : unicode(loc),
+                              'id' : loc.id,
+                              'selected': loc.id in selected_locations}
+                              for loc in locations_for_book]
     search_data = {
         'locations' : search_locations,
         'copies_location_select_size': min(len(search_locations), config.get_int('copies_location_select_size')),      # count of elements displayed in <select> tag
@@ -576,47 +578,69 @@ def show_my_reservations(request):
 
 
 @permission_required('baseapp.list_reports')
-def show_reports(request):
-    report_types = [{'name': u'Library status', 'value': u'status'},
-                    {'name': u'Most often rented books', 'value': u'most_often_rented'},
-                    {'name': u'Most often reserved books', 'value': u'most_often_reserved'},
-                    {'name': u'Users black list', 'value': u'black_list'},
-                    {'name': u'Unavailable books', 'value': u'lost_books'}]
-    select_size = unicode(len(report_types))
+def show_reports(request, name=''):
+    template_for_report = {'status'              : 'reports/library_status.html',
+                           'black_list'          : 'reports/black_list.html',
+                           'lost_books'          : 'reports/unavailable_status.html',
+                           'most_often_rented'   : 'reports/most_often_rented.html',
+                           'most_often_reserved' : 'reports/most_often_reserved.html',
+    }
 
-    post = request.POST
-    if request.method == 'POST':
-        search_data = {'from': post['from'], 'to': post['to']}
-        if 'action' in post and post['action'].lower() == u'export to csv':
-            if ('from' in post) and ('to' in post) and ('report_type' in post):
-                response = generate_csv(post['report_type'], post['from'], post['to'])
+    report_name = name
+    if report_name and (report_name not in template_for_report.keys()):  # unknown report type
+        raise Http404
+
+    context = {}
+    if report_name:
+        post = request.POST
+        from_date = date(2000, 1, 1)
+        to_date = date(2500, 1, 1)
+        if 'from' in post:
+            from_date = str_to_date(post['from'], from_date)
+        if 'to' in post:
+            to_date = str_to_date(post['to'], to_date)
+        search_data = {'from': unicode(from_date), 'to': unicode(to_date)}
+        context['search'] = search_data
+        
+        if request.method == 'POST':
+            if 'btn_show' in post:
+                order_by = []
+                if 'ordering' in post:
+                    order_by.append(post['ordering'])
+                report_data = get_report_data(report_name, unicode(from_date), unicode(to_date), order_by=order_by)
+                context['error'] = report_data['error']
+                context['report'] = report_data['report']
+                context['ordering'] = report_data['ordering']
+                return render_response(request, template_for_report[report_name], context)
+            elif 'btn_generate_csv' in post:
+                order_by = []
+                if 'ordering' in post:
+                    order_by.append(post['ordering'])
+                response = generate_csv(report_name, unicode(from_date), unicode(to_date), order_by=order_by)
                 return response
-
-        elif 'action' in post and post['action'].lower() == u'show':
-            if ('from' in post) and ('to' in post) and ('report_type' in post):
-                report_data = get_report_data(post['report_type'], post['from'], post['to'])
-                report = report_data['report']
-                template = report_data['template']
-                error = report_data['error']
-                if not error:
-                    template = 'reports/' + template
-
-                select_if_chosen = lambda d: d.update({'selected': True}) if d['value'] == post['report_type'] else d
-                map(select_if_chosen, report_types)
-                return render_response( request,
-                                        template,
-                                        {
-                                            'select_size': select_size,
-                                            'error': error,
-                                            'search': search_data,
-                                            'report_types': report_types,
-                                            'report': report
-                                        })
+            else:  # sort command lookup
+                btn_sort_prefix = 'btn_sort_'
+                order_by = [ k[len(btn_sort_prefix):] for k in post.keys() if k.startswith(btn_sort_prefix)]
+                if not order_by:
+                    return render_not_found(request, msg='Action not recognized')
+                
+                report_data = get_report_data(report_name, unicode(from_date), unicode(to_date), order_by=order_by)
+                context['error'] = report_data['error']
+                context['report'] = report_data['report']
+                context['ordering'] = report_data['ordering']
+                return render_response(request, template_for_report[report_name], context)
+                
         else:
-            messages.info(request, 'show_reports does not understand this action')
-
-            
-    return render_response(request, 'reports.html', {'report_types': report_types, 'select_size': select_size})
+            order_by = []
+            if 'ordering' in post:
+                order_by.append(post['ordering'])
+            report_data = get_report_data(report_name, unicode(from_date), unicode(to_date), order_by=order_by)
+            context['report'] = report_data['report']
+            context['error']  = report_data['error']
+            context['ordering'] = report_data['ordering']
+            return render_response(request, template_for_report[report_name], context)
+    else:       
+        return render_response(request, 'reports.html', context)
 
 
 @permission_required('baseapp.list_users')

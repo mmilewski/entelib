@@ -3,18 +3,18 @@
 from pprint import pprint   # pretty printer
 import datetime
 
-def str_to_date(str):
+def str_to_date(str, default=None):
     ''' 
     Converts given string into datetime.date object. String should be like '2010-07-25'.
-    If conversion fails - returns None.
+    If conversion fails - returns default.
     '''    
     try:
         parsed_date = datetime.datetime.strptime(str, "%Y-%m-%d")
     except ValueError:
-        return None
+        return default
     else:
         return parsed_date.date()
-    return None
+    return default
 
 
 def today():
@@ -91,3 +91,9 @@ def month_for_day(day):
     ''' Returns year and month for given day. Month number contains in [1..12].'''
     return (day.year, day.month)
 
+
+def order_asc_by_key(key):
+    return lambda a,b: -1 if a[key] < b[key] else ( 1 if a[key] > b[key] else 0)
+    
+def order_desc_by_key(key):
+    return lambda a,b:  1 if a[key] < b[key] else (-1 if a[key] > b[key] else 0)

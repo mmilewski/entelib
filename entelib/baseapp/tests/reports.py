@@ -21,31 +21,31 @@ class RenderingReportsTest(TestCase, PageLogger):
     
     def test_render_library_status(self):
         ''' Checks if 'library status' report renders.'''
-        response = self.client.post('/entelib/report/', self.get_post_data_for_report_type('status'))
+        response = self.client.get('/entelib/report/status/')
         self.assertEquals(200, response.status_code)
         self.assertTemplateUsed(response, 'reports/library_status.html')
         
     def test_render_most_often_rented(self):
         ''' Checks if 'most often rented books' report renders.'''
-        response = self.client.post('/entelib/report/', self.get_post_data_for_report_type('most_often_rented'))
+        response = self.client.get('/entelib/report/most_often_rented/')
         self.assertEquals(200, response.status_code)
         self.assertTemplateUsed(response, 'reports/most_often_rented.html')
         
     def test_render_most_often_reserved(self):
         ''' Checks if 'most often reserved books' report renders.'''
-        response = self.client.post('/entelib/report/', self.get_post_data_for_report_type('most_often_reserved'))
+        response = self.client.get('/entelib/report/most_often_reserved/')
         self.assertEquals(200, response.status_code)
         self.assertTemplateUsed(response, 'reports/most_often_reserved.html')
         
     def test_render_user_black_list(self):
         ''' Checks if 'user black list' report renders.'''
-        response = self.client.post('/entelib/report/', self.get_post_data_for_report_type('black_list'))
+        response = self.client.get('/entelib/report/black_list/')
         self.assertEquals(200, response.status_code)
         self.assertTemplateUsed(response, 'reports/black_list.html')
         
     def test_render_unavailable_books(self):
         ''' Checks if 'unavailable books' report renders.'''
-        response = self.client.post('/entelib/report/', self.get_post_data_for_report_type('lost_books'))
+        response = self.client.get('/entelib/report/lost_books/')
         self.assertEquals(200, response.status_code)
         self.assertTemplateUsed(response, 'reports/library_status.html')
         

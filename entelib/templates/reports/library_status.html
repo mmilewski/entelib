@@ -1,25 +1,45 @@
 {% extends 'reports.html' %}
 
+{% block header %}Reports: Library status{% endblock %}
+
 {% block report %}
-    {% if display_tips %}
-    <div class="tip">
-      <p>Sorting as not available here, because current script doesn't cooperate well with row- and colspans.</p>
-    </div>
-    {% endif %}
+<form action="." method="POST">
+    {% include "reports/date_controls.html" %}
 
     <div style='margin-top: 1em'>
             <table class='booklist'>
                 <tr>
-                    <th rowspan='2'>Title</th>
-                    <th rowspan='2'>Location</th>
-                    <th rowspan='2'>Shelf mark</th>
-                    <th rowspan='2'>Status</th>
+                    <th rowspan='2'>Title
+                      <br>
+                      <input type="submit" name="btn_sort_title" value="^" title="Ascending"/>
+                      <input type="submit" name="btn_sort_-title" value="v" title="Descending"/></th>
+                    <th rowspan='2'>Location
+                      <br>
+                      <input type="submit" name="btn_sort_location" value="^" title="Ascending"/>
+                      <input type="submit" name="btn_sort_-location" value="v" title="Descending"/></th>
+                    <th rowspan='2'>Shelf mark
+                      <br>
+                      <input type="submit" name="btn_sort_shelf_mark" value="^" title="Ascending"/>
+                      <input type="submit" name="btn_sort_-shelf_mark" value="v" title="Descending"/></th>
+                    <th rowspan='2'>Status
+                      <br>
+                      <input type="submit" name="btn_sort_status" value="^" title="Ascending"/>
+                      <input type="submit" name="btn_sort_-status" value="v" title="Descending"/></th>
                     <th colspan='3'>Last time rented</th>
                 </tr>
                 <tr>
-                    <td>For whom</td>
-                    <td>When</td>
-                    <td>Librarian</td>
+                    <td>For whom
+                      <br>
+                      <input type="submit" name="btn_sort_for_whom" value="^" title="Ascending"/>
+                      <input type="submit" name="btn_sort_-for_whom" value="v" title="Descending"/></td>
+                    <td><span title="When rental stated">When</span>
+                      <br>
+                      <input type="submit" name="btn_sort_when" value="^" title="Ascending"/>
+                      <input type="submit" name="btn_sort_-when" value="v" title="Descending"/></td>
+                    <td>Librarian
+                      <br>
+                      <input type="submit" name="btn_sort_librarian" value="^" title="Ascending"/>
+                      <input type="submit" name="btn_sort_-librarian" value="v" title="Descending"/></td>
                 </tr>
                 {% for book in report %}
                 <tr>
@@ -38,4 +58,5 @@
                 {% endfor %}
             </table>
     </div>
+</form>
 {% endblock %}

@@ -1,15 +1,21 @@
 {% extends 'reports.html' %}
 
+{% block header %}Reports: Most often rented books{% endblock %}
+
 {% block report %}
-    <script type="text/javascript">
-      $(document).ready(function()  { $("#booklist").tablesorter(  ); } );
-    </script>
+<form action="." method="POST">
+    {% include "reports/date_controls.html" %}
+
     <div style='margin-top: 1em'>
-            <table class="booklist tablesorter" id="booklist">
+            <table class="booklist">
               <thead>
                 <tr>
-                    <th>Title</th>
-                    <th>Number of rentals</th>                                    
+                    <th>Title
+                      <input type="submit" name="btn_sort_title" value="^" title="Ascending"/>
+                      <input type="submit" name="btn_sort_-title" value="v" title="Descending"/></th>
+                    <th>Number of rentals
+                      <input type="submit" name="btn_sort_num_rentals" value="^" title="Ascending"/>
+                      <input type="submit" name="btn_sort_-num_rentals" value="v" title="Descending"/></th>
                 </tr>
               </thead>
               <tbody>
@@ -22,4 +28,5 @@
               </tbody>
             </table>
     </div>
+</form>
 {% endblock %}

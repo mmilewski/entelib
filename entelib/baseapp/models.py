@@ -215,6 +215,9 @@ class Location(models.Model):
     def __unicode__(self):
         return u'%s: %s' % (self.building.name, self.details)
 
+    class Meta:
+        ordering = ['building__name', 'details']
+
 
 class State(models.Model):
     id = models.AutoField(primary_key=True)
