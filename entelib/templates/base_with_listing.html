@@ -1,0 +1,37 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block title %}{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+     
+    {% block before_table %} {% endblock %}
+    <script type="text/javascript">
+        $(document).ready(function()  { $("#booklist").tablesorter( {sortList: [[1,0]]} ); } );
+    </script>
+
+    <div class="found_books">
+        <table class="booklist tablesorter" id="booklist">
+        <thead>
+            <tr class="header">
+                {% block header_row %}
+                    <th>Show button</th>
+                    <th>Title</th>
+                    <th>Authors</th>
+                {% endblock %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+                <tr class="book">
+                    {% block normal_row %}
+                    {% endblock %}
+                </tr>
+            {% endfor %}
+            
+        </tbody>
+        </table>
+    </div>
+    {% block after_table %} {% endblock %}
+{% endblock %}

@@ -7,6 +7,7 @@
 {% block header %}User rentals{% endblock %}
 
 {% block content %}
+<p>{% go_back_link "Go back" %}</p>
     <b>
         {{ first_name }} {{ last_name }}
         <br>
@@ -28,6 +29,6 @@
         {% endfor %}
     </ul>
 
-<p>{% go_back_link "Go back" %}</p>
+<a href='archive/'>Show archive</a>
 {% endblock %}
 

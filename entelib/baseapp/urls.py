@@ -33,6 +33,7 @@ urlpatterns = patterns(
     (r'^users/add/$', view.add_user),
     (r'^users/(\d+)/$', view.show_user),
     (r'^users/(\d+)/reservations/$', view.show_user_reservations),
+    (r'^users/(\d+)/reservations/archive/$', view.show_user_reservation_archive),
     (r'^users/(\d+)/reservations/(\d+)/$', view.show_user_reservation),
     (r'^users/(\d+)/reservations/new/$', view.find_book_for_user),
     (r'^users/(\d+)/reservations/new/book/(\d+)/$', view.find_book_for_user),
@@ -41,15 +42,18 @@ urlpatterns = patterns(
     # (r'^users/(\d+)/rent-book/(\d+)/$', view.show_user_reservation),
     # (r'^users/(\d+)/rent-book/$', view.user_list_books),
     (r'^users/(\d+)/rentals/$', view.show_user_rentals),
+    (r'^users/(\d+)/rentals/archive/$', view.show_user_rental_archive),
     # (r'^users/(\d+)/rentals/(\d+)/$', view.user_rental),
     # (r'^users/(\d+)/books/$', view.user_books),
 
     #user profile
     (r'^profile/$', view.edit_user_profile),
     (r'^profile/reservations/$', view.show_my_reservations),
+    (r'^profile/reservations/archive/$', view.show_my_reservation_archive),
     (r'^profile/reservations/new/$', view.my_new_reservation),
     (r'^profile/reservations/cancel-all/$', view.cancel_all_my_reserevations),
     (r'^profile/rentals/$', view.show_my_rentals),
+    (r'^profile/rentals/$', view.show_my_rental_archive),
 
     # registration
     # (r'^register/$', view.register),
@@ -63,6 +67,7 @@ urlpatterns = patterns(
 
     # book copies
     (r'^bookcopy/(\d+)/$', view.show_book_copy),
+    (r'^bookcopy/(\d+)/up/$', view.book_copy_up_link),
     (r'^bookcopy/(\d+)/reserve/$', view.reserve),
 
     # reports

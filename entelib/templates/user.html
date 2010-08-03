@@ -7,6 +7,8 @@
 {% block header %}User profile - {{first_name}} {{last_name}}{% endblock %}
 
 {% block content %}
+    {% go_back_link "Go back" %}
+
     <ul class="spaces userProfile">
       <!-- <li><span class="label">Name</span>: {{ first_name }}</li> -->
       <!-- <li><span class="label">Surname</span>: {{ last_name }}</li> -->
@@ -31,8 +33,6 @@
         <a href='{{ rentals }}'>Rentals</a> |
         </b>
     </div>
-
-    {% go_back_link "Go back" %}
 
     {% block edit_form %}
     {% endblock %}

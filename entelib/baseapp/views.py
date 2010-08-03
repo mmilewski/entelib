@@ -397,6 +397,13 @@ def show_book_copy(request, bookcopy_id):
     return render_response(request, 'bookcopy.html', context)
 
 
+@login_required
+def book_copy_up_link(request, bookcopy_id):
+    book_id = get_object_or_404(BookCopy, id=bookcopy_id).book.id
+    return HttpResponseRedirect('/entelib/books/%d/' % book_id)
+
+
+
 @permission_required('baseapp.list_users')
 def show_users(request):
     context = {}
@@ -508,6 +515,26 @@ def show_my_rentals(request):
 @permission_required('baseapp.list_users')
 def show_user_reservations(request, user_id):
     return aux.show_user_reservations(request, user_id)
+
+
+@permission_required('baseapp.list_users')
+def show_user_reservation_archive(request, user_id):
+    return aux.show_user_reservation_archive(request, user_id)
+
+
+@login_required
+def show_my_reservation_archive(request):
+    return aux.show_user_reservation_archive(request)
+ 
+
+@permission_required('baseapp.list_users')
+def show_user_rental_archive(request, user_id):
+    return aux.show_user_rental_archive(request, user_id)
+
+
+@login_required
+def show_my_rental_archive(request, user_id):
+   return aux.show_user_rental_archive(request)
 
 
 @login_required

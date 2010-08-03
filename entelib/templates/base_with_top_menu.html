@@ -3,13 +3,19 @@
 {% block menu %}
     <div id='menu'>
         <ul>
-            {% if can_list_books %}                <li><a href="/entelib/books/">Book list</a></li>                 {% endif %}
-            {% if can_add_bookrequest %}           <li><a href="/entelib/requestbook/">Request book</a></li>        {% endif %}
-            {% if can_view_own_profile %}          <li><a href="/entelib/profile/">My profile</a></li>              {% endif %}
-            {% if can_list_config_options %}       <li><a href="/entelib/config/">Configuration</a></li>            {% endif %}
-            {% if can_list_users %}                <li><a href="/entelib/users/">User list</a></li>                 {% endif %}
-            {% if can_list_reports %}              <li><a href="/entelib/report/">Reports</a></li>                  {% endif %}
-            {% if can_access_admin_panel %}        <li><a href="/entelib/admin/">Admin panel</a></li>               {% endif %}
+            {% if false %} Nie wiem jak mozna robic komentarze w template'ach. 
+                           Zastanawiam sie czy to sprawdzanie uprawnien dla np list books czy views onw profile
+                           do czegos to w ogole prowadzi. - mbr
+            {% endif %}
+            {% if can_list_books %}                <li><a href="/entelib/books/">Book list</a></li>                        {% endif %}
+            {% if can_add_bookrequest %}           <li><a href="/entelib/requestbook/">Request book</a></li>               {% endif %}
+            {% if can_view_own_profile %}          <li><a href="/entelib/profile/">My profile</a></li>                     {% endif %}
+            {% if can_view_own_profile %}          <li><a href="/entelib/profile/rentals/">My rentals</a></li>             {% endif %}
+            {% if can_view_own_profile %}          <li><a href="/entelib/profile/reservations/">My reservations</a></li>   {% endif %}
+            {% if can_list_config_options %}       <li><a href="/entelib/config/">Configuration</a></li>                   {% endif %}
+            {% if can_list_users %}                <li><a href="/entelib/users/">User list</a></li>                        {% endif %}
+            {% if can_list_reports %}              <li><a href="/entelib/report/">Reports</a></li>                         {% endif %}
+            {% if can_access_admin_panel %}        <li><a href="/entelib/admin/">Admin panel</a></li>                      {% endif %}
                                                    <li><a href="/entelib/logout/">Logout</a></li>
         </ul>
     </div>
@@ -26,5 +32,5 @@
 {% endblock %}
 
 {% block rest %}
-    <div id='content'>{% block content %}{% endblock %}</div>
+    <div id='content'>{% block go_back %} <a href=../>Go back</a><br /> {% endblock %} {% block content %}{% endblock %}</div>
 {% endblock %}

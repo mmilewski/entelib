@@ -54,6 +54,7 @@ class Configuration(models.Model):
 
     def __eq__(self, other):
         return \
+            isinstance(other, Configuration) and \
             self.key          == other.key          and \
             self.value        == other.value        and \
             self.description  == other.description  and \
@@ -107,7 +108,8 @@ class Phone(models.Model):
         return u"%s: %s" % (unicode(self.type), unicode(self.value))
 
     def __eq__(self, other):
-        return self.id == other.id and \
+        return isinstance(other,Phone) and \
+               self.id == other.id and \
                self.type == other.type and \
                self.value == other.value
 
@@ -139,6 +141,7 @@ class UserProfile(models.Model):
 
     def __eq__(self, other):
         return \
+            isinstance(other,UserProfile) and \
             self.user == other.user and \
             list(self.phone.all()) == list(other.phone.all()) and \
             self.building == self.building
@@ -290,6 +293,7 @@ class BookRequest(models.Model):
 
     def __eq__(self, other):
         return \
+            isinstance(other,BookRequest) and \
             self.id   == other.id   and \
             self.who  == other.who  and \
             self.when == other.when and \
@@ -369,6 +373,7 @@ class Reservation(models.Model):
 
     def __eq__(self, other):
         return \
+          isinstance(other,Reservation) and \
           self.id == other.id and \
           self.book_copy      == other.book_copy and \
           self.for_whom       == other.for_whom and \
@@ -409,6 +414,7 @@ class Rental(models.Model):
 
     def __eq__(self, other):
         return \
+          isinstance(other,Rental) and \
           self.id             == other.id and \
           self.reservation    == other.reservation and \
           self.start_date     == other.start_date and \

@@ -5,6 +5,8 @@
 {% block edit_form %}
 
 {% if perms.auth.change_user or user_id == user.id %}
+	{% go_back_link "Go back" %}
+
 
 	<div class="editingWrapper">
 	  <h2 id="edit">Edit profile</h2>
@@ -36,8 +38,6 @@
 	    </div>
 	</div>
 	
-	{% go_back_link "Go back" %}
-
 {% endif %} <!-- has edit perms -->
 
 {% endblock %}

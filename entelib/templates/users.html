@@ -7,6 +7,7 @@
 {% block header %}User list{% endblock %}
 
 {% block content %}
+    {% go_back_link "Go back" %}
     <div class='content_form'>
         <form action='.' method='post'>
             <table>
@@ -26,7 +27,6 @@
             </table>
         </form>
     </div>
-    {% go_back_link "Go back" %}
 
     {% if perms.auth.add_user %}
     <div class="add_new_user">

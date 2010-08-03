@@ -1,0 +1,33 @@
+{% extends 'base_with_listing.html' %}
+
+{% block title %}All reservations{% endblock %}
+
+{% block header %} {% if for_whom %} {{ for_whom }} {% else %} Reservation archive{% endif %} {% endblock %}
+
+    {% block header_row %}
+        <th> ID      </th>
+        <th> Title   </th>
+        <th>Authors  </th>
+        <th>Reserved </th>
+        <th>Rented   </th>
+        <th>Returned </th>
+        <th>Cancelled</th>
+    {% endblock %}
+
+    {% block normal_row %}
+        <td>
+            {{ row.id  }}
+        </td><td>
+            {{ row.title }}
+        </td><td>
+            {% if row.authors %}{{ row.authors|join:', '}}{% endif %}
+        </td><td>
+            {{ row.reserved }}
+        </td><td>
+            {{ row.rented }}
+        </td><td>
+            {{ row.returned }}
+        </td><td>
+            {{ row.cancelled }}
+        </td>
+    {% endblock %}

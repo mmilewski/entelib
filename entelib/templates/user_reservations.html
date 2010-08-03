@@ -7,6 +7,7 @@
 {% block header %}User reservations{% endblock %}
 
 {% block content %}
+<p>{% go_back_link "Go back" %}</p>
 <b>
     {{ first_name }} {{ last_name }}
     <br \>
@@ -44,10 +45,13 @@
     {% endfor %}
 </ul>
 
-<p>{% go_back_link "Go back" %}</p>
+
+<a href='{{ cancel_all_url }}'>Cancel all reservations</a>
+<p>
+<a href='archive/'>Show archive</a>
+<p>
+<a href='new/'>Rent something else.</a>
+<p>
 
 <br/>
-<a href='{{ cancel_all_url }}'>Cancel all reservations</a>
-<br /><br/>
-<a href='new/'>Rent something else.</a>
 {% endblock %}

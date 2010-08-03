@@ -78,7 +78,7 @@
         <tbody>
             {% for book in books %}
             <tr class="book">
-                <td class="show"><a href='{{ book.url }}'>Show book</a>
+                <td class="show"><a href='{{ book.url }}'>Show book</a></td>
                 <td class="title">{{ book.title }}</td>
                 <td class="authors">{% if book.authors %}{{ book.authors|join:', '}}{% else %}No authors.{% endif %}</td>
             {% endfor %}
