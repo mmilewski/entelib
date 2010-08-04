@@ -53,7 +53,7 @@ urlpatterns = patterns(
     (r'^profile/reservations/new/$', view.my_new_reservation),
     (r'^profile/reservations/cancel-all/$', view.cancel_all_my_reserevations),
     (r'^profile/rentals/$', view.show_my_rentals),
-    (r'^profile/rentals/$', view.show_my_rental_archive),
+    (r'^profile/rentals/archive/$', view.show_my_rental_archive),
 
     # registration
     # (r'^register/$', view.register),

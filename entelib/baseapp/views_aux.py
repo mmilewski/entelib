@@ -481,19 +481,23 @@ def show_user_rental_archive(request, user_id=False):
     else:
         user = request.user
 
-    rentals = Rental.objects.filter(reservation__for_whom=user)
+    rentals = Rental.objects.all() #filter(reservation__for_whom=user)
 
-    rental_list = []
+    rent_list = []
     for rental in rentals:
         rent_list.append({
             'id' : rental.reservation.book_copy.shelf_mark,
             'title' : rental.reservation.book_copy.book.title,
             'authors' : [a.name for a in rental.reservation.book_copy.book.author.all()],
-            'rented' : rental.start_date,
-            'returned' : rental.end_date.isoformat() if rental.end_date else 'Not returned',
+            'rented' : rental.start_date.date().isoformat(),
+            'returned' : rental.end_date.date().isoformat() if rental.end_date else None,
             })
 
-    return render_not_implemented(request)
+    context = { 'rows' : rent_list,
+                'for_whom' : user.first_name + ' ' + user.last_name if user_id else None,
+              }
+    return render_response(request, 'rental_archive.html', context)
+
 
 def mark_available(book_copy):
     '''
@@ -581,9 +585,9 @@ def show_user_reservation_archive(request, user_id=None):
 
     reservation_list = []
     for reservation in reservations:
-        rented = '---'
-        returned = '---'
-        cancelled = '---'
+        rented = None
+        returned = None
+        cancelled = None
 
         if reservation.rental_set.all():
             rented = reservation.rental_set.all()[0].start_date.date().isoformat()
@@ -594,18 +598,24 @@ def show_user_reservation_archive(request, user_id=None):
             cancelled = 'Cancelled %s (%s)' % (reservation.when_cancelled.date().isoformat(), reservation.who_cancelled.first_name +\
                                                                                        ' ' + \
                                                                                        reservation.who_cancelled.last_name)
+        elif reservation.when_cancelled:
+            cancelled = 'Expired %s' % reservation.end_date.isoformat()
 
         reservation_list.append({
             'id' : reservation.book_copy.shelf_mark,
             'title' : reservation.book_copy.book.title,
             'authors' : [a.name for a in reservation.book_copy.book.author.all()],
-            'reserved' : reservation.start_date,
+            'reserved' : reservation.start_date.isoformat(),
+            'reservation_end' : reservation.end_date.isoformat(),
             'rented' : rented,
             'returned' : returned, 
             'cancelled' : cancelled,
             })
+    context = {'rows' : reservation_list,
+               'for_whom' : user.first_name + ' ' + user.last_name if user_id else None,
+               }
 
-    return render_response(request, 'reservation_archive.html', {'rows' : reservation_list})
+    return render_response(request, 'reservation_archive.html', context)
 
 
 

@@ -535,7 +535,7 @@ def show_user_rental_archive(request, user_id):
 
 
 @login_required
-def show_my_rental_archive(request, user_id):
+def show_my_rental_archive(request):
    return aux.show_user_rental_archive(request)
 
 

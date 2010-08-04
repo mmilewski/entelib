@@ -137,7 +137,7 @@ class RequestBookTest(TestWithSmallDB):
 
 
 class RegisterTest(TestWithSmallDB):
-    pass
+    pass  # TODO
 
 
 class LogoutTest(TestWithSmallDB):
@@ -644,19 +644,103 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
                     self.assertContains(response, 'updated')  # not very universal
             
 
-class ShowUserRentalsTest(TestWithSmallDB): pass
+class ShowUserRentalsTest(TestWithSmallDB):
+    def setUp(self):
+        self.url = '/entelib/users/%d/rentals/'
+        self.log_lib()
+
+    def test_all_users_have_all_rentals_displayed(self):
+        for user in User.objects.all():
+            url = self.url % user.id
+            response = self.client.get(url)
+            for rental in Rental.objects.filter(reservation__for_whom=user, end_date=None):
+                self.assertContains(response, rental.reservation.book_copy.shelf_mark)
+
+
+class ShowUserRentalsArchiveTest(TestWithSmallDB):
+    def setUp(self):
+        self.url = '/entelib/users/%d/rentals/archive/'
+        self.log_lib()
+
+    def test_all_users_have_all_rentals_displayed(self):
+        for user in User.objects.all():
+            url = self.url % user.id
+            response = self.client.get(url)
+            for rental in Rental.objects.filter(reservation__for_whom=user):
+                self.assertContains(response, rental.reservation.book_copy.shelf_mark)
 
 
 class ShowMyRentalsTest(TestWithSmallDB):
-    pass
+    def setUp(self):
+        self.url = '/entelib/profile/rentals/'
+        self.log_user()
+
+    def test_all_rentals_displayed(self):
+        user = User.objects.get(username='user')
+        response = self.client.get(self.url)
+        for rental in Rental.objects.filter(reservation__for_whom=user, end_date=None):
+            self.assertContains(response, rental.reservation.book_copy.shelf_mark)
+
+
+class ShowMyRentalsTest(TestWithSmallDB):
+    def setUp(self):
+        self.url = '/entelib/profile/rentals/'
+        self.log_user()
+
+    def test_all_rentals_displayed(self):
+        user = User.objects.get(username='user')
+        response = self.client.get(self.url)
+        for rental in Rental.objects.filter(reservation__for_whom=user):
+            self.assertContains(response, rental.reservation.book_copy.shelf_mark)
 
 
 class ShowUserReservationsTest(TestWithSmallDB):
-    pass
+    def setUp(self):
+        self.url = '/entelib/users/%d/reservations/'
+        self.log_lib()
 
+    def test_all_users_have_all_reservations_displayed(self):
+        for user in User.objects.all():
+            url = self.url % user.id
+            response = self.client.get(url)
+            for reservation in Reservation.objects.filter(for_whom=user, rental=None, when_cancelled=None):
+                self.assertContains(response, reservation.book_copy.shelf_mark)
 
+class ShowUserReservationsArchiveTest(TestWithSmallDB):
+    def setUp(self):
+        self.url = '/entelib/users/%d/reservations/archive/'
+        self.log_lib()
+
+    def test_all_users_have_all_reservations_displayed(self):
+        for user in User.objects.all():
+            url = self.url % user.id
+            response = self.client.get(url)
+            for reservation in Reservation.objects.filter(for_whom=user):
+                self.assertContains(response, reservation.book_copy.shelf_mark, msg_prefix='User: %d, Reservation: %d' % (user.id, reservation.id))
+         
+        
 class ShowMyReservationsTest(TestWithSmallDB):
-    pass
+    def setUp(self):
+        self.url = '/entelib/profile/reservations/'
+        self.log_user()
+
+    def test_all_users_have_all_reservations_displayed(self):
+        user = User.objects.get(username='user')
+        response = self.client.get(self.url)
+        for reservation in Reservation.objects.filter(for_whom=user, rental=None, when_cancelled=None):
+            self.assertContains(response, reservation.book_copy.shelf_mark)
+
+        
+class ShowMyReservationsArchiveTest(TestWithSmallDB):
+    def setUp(self):
+        self.url = '/entelib/profile/reservations/'
+        self.log_user()
+
+    def test_all_users_have_all_reservations_displayed(self):
+        user = User.objects.get(username='user')
+        response = self.client.get(self.url)
+        for reservation in Reservation.objects.filter(for_whom=user):
+            self.assertContains(response, reservation.book_copy.shelf_mark)
 
 
 class ShowReportsTest(TestWithSmallDB):
@@ -664,10 +748,6 @@ class ShowReportsTest(TestWithSmallDB):
 
 
 class FindBookForUserTest(TestWithSmallDB):
-    pass
-
-
-class ShowUserReservationTest(TestWithSmallDB):
     pass
 
 
@@ -1063,14 +1143,10 @@ class CancelAllMyReserevationsTest(TestWithSmallDB):
         user = User.objects.get(id=4)
         copy = BookCopy.objects.get(id=4)
         Reservation(for_whom=user, book_copy=copy, who_reserved=user, start_date=today(), end_date=tomorrow()).save()
-        
-        
 
     def test_rentals_not_touched(self):
-        pass
-
-
+        pass  # TODO
 
 
 class CancelAllUserResevationsTest(TestWithSmallDB):
-    pass
+    pass  # TODO

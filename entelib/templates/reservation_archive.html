@@ -11,10 +11,11 @@
         <th>ID      </th>
         <th>Title   </th>
         <th>Authors  </th>
-        <th>Reserved </th>
+        <th>Start    </th>
+        <th>End      </th>
         <th>Rented   </th>
         <th>Returned </th>
-        <th>Cancelled</th>
+        <th>Notes    </th>
     {% endblock %}
 
     {% block item_row %}
@@ -27,10 +28,12 @@
         </td><td>
             {{ row.reserved }}
         </td><td>
-            {{ row.rented }}
+            {{ row.reservation_end }}
         </td><td>
-            {{ row.returned }}
+            {% if row.rented %} {{ row.rented }} {% else %} --- {% endif %}
         </td><td>
-            {{ row.cancelled }}
+            {% if row.returned %} {{ row.returned }} {% else %} --- {% endif %}
+        </td><td>
+            {% if row.cancelled %} {{ row.cancelled }} {% else %} --- {% endif %}
         </td>
     {% endblock %}

@@ -3,10 +3,6 @@
 {% block menu %}
     <div id='menu'>
         <ul>
-            {% if false %} Nie wiem jak mozna robic komentarze w template'ach. 
-                           Zastanawiam sie czy to sprawdzanie uprawnien dla np list books czy views onw profile
-                           do czegos to w ogole prowadzi. - mbr
-            {% endif %}
             {% if can_list_books %}                <li><a href="/entelib/books/">Book list</a></li>                        {% endif %}
             {% if can_add_bookrequest %}           <li><a href="/entelib/requestbook/">Request book</a></li>               {% endif %}
             {% if can_view_own_profile %}          <li><a href="/entelib/profile/">My profile</a></li>                     {% endif %}
