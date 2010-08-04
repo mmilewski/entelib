@@ -28,5 +28,11 @@
 {% endblock %}
 
 {% block rest %}
-    <div id='content'>{% block go_back %} <a href=../>Go back</a><br /> {% endblock %} {% block content %}{% endblock %}</div>
+    <div id='content'>
+        {% block go_up %} 
+            <a href=../>Go UP</a><br /> 
+        {% endblock %} 
+        {% block content %}
+        {% endblock %}
+    </div>
 {% endblock %}

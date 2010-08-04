@@ -1,12 +1,8 @@
 {% extends 'user.html' %}
 
-{% load go_back_link %}
-
 {% block edit_form %}
 
 {% if perms.auth.change_user or user_id == user.id %}
-	{% go_back_link "Go back" %}
-
 
 	<div class="editingWrapper">
 	  <h2 id="edit">Edit profile</h2>
