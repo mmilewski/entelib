@@ -4,9 +4,12 @@
 
 {% block header %} {% if for_whom %} {{ for_whom }} {% else %} Reservation archive{% endif %} {% endblock %}
 
+{% block order %} [[1,0]] {% endblock %}
+{% block itemsWrapper %}rsv_archive{% endblock %}
+
     {% block header_row %}
-        <th> ID      </th>
-        <th> Title   </th>
+        <th>ID      </th>
+        <th>Title   </th>
         <th>Authors  </th>
         <th>Reserved </th>
         <th>Rented   </th>
@@ -14,7 +17,7 @@
         <th>Cancelled</th>
     {% endblock %}
 
-    {% block normal_row %}
+    {% block item_row %}
         <td>
             {{ row.id  }}
         </td><td>
