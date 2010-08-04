@@ -409,24 +409,26 @@ def book_copy_up_link(request, bookcopy_id):
 @permission_required('baseapp.list_users')
 def show_users(request):
     context = {}
-    # we only need to do something if some POST data was sent
+    buildings = [{'id':0, 'name':'Any'}] + list(Building.objects.values('id', 'name'))
+    context.update({'buildings' : buildings})
+
     if request.method == 'POST':
-        request_first_name   = request.POST['first_name'].strip() if 'first_name' in request.POST else ''
-        request_last_name    = request.POST['last_name'].strip() if 'last_name' in request.POST else ''
-        request_email        = request.POST['email'].strip() if 'email' in request.POST else ''
-        # request_is_librarian = ('is_librarian' in request.POST)
+        post = request.POST
+        request_first_name       = post['first_name'].strip() if 'first_name' in post else ''
+        request_last_name        = post['last_name'].strip() if 'last_name' in post else ''
+        request_email            = post['email'].strip() if 'email' in post else ''
+        request_from_my_building = 'from_my_building' in post
+        request_building_id      = int(post['building'])
         user_list = []
 
-        # # filter by being in Librarians group
-        # librarians_group = Group.objects.get(name='Librarians')  # TODO: this needs to read from somewhere (update: if we ever decide to use it)
-        # if request_is_librarian:
-        #     is_to_be_shown = lambda u: librarians_group in u.groups.all()
-        # else:
-        #     is_to_be_shown = lambda u: True
-
         # searching for users
-        if 'action' in request.POST and request.POST['action'] == 'Search':
-            user_list = [ {'username'   : u.username,    # rather temporary here (need this when defining location-librarian relation).
+        if 'action' in post and post['action'] == 'Search':
+            building_filter = Q()
+            if request_from_my_building:
+                building_filter = Q(userprofile__building__id=request.user.userprofile.building.id)
+            elif request_building_id:
+                building_filter = Q(userprofile__building__id=request_building_id)
+            user_list = [ {'username'   : u.username,
                            'last_name'  : u.last_name,
                            'first_name' : u.first_name,
                            'email'      : u.email,
@@ -435,21 +437,29 @@ def show_users(request):
                           for u in User.objects.filter(first_name__icontains=request_first_name)
                                                .filter(last_name__icontains=request_last_name)
                                                .filter(email__icontains=request_email)
-        #                  if is_to_be_shown(u)  # this was used when filtering librarians was used
+                                               .filter(building_filter)
                         ]
         # we want search values back in appropriate fields
         search_data = {
-            'first_name'   : request_first_name,
-            'last_name'    : request_last_name,
-            'email'        : request_email,
-            # 'is_librarian' : request_is_librarian,
+            'first_name'       : request_first_name,
+            'last_name'        : request_last_name,
+            'email'            : request_email,
             }
 
-        context = {
-            'users'        : user_list,
-            'search'       : search_data,
-            'non_found'    : not len(user_list)  # if no users was found were pass True
-            }
+        try:
+            building_pair = {'id' : request_building_id, 'name' : Building.objects.get(id=request_building_id).name}
+            building_index = buildings.index(building_pair)
+        except Building.DoesNotExist: # ValueError:
+            building_index = 0
+            
+        context['buildings'][building_index].update({'selected' : True})
+
+        context.update({
+            'users'            : user_list,
+            'search'           : search_data,
+            'non_found'        : not len(user_list),  # if no users was found were pass True
+            'from_my_building' : request_from_my_building,
+            })
     return render_response(request, 'users.html', context)
 
 

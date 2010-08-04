@@ -21,8 +21,27 @@
                     <td>Email: </td>
                     <td><input type='text' name='email' value='{{ search.email|urlize }}'></td>
                 </tr><tr>
-                    <td></td>
-                    <td><input type='submit'  name='action' value='Search'></td>
+                </tr><tr>
+                    <td>Building:</td>
+                    <td>
+                        <select name="building">
+                            {% for building in buildings %}
+                                <option value={{ building.id }} {% if building.selected %} selected='selected' {% endif %} >
+                                    {{ building.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr><tr>
+                    <!-- <td></td> -->
+                    <td> </td>
+                    <td>
+                        <input type='submit'  name='action' value='Search'>
+                    </td>
+                    <td>
+                        <input type='checkbox' name='from_my_building' value='checked' {% if from_my_building %} checked='checked' {% endif %} >
+                        From my building 
+                    </td>
                 </tr>
             </table>
         </form>
