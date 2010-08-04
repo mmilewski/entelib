@@ -90,6 +90,21 @@ table select {
     width: 100%;
 }
 
+/* reservation archive */
+div.rsv_archive table {
+    margin-top: 1em;
+    width: 100%;
+    border: 1px solid #000;
+    text-align: center;
+}
+
+div.rsv_archive table td,
+div.rsv_archive table th {
+    padding: .4em .5em;
+    border: 1px solid #000;
+}
+
+
 table.booklist
 {
     margin-top: 1em;
@@ -99,9 +114,8 @@ table.booklist
 }
 
 table.booklist td,
-table.booklist th
-{
-    padding: 0.5em;
+table.booklist th {
+    padding: .4em .5em;
     border: 1px solid #000;
 }
 

@@ -3,7 +3,7 @@
 from entelib.baseapp.models import Reservation, Rental, BookCopy, Book, User, Location
 from django.core.exceptions import PermissionDenied
 from django.template import RequestContext
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from datetime import date, datetime, timedelta
 from config import Config
@@ -512,7 +512,7 @@ def show_user_reservations(request, user_id=False):
     if not user_id:
         user = request.user
     else:
-        get_object_or_404(User, id=user_id)
+        user = get_object_or_404(User, id=user_id)
         # try:
         #     user = User.objects.get(id=user_id)
         # except User.DoesNotExist:
