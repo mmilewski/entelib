@@ -1187,4 +1187,41 @@ class CancelAllMyReserevationsTest(TestWithSmallDB):
 
 
 class CancelAllUserResevationsTest(TestWithSmallDB):
-    pass  # TODO
+    pass  #TODO
+
+
+
+class ShowLocationTest(TestWithSmallDB):
+    def setUp(self):
+        self.log_user()
+        loc_id = 1
+        self.url = '/entelib/location/%d/' % loc_id
+        
+    def test_displays(self):
+        response = self.client.get(self.url)
+        # page displayed correctly
+        self.assertEquals(200, response)
+        self.assertContains(response, 'W remoncie')    # remarks
+        self.assertContains(response, 'Room 2')        # details
+        self.assertContains(response, 'Maintainers')   # maintainers
+        self.assertContains(response, 'admin')
+        self.assertContains(response, 'lib')
+        self.assertTemplateUsed(response, 'locations/one.html')
+        
+        
+        
+class ShowLocationsTest(TestWithSmallDB):
+    def setUp(self):
+        self.log_user()
+        self.url = '/entelib/locations/'
+        
+    def test_displays(self):
+        response = self.client.get(self.url)
+        # page displayed correctly
+        self.assertEquals(200, response)
+        self.assertContains(response, 'W remoncie')    # remarks
+        self.assertContains(response, 'Room 2')        # details
+        self.assertContains(response, 'Maintainers')   # maintainers
+        self.assertContains(response, 'admin')
+        self.assertContains(response, 'lib')
+        self.assertTemplateUsed(response, 'locations/list.html')

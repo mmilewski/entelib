@@ -651,7 +651,7 @@
         "fields": {
             "building": 2, 
             "remarks": "W remoncie", 
-            "maintainer": [], 
+            "maintainer": [2, 3], 
             "details": "Room 2"
         }
     }, 

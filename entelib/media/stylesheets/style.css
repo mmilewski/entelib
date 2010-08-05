@@ -97,7 +97,6 @@ div.rsv_archive table {
     border: 1px solid #000;
     text-align: center;
 }
-
 div.rsv_archive table td,
 div.rsv_archive table th {
     padding: .4em .5em;
@@ -105,8 +104,22 @@ div.rsv_archive table th {
 }
 
 
-table.booklist
-{
+/* locations list */
+div.locs_list table {      /* locations/list.html */
+    margin-top: 1em;
+    width: 100%;
+    border: 1px solid #000;
+    text-align: center;
+}
+div.locs_list table td,
+div.locs_list table th {
+    padding: .4em .5em;
+    border: 1px solid #000;
+}
+
+
+/* book list */
+table.booklist {
     margin-top: 1em;
     width: 100%;
     border: 1px solid #000;
@@ -118,35 +131,27 @@ table.booklist th {
     padding: .4em .5em;
     border: 1px solid #000;
 }
-
 table.booklist .title,
 table.booklist .authors {
     text-align: left;
 }
-
 table.booklist .actions {   /* bookcopies.html */
     text-align: left;
     margin: 0.5em 0 0.5em 2em;
     padding: 0;
+    background-color: #79F;
 }
 table.booklist .actions a.unavailable {
     color: red;
 }
 
-ul.spaces > li
-{
+
+ul.spaces > li {
     margin-bottom: 0.5em;
 }
 
-.clear
-{
+.clear {
     clear: both;
-}
-
-.picture
-{
-    float: left;
-    margin-right: 1em;
 }
 
 div#top
@@ -281,6 +286,17 @@ div.book_authors dd, div.book_categories dd {
 }
 
 
+div.copy_info {    /* bookcopy.html */
+    
+}
+div.copy_info span.label {
+    font-weight: bold;
+}
+div.picture {
+    float: right;
+    margin: 1em;
+}
+
 div.formWrapper th {
     vertical-align: top;
 }
@@ -327,7 +343,8 @@ form.registration_form table.basic_fields  td ul.errorlist li {
     padding: 0;
 }
 
-form.book_search input[type="submit"] {
+form.book_search input[type="submit"],
+form.copy_search input[type="submit"] {
     width: 100%;
 }
 
@@ -390,4 +407,11 @@ div.messagesWrapper {
     border: 1px solid violet;
 }
 div.messagesWrapper ul#messages {
+}
+
+
+div.location_info {   /* locations/one.html */
+}
+div.location_info span.label {
+    font-weight: bold;
 }

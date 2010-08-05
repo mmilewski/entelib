@@ -1,0 +1,34 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% load go_back_link %}
+
+{% block title %}Location's details{% endblock %}
+
+{% block header %}Location's details{% endblock %}
+
+{% block content %}
+    {% go_back_link "Go back" %}
+
+    {% if perms.baseapp.list_locations %}
+    <p>
+      <a href="../">Show all locations</a>
+    </p>
+    {% endif %}
+    
+    <div class="location_info">
+      <ul class="details">
+        <li><span class="label">Full name:</span> {{loc.building}}: {{loc.details}}</li>
+        <li><span class="label">Building:</span> {{loc.building}}</li>
+        <li><span class="label">Maintainers:</span> 
+          <ul class="maintainers">
+            {% for mt in maintainers %}
+            <li>{{ mt }}</li>
+            {% empty %}
+            No maintainers defined.
+            {% endfor %}
+          </ul>
+        </li>
+        <li><span class="label">Remarks:</span> {{loc.remarks}}</li>
+    </div>
+
+{% endblock %}

@@ -217,6 +217,10 @@ class Location(models.Model):
 
     class Meta:
         ordering = ['building__name', 'details']
+        permissions = (
+            ("list_locations", "Can list locations"),
+            ("view_location", "Can see location's details"),
+            )
 
 
 class State(models.Model):

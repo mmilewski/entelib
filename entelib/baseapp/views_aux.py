@@ -38,7 +38,9 @@ def render_response(request, template, context={}):
     # if in-code perm's name is list_book, then template gets can_list_books variable
     baseapp_perms = ['list_books', 'add_bookrequest', 'list_bookrequests', 'view_own_profile',
                      'list_users', 'list_reports', 'list_cost_centers', 'list_emaillog',
-                     'list_config_options', 'load_default_config', 'edit_option']
+                     'list_config_options', 'load_default_config', 'edit_option',
+                     'list_locations', 'view_location',
+                     ]
     for perm_name in baseapp_perms:
         perm_fullname = 'can_' + perm_name
         if user.has_perm('baseapp.' + perm_name):
@@ -122,11 +124,13 @@ def get_book_details(book_copy):
     '''
     status = book_copy_status(book_copy)
     copy_state = ("Available for %d days." % status.rental_possible_for_days()) if status.is_available() else status.why_not_available()
+    location_url_pattern = '/entelib/locations/%d/'
     book_desc = {
         'title'          : book_copy.book.title,
         'shelf_mark'     : book_copy.shelf_mark,
         'authors'        : [a.name for a in book_copy.book.author.all()],
         'location'       : unicode(book_copy.location),
+        'location_url'   : (location_url_pattern % book_copy.location.id) if book_copy.location else None,
         'state'          : copy_state,
         'publisher'      : unicode(book_copy.publisher),
         'year'           : book_copy.year,

@@ -37,27 +37,28 @@
     {% endif %}
 
     {% if search.locations %}
-    <div class='content_form'>
-        <form action='.#book_copies' method='post'>
+    <div class="content_form">
+        <form class="copy_search" action=".#book_copies" method="post">
             <table>
                 <tr>
-                    <td>Location: </td>
-                    <td>
-                        <select name='location' multiple='multiple' size='{{ search.copies_location_select_size }}'>
+                    <td>Location: <br />
+                    <select name="location" multiple="multiple" size="{{ search.copies_location_select_size }}">
                             {% for location in search.locations %}
-                                <option value='{{ location.id }}' {% if location.selected %}selected{% endif %}>{{ location.name }}</option>
+                                <option value="{{ location.id }}" {% if location.selected %}selected{% endif %}>{{ location.name }}</option>
                             {% endfor %}
                         </select>
                     </td>
-                </tr><tr>
-                    <td>Only available: </td>
                     <td>
-                        <input type='checkbox' name='available' value='available' {% if only_available_checked %} checked='checked' {% endif %} >
+                        <input type="checkbox" id="available" name="available" value="available" {% if only_available_checked %} checked="checked" {% endif %} >
+                        <label for="available">Only available:</label>
                     </td>
-                </tr><tr>
-                    <td></td><td>
-                        <input type='submit'  name='action' value='Search'>
-                    </td></tr>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>
+                    <input type="submit" name="action" value="Search">
+                  </td>
+                </tr>
             </table>
         </form>
     </div>
@@ -92,7 +93,7 @@
 
         {% if book.items %}
 
-            <!-- TIME BAR -->
+            <!-- TIME BAR controls -->
             {% if display_time_bar %}
             {% include "time_bar/controls.html" %}
             {% endif %}
@@ -100,15 +101,15 @@
             <!-- LIST OF COPIES -->
             <table id="booklist" class="tablesorter booklist">
                 <thead>
-                    <tr>
+                  <tr>
                     <th></th>
                     <th>Location</th>
-                    <th title="aka Shelf mark">Shelfmark</th>
+                    <th>Shelfmark</th>
                     <th>State</th>
                     <th>Publisher</th>
                     <th>Year</th>
                     <th>Actions</th>
-                    </tr>
+                  </tr>
                 </thead>
                 <tbody>
 

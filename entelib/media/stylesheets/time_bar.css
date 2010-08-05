@@ -1,5 +1,10 @@
-div.time_barWrapper {
+div.time_bar_codeWrapper {  /* wraps code only. see time_barWrapper */
 }
+
+div.time_barWrapper {   /* wraps controls, code and header */
+    clear: both;
+}
+
 
 div.group {
     background-color: lime;
@@ -26,10 +31,6 @@ div.group div.green_segment {
     overflow: hidden;
 }
 
-
-/* div.time_barWrapper { */
-/*     border: 1px solid black; */
-/* } */
 
 div.scaleWrapper {
     width: 100%;

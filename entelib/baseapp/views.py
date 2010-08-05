@@ -356,7 +356,7 @@ def show_book(request, book_id, non_standard_user_id=False):
     locations_for_book = get_locations_for_book(book.id)
     search_locations = []
     if locations_for_book: 
-        search_locations += [{'name' : '-- Any --', 'id' : 0}]
+        search_locations += [{'name' : '-- Any --', 'id' : 0, 'selected': len(selected_locations)==0}]
         search_locations += [{'name' : unicode(loc),
                               'id' : loc.id,
                               'selected': loc.id in selected_locations}
@@ -800,3 +800,26 @@ def cancel_all_user_resevations(request, user_id):
               'last_name'  : user.last_name,
               'email'      : user.email,
             })
+
+
+@permission_required('baseapp.list_locations')
+def show_locations(request):
+    locs = Location.objects.select_related().all()
+    context = {'rows' : locs,
+               }
+    return render_response(request, 'locations/list.html', context)
+
+
+@permission_required('baseapp.view_location')
+def show_location(request, loc_id):
+    try:
+        loc_id = int(loc_id)
+    except ValueError:
+        loc_id = -1   # will cause 404
+
+    location = get_object_or_404(Location, pk=loc_id)
+    context = {
+        'loc'         : location,
+        'maintainers' : location.maintainer.all(),
+        }
+    return render_response(request, 'locations/one.html', context)

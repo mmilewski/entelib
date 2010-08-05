@@ -1,0 +1,22 @@
+{% extends 'base_with_listing.html' %}
+
+{% block title %}All locations{% endblock %}
+
+{% block header %}All locations{% endblock %}
+
+{% block order %} [[1,0]] {% endblock %}
+{% block itemsWrapper %}locs_list{% endblock %}
+
+    {% block header_row %}
+        <th></th>
+        <th>Full name</th>
+        <th>Building</th>
+        <th>Maintainers</th>
+    {% endblock %}
+
+    {% block item_row %}
+        <td><a href="{{ row.id }}/">Show details</a></td>
+        <td>{{ row.building.name }}: {{ row.details }}</td>
+        <td>{{ row.building.name }}</td>
+        <td>{{ row.maintainer.all|join:", "|default:"-"}}</td>
+    {% endblock %}
