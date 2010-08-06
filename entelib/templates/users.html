@@ -6,7 +6,7 @@
 
 {% block content %}
     <div class='content_form'>
-        <form action='.' method='post'>
+        <form action='.' method='post' name="Fusers">
             <table>
                 <tr>
                     <td>First name: </td>
@@ -29,19 +29,23 @@
                             {% endfor %}
                         </select>
                     </td>
+                    <td>
+                        <input type='checkbox' name='from_my_building' value='checked' {% if from_my_building %} checked='checked' {% endif %} >
+                        From my building 
+                    </td>
                 </tr><tr>
                     <!-- <td></td> -->
                     <td> </td>
                     <td>
                         <input type='submit'  name='action' value='Search'>
                     </td>
-                    <td>
-                        <input type='checkbox' name='from_my_building' value='checked' {% if from_my_building %} checked='checked' {% endif %} >
-                        From my building 
-                    </td>
                 </tr>
             </table>
         </form>
+        
+        <script type="text/javascript">
+            document.Fusers.first_name.focus();
+        </script>
     </div>
 
     {% if perms.auth.add_user %}

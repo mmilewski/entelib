@@ -10,13 +10,15 @@
     {% block header_row %}
         <th></th>
         <th>Full name</th>
-        <th>Building</th>
+<!--        <th>Building</th>  -->
+        <th>Remarks</th>
         <th>Maintainers</th>
     {% endblock %}
 
     {% block item_row %}
-        <td><a href="{{ row.id }}/">Show details</a></td>
-        <td>{{ row.building.name }}: {{ row.details }}</td>
-        <td>{{ row.building.name }}</td>
-        <td>{{ row.maintainer.all|join:", "|default:"-"}}</td>
+        <td class="show"><a href="{{ row.id }}/">Show details</a></td>
+        <td class="details">{{ row.building.name }}: {{ row.details }}</td>
+<!--        <td class="building_name">{{ row.building.name }}</td>  -->
+        <td class="remarks">{{row.remarks|default:"-"}}</td>
+        <td class="mtrs">{{ row.maintainer.all|join:", "|default:"-"}}</td>
     {% endblock %}

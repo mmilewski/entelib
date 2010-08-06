@@ -14,7 +14,8 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from baseapp.config import Config
 from baseapp.exceptions import EntelibWarning
-from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm, ConfigOptionEditForm
+from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm, ConfigOptionEditForm,\
+    LocationForm, BookForm, BookCopyForm
 from baseapp.models import *
 from baseapp.reports import get_report_data, generate_csv
 from baseapp.utils import pprint, str_to_date, remove_non_ints
@@ -384,7 +385,9 @@ def show_book(request, book_id, non_standard_user_id=False):
     locations_for_book = get_locations_for_book(book.id)
     search_locations = []
     if locations_for_book: 
-        search_locations += [{'name' : '-- Any --', 'id' : 0, 'selected': len(selected_locations)==0}]
+        search_locations += [{'name' : '-- Any --',
+                              'id' : 0,
+                              'selected': len(selected_locations)==0 or (len(selected_locations)==1 and selected_locations[0]==0) }]
         search_locations += [{'name' : unicode(loc),
                               'id' : loc.id,
                               'selected': loc.id in selected_locations}
@@ -441,6 +444,43 @@ def user_book_copy_up_link(request, user_id, bookcopy_id):
 @permission_required('baseapp.list_users')
 def find_user_to_rent_him(request):
     show_users(request) 
+
+
+@permission_required('baseapp.add_book')
+def show_add_book(request, edit_form=BookForm):
+    if request.method == 'POST':
+        form = edit_form(data=request.POST)
+        if form.is_valid():
+            form.save()
+            messages.info(request, 'Book successfully added.')
+    else:
+        form = edit_form()
+    
+    context = {
+        'form'        : form,
+        }
+    return render_response(request, 'books/one.html', context)
+
+
+@permission_required('baseapp.add_bookcopy')
+def show_add_bookcopy(request, book_id, edit_form=BookCopyForm):
+    initial_data = { 
+        'book' : book_id,
+        }
+    if request.method == 'POST':
+        form = edit_form(data=request.POST, initial=initial_data)
+        if form.is_valid():
+            form.save()
+            messages.info(request, 'Book copy successfully added.')
+    else:
+        form = edit_form(initial=initial_data)
+    
+    context = {
+        'form'        : form,
+        'book_id'     : book_id,
+        }
+    return render_response(request, 'copies/one.html', context)
+
 
 
 @permission_required('baseapp.list_users')
@@ -820,15 +860,28 @@ def show_locations(request):
 
 
 @permission_required('baseapp.view_location')
-def show_location(request, loc_id):
+def show_location(request, loc_id, edit_form=LocationForm):
     try:
         loc_id = int(loc_id)
     except ValueError:
         loc_id = -1   # will cause 404
 
     location = get_object_or_404(Location, pk=loc_id)
+    if request.method == 'POST':
+        form = edit_form(data=request.POST, instance=location)
+        if form.is_valid():
+            form.save()
+            messages.info(request, 'Location successfully updated')
+        else:
+            # display unchanged info if form's data is not valid
+            location = get_object_or_404(Location, pk=loc_id)
+    else:
+        form = edit_form(instance=location)
+    
     context = {
         'loc'         : location,
         'maintainers' : location.maintainer.all(),
+        'form'        : form,
         }
+    
     return render_response(request, 'locations/one.html', context)

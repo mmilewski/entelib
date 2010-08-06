@@ -17,7 +17,7 @@
 {% endif %}
 
 <div class="formWrapper">
-  <form class="registration_form" action="." method="POST">
+  <form class="registration_form" action="." method="POST" name="Fregister">
     <table class="basic_fields">
       <tbody>
         {{ form_content }}
@@ -25,6 +25,9 @@
       </tbody>
     </table>
   </form>
+  <script type="text/javascript">
+      document.Fregister.username.focus();
+  </script>
 </div>
 
 {% endblock %}

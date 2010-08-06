@@ -14,50 +14,54 @@
     </div>
     {%endif%}
 
-    <div class='content_form'>
-        <form action='.' method='post' class="book_search">
+    <div class="content_form">
+        <form action="." method="post" name="Fbook_search" class="book_search">
             <table class="book_details">
             <tbody>
-                <tr> {# TODO: jakas klasa by sie tu przydala? potrzebujemy osobnych dla kazdej danej? btw tak mozna troche wygodniej robic komentarze #}
-                    <td>ID: <br><input type='text' name='id' value='{{ search.id }}'></td>
+                <tr class="book_id">
+                    <td>ID: <br><input type="text" name="id" value="{{ search.id }}"></td>
                     <td></td>
                 </tr>
                 <tr class="book_title">
-                    <td>Title: <br><input type='text' name='title' value='{{ search.title }}'></td>
-                    <td><input type='checkbox' name='title_any' id="title_any" value='any'  {% if search.title_any_checked %} checked {% endif %} >
+                    <td>Title: <br><input type="text" name="title" value="{{ search.title }}"></td>
+                    <td><input type="checkbox" name="title_any" id="title_any" value="any"  {% if search.title_any_checked %} checked {% endif %} >
                         <label for="title_any">Any of keywords</label></td>
                 </tr>
                 <tr class="book_author">
-                    <td>Author: <br><input type='text' name='author' value='{{ search.author }}'></td>
-                    <td><input type='checkbox' name='author_any' id="author_any" value='any'  {% if search.author_any_checked %} checked {% endif %} >
+                    <td>Author: <br><input type="text" name="author" value="{{ search.author }}"></td>
+                    <td><input type="checkbox" name="author_any" id="author_any" value="any"  {% if search.author_any_checked %} checked {% endif %} >
                         <label for="author_any">Any of keywords</label></td>
                 </tr>
                 <tr class="book_category">
                     <td>
                         Category: <br> 
-                        <select name='category' multiple='multiple' size='{{ search.categories_select_size }}'>
+                        <select name="category" multiple="multiple" size="{{ search.categories_select_size }}">
                             {% for category in search.categories %}
-                                <option value='{{ category.id }}' {% if category.selected %}selected{% endif %}>{{ category.name }}</option>
+                                <option value="{{ category.id }}" {% if category.selected %}selected{% endif %}>{{ category.name }}</option>
                             {% endfor %}
                         </select>
 
-                      <!-- <input type='text' name='category' value='{{ search.category }}'> -->
+                      <!-- <input type="text" name="category" value="{{ search.category }}"> -->
                     </td>
-                    <td><input type='checkbox' name='category_any' id="category_any" value='any'  {% if search.category_any_checked %} checked {% endif %} >
+                    <td><input type="checkbox" name="category_any" id="category_any" value="any"  {% if search.category_any_checked %} checked {% endif %} >
                         <label for="category_any">Any of keywords</label></td>
                 </tr>
                 <tr class="book_search">
                     <td></td>
-                    <td> <input type='submit' name='action' value='Search'> </td>
+                    <td> <input type="submit" name="action" value="Search"> </td>
                 </tr>
             </tbody>
             </table>
         </form>
     </div>
 
+    <script type="text/javascript">
+      document.Fbook_search.id.focus();
+    </script>
+
     <div class="book_actions">
       {% if perms.baseapp.add_book %}
-      <a href="/entelib/admin/baseapp/book/add/" class="add_book">Add new book</a>
+      <a href="/entelib/books/add/" class="add_book">Add new book</a>
       {% endif %}
     </div>
 

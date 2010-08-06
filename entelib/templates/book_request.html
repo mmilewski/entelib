@@ -30,7 +30,7 @@
             {{ form_content.non_field_errors }}
         </div>
             
-        <form class="book_request_form" action="." method="POST">
+        <form class="book_request_form" action="." method="POST" name="Frequest">
             <table class="basic_fields">
             <tbody>
                 <tr>
@@ -49,6 +49,10 @@
             </table>
         </form>
     </div>
+    <script type="text/javascript">
+      document.Frequest.book.focus();
+    </script>
+
 {% endif %}
 
 {% go_back_link "Go back" %}

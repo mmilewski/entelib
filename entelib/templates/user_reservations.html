@@ -5,18 +5,14 @@
 {% block header %}User reservations{% endblock %}
 
 {% block content %}
-<b>
-    {{ first_name }} {{ last_name }}
-    <br \>
-    {{ email|urlize }}
-    <br \>
-    {{ message }}
-</b>
+
+<p class="user_name" style="font-weight:bold;">{{ first_name }} {{ last_name }}, <span class="email">{{ email|urlize }}</span></p>
+<p class="message">{{ message }}</p>
 
 <ul class='spaces'>
     {% for reservation in reservations %}
         <li>
-            <b><a href='{{reservation.url}}'> {{ reservation.title }}</a></b>
+            <p><b><a href='{{reservation.url}}'> {{ reservation.title }}</a></b>, {{ reservation.authors|join:', ' }}</p>
             {% if can_rent %}
                 <form action='.' method='post'>
                     <input type='hidden' name='rent' value='{{ reservation.id }}'>
@@ -30,11 +26,10 @@
                 </form>
             {% endif %}
             <ul>
-                <li>Shelf mark: {{ reservation.shelf_mark }}</li>
-                <li>Authors: {{ reservation.authors|join:', ' }}</li>
-                <li>From: {{ reservation.from_date }}</li>
-                <li>To:   {{ reservation.to_date   }}</li>
-                <li>Status: {% firstof reservation.rental_impossible "Ready" %}</li>
+                <li><span class="label">Status</span>: {% firstof reservation.rental_impossible "Ready" %}</li>
+                <li><span class="label">Shelf mark</span>: {{ reservation.shelf_mark }}</li>
+                <!-- <li><span class="label">Authors</span>: {{ reservation.authors|join:', ' }}</li> -->
+                <li><span class="label">Date range</span>: {{ reservation.from_date }} &ndash; {{ reservation.to_date }}</li>
             </ul>
         </li>
     {% empty %}

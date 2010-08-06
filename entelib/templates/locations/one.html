@@ -31,4 +31,31 @@
         <li><span class="label">Remarks:</span> {{loc.remarks}}</li>
     </div>
 
+    <!-- EDIT LOCATION -->    
+    {% if perms.baseapp.change_location %}
+    <div class="form_locationWrapper">
+        <h2 id="edit_location">Edit location</h2>
+        <form method="POST" action="." name="Flocation">
+            {{ form.non_field_errors }}
+            <table>
+                {% for field in form %}
+                    <tr>
+                        <td>{%if field.label_tag|removetags:"label" %}{{ field.label_tag }}:{%endif%} 
+                        <br />
+                        {{ field }}</td>
+                        <td>{{ field.errors }}</td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td></td>
+                    <td><input type="submit" value="Update location"></td>
+                </tr>
+            </table>
+        </form>
+        <script type="text/javascript"> 
+            document.Flocation.building.focus();
+        </script> 
+    </div>
+    {% endif %}
+    
 {% endblock %}

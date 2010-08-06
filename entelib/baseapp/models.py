@@ -221,6 +221,8 @@ class Location(models.Model):
             ("list_locations", "Can list locations"),
             ("view_location", "Can see location's details"),
             )
+        unique_together = (('building', 'details'),)
+
 
 
 class State(models.Model):
@@ -232,6 +234,9 @@ class State(models.Model):
     def __unicode__(self):
         return self.name
 
+    class Meta:
+        unique_together = (('name',),)
+
 
 class Publisher(models.Model):
     id = models.AutoField(primary_key=True)
@@ -239,6 +244,9 @@ class Publisher(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    class Meta:
+        unique_together = (('name',),)
 
 
 class Picture(models.Model):
@@ -257,6 +265,9 @@ class Author(models.Model):
     def __unicode__(self):
         return self.name
 
+    class Meta:
+        unique_together = (('name',),)
+
 
 class Category(models.Model):
     id = models.AutoField(primary_key=True)
@@ -264,6 +275,9 @@ class Category(models.Model):
 
     def __unicode__(self):
         return unicode(self.name)
+
+    class Meta:
+        unique_together = (('name',),)
 
 
 class Book(models.Model):
@@ -280,6 +294,7 @@ class Book(models.Model):
         permissions = (
             ("list_books", "Can list books"),
             )
+        unique_together = (('title',),)
 
 
 class BookRequest(models.Model):
@@ -343,6 +358,7 @@ class BookCopy(models.Model):
 
     class Meta:
         verbose_name_plural = 'Book copies'
+        unique_together = (('shelf_mark',),)
 
     class Admin:
         pass

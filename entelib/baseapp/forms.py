@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.contrib.auth.models import Group, User
-from baseapp.models import Book, BookRequest, Building, PhoneType, Phone
+from baseapp.models import Book, BookRequest, Building, PhoneType, Phone,\
+    Location, BookCopy
 # from baseapp.models import CustomUser
 from config import Config
 from baseapp.utils import pprint
 from copy import copy
 from baseapp.views_aux import get_phones_for_user
 from django.core.exceptions import ObjectDoesNotExist
+from django.forms.models import ModelForm
+from django.db.models.query_utils import Q
 
 attrs_dict = { 'class': 'required' }
 
@@ -548,3 +551,23 @@ class RegistrationForm(forms.Form):
         # save
         user.save()
         return user
+
+
+class LocationForm(ModelForm):   
+    class Meta:
+        model = Location
+        fields = ('building', 'details', 'remarks', 'maintainer')
+
+    groups = Group.objects.filter(Q(name='Librarians'))
+    maintainer = forms.ModelMultipleChoiceField(User.objects.filter(groups__in=groups))
+
+
+class BookForm(ModelForm):   
+    class Meta:
+        model = Book
+
+
+class BookCopyForm(ModelForm):   
+    class Meta:
+        model = BookCopy
+        exclude=['picture']

@@ -64,10 +64,12 @@ urlpatterns = patterns(
     (r'^books/$', view.show_books),
     (r'^books$', get_redirect_function_to_url('/entelib/books/')),
     (r'^books/(\d+)/$', view.show_book),
+    (r'^books/add/$', view.show_add_book),
     (r'^requestbook/$', view.request_book),                   # request for book
 
     # book copies
     (r'^bookcopy/(\d+)/$', view.show_book_copy),
+    (r'^bookcopy/add,(\d+)/$', view.show_add_bookcopy),
     (r'^bookcopy/(\d+)/up/$', view.book_copy_up_link),
     (r'^bookcopy/\d+/user/$', view.show_users),
     (r'^bookcopy/(\d+)/user/(\d+)/$', view.reserve),

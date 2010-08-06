@@ -28,7 +28,6 @@
       {% endif %}
     </div>
 
-
     {% if display_tips %}
     <div class="tip">
       <p>1. If you use Firefox or Opera you can click and drag to multiselect locations. In Chrome you can use CTRL+click</p>
@@ -38,7 +37,7 @@
 
     {% if search.locations %}
     <div class="content_form">
-        <form class="copy_search" action=".#book_copies" method="post">
+        <form class="copy_search" action=".#book_copies" method="post" name="Flocations">
             <table>
                 <tr>
                     <td>Location: <br />
@@ -62,6 +61,10 @@
             </table>
         </form>
     </div>
+    <script type="text/javascript">
+      document.Flocations.location.focus();
+    </script>
+
     {% else %}
     <!-- <p>No locations defined.</p> -->
     {% endif %}
@@ -69,7 +72,7 @@
     <div class="bookcopy_actions">
       {% if perms.baseapp.add_bookcopy %}
       <p>
-        <a href="/entelib/admin/baseapp/bookcopy/add/?book={{book.id}}" class="add_bookcopy">Add another copy</a>
+        <a href="/entelib/bookcopy/add,{{book.id}}/" class="add_bookcopy">Add another copy</a>
       </p>
       {% endif %}
     </div>
@@ -83,13 +86,6 @@
 
     <div class="book_copies">
       <h3 id="book_copies">Copies of this book:</h3>
-      {% if display_tips %}
-      <div class="tip">
-        <ol>
-          <li><p>If you reserve book that is unavailable, you will be <em>unable to rent it</em>.</p></li>
-        </ol>
-      </div>
-      {% endif %}
 
         {% if book.items %}
 
@@ -104,9 +100,9 @@
                   <tr>
                     <th title="aka Shelf mark">ID</th>
                     <th>State</th>
-                    <th>Location</th>
                     <th>Publisher</th>
                     <th>Year</th>
+                    <th>Location</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -127,16 +123,16 @@
                     <tr>
                         <td class="shelfmark"><a href='{{ item.url }}'>{{ item.shelf_mark }}</a></td>
                         <td class="state">{{ item.state }} {% if not item.is_available %}<span style="color:red;" title="Unavailable, sorry"><br/>(unavailable)</span>{%endif%}</td>
-                        <td class="location">{{ item.location }}</td>
                         <td class="publisher">{{ item.publisher }}</td>
                         <td class="year">{{ item.year }}</td>
+                        <td class="location">{{ item.location }}</td>
                         <td class="actions">
                             <ul class="actions">
-                                <!-- <li><a href='{{ item.desc_url}}'>External description</a></li> -->
-                                {%if item.is_reservable %}<li><a href='{{ item.reserve_url }}'
-                                                                 {% if not item.is_available %}class="available" title="Book is not available"{% endif %}>
-                                                                 Reserve
-                                                              </a></li> {% endif %}
+                                {%if item.is_reservable and item.is_available %}
+                                <li><a href='{{ item.reserve_url }}'
+                                       {% if not item.is_available %}class="available" title="Book is not available"{% endif %}>
+                                    Reserve
+                                </a></li> {% endif %}
                             </ul>
                         </td>
                     </tr>

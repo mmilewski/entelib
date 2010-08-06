@@ -1,0 +1,42 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% load go_back_link %}
+
+{% block title %}Book's details{% endblock %}
+
+{% block header %}Book's details{% endblock %}
+
+{% block content %}
+    {% go_back_link "Go back" %}
+
+    <p>
+      <a href="../">Show all books</a>
+    </p>
+    
+    {% if perms.baseapp.add_book %}
+    <div class="form_bookWrapper">
+        <!-- <h2 id="new_book">New book</h2> -->
+        <form method="POST" action="." name="Fbook">
+            {{ form.non_field_errors }}
+            <table>
+                {% for field in form %}
+                    <tr>
+                        <td>{%if field.label_tag|removetags:"label" %}{{ field.label_tag }}:{%endif%} 
+                        <br />
+                        {{ field }}</td>
+                        <td>{{ field.errors }}</td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td></td>
+                    <td><input type="submit" value="Add book"></td>
+                </tr>
+            </table>
+        </form>
+        <script type="text/javascript"> 
+            document.Fbook.title.focus();
+        </script> 
+    </div>
+    {% endif %}
+    
+{% endblock %}

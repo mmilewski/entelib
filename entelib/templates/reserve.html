@@ -14,7 +14,7 @@
             {{ reserved.error }}
         {% endif %}
         <div class='content_form' style='margin-top: 1em'>
-            <form action='.' method='post'>
+            <form action='.' method='post' name="Freserve">
                 <table>
                     <tr>
                         <td>From: </td>
@@ -66,6 +66,9 @@
                         </tr>
                 </table>
             </form>
+            <script type="text/javascript">
+                document.Freserve.from.focus();
+            </script>
         </div>
     {% endif %}
 
