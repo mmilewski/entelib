@@ -112,6 +112,31 @@ def filter_query(class_name, Q_none, constraints):
                 result = result.filter(Q_fun(keyword))
     return result.distinct()
 
+def get_users_details_list(first_name, last_name, email, building_id):
+    '''
+    Args:
+        building_id is an int,
+        other args are strings
+
+    Return:
+        list of dicts of user satisfying given criteria
+    '''
+    building_filter = Q()
+    if building_id:
+        building_filter = Q(userprofile__building__id=building_id)
+
+    return [ {'username'   : u.username,
+                   'last_name'  : u.last_name,
+                   'first_name' : u.first_name,
+                   'email'      : u.email,
+                   'url'        : "%d/" % u.id
+                   }
+                  for u in User.objects.filter(first_name__icontains=first_name)
+                                       .filter(last_name__icontains=last_name)
+                                       .filter(email__icontains=email)
+                                       .filter(building_filter)
+                ]
+
 
 def get_book_details(book_copy):
     '''
@@ -183,16 +208,6 @@ def is_reservation_rentable(reservation):
         return False
 
 
-# TODO: delete following
-# the following seems both unnecessary and incorrect
-'''
-def is_reservation_active(r): <<>>
-    if r.when_cancelled == None and r.rental == None and r.end_date <= today():
-        return True
-    else:
-        return False
-'''
-
 # Q object filtering Reservation objects to be only active (which means not rented or cancelled or expired)
 Q_reservation_active = Q(when_cancelled=None) & Q(rental=None) & Q(end_date__gte=today())
 
@@ -236,7 +251,6 @@ def is_book_copy_rentable(book_copy):
 
 
 class BookCopyStatus(object):
-
     def __init__(self, available, nr_of_days=0, explanation=u''):
         self.available = available
         self.nr_of_days = nr_of_days
@@ -521,10 +535,6 @@ def show_user_reservations(request, user_id=False):
         user = request.user
     else:
         user = get_object_or_404(User, id=user_id)
-        # try:
-        #     user = User.objects.get(id=user_id)
-        # except User.DoesNotExist:
-        #     return render_not_found(request, item_name='User')
 
     # prepare some data
     context = { 'first_name'     : user.first_name,
@@ -573,8 +583,7 @@ def show_user_reservations(request, user_id=False):
                           'from_date' : r.start_date,
                           'to_date' : r.end_date,
                          } for r in user_reservations]
-
-    context.update({'reservations' : reservation_list}),
+    context.update({'reservations' : reservation_list})
 
     return render_response(request, 'user_reservations.html', context)
 
@@ -648,7 +657,7 @@ def user_full_name(user_id):
     '''
     try:
         u = User.objects.get(id=user_id)
-        return u.first_name + ' ' + u.last_name
+        return  u.last_name + ', ' + u.first_name
     except:
         return None
 

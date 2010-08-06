@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
+import re
 from baseapp.tests.test_base import Test
 from entelib.baseapp.utils import pprint, today, tomorrow, after_days
-import random
 from datetime import date, timedelta
 from entelib.baseapp.config import Config
 from entelib.baseapp.models import Reservation, Rental, User, UserProfile, Book, BookCopy, BookRequest, Configuration, Phone, Building
+
+def choice(iterable):
+    ''' simplyfied pseudo-choice ensuring repeatable results '''
+    length = len(list(iterable))
+    seed = 117
+    index = (seed % length) ** 3 % length
+    return iterable[index]
 
 class TestWithSmallDB(Test):
     '''
@@ -184,26 +191,26 @@ class MyNewReservationTest(TestWithSmallDB):
 class ShowBooksTest(TestWithSmallDB):
     def setUp(self):
         self.url = '/entelib/books/'
+        self.log_user()
 
     def test_get(self):
         ''' Test GET method. There should be no books listed '''
-        self.log_user()
         response = self.client.get(self.url)
         self.assertEqual(200, response.status_code)
         self.assertNotContains(response, 'Sorry')
         self.assertNotContains(response, 'Lem')
 
     def test_empty_fields(self):
-        self.log_user()
         response = self.client.post(self.url, {'action' : 'Search', 'author' : '', 'title' : '', 'category' : '0'})
         self.assertEqual(200, response.status_code)
         self.assertNotContains(response, 'Sorry')
-        self.assertContains(response, 'Ogniem i mieczem', count=1)
-        self.assertContains(response, 'Mickiewicz', count=1)
-        self.assertContains(response, 'robot', count=1)
+        for book in Book.objects.all():
+            self.assertContains(response, book.id)
+            self.assertContains(response, book.title)
+            for a in book.author.all():
+                self.assertContains(response, a.name)
 
     def test_author_lem(self):
-        self.log_user()
         response = self.client.post(self.url, {'action' : 'Search', 'author' : 'lem', 'title' : '', 'category' : '0'})
         self.assertEqual(200, response.status_code)
         self.assertNotContains(response, 'Sorry')
@@ -212,7 +219,6 @@ class ShowBooksTest(TestWithSmallDB):
         self.assertContains(response, 'robot', count=1)
 
     def test_author_lem_or_ludek(self):
-        self.log_user()
         response = self.client.post(self.url, {'action' : 'Search', 'author' : ' lem  ludek', 'title' : '', 'category' : '0', 'author_any' : 'any', })
         self.assertEqual(200, response.status_code)
         self.assertNotContains(response, 'Sorry')
@@ -221,7 +227,6 @@ class ShowBooksTest(TestWithSmallDB):
         self.assertContains(response, 'robot', count=1)
 
     def test_author_lem_and_ludek(self):
-        self.log_user()
         response = self.client.post(self.url, {'action' : 'Search', 'author' : ' lem  ludek', 'title' : '', 'category' : '0', })
         self.assertEqual(200, response.status_code)
         self.assertContains(response, 'Sorry')
@@ -230,7 +235,6 @@ class ShowBooksTest(TestWithSmallDB):
         self.assertNotContains(response, 'robot')
 
     def test_thrillers(self):
-        self.log_user()
         response = self.client.post(self.url, {'action' : 'Search', 'author' : '', 'title' : '', 'category' : '4', })
         self.assertEqual(200, response.status_code)
         self.assertNotContains(response, 'Sorry')
@@ -239,7 +243,6 @@ class ShowBooksTest(TestWithSmallDB):
         self.assertNotContains(response, 'robot')
 
     def test_thrillers_history_horror(self):
-        self.log_user()
         response = self.client.post(self.url, {'action' : 'Search', 'author' : '', 'title' : '', 'category' : [2, 4, 5], })
         self.assertEqual(200, response.status_code)
         self.assertNotContains(response, 'Sorry')
@@ -250,7 +253,7 @@ class ShowBooksTest(TestWithSmallDB):
 
 class ShowBookTest(TestWithSmallDB):
     def setUp(self):
-        self.url = '/entelib/books/%d/'
+        self.url_book = '/entelib/books/%d/'
         self.log_user()
         self.response1 = self.client.get('/entelib/books/1/')
         self.response2 = self.client.get('/entelib/books/2/')
@@ -277,10 +280,10 @@ class ShowBookTest(TestWithSmallDB):
 
 #    def prepare_random(self):
 #        from entelib.baseapp.models import Book
-#        self.book = random.choice(Book.objects.all())
-#        self.url = self.url % self.book.id
+#        self.book = choice(Book.objects.all())
+#        self.url_book = self.url_book % self.book.id
 #        self.log_user()
-#        self.response = self.client.get(self.url)
+#        self.response = self.client.get(self.url_book)
 #
 #    def test_random_book_authors_displayed(self):
 #        self.prepare_random()
@@ -299,8 +302,9 @@ class ShowBookTest(TestWithSmallDB):
 
     def test_all_books_display(self):
         for book in Book.objects.all():
-            response = self.client.get(self.url % book.id)
-            self.assertContains(response, book.title)  # title is displayed
+            url = self.url_book % book.id
+            response = self.client.get(url)
+            self.assertContains(response, book.title, msg_prefix='url = %s' % url)  # title is displayed
             for author in book.author.all():           # all authors displayed
                 self.assertContains(response, author.name, msg_prefix='Authors not displayed properly for book id %d' % book.id)
             for category in book.category.all():       # all categories displayed
@@ -312,10 +316,10 @@ class ShowBookTest(TestWithSmallDB):
 class ShowBookcopyTest(TestWithSmallDB):
     def setUp(self):
         self.log_user()
-        self.url = '/entelib/bookcopy/%d/'
+        self.url_copy = '/entelib/bookcopy/%d/'
 
     def assert_specific_copy_display_correct(self, copy):
-        url = self.url % copy.id   # fill gap in url
+        url = self.url_copy % copy.id   # fill gap in url
         self.response = self.client.get(url)
         # test ID displayed
         self.assertContains(self.response, copy.shelf_mark, msg_prefix='ID (shelf_mark) not displayed properly for %s' % url)
@@ -337,7 +341,7 @@ class ShowBookcopyTest(TestWithSmallDB):
 
     def test_random_copy_display(self):
         copies = (BookCopy.objects.all())
-        copy = copies[len(copies)*113 % len(copies)]  # pseudo-random choice from copies
+        copy = choice(copies)  # pseudo-random choice from copies
         self.assert_specific_copy_display_correct(copy)
         
     def test_all_copies_display(self):
@@ -359,6 +363,33 @@ class ShowBookcopyTest(TestWithSmallDB):
     #     contents_admin = re.search(r'<div class="picture">.*', ''.join(admin_response.content.splitlines())).group()  # It is book copy description.
     #     self.assertEqual(contents_user, contents_lib)     # this part of page everybody should have the same
     #     self.assertEqual(contents_user, contents_admin)   # this part of page everybody should have the same
+
+    def test_diffrent_users_get_the_same_page(self):
+        ''' Selects page contents from <div id='content> to <div class='content_form'>
+            and from  to the end of document. Between those there might be diffrences - user doesn't have one link'''
+        copy = choice(BookCopy.objects.all())
+        url = self.url_copy % copy.id
+
+        # fetch page for three diffrent users
+        user_response = self.client.get(url)
+        self.log_lib()
+        lib_response = self.client.get(url)
+        self.log_admin()
+        admin_response = self.client.get(url)
+
+        # this part of page everybody should have the same
+        contents_user = re.search(r"<div id='content'>.*<div class='content_form'>", ''.join(user_response.content.splitlines())).group()
+        contents_user += re.search(r"<a href='reserve/'>Reserve for me</a>.*", ''.join(user_response.content.splitlines())).group()
+
+        contents_lib = re.search(r"<div id='content'>.*<div class='content_form'>", ''.join(lib_response.content.splitlines())).group()
+        contents_lib += re.search(r"<a href='reserve/'>Reserve for me</a>.*", ''.join(lib_response.content.splitlines())).group()
+
+        contents_admin = re.search(r"<div id='content'>.*<div class='content_form'>", ''.join(admin_response.content.splitlines())).group()
+        contents_admin += re.search(r"<a href='reserve/'>Reserve for me</a>.*", ''.join(admin_response.content.splitlines())).group()
+
+        # make sure they are the same
+        self.assertEqual(contents_user, contents_lib)
+        self.assertEqual(contents_user, contents_admin)
 
 class ShowUsersTest(TestWithSmallDB):
     def setUp(self):
@@ -738,10 +769,10 @@ class ShowUserReservationsTest(TestWithSmallDB):
         self.log_lib()
 
     def test_all_users_have_all_reservations_displayed(self):
-        for user in User.objects.all():
+        for user in User.objects.all()[2:3]:
             url = self.url % user.id
             response = self.client.get(url)
-            for reservation in Reservation.objects.filter(for_whom=user, rental=None, when_cancelled=None):
+            for reservation in Reservation.objects.filter(for_whom=user, rental=None, when_cancelled=None, end_date__gte=today()):
                 self.assertContains(response, reservation.book_copy.shelf_mark)
 
 class ShowUserReservationsArchiveTest(TestWithSmallDB):
@@ -755,6 +786,7 @@ class ShowUserReservationsArchiveTest(TestWithSmallDB):
             response = self.client.get(url)
             for reservation in Reservation.objects.filter(for_whom=user):
                 self.assertContains(response, reservation.book_copy.shelf_mark, msg_prefix='User: %d, Reservation: %d' % (user.id, reservation.id))
+                self.assertContains(response, reservation.start_date)
          
         
 class ShowMyReservationsTest(TestWithSmallDB):
@@ -779,45 +811,77 @@ class ShowMyReservationsArchiveTest(TestWithSmallDB):
         response = self.client.get(self.url)
         for reservation in Reservation.objects.filter(for_whom=user):
             self.assertContains(response, reservation.book_copy.shelf_mark)
+            self.assertContains(response, reservation.start_date)
 
 
 class ShowReportsTest(TestWithSmallDB):
     pass
 
 
-class FindBookForUserTest(TestWithSmallDB):
-    pass
+class FindBookForUserTest(ShowBooksTest, ShowBookTest):
+    def setUp(self):
+        self.log_lib()
+        self.url = '/entelib/users/1/reservations/new/'
+        self.url_book = '/entelib/users/1/reservations/new/books/%d/'
+        self.url_user_book = '/entelib/users/%d/reservations/new/books/%s/'
+        self.response1 = self.client.get('/entelib/users/1/reservations/new/books/1/')
+        self.response2 = self.client.get('/entelib/users/2/reservations/new/books/2/')
+
+    def test_all_book_ids_displayed(self):  # most likely in links
+        books = [b for b in Book.objects.all()]  # which books we expect
+        
+    def test_finding_for_all_users(self):
+        # retrieve all test method names, except for the current - so we don't go to an infinite loop
+        tests = [met for met in dir(self) if met.startswith('test_') and met != 'test_finding_for_all_users']  
+
+        # user 1 is tested with all inherited methods' calls, so we retrieve other users' ids
+        users = [u.id for u in User.objects.all() if u.id is not 1]
+
+        self.url_book_base = '/entelib/users/%d/reservations/new/'
+        self.log_lib()
+        
+        # for every user
+        for user in users:
+            # run all tests
+            for test in tests:
+                # prepare url
+                self.url = '/entelib/users/%d/reservations/new/' % user
+                self.url_book = self.url_user_book % (user, '%d')
+                pprint(test)
+                self.__getattribute__(test)()  # calling test method
+
+
 
 
 class ReserveTest(TestWithSmallDB):
     def setUp(self):
-        self.url = '/entelib/bookcopy/%d/reserve/'
+        self.url_copy = '/entelib/bookcopy/%d/reserve/'
         self.log_user()
 
     # general looks
 
     def test_user_doesnt_have_rent_button(self):
         self.log_user()
-        response = self.client.get(self.url % 2) # book copy 218237006 (Ogniem i mieczem)
+        response = self.client.get(self.url_copy % 2) # book copy 218237006 (Ogniem i mieczem)
         self.assertNotContains(response, "<input type='submit' name='action' value='rent'  ></td>")
 
     def test_admin_has_rent_button(self):
         self.log_admin()
-        response = self.client.get(self.url % 2) # book copy 218237006 (Ogniem i mieczem)
+        response = self.client.get(self.url_copy % 2) # book copy 218237006 (Ogniem i mieczem)
         self.assertContains(response, "<input type='submit' name='action' value='rent'  ></td>")
 
     def test_rent_button_inactive(self):
         self.log_lib()
-        url = self.url % 3  # permanently unavailable copy
+        url = self.url_copy % 3  # permanently unavailable copy
         response = self.client.get(url)
         self.assertContains(response, "<td><input type='submit' name='action' value='rent'  disabled  ></td>")
 
     
     # assertions for rentals and reservations
 
-    def assert_rental_made(self, book_copy_id, from_='', to=''):
+    def assert_rental_made(self, book_copy_id, from_=today().isoformat(), to=today().isoformat()):
         ''' Just checks if given data allows proper rental. '''
-        url = self.url % book_copy_id
+        url = self.url_copy % book_copy_id
 
         # what was it like before
         rentals_before = list(Rental.objects.all())
@@ -856,7 +920,7 @@ class ReserveTest(TestWithSmallDB):
         self.assertEquals(last_rental.start_date.date(), today())
 
     def assert_rental_not_made(self, book_copy_id, from_='', to='', status_code=None):
-        url = self.url % book_copy_id
+        url = self.url_copy % book_copy_id
 
         # situation before
         rentals_before = list(Rental.objects.all())
@@ -877,8 +941,8 @@ class ReserveTest(TestWithSmallDB):
         if status_code:
             self.assertEquals(status_code, response.status_code)
 
-    def assert_reservation_made(self, copy_id, from_='', to=''):
-        url = self.url % copy_id
+    def assert_reservation_made(self, copy_id, from_=today().isoformat(), to=after_days(Config().get_int('reservation_duration')).isoformat()):
+        url = self.url_copy % copy_id
 
         # what was it like before
         rentals_before = list(Rental.objects.all())
@@ -926,7 +990,7 @@ class ReserveTest(TestWithSmallDB):
         self.assertEquals([r for r in reservations_before], [r for r in Reservation.objects.all()][:-1])                      # old set == newset - newest
 
     def assert_reservation_not_made(self, book_copy_id, from_='', to='', status_code=200):
-        url = self.url % book_copy_id
+        url = self.url_copy % book_copy_id
 
         # situation before
         rentals_before = list(Rental.objects.all())
@@ -1105,14 +1169,14 @@ class ReserveForUserTest(ShowBookcopyTest, ReserveTest):
         but it saved a LOT of typing (or copying text). '''
     def setUp(self):
         self.log_lib()
-        self.url = '/entelib/users/1/reservations/new/bookcopy/%d/'
+        self.url_copy= '/entelib/users/1/reservations/new/bookcopy/%d/'
 
     # following 3 methods are necessary - otherwise they would be inherited and would fail
 
     def test_user_cant_rent(self):
         self.log_user()
         for copy in BookCopy.objects.all():
-            response = self.client.get(self.url % copy.id)
+            response = self.client.get(self.url_copy% copy.id)
             self.assertEquals(302, response.status_code)
 
     def test_user_doesnt_have_rent_button(self):
@@ -1187,9 +1251,25 @@ class CancelAllMyReserevationsTest(TestWithSmallDB):
 
 
 class CancelAllUserResevationsTest(TestWithSmallDB):
-    pass  #TODO
+    pass  # TODO
 
 
+class UserBookCopyUpLinkTest(TestWithSmallDB):
+    def setUp(self):
+        self.log_lib()
+        self.url_user_copy = '/entelib/users/%d/reservations/new/bookcopy/%d/up/'
+        self.redirect_url_user_book = '/entelib/users/%d/reservations/new/books/%d/'
+
+    def test_redirects_to_correct_book(self):
+        for user in User.objects.all():
+            for copy in BookCopy.objects.all():
+                response = self.client.get(self.url_user_copy % (user.id, copy.id))
+
+                book = BookCopy.objects.get(id=copy.id).book
+                expected_url = self.redirect_url_user_book % (user.id, book.id)
+                
+                self.assertRedirects(response, expected_url)
+                
 
 class ShowLocationTest(TestWithSmallDB):
     def setUp(self):

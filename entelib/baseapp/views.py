@@ -212,57 +212,76 @@ def show_books(request, non_standard_user_id=False):
     book_url = u'/entelib/books/%d/'    # where you go after clicking "search" button
     if non_standard_user_id is not False:  # and where you go if there is a non std user given
         book_url = u'/entelib/users/%d/reservations/new/book/%s/' % (int(non_standard_user_id), '%d')
+    bookcopy_url = u'/entelib/bookcopy/%d/'    # where you go after clicking "search" button with shelf mark field (ID) filled
+    if non_standard_user_id is not False:  # and where you go if there is a non std user given and you filled shelf mark (ID) field
+        bookcopy_url = u'/entelib/users/%d/reservations/new/bookcopy/%s/' % (int(non_standard_user_id), '%d')
     config = Config(request.user)
     search_data = {}                    # data of searching context
     selected_categories_ids = []        # ids of selected categories -- needed to reselect them on site reload
+    bookcopies = None                   # if one doesn't type into shelf mark field we are not interested in bookcopies at all
+    books = []
+    shelf_mark = None
 
     # if POST is sent we need to take care of some things
     if request.method == 'POST':
         post = request.POST
-        search_title = post['title'].split()
-        search_author = post['author'].split()
-        selected_categories_ids = map(int, request.POST.getlist('category'))
-        search_data.update({'title'  : post['title'], 
-                            'author' : post['author'],
-                            })  # categories and checkboxes will be added later
+        # case 1: searching by shelf mark. Other fields are ignored
+        if 'id' in post and post['id'] != '':
+            shelf_mark = post['id']
+            search_data.update({'id' : shelf_mark})
+            booklist = BookCopy.objects.filter(shelf_mark__startswith=shelf_mark)
+            bookcopies = [{'shelf_mark' : b.shelf_mark, 
+                           'state'      : aux.book_copy_status(b),
+                           'title'      : b.book.title, 
+                           'authors'    : [a.name for a in b.book.author.all()],
+                           'location'   : b.location.building.name + ' - ' + b.location.details,
+                           'url'        : bookcopy_url % b.id,
+                           }       for b in booklist]
 
-        # filter with Title and/or Author
-        booklist = aux.filter_query(Book, Q(id__exact='-1'), [
-              (search_title, 'title_any' in post, lambda x: Q(title__icontains=x)),
-              (search_author, 'author_any' in post, lambda x: Q(author__name__icontains=x)),
-            ]
-        )
-
-        # filter with Category
-        if selected_categories_ids and (0 not in selected_categories_ids):  # at least one 'real' category selected
-            if 'category_any' in post:
-                booklist = booklist.filter(category__id__in=selected_categories_ids)
-            else:
-                for category_id in selected_categories_ids:
-                    booklist = booklist.filter(category__id=category_id)
-
-        if config.get_bool('cut_categories_list_to_found_books'):
-            # compute set of categories present in booklist (= exists book which has such a category)
-            categories_from_booklist = list(set([c for b in booklist for c in b.category.all()]))
         else:
-            # list all nonempty categories
-            categories_from_booklist = list(set([c for b in Book.objects.only('category').all() for c in b.category.all()]))
+            search_title = post['title'].split()
+            search_author = post['author'].split()
+            selected_categories_ids = map(int, request.POST.getlist('category'))
+            search_data.update({'title'  : post['title'], 
+                                'author' : post['author'],
+                                })  # categories and checkboxes will be added later
 
-        # put ticks on previously ticked checkboxes
-        search_data.update({ 'title_any_checked'      : 'true' if 'title_any' in post else '',
-                             'author_any_checked'     : 'true' if 'author_any' in post else '',
-                             'category_any_checked'   : 'true' if 'category_any' in post else '',
-                             })
+            # filter with Title and/or Author
+            booklist = aux.filter_query(Book, Q(id__exact='-1'), [
+                  (search_title, 'title_any' in post, lambda x: Q(title__icontains=x)),
+                  (search_author, 'author_any' in post, lambda x: Q(author__name__icontains=x)),
+                ]
+            )
 
-        # prepare each book (add url, list of authors) for rendering
-        books = [{ 'title'     : book.title,
-                   'url'       : book_url % book.id,
-                   'authors'   : [a.name for a in book.author.all()]
-                   } for book in booklist ]
+            # filter with Category
+            if selected_categories_ids and (0 not in selected_categories_ids):  # at least one 'real' category selected
+                if 'category_any' in post:
+                    booklist = booklist.filter(category__id__in=selected_categories_ids)
+                else:
+                    for category_id in selected_categories_ids:
+                        booklist = booklist.filter(category__id=category_id)
+
+            if config.get_bool('cut_categories_list_to_found_books'):
+                # compute set of categories present in booklist (= exists book which has such a category)
+                categories_from_booklist = list(set([c for b in booklist for c in b.category.all()]))
+            else:
+                # list all nonempty categories
+                categories_from_booklist = list(set([c for b in Book.objects.only('category').all() for c in b.category.all()]))
+
+            # put ticks on previously ticked checkboxes
+            search_data.update({ 'title_any_checked'      : 'true' if 'title_any' in post else '',
+                                 'author_any_checked'     : 'true' if 'author_any' in post else '',
+                                 'category_any_checked'   : 'true' if 'category_any' in post else '',
+                                 })
+
+            # prepare each book (add url, list of authors) for rendering
+            books = [{ 'title'     : book.title,
+                       'url'       : book_url % book.id,
+                       'authors'   : [a.name for a in book.author.all()]
+                       } for book in booklist ]
     else:
         # If no POST data was sent, then we don't want to list any books, but we want
         # to fill category selection input with all possible categories.
-        books = []
         if config.get_bool('list_only_existing_categories_in_search'):
             categories_from_booklist = list(set([c for b in Book.objects.all() for c in b.category.all()]))
         else:
@@ -270,7 +289,9 @@ def show_books(request, non_standard_user_id=False):
 
     # prepare categories for rendering
     search_categories  = [ {'name' : '-- Any --',  'id' : 0} ]
-    search_categories += [ {'name' : c.name,  'id' : c.id,  'selected': c.id in selected_categories_ids }  for c in categories_from_booklist ]
+    if bookcopies is None:
+        # we only render categories if we are not searching by shelf mark
+        search_categories += [ {'name' : c.name,  'id' : c.id,  'selected': c.id in selected_categories_ids }  for c in categories_from_booklist ]
 
     # update search context
     search_data.update({'categories' : search_categories,
@@ -282,6 +303,7 @@ def show_books(request, non_standard_user_id=False):
     context = {
         'for_whom' : for_whom,
         'books' : books,
+        'bookcopies' : bookcopies,
         'search' : search_data,
         'can_add_book' : request.user.has_perm('baseapp.add_book'),
         'none_found' : not len(books) and request.method == 'POST'
@@ -300,7 +322,13 @@ def show_book(request, book_id, non_standard_user_id=False):
     # if we have a non_standard_user we treat him special
     url_for_non_standard_users = u'/entelib/users/%d/reservations/new/bookcopy/%s/' % (int(non_standard_user_id), u'%d')
     show_url = u'/entelib/bookcopy/%d/' if non_standard_user_id == False else url_for_non_standard_users
-    reserve_url = u'/entelib/bookcopy/%d/reserve/' if non_standard_user_id == False else url_for_non_standard_users
+    if non_standard_user_id == False:
+        if request.user.has_perm('baseapp.add_rental'):
+            reserve_url = u'/entelib/bookcopy/%d/user/'
+        else:
+            reserve_url = u'/entelib/bookcopy/%d/reserve/'
+    else:
+        reserve_url = url_for_non_standard_users
     # do we have such book?
     book = get_object_or_404(Book,id=book_id)
     ## try:
@@ -402,12 +430,22 @@ def show_book_copy(request, bookcopy_id):
 @login_required
 def book_copy_up_link(request, bookcopy_id):
     book_id = get_object_or_404(BookCopy, id=bookcopy_id).book.id
-    return HttpResponseRedirect('/entelib/books/%d/' % book_id)
+    return HttpResponseRedirect('/entelib/books/%s/' % book_id)
 
+
+def user_book_copy_up_link(request, user_id, bookcopy_id):
+    book_id = get_object_or_404(BookCopy, id=bookcopy_id).book.id
+    return HttpResponseRedirect('/entelib/users/%s/reservations/new/books/%s/' % (user_id,  book_id))
+
+
+@permission_required('baseapp.list_users')
+def find_user_to_rent_him(request):
+    show_users(request) 
 
 
 @permission_required('baseapp.list_users')
 def show_users(request):
+    template = 'users.html'
     context = {}
     buildings = [{'id':0, 'name':'Any'}] + list(Building.objects.values('id', 'name'))
     context.update({'buildings' : buildings})
@@ -423,22 +461,11 @@ def show_users(request):
 
         # searching for users
         if 'action' in post and post['action'] == 'Search':
-            building_filter = Q()
             if request_from_my_building:
-                building_filter = Q(userprofile__building__id=request.user.userprofile.building.id)
-            elif request_building_id:
-                building_filter = Q(userprofile__building__id=request_building_id)
-            user_list = [ {'username'   : u.username,
-                           'last_name'  : u.last_name,
-                           'first_name' : u.first_name,
-                           'email'      : u.email,
-                           'url'        : "%d/" % u.id
-                           }
-                          for u in User.objects.filter(first_name__icontains=request_first_name)
-                                               .filter(last_name__icontains=request_last_name)
-                                               .filter(email__icontains=request_email)
-                                               .filter(building_filter)
-                        ]
+                request_building_id = request.user.userprofile.building.id
+
+            user_list = aux.get_users_details_list(request_first_name, request_last_name, request_email, request_building_id)
+
         # we want search values back in appropriate fields
         search_data = {
             'first_name'       : request_first_name,
@@ -460,7 +487,7 @@ def show_users(request):
             'non_found'        : not len(user_list),  # if no users was found were pass True
             'from_my_building' : request_from_my_building,
             })
-    return render_response(request, 'users.html', context)
+    return render_response(request, template, context)
 
 
 @permission_required('auth.add_user')
@@ -554,39 +581,6 @@ def show_my_reservations(request):
     return aux.show_user_reservations(request)
 
 
-# the following is archive version of show_my_reservations. It's done more genericaly now
-''' 
-@login_required
-def show_my_reservations(request):
-    user = request.user
-    post = request.POST
-    if request.method == 'POST' and 'reservation_id' in post:
-        pprint('Cancelling ' + post['reservation_id'])
-        cancel_reservation(Reservation.objects.get(id=post['reservation_id']), request.user)
-
-    user_reservations = Reservation.objects.filter(for_whom=user).filter(Q_reservation_active)
-    reservation_list = [ {'id' : r.id,
-                          'url' : unicode(r.id) + u'/',
-                          'book_copy_id' : r.book_copy.id,
-                          'shelf_mark' : r.book_copy.shelf_mark,
-                          'rental_impossible' : '' if is_reservation_rentable(r) else reservation_status(r),
-                          'title' : r.book_copy.book.title,
-                          'authors' : [a.name for a in r.book_copy.book.author.all()],
-                          'from_date' : r.start_date,
-                         } for r in user_reservations]
-    return render_response(request,
-        'my_reservations.html',
-        { 'user_id'        : user.id,
-          'first_name'     : user.first_name,
-          'last_name'      : user.last_name,
-          'email'          : user.email,
-          'reservations'   : reservation_list,
-          'cancel_all_url' : 'cancel-all/',
-        }
-    )
-'''
-
-
 @permission_required('baseapp.list_reports')
 def show_reports(request, name=''):
     template_for_report = {'status'              : 'reports/library_status.html',
@@ -676,39 +670,51 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
     book_copy = get_object_or_404(BookCopy, id=copy)
     config = Config(user=request.user)
     reserved = {}   # info on reservation
+    context = {'reserve_from' : today(),
+               'reserve_to'   : today() + timedelta(Config(user=request.user).get_int('reservation_duration')),
+               }
 #    rented = {}     # info on rental
-    post = request.POST
     if non_standard_user_id:
         non_standard_user = get_object_or_404(User,id=non_standard_user_id)
     user = request.user if not non_standard_user_id else non_standard_user
     # all the work needs to be done if there is some (POST) data sent:
+    post = request.POST
     if request.method == 'POST':
+        # if clicked rent/reserve, not time bar button:
+        if 'action' in post and post['action'] in ['reserve', 'rent']:
+            context.update({'reserve_from' : post['from'], 'reserve_to' : post['to']})
+
         # we need reservation, whether we rent or just reserve:
         r = Reservation(who_reserved=request.user, book_copy=book_copy, for_whom=user)
+
         # reserve requested:
         if 'action' in post and post['action'].lower() == 'reserve':
-            if 'from' in post and post['from'] != u'':
-                try:
-                    [y, m, d] = map(int,post['from'].split('-'))
-                    r.start_date = date(y, m, d)
-                except ValueError:
-                    reserved.update({'error' : 'Error - probably incorrect date format.'})
+            try:
+                if 'from' in post and post['from'] != u'':
+                    try:
+                        [y, m, d] = map(int,post['from'].split('-'))
+                        r.start_date = date(y, m, d)
+                    except ValueError:
+                        raise EntelibWarning('Error - probably incorrect date format.')
+                else:
+                    raise EntelibWarning('You need to specify reservation start date')
+                if 'to' in post and post['to'] != u'':
+                    try:
+                        [y, m, d] = map(int,post['to'].split('-'))
+                        r.end_date = date(y, m, d)
+                        if r.start_date < today():
+                            raise EntelibWarning('Reservation cannot begin in the past.')
+                        if r.end_date < r.start_date:
+                            raise EntelibWarning('"From" date cannot be later than "To" date.')
+                        if (r.end_date - r.start_date).days > config.get_int('reservation_duration'):
+                            raise EntelibWarning('You can\'t reserve for longer than %d days' % config.get_int('reservation_duration'))
+                    except ValueError:
+                        raise EntelibWarning('error - possibly incorrect date format')
+                elif r.start_date:
+                    raise EntelibWarning('You need to specify reservation end date')
+            except EntelibWarning, e:
+                reserved.update({'error' : str(e)})
             else:
-                r.start_date = date.today()
-            if 'to' in post and post['to'] != u'':
-                try:
-                    [y, m, d] = map(int,post['to'].split('-'))
-                    r.end_date = date(y, m, d)
-                    if (r.end_date - r.start_date).days < 0:
-                        reserved.update({'error' : 'Reservation end date must be later than start date'})
-                    if (r.end_date - r.start_date).days > config.get_int('reservation_duration'):
-                        reserved.update({'error' : 'You can\'t reserve for longer than %d days' % config.get_int('reservation_duration')})
-                except ValueError:
-                    reserved.update({'error' : 'error - possibly incorrect date format'})
-            elif r.start_date:
-                # reserved.update({'error' : 'You need to specify reservation end date'})
-                r.end_date = r.start_date + timedelta(Config().get_int('reservation_duration'))
-            if 'error' not in reserved:
                 r.save()
                 mail.made_reservation(r)
 
@@ -737,8 +743,9 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
                     if r.end_date < today():
                         raise EntelibWarning("Reservation can't end before today.")
                 else:
-                    r.end_date = max_end_date
+                    raise EntelibWarning('You need to specify reservation end date')
                 r.save()
+
                 # reservation done, rent:
                 rental = Rental(reservation=r, start_date=date.today(), who_handed_out=request.user)
                 rental.save()
@@ -752,15 +759,17 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
     book_desc = aux.get_book_details(book_copy)
 
     for_whom = aux.user_full_name(non_standard_user_id)
+    # if for_whom:
+    #     context.update({'user' : User.objects.get(id=non_standard_user_id)})
 
-
-    context = {
+    # TODO: default start/end dates
+    context.update({
         'book'            : book_desc,
         'reserved'        : reserved,
         'for_whom'        : for_whom,
         'can_reserve'     : request.user.has_perm('baseapp.add_reservation') and book_copy.state.is_visible,
         'rental_possible' : is_book_copy_rentable(book_copy),
-    }
+    })
 
     # time bar        
     tb_processor = TimeBarRequestProcessor(request, None, config)  # default date range

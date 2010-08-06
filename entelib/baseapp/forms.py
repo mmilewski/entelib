@@ -458,8 +458,8 @@ class ProfileEditForm(forms.Form):
                     'email'        : user.email,
                     'building'     : user.get_profile().building,
                     'phones'       : get_phones_for_user(user),
-                    'rentals'      : 'rentals/',
-                    'reservations' : 'reservations/',
+                    # 'rentals'      : 'rentals/',         # moim zdaniem to jest _bardzo_ zle miejsce na te dane - przenioslem je do szablonu - mbr
+                    # 'reservations' : 'reservations/',
                     }
         return context
                 

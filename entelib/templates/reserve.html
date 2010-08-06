@@ -2,6 +2,10 @@
 
 {% block header %}{% if for_whom %} {{ for_whom }} {% else %} Book reservation {% endif %} {% endblock %}
 
+{% block go_up %}
+    <a href=up/>Go up</a><br />
+{% endblock %}
+
 {% block form %}
     {% if reserved.msg %}
         <b>{{ reserved.msg }}.</b>
@@ -14,19 +18,26 @@
                 <table>
                     <tr>
                         <td>From: </td>
-                        <td><input type='text' maxlength='10' name='from' value='' onClick='showKal(this)'></td>
-                        <td>(Leave empty for today)</td>
+                        <td><input type='text' maxlength='10' name='from' value='{{ reserve_from }}' onClick='showKal(this)'></td>
                         {% if perms.baseapp.add_rental %}
                             <td>(Ignored if renting. You always rent from today)</td>
                         {% endif %}
                     </tr>
                     <tr>
                         <td>To: </td>
-                        <td><input type='text' maxlength='10' name='to' value='' onClick='showKal(this)'></td>
+                        <td><input type='text' maxlength='10' name='to' value='{{ reserve_to }}' onClick='showKal(this)'></td>
                     </tr>
                     <tr>
-                        <td></td>
-                        <td>YYYY-MM-DD</td>
+                        <td>User</td>
+                        <td>
+                            <input type='text' 
+                                   maxlength='50' 
+                                   name='user' 
+                                   value='{% if for_whom %}{{ for_whom }}{% else %}{{ user.last_name }}, {{ user.first_name }}{% endif %}'
+                                   {% comment %} {% if disabled %} disabled='disabled' {% endif %} {% endcomment %}
+                                   disabled='disabled' 
+                                   >
+                        </td>
                         <td></td>
                     </tr>
                     <tr>
@@ -46,10 +57,7 @@
                                         When renting "From:" field is ignored - books are always rented from today.
                                     </li>
                                     <li>
-                                        When renting "To:" field means until when you rent the book. When left blank max available period is set.
-                                    </li>
-                                    <li>
-                                        When renting and "To:" field is set to longer than max available period, max available period is used instead.
+                                        When renting "To:" field means until when you rent the book.
                                     </li>
                                 </ol>
                             </div>

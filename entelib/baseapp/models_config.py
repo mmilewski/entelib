@@ -28,6 +28,8 @@ phonetype_description_len = 100       # some info for users. One can give exampl
 
 state_name_len = 30
 
+shelf_mark_len = 15
+
 publisher_name_len = 50
 
 picture_description_len = 50

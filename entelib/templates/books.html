@@ -1,7 +1,5 @@
 {% extends 'base_with_top_menu.html' %}
 
-{% load go_back_link %}
-
 {% block title %}Book list{% endblock %}
 
 {% block header %} {% if for_whom %} {{ for_whom }} {% else %} Book list {% endif %} {% endblock %}
@@ -20,6 +18,10 @@
         <form action='.' method='post' class="book_search">
             <table class="book_details">
             <tbody>
+                <tr> {# TODO: jakas klasa by sie tu przydala? potrzebujemy osobnych dla kazdej danej? btw tak mozna troche wygodniej robic komentarze #}
+                    <td>ID: <br><input type='text' name='id' value='{{ search.id }}'></td>
+                    <td></td>
+                </tr>
                 <tr class="book_title">
                     <td>Title: <br><input type='text' name='title' value='{{ search.title }}'></td>
                     <td><input type='checkbox' name='title_any' id="title_any" value='any'  {% if search.title_any_checked %} checked {% endif %} >
@@ -57,35 +59,66 @@
       {% if perms.baseapp.add_book %}
       <a href="/entelib/admin/baseapp/book/add/" class="add_book">Add new book</a>
       {% endif %}
-      {% go_back_link "Go back" %}
     </div>
 
     {% if books %}
-    
-    <script type="text/javascript">
-        $(document).ready(function()  { $("#booklist").tablesorter( {sortList: [[1,0]]} ); } );
-    </script>
+    <!--- BOOK SECTION -->
+        <script type="text/javascript">
+            $(document).ready(function()  { $("#booklist").tablesorter( {sortList: [[1,0]]} ); } );
+        </script>
 
-    <div class="found_books">
-        <table class="booklist tablesorter" id="booklist">
-        <thead>
-            <tr class="header">
-                <th>Show button</th>
-                <th>Title</th>
-                <th>Authors</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for book in books %}
-            <tr class="book">
-                <td class="show"><a href='{{ book.url }}'>Show book</a></td>
-                <td class="title">{{ book.title }}</td>
-                <td class="authors">{% if book.authors %}{{ book.authors|join:', '}}{% else %}No authors.{% endif %}</td>
-            {% endfor %}
-            
-        </tbody>
-        </table>
-    </div>
+        <div class="found_books">
+            <table class="booklist tablesorter" id="booklist">
+            <thead>
+                <tr class="header">
+                    <th>Title</th>
+                    <th>Authors</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr class="book">
+                    <td class="title"><a href='{{ book.url }}'>{{ book.title }}</a></td>
+                    <td class="authors">{% if book.authors %}{{ book.authors|join:', '}}{% else %}No authors.{% endif %}</td>
+                {% endfor %}
+                
+            </tbody>
+            </table>
+        </div>
+    <!--- END BOOK SECTION -->
+    {% endif %}
+
+    {% if bookcopies %}
+    <!--- BOOK COPIES SECTION -->
+        <script type="text/javascript">
+            $(document).ready(function()  { $("#booklist").tablesorter( {sortList: [[1,0]]} ); } );
+        </script>
+
+        <div class="found_books">
+            <table class="booklist tablesorter" id="booklist">
+            <thead>
+                <tr class="header">
+                    <th>ID</th>
+                    <th>State</th>
+                    <th>Title</th>
+                    <th>Authors</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in bookcopies %}
+                <tr class="book">
+                    <td class="shelfmark"><a href='{{ book.url }}'>{{ book.shelf_mark }}</a></td>
+                    <td class="state">{{ book.state }}</td>
+                    <td class="title">{{ book.title }}</td>
+                    <td class="authors">{% if book.authors %}{{ book.authors|join:', '}}{% else %}No authors.{% endif %}</td>
+                    <td class="location">{{ book.location }}</td>
+                {% endfor %}
+                
+            </tbody>
+            </table>
+        </div>
+    <!--- END BOOK COPIES SECTION -->
     {% endif %}
 
     {% if none_found %} 

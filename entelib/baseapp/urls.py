@@ -36,8 +36,9 @@ urlpatterns = patterns(
     (r'^users/(\d+)/reservations/archive/$', view.show_user_reservation_archive),
     (r'^users/(\d+)/reservations/(\d+)/$', view.show_user_reservation),
     (r'^users/(\d+)/reservations/new/$', view.find_book_for_user),
-    (r'^users/(\d+)/reservations/new/book/(\d+)/$', view.find_book_for_user),
+    (r'^users/(\d+)/reservations/new/books/(\d+)/$', view.find_book_for_user),
     (r'^users/(\d+)/reservations/new/bookcopy/(\d+)/$', view.reserve_for_user),
+    (r'^users/(\d+)/reservations/new/bookcopy/(\d+)/up/$', view.user_book_copy_up_link),
     (r'^users/(\d+)/reservations/cancel-all/$', view.cancel_all_user_resevations),
     # (r'^users/(\d+)/rent-book/(\d+)/$', view.show_user_reservation),
     # (r'^users/(\d+)/rent-book/$', view.user_list_books),
@@ -68,7 +69,10 @@ urlpatterns = patterns(
     # book copies
     (r'^bookcopy/(\d+)/$', view.show_book_copy),
     (r'^bookcopy/(\d+)/up/$', view.book_copy_up_link),
+    (r'^bookcopy/\d+/user/$', view.show_users),
+    (r'^bookcopy/(\d+)/user/(\d+)/$', view.reserve),
     (r'^bookcopy/(\d+)/reserve/$', view.reserve),
+    (r'^bookcopy/(\d+)/reserve/up/$', view.show_book_copy),
 
     # locations
     (r'^locations/$', view.show_locations),

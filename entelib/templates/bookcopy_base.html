@@ -1,7 +1,5 @@
 {% extends 'base_with_top_menu.html' %}
 
-{% load go_back_link %}
-
 {% block title %}{{ book.title|default_if_none:"Title undefined"}}{% endblock %}
 
 {% block header %}Book copy{% endblock %}
@@ -25,11 +23,9 @@
     {% endif %}
 
     <div class="copy_info">
-        {% go_back_link "Go back" %}
 
         
         <ul class="spaces">
-            <li class="book_shelfmark"><span class="label">Shelf mark</span>: {{ book.shelf_mark }}</li>            
             <li class="book_authors">
                 {% if book.authors %}
                 <span class="label">Authors</span>: {{ book.authors|join:', '}}
@@ -37,18 +33,18 @@
                     No authors.
                 {% endif %}
             </li>
-            <li class="book_publisher"><span class="label">Publishing</span>: {{ book.publisher }} {{ book.publication_nr }} {{ book.year }}</li>
-            <!-- <li class="book_year">Year: {{ book.year }}</li> -->
-            <!-- <li class="book_pubno">Publication number: {{ book.publication_nr }}</li> -->
-            {%if can_list_cost_centers%}<li class="costcenter"><span class="label">Cost Center</span>: {{ book.cost_center }}</li>{%endif%}
-            <li class="book_location"><span class="label">Location</span>:
-              {% if book.location_url and perms.baseapp.view_location %}
-              <a href="{{book.location_url}}">{{ book.location }}</a>
-              {% else %}
-              {{ book.location }}
-              {% endif %}
-            </li>
+            <li class="book_shelfmark"><span class="label">ID:</span> {{ book.shelf_mark }}</li>            
             <li class="book_state"><span class="label">State</span>: {{ book.state }}</li>
+            {% if can_list_cost_centers %}<li class="costcenter"><span class="label">Cost Center</span>: {{ book.cost_center }}</li>{%endif%}
+            <li class="book_publisher"><span class="label">Publishing</span>: {{ book.publication_nr }}, {{ book.publisher }} {{ book.year }}</li>
+            <!-- <li class="desc_url"><a href='{{ book.desc_url }}'>See external description</a></li> -->
+            <li class="book_location"><span class="label">Location</span>:
+                {% if book.location_url and perms.baseapp.view_location %}
+                    <a href="{{book.location_url}}">{{ book.location }}</a>
+                {% else %}
+                    {{ book.location }}
+                {% endif %}
+            </li>
         </ul>
 
         <!--  TOC  -->

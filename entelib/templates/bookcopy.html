@@ -1,11 +1,13 @@
 {% extends 'bookcopy_base.html' %}
 {% block links %}
     <div class='content_form'>
-        <form action='.' method='post'>
-            {% if perms.baseapp.add_reservation %}
-                | <b><a href='reserve/'>Reserve/rent</a></b> |
+            {% if perms.baseapp.add_rental %}
+                | <b><a href='user/'>Reserve/rent for user</a></b> |
             {% endif %}
-        </form>
+            {# przydaloby sie to jakos ladnie rozdzielic #}
+            {%if perms.baseapp.add_reservation %}
+                | <b><a href='reserve/'>Reserve for me</a></b> |
+            {% endif %}
     </div>
 {% endblock %}
 
