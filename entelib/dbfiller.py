@@ -278,7 +278,7 @@ for (name, re, desc) in phone_types:
 # from django.contrib.auth.models import User
 def add_superuser():
     user = User.objects.create_user('superadmin', 'master-over-masters@super.net', 'superadmin')
-    user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Superadmino', u'Superdomino', True, True
+    user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Superadmino', u'Superdomino', True, False
     ph = Phone(type=PhoneType.objects.get(id=1), value="432-765-098")
     ph.save()
     profile = user.get_profile()
@@ -341,6 +341,13 @@ add_librarian()
 add_everyday_user()
 
 
+# fill configuration
+print "Adding config pairs"
+from dbconfigfiller import fill_config
+config = fill_config()
+
+
+# -- PUPULATE GROUPS --
 # add few groups
 def readd_group(group_name, perms=[], direct_add=False):
     '''
@@ -350,12 +357,13 @@ def readd_group(group_name, perms=[], direct_add=False):
     '''
     g = None
     try:
-        # read group from db
-        g = Group.objects.get(name=group_name)
+        # delete group if exist
+        Group.objects.get(name=group_name).delete()
     except Group.DoesNotExist:
-        # or create a new one
-        g = Group(name=group_name)
-        g.save()
+        pass
+    # create a new one
+    g = Group(name=group_name)
+    g.save()
     for perm in perms:
         if direct_add:
             p = perm
@@ -369,22 +377,17 @@ from django.contrib.auth.models import Permission
 admins_perms     = Permission.objects.all()
 readers_perms    = ['list_books', 'view_own_profile', 'add_reservation', 'change_own_reservation', 'add_bookrequest',
                     'list_config_options', 'edit_option', 'list_locations', 'view_location']
-# vips_perms       = ['list_reports', 'list_users', ]
 librarians_perms = ['list_users', 'list_reports', 'add_rental', 'change_reservation', 'change_rental']
 readd_group('Readers',    perms=readers_perms)
-# readd_group('VIPs',       perms=vips_perms)
 readd_group('Librarians', perms=librarians_perms)
 readd_group('Admins',     perms=admins_perms, direct_add=True)
 
-
-from dbconfigfiller import fill_config
-
-print "Adding config pairs"
-config = fill_config()
-
-# add user
+# add users to default groups
 print "Adding default user to some groups"
 u = User.objects.get(username='admin')
+from baseapp.config import Config
+config=Config()
+
 for group_name in config.get_list('user_after_registration_groups'):
     u.groups.add(Group.objects.get(name=group_name))
     u.groups.add(Group.objects.get(name="Admins"))
@@ -397,3 +400,6 @@ u = User.objects.get(username='lib')
 for group_name in config.get_list('user_after_registration_groups'):
     u.groups.add(Group.objects.get(name=group_name))
     u.groups.add(Group.objects.get(name="Librarians"))
+
+# -- /PUPULATE GROUPS --
+

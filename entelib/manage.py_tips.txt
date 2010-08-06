@@ -10,9 +10,27 @@ b) dump selected models
 
 
 
-Testing
---------------------------------------------------
-Fixtures are in baseapp/fixtures. Fixture is a smallest subset of records needed by test case.
+How to fix small_db fixture?
+==================================================
+
+# This task has few steps. It is possible to be done automatically, but can be difficult to write script for that.
+# 1) drop groups & perms
+python manage shell_plus
+# then in shell:
+Group.objects.all().delete()
+Permission.objects.all().delete()
+# close shell
+
+# 2) repopulate perms
+python manage.py syncdb 
 
 
-baseapp.UserConfiguration
+# 3) repopulate groups (and users - they were deleted because of CASCADE)
+python manage shell_plus
+# copy-past from dbfiller.py  PUPULATE GROUPS section (near line 350)
+
+
+# 4) dump group-permission binding and paste it to small_db.json.
+# Also delete old groups data from small_db.json (rather obvious)
+python manage.py dumpdata --indent 4 auth.Group
+

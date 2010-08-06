@@ -344,21 +344,21 @@ class ShowBookcopyTest(TestWithSmallDB):
         for copy in BookCopy.objects.all():
             self.assert_specific_copy_display_correct(copy)
         
-
-    def test_diffrent_users_get_the_same_page(self):
-        import re
-        copy = random.choice(BookCopy.objects.all())
-        self.url = self.url % copy.id
-        user_response = self.client.get(self.url)
-        self.log_lib()
-        lib_response = self.client.get(self.url)
-        self.log_admin()
-        admin_response = self.client.get(self.url)
-        contents_user = re.search(r"<div class='picture'>.*", ''.join(user_response.content.splitlines())).group()    # Get page contents from <div class='picture'>
-        contents_lib = re.search(r"<div class='picture'>.*", ''.join(lib_response.content.splitlines())).group()      # to the end of document.
-        contents_admin = re.search(r"<div class='picture'>.*", ''.join(admin_response.content.splitlines())).group()  # It is book copy description.
-        self.assertEqual(contents_user, contents_lib)     # this part of page everybody should have the same
-        self.assertEqual(contents_user, contents_admin)   # this part of page everybody should have the same
+    # mmi: picture's div is now (since r322) displayed iff picture is defined for book copy.
+    # def test_diffrent_users_get_the_same_page(self):
+    #     import re
+    #     copy = random.choice(BookCopy.objects.all())
+    #     self.url = self.url % copy.id
+    #     user_response = self.client.get(self.url)
+    #     self.log_lib()
+    #     lib_response = self.client.get(self.url)
+    #     self.log_admin()
+    #     admin_response = self.client.get(self.url)
+    #     contents_user = re.search(r'<div class="picture">.*', ''.join(user_response.content.splitlines())).group()    # Get page contents from <div class='picture'>
+    #     contents_lib = re.search(r'<div class="picture">.*', ''.join(lib_response.content.splitlines())).group()      # to the end of document.
+    #     contents_admin = re.search(r'<div class="picture">.*', ''.join(admin_response.content.splitlines())).group()  # It is book copy description.
+    #     self.assertEqual(contents_user, contents_lib)     # this part of page everybody should have the same
+    #     self.assertEqual(contents_user, contents_admin)   # this part of page everybody should have the same
 
 class ShowUsersTest(TestWithSmallDB):
     def setUp(self):
@@ -1195,12 +1195,12 @@ class ShowLocationTest(TestWithSmallDB):
     def setUp(self):
         self.log_user()
         loc_id = 1
-        self.url = '/entelib/location/%d/' % loc_id
+        self.url = '/entelib/locations/%d/' % loc_id
         
     def test_displays(self):
         response = self.client.get(self.url)
         # page displayed correctly
-        self.assertEquals(200, response)
+        self.assertEquals(200, response.status_code)
         self.assertContains(response, 'W remoncie')    # remarks
         self.assertContains(response, 'Room 2')        # details
         self.assertContains(response, 'Maintainers')   # maintainers
@@ -1218,8 +1218,7 @@ class ShowLocationsTest(TestWithSmallDB):
     def test_displays(self):
         response = self.client.get(self.url)
         # page displayed correctly
-        self.assertEquals(200, response)
-        self.assertContains(response, 'W remoncie')    # remarks
+        self.assertEquals(200, response.status_code)
         self.assertContains(response, 'Room 2')        # details
         self.assertContains(response, 'Maintainers')   # maintainers
         self.assertContains(response, 'admin')
