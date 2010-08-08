@@ -847,7 +847,7 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
 
     # TODO: default start/end dates
     context.update({
-        'book'            : book_desc,
+        'copy'            : book_desc,
         'reserved'        : reserved,
         'for_whom'        : for_whom,
         'can_reserve'     : request.user.has_perm('baseapp.add_reservation') and book_copy.state.is_visible,

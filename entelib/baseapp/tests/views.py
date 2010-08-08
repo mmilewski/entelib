@@ -388,8 +388,8 @@ class ShowBookcopyTest(TestWithSmallDB):
         contents_admin += re.search(r"<a href='reserve/'>Reserve for me</a>.*", ''.join(admin_response.content.splitlines())).group()
 
         # make sure they are the same
-        self.assertEqual(contents_user, contents_lib)
-        self.assertEqual(contents_user, contents_admin)
+        self.assertNotEqual(contents_user, contents_lib)     # librarian can edit copy
+        self.assertEqual(contents_lib, contents_admin)       # both can edit copy
 
 class ShowUsersTest(TestWithSmallDB):
     def setUp(self):
