@@ -348,8 +348,8 @@ class BookCopy(models.Model):
     year = models.IntegerField()
     publication_nr = models.IntegerField(null=True, blank=True)
     picture = models.ForeignKey(Picture, null=True, blank=True)
-    toc = models.TextField(blank=True)                                         # table of contents
-    toc_url = models.CharField(blank=True, max_length=CFG.copy_toc_url_len)    # external link to TOC
+    toc = models.TextField(blank=True, verbose_name="Table of contents")                   # table of contents
+    toc_url = models.CharField(blank=True, max_length=CFG.copy_toc_url_len, verbose_name="Link to table of contents")    # external link to TOC
     description = models.TextField(blank=True)                                             # description
     description_url = models.CharField(blank=True, max_length=CFG.copy_desc_url_len)       # and/or a link to description
 

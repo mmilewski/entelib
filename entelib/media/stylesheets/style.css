@@ -415,3 +415,29 @@ div.location_info {   /* locations/one.html */
 div.location_info span.label {
     font-weight: bold;
 }
+
+
+div.book_contentWrapper div.edit_book,
+div.copy_contentWrapper div.edit_copy {    /* bookcopies.html, bookcopy_base.html */
+    display: block;
+    width:  48px;
+    height: 39px;
+    float: right;
+}
+div.book_contentWrapper div.edit_book a,
+div.copy_contentWrapper div.edit_copy a {
+    background: url('/media/images/edit_big.png') no-repeat left center;
+    display: block;
+    width:  100%;
+    height: 100%;
+    position: relative;
+    right: 0px;
+}
+div.book_contentWrapper div.edit_book a:hover,
+div.copy_contentWrapper div.edit_copy a:hover {
+    background: url('/media/images/edit_big_hover.png') no-repeat left center;    
+}
+div.book_contentWrapper div.edit_book a span,
+div.copy_contentWrapper div.edit_copy a span {
+    display: none;   /* hide text */
+}

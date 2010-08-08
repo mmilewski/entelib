@@ -230,13 +230,15 @@ def show_books(request, non_standard_user_id=False):
         if 'id' in post and post['id'] != '':
             shelf_mark = post['id']
             search_data.update({'id' : shelf_mark})
-            booklist = BookCopy.objects.filter(shelf_mark__startswith=shelf_mark)
-            bookcopies = [{'shelf_mark' : b.shelf_mark, 
+            booklist = BookCopy.objects.select_related('book').filter(shelf_mark__startswith=shelf_mark)
+            bookcopies = [{'id'         : b.id,
+                           'shelf_mark' : b.shelf_mark, 
                            'state'      : aux.book_copy_status(b),
                            'title'      : b.book.title, 
                            'authors'    : [a.name for a in b.book.author.all()],
                            'location'   : b.location.building.name + ' - ' + b.location.details,
                            'url'        : bookcopy_url % b.id,
+                           'book'       : b.book,
                            }       for b in booklist]
 
         else:
@@ -278,7 +280,7 @@ def show_books(request, non_standard_user_id=False):
             # prepare each book (add url, list of authors) for rendering
             books = [{ 'title'     : book.title,
                        'url'       : book_url % book.id,
-                       'authors'   : [a.name for a in book.author.all()]
+                       'authors'   : [a.name for a in book.author.all()],
                        } for book in booklist ]
     else:
         # If no POST data was sent, then we don't want to list any books, but we want
@@ -362,6 +364,7 @@ def show_book(request, book_id, non_standard_user_id=False):
     # create list of dicts of book_copies
     for elem in book_copies:
         curr_copies.append({
+            'id'            : elem.id,
             'url'           : show_url % elem.id,
             'reserve_url'   : reserve_url % elem.id,
             'shelf_mark'    : elem.shelf_mark,
@@ -420,7 +423,7 @@ def show_book_copy(request, bookcopy_id):
     book_desc = aux.get_book_details(book_copy)
     
     context = {
-        'book' : book_desc,
+        'copy' : book_desc,
     }
     
     tb_processor = TimeBarRequestProcessor(request, None, config)  # default date range
@@ -458,14 +461,34 @@ def show_add_book(request, edit_form=BookForm):
     
     context = {
         'form'        : form,
+        'is_adding'   : True,    # adding new book
+        }
+    return render_response(request, 'books/one.html', context)
+
+@permission_required('baseapp.change_book')
+def show_edit_book(request, book_id, edit_form=BookForm):
+    book = get_object_or_404(Book, id=book_id)
+    if request.method == 'POST':
+        form = edit_form(data=request.POST, instance=book)
+        if form.is_valid():
+            form.save()
+            messages.info(request, 'Book successfully updated.')
+    else:
+        form = edit_form(instance=book)
+    
+    context = {
+        'form'        : form,
+        'book'        : book,
+        'is_updating' : True,    # editing existing book
         }
     return render_response(request, 'books/one.html', context)
 
 
 @permission_required('baseapp.add_bookcopy')
 def show_add_bookcopy(request, book_id, edit_form=BookCopyForm):
+    book = get_object_or_404(Book, id=book_id)
     initial_data = { 
-        'book' : book_id,
+        'book' : book.id,
         }
     if request.method == 'POST':
         form = edit_form(data=request.POST, initial=initial_data)
@@ -476,8 +499,28 @@ def show_add_bookcopy(request, book_id, edit_form=BookCopyForm):
         form = edit_form(initial=initial_data)
     
     context = {
+        'form'       : form,
+        'book'       : book,
+        'is_adding'  : True,    # adding new copy
+        }
+    return render_response(request, 'copies/one.html', context)
+
+@permission_required('baseapp.change_bookcopy')
+def show_edit_bookcopy(request, copy_id, edit_form=BookCopyForm):
+    copy = get_object_or_404(BookCopy, id=copy_id)
+    if request.method == 'POST':
+        form = edit_form(data=request.POST, instance=copy)
+        if form.is_valid():
+            form.save()
+            messages.info(request, 'Book copy successfully updated.')
+    else:
+        form = edit_form(instance=copy)
+    
+    context = {
         'form'        : form,
-        'book_id'     : book_id,
+        'book'        : copy.book,
+        'copy'        : copy,
+        'is_updating' : True,    # editing existing copy
         }
     return render_response(request, 'copies/one.html', context)
 

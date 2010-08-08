@@ -54,6 +54,12 @@ class PageAccessTest(TestCase, PageLogger):
         ''' Tests if you can see something without logging in '''
         for url, redirect_url in non_login_redirect_urls:
             response = self.client.get(url, follow=True)
+
+            # django supports only 302 as redirection code. This functionality could be extracted somwhere
+            if response.redirect_chain and (response.redirect_chain[0][1] in [301, 302]):
+                url,code = response.redirect_chain[0]
+                response.redirect_chain[0] = (url, 302)
+
             self.assertRedirects(response, redirect_url,\
                 msg_prefix='Non login assertion failure: %s was not redirected to %s.' %\
                                                       ( (url),                (redirect_url) ) 
@@ -92,8 +98,10 @@ non_login_redirect_urls = [
     ('/entelib/books/',                                 _login_url + '?next=/entelib/books/'),
     ('/entelib/books',                                  _login_url + '?next=/entelib/books/'),
     ('/entelib/books/1/',                               _login_url + '?next=/entelib/books/1/'),
+    ('/entelib/books/1/edit/',                          _login_url + '?next=/entelib/books/1/edit/'),
     ('/entelib/requestbook/',                           _login_url + '?next=/entelib/requestbook/'),
     ('/entelib/bookcopy/1/',                            _login_url + '?next=/entelib/bookcopy/1/'),
+    ('/entelib/bookcopy/1/edit/',                       _login_url + '?next=/entelib/bookcopy/1/edit/'),
     ('/entelib/bookcopy/1/reserve/',                    _login_url + '?next=/entelib/bookcopy/1/reserve/'),
     ('/entelib/report/',                                _login_url + '?next=/entelib/report/'),
     ('/entelib/emaillog/',                              _login_url + '?next=/entelib/emaillog/'),

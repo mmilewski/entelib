@@ -7,10 +7,12 @@
 {% block header %}Book's details{% endblock %}
 
 {% block content %}
+<div class="book_one">
     {% go_back_link "Go back" %}
 
-    <p>
-      <a href="../">Show all books</a>
+    <p class="links">
+      <a href="{% url book_all %}">Show all books</a> 
+      {%if is_updating%}<a href="{% url book_one book.id %}">Show this book</a>{% endif %}
     </p>
     
     {% if perms.baseapp.add_book %}
@@ -29,7 +31,8 @@
                 {% endfor %}
                 <tr>
                     <td></td>
-                    <td><input type="submit" value="Add book"></td>
+                    {% if is_adding %}<td><input type="submit" value="Add book"></td> {%endif%}
+                    {% if is_updating %}<td><input type="submit" value="Update book"></td> {%endif%}
                 </tr>
             </table>
         </form>
@@ -38,5 +41,6 @@
         </script> 
     </div>
     {% endif %}
-    
+
+</div>    
 {% endblock %}

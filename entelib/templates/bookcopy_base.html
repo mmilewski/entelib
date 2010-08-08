@@ -1,23 +1,28 @@
 {% extends 'base_with_top_menu.html' %}
 
-{% block title %}{{ book.title|default_if_none:"Title undefined"}}{% endblock %}
+{% block title %}{{ copy.title|default_if_none:"Title undefined"}}{% endblock %}
 
 {% block header %}Book copy{% endblock %}
 
 {% block content %}
-    <h2 id="title"><span>Title: {{ book.title }}</span></h2>
+<div class="copy_contentWrapper">
+    <h2 id="title"><span>Title: <a href="{% url book_one copy.book.id%}">{{ copy.title }}</a></span></h2>
+    
+    {% if perms.baseapp.change_bookcopy %}
+    <div class="edit_copy"><a href="{% url copy_edit copy.id %}" title="Edit this book copy"><span>edit</span></a></div>
+    {% endif %}
     
     <div class="reserve_rent_form">
     {% block form %}
     {% endblock %}
     </div>
 
-    {% if book.picture %}
+    {% if copy.picture %}
     <div class="picture">
-      <img src="/media/{{ book.picture.file }}"
-           width="{%if book.picture.file.width > 150 %}150px{%else%}{{book.picture.file.width}}{%endif%}"
-           alt="{{book.picture.description}}"
-           title="{{book.picture.description}}"
+      <img src="/media/{{ copy.picture.file }}"
+           width="{%if copy.picture.file.width > 150 %}150px{%else%}{{copy.picture.file.width}}{%endif%}"
+           alt="{{copy.picture.description}}"
+           title="{{copy.picture.description}}"
            />
     </div>
     {% endif %}
@@ -27,41 +32,41 @@
         
         <ul class="spaces">
             <li class="book_authors">
-                {% if book.authors %}
-                <span class="label">Authors</span>: {{ book.authors|join:', '}}
+                {% if copy.authors %}
+                <span class="label">Authors</span>: {{ copy.authors|join:', '}}
                 {% else %}
                     No authors.
                 {% endif %}
             </li>
-            <li class="book_shelfmark"><span class="label">ID:</span> {{ book.shelf_mark }}</li>            
-            <li class="book_state"><span class="label">State</span>: {{ book.state }}</li>
-            {% if can_list_cost_centers %}<li class="costcenter"><span class="label">Cost Center</span>: {{ book.cost_center }}</li>{%endif%}
-            <li class="book_publisher"><span class="label">Publishing</span>: {{ book.publication_nr }}, {{ book.publisher }} {{ book.year }}</li>
-            <!-- <li class="desc_url"><a href='{{ book.desc_url }}'>See external description</a></li> -->
+            <li class="book_shelfmark"><span class="label">ID:</span> {{ copy.shelf_mark }}</li>            
+            <li class="book_state"><span class="label">State</span>: {{ copy.state }}</li>
+            {% if can_list_cost_centers %}<li class="costcenter"><span class="label">Cost Center</span>: {{ copy.cost_center }}</li>{%endif%}
+            <li class="book_publisher"><span class="label">Publishing</span>: {{ copy.publication_nr }}, {{ copy.publisher }} {{ copy.year }}</li>
+            <!-- <li class="desc_url"><a href='{{ copy.desc_url }}'>See external description</a></li> -->
             <li class="book_location"><span class="label">Location</span>:
-                {% if book.location_url and perms.baseapp.view_location %}
-                    <a href="{{book.location_url}}">{{ book.location }}</a>
+                {% if copy.location_url and perms.baseapp.view_location %}
+                    <a href="{{copy.location_url}}">{{ copy.location }}</a>
                 {% else %}
-                    {{ book.location }}
+                    {{ copy.location }}
                 {% endif %}
             </li>
         </ul>
 
         <!--  TOC  -->
-        {% if book.toc or book.toc_url %}
+        {% if copy.toc or copy.toc_url %}
         <h3 id="toc" class="book_toc">Table Of Contents</h3>
         <div class="book_tocWrapper">
-          {% if book.toc_url %}  <div class="book_toc_url">  <p><a href="{{ book.toc_url }}">Click to see external table of contents.</a></p>  </div>   {% endif %}
-          {% if book.toc %}      <div class="book_toc">  {{ book.toc|linebreaks }}  </div>    {% endif %}
+          {% if copy.toc_url %}  <div class="book_toc_url">  <p><a href="{{ copy.toc_url }}">Click to see external table of contents.</a></p>  </div>   {% endif %}
+          {% if copy.toc %}      <div class="book_toc">  {{ copy.toc|linebreaks }}  </div>    {% endif %}
         </div>
         {% endif %}
 
         <!--  DESC  -->
-        {% if book.desc or book.desc_url %}
+        {% if copy.desc or copy.desc_url %}
         <h3 id="description" class="book_desc">Description</h3>
         <div class="book_descWrapper">
-          {% if book.desc_url %}  <div class="book_desc_url">  <p><a href="{{ book.desc_url }}">Click to see external description</a></p>  </div>    {% endif %}
-          {% if book.desc %}      <div class="book_desc">  {{ book.desc|linebreaks }}  </div>     {% endif %}
+          {% if copy.desc_url %}  <div class="book_desc_url">  <p><a href="{{ copy.desc_url }}">Click to see external description</a></p>  </div>    {% endif %}
+          {% if copy.desc %}      <div class="book_desc">  {{ copy.desc|linebreaks }}  </div>     {% endif %}
         </div>
         {% endif %}
 
@@ -79,4 +84,5 @@
       {% endif %}
     </div>
 
+</div>
 {% endblock %}

@@ -61,15 +61,16 @@ urlpatterns = patterns(
     (r'^register/(?P<action>(.+))/$', view.register),
 
     # books
-    (r'^books/$', view.show_books),
-    (r'^books$', get_redirect_function_to_url('/entelib/books/')),
-    (r'^books/(\d+)/$', view.show_book),
-    (r'^books/add/$', view.show_add_book),
+    url(r'^books/$', view.show_books, name="book_all"),
+    url(r'^books/(\d+)/$', view.show_book, name="book_one"),
+    url(r'^books/(\d+)/edit/$', view.show_edit_book, name="book_edit"),
+    url(r'^books/add/$', view.show_add_book, name="book_add"),
     (r'^requestbook/$', view.request_book),                   # request for book
 
     # book copies
-    (r'^bookcopy/(\d+)/$', view.show_book_copy),
-    (r'^bookcopy/add,(\d+)/$', view.show_add_bookcopy),
+    url(r'^bookcopy/(\d+)/$', view.show_book_copy, name="copy_one"),
+    url(r'^bookcopy/(\d+)/edit/$', view.show_edit_bookcopy, name="copy_edit"),
+    url(r'^bookcopy/add,(\d+)/$', view.show_add_bookcopy, name="copy_add"),
     (r'^bookcopy/(\d+)/up/$', view.book_copy_up_link),
     (r'^bookcopy/\d+/user/$', view.show_users),
     (r'^bookcopy/(\d+)/user/(\d+)/$', view.reserve),
@@ -77,13 +78,13 @@ urlpatterns = patterns(
     (r'^bookcopy/(\d+)/reserve/up/$', view.show_book_copy),
 
     # locations
-    (r'^locations/$', view.show_locations),
-    (r'^locations/(\d+)/$', view.show_location),
+    url(r'^locations/$', view.show_locations, name="location_all"),
+    url(r'^locations/(\d+)/$', view.show_location, name="location_one"),
 
     # reports
-    (r'^report/$', view.show_reports),
+    url(r'^report/$', view.show_reports, name="report_all"),
     # (r'^report/(?P<name>[\w_]+)/$', view.show_reports),
-    (r'^report/(?P<name>(status|most_often_rented|most_often_reserved|black_list|lost_books))/$', view.show_reports),
+    url(r'^report/(?P<name>(status|most_often_rented|most_often_reserved|black_list|lost_books))/$', view.show_reports, name="report_one"),
 
     # email logs
     (r'^emaillog/$', view.show_email_log),

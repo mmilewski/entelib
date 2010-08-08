@@ -110,13 +110,13 @@
                 </tr>
             </thead>
             <tbody>
-                {% for book in bookcopies %}
+                {% for copy in bookcopies %}
                 <tr class="book">
-                    <td class="shelfmark"><a href='{{ book.url }}'>{{ book.shelf_mark }}</a></td>
-                    <td class="state">{{ book.state }}</td>
-                    <td class="title">{{ book.title }}</td>
-                    <td class="authors">{% if book.authors %}{{ book.authors|join:', '}}{% else %}No authors.{% endif %}</td>
-                    <td class="location">{{ book.location }}</td>
+                    <td class="shelfmark"><a href="{{ copy.url }}">{{ copy.shelf_mark }}</a></td>
+                    <td class="state">{{ copy.state }}</td>
+                    <td class="title"><a href="{% url book_one copy.book.id %}">{{ copy.title }}</a></td>
+                    <td class="authors">{% if copy.authors %}{{ copy.authors|join:', '}}{% else %}No authors.{% endif %}</td>
+                    <td class="location">{{ copy.location }}</td>
                 {% endfor %}
                 
             </tbody>

@@ -374,10 +374,15 @@ def readd_group(group_name, perms=[], direct_add=False):
 
 print "Adding app specific groups"
 from django.contrib.auth.models import Permission
-admins_perms     = Permission.objects.all()
+from django.db.models import Q
+admins_perms     = Permission.objects.filter(~Q(codename__icontains='delete'))     # superadmin can delete, admin does not
 readers_perms    = ['list_books', 'view_own_profile', 'add_reservation', 'change_own_reservation', 'add_bookrequest',
                     'list_config_options', 'edit_option', 'list_locations', 'view_location']
-librarians_perms = ['list_users', 'list_reports', 'add_rental', 'change_reservation', 'change_rental', 'add_book', 'add_bookcopy']
+librarians_perms = ['list_users', 'list_reports',
+                    'add_rental', 'change_rental', 'change_reservation', 
+                    'add_book', 'change_book',
+                    'add_bookcopy', 'change_bookcopy',
+                    ]
 readd_group('Readers',    perms=readers_perms)
 readd_group('Librarians', perms=librarians_perms)
 readd_group('Admins',     perms=admins_perms, direct_add=True)

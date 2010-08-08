@@ -151,6 +151,8 @@ def get_book_details(book_copy):
     copy_state = ("Available for %d days." % status.rental_possible_for_days()) if status.is_available() else status.why_not_available()
     location_url_pattern = '/entelib/locations/%d/'
     book_desc = {
+        'id'             : book_copy.id,
+        'book'           : book_copy.book,
         'title'          : book_copy.book.title,
         'shelf_mark'     : book_copy.shelf_mark,
         'authors'        : [a.name for a in book_copy.book.author.all()],

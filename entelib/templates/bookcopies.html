@@ -8,8 +8,14 @@
 
 {% block content %}
 
+<div class="book_contentWrapper">
+
     <h2>Title: {{ book.title }}</h2>
 
+    {% if perms.baseapp.change_book %}
+    <div class="edit_book"><a href="{% url book_edit book.id %}" title="Edit this book"><span>edit</span></a></div>
+    {% endif %}
+    
     <div class="book_authors">
         <dt>Authors:</dt>
         {% if book.authors %}
@@ -36,43 +42,47 @@
     {% endif %}
 
     {% if search.locations %}
-    <div class="content_form">
-        <form class="copy_search" action=".#book_copies" method="post" name="Flocations">
-            <table>
-                <tr>
-                    <td>Location: <br />
-                    <select name="location" multiple="multiple" size="{{ search.copies_location_select_size }}">
-                            {% for location in search.locations %}
-                                <option value="{{ location.id }}" {% if location.selected %}selected{% endif %}>{{ location.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                    <td>
-                        <input type="checkbox" id="available" name="available" value="available" {% if only_available_checked %} checked="checked" {% endif %} >
-                        <label for="available">Only available:</label>
-                    </td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td>
-                    <input type="submit" name="action" value="Search">
-                  </td>
-                </tr>
-            </table>
-        </form>
+    <div class="search">
+        <h3 id="search">Search</h3>
+    
+        <div class="content_form">      
+            <form class="copy_search" action=".#book_copies" method="post" name="Flocations">
+                <table>
+                    <tr>
+                        <td>Location: <br />
+                        <select name="location" multiple="multiple" size="{{ search.copies_location_select_size }}">
+                                {% for location in search.locations %}
+                                    <option value="{{ location.id }}" {% if location.selected %}selected{% endif %}>{{ location.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="available" name="available" value="available" {% if only_available_checked %} checked="checked" {% endif %} >
+                            <label for="available">Only available:</label>
+                        </td>
+                    </tr>
+                    <tr>
+                      <td></td>
+                      <td>
+                        <input type="submit" name="action" value="Search">
+                      </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <script type="text/javascript">
+          document.Flocations.location.focus();
+        </script>
+    
+        {% else %}
+        <!-- <p>No locations defined.</p> -->
+        {% endif %}
     </div>
-    <script type="text/javascript">
-      document.Flocations.location.focus();
-    </script>
-
-    {% else %}
-    <!-- <p>No locations defined.</p> -->
-    {% endif %}
-
+    
     <div class="bookcopy_actions">
       {% if perms.baseapp.add_bookcopy %}
       <p>
-        <a href="/entelib/bookcopy/add,{{book.id}}/" class="add_bookcopy">Add another copy</a>
+        <a href="{% url copy_add book.id %}" class="add_bookcopy">Add another copy</a>
       </p>
       {% endif %}
     </div>
@@ -128,11 +138,18 @@
                         <td class="location">{{ item.location }}</td>
                         <td class="actions">
                             <ul class="actions">
+                                {%if perms.baseapp.change_bookcopy %}
+                                <li class="edit">
+                                    <a href="{% url copy_edit item.id %}">Edit</a> 
+                                </li>
+                                {%endif%}
                                 {%if item.is_reservable and item.is_available %}
-                                <li><a href='{{ item.reserve_url }}'
-                                       {% if not item.is_available %}class="available" title="Book is not available"{% endif %}>
+                                <li class="reserve">
+                                    <a href='{{ item.reserve_url }}'
+                                       {% if not item.is_available %}class="unavailable" title="Book is unavailable"{% endif %}>
                                     Reserve
-                                </a></li> {% endif %}
+                                </a></li> 
+                                {% endif %}
                             </ul>
                         </td>
                     </tr>
@@ -207,4 +224,5 @@
     </script>
     <div id="cloud" class='cloud'></div>
 
+</div>
 {% endblock %}
