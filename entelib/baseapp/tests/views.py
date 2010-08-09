@@ -6,12 +6,13 @@ from datetime import date, timedelta
 from entelib.baseapp.config import Config
 from entelib.baseapp.models import Reservation, Rental, User, UserProfile, Book, BookCopy, BookRequest, Configuration, Phone, Building
 
-def choice(iterable):
-    ''' simplyfied pseudo-choice ensuring repeatable results '''
-    length = len(list(iterable))
+def choice(collection):
+    ''' simplified pseudo-choice ensuring repeatable results '''
+    lst = list(collection)
+    length = len(lst)
     seed = 117
     index = (seed % length) ** 3 % length
-    return iterable[index]
+    return lst[index]
 
 class TestWithSmallDB(Test):
     '''
@@ -769,7 +770,7 @@ class ShowUserReservationsTest(TestWithSmallDB):
         self.log_lib()
 
     def test_all_users_have_all_reservations_displayed(self):
-        for user in User.objects.all()[2:3]:
+        for user in User.objects.all():
             url = self.url % user.id
             response = self.client.get(url)
             for reservation in Reservation.objects.filter(for_whom=user, rental=None, when_cancelled=None, end_date__gte=today()):
@@ -835,19 +836,18 @@ class FindBookForUserTest(ShowBooksTest, ShowBookTest):
         tests = [met for met in dir(self) if met.startswith('test_') and met != 'test_finding_for_all_users']  
 
         # user 1 is tested with all inherited methods' calls, so we retrieve other users' ids
-        users = [u.id for u in User.objects.all() if u.id is not 1]
+        users_ids = [u.id for u in User.objects.all() if u.id is not 1]
 
         self.url_book_base = '/entelib/users/%d/reservations/new/'
         self.log_lib()
         
         # for every user
-        for user in users:
+        for user_id in users_ids:
             # run all tests
             for test in tests:
                 # prepare url
-                self.url = '/entelib/users/%d/reservations/new/' % user
-                self.url_book = self.url_user_book % (user, '%d')
-                pprint(test)
+                self.url = '/entelib/users/%d/reservations/new/' % user_id
+                self.url_book = self.url_user_book % (user_id, '%d')
                 self.__getattribute__(test)()  # calling test method
 
 

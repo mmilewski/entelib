@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#TODO: wymyślić jakiś sensowny sposób ułożenia tych zmiennych. Chyba że po prostu każdą wartość będziemy definiować pod istniejącymi. Co chyba nie jest rzadkim rozwiążązaniem...
+#TODO: fix ordering of those
 '''
 Settings for baseapp models. Constants and so on.
 '''
@@ -28,8 +28,6 @@ phonetype_description_len = 100       # some info for users. One can give exampl
 
 state_name_len = 30
 
-shelf_mark_len = 15
-
 publisher_name_len = 50
 
 picture_description_len = 50
@@ -41,6 +39,7 @@ book_title_len = 50
 
 copy_toc_url_len = 256                # url to table of contents
 copy_desc_url_len = 256               # url to site with description
+shelf_mark_len = 15
 
 costcenter_name_len = 50              # name of Cost Center
 

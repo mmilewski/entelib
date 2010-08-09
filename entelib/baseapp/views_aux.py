@@ -125,17 +125,17 @@ def get_users_details_list(first_name, last_name, email, building_id):
     if building_id:
         building_filter = Q(userprofile__building__id=building_id)
 
-    return [ {'username'   : u.username,
-                   'last_name'  : u.last_name,
-                   'first_name' : u.first_name,
-                   'email'      : u.email,
-                   'url'        : "%d/" % u.id
-                   }
-                  for u in User.objects.filter(first_name__icontains=first_name)
-                                       .filter(last_name__icontains=last_name)
-                                       .filter(email__icontains=email)
-                                       .filter(building_filter)
-                ]
+    user_details =    [ {'username'   : u.username,
+                         'last_name'  : u.last_name,
+                         'first_name' : u.first_name,
+                         'email'      : u.email,
+                         'url'        : "%d/" % u.id,  # relative path to user profile
+                         }      for u in User.objects.filter(first_name__icontains=first_name)
+                                                     .filter(last_name__icontains=last_name)
+                                                     .filter(email__icontains=email)
+                                                     .filter(building_filter)
+            ]
+    return user_details
 
 
 def get_book_details(book_copy):
@@ -653,13 +653,16 @@ def cancel_user_resevations(user, canceller):
         cancel_reservation(r, canceller)
 
 
-def user_full_name(user_id):
+def user_full_name(user_id, format='Lastname, Firstname'):
     '''
     Return unicode string containing users first and last name if user_id is correct, None otherwise.
     '''
     try:
         u = User.objects.get(id=user_id)
-        return  u.last_name + ', ' + u.first_name
+        if format == 'Firstname Lastname':
+            return u.first_name + ' ' + u.last_name
+        else:
+            return  u.last_name + ', ' + u.first_name  # default
     except:
         return None
 
