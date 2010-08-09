@@ -25,52 +25,88 @@ class LoadDefaultConfigTest(TestWithSmallDB):
     pass
 
 
-class ShowConfigOptionsTest(TestWithSmallDB):
+class ListConfigOptionsTest(TestWithSmallDB):
     def setUp(self):
         self.url = '/entelib/config/'
-        self.log_user()
 
-    def test_all_displayed(self):
+    def test_displayed_overridable(self):
+        self.log_user()
         response = self.client.get(self.url)
         
         self.assertContains(response, 'List of configurable options')
-        for c in Configuration.objects.all():
-            self.assertContains(response, c.key)
-        # self.assertContains(response, 'edit.png', count=Configuration.objects.filter(can_override=True).count())
-        # this will fail due to many comments in html code containing 'edit.png' string
+        for c in Configuration.objects.filter(can_override=True):
+            self.assertContains(response, c.key, msg_prefix='%s not found' % c.key)
+
+    def test_all_displayed(self):
+        self.log_admin()
+        response = self.client.get(self.url)
+        
+        self.assertContains(response, 'List of configurable options')
+        options = list(Configuration.objects.all())
+        for c in options:
+            self.assertContains(response, c.key, msg_prefix='%s not found' % c.key)
+        self.assertContains(response, 'edit global', count=len(options))   # can edit global all options
 
 
-
-class EditConfigOptionTest(TestWithSmallDB):
+class EditLocalConfigOptionTest(TestWithSmallDB):
     def setUp(self):
         self.url = '/entelib/config/%s/'
+        self.overridable_key = 'display_tips'
+        self.unoverridable_key = 'default_go_back_link_name'
         self.log_user()
 
-    def test_each_option_gets_displayed(self):
-        for c in Configuration.objects.all():
+    def test_unoverridable_redirects(self):
+        self.log_admin()
+        response = self.client.get(self.url % self.unoverridable_key)
+        self.assertRedirects(response, '/entelib/login/?next='+(self.url % self.unoverridable_key))
+        for c in Configuration.objects.filter(can_override=False):
+            response = self.client.get(self.url % c.key)
+            self.assertRedirects(response, '/entelib/login/?next='+(self.url % c.key))
+
+    def test_each_overridable_option_gets_displayed(self):
+        for c in Configuration.objects.filter(can_override=True):
             response = self.client.get(self.url % c.key)
             self.assertContains(response, c.key)
 
     def test_override_to_the_same_value(self):
-        for c in Configuration.objects.all():
+        for c in Configuration.objects.filter(can_override=True):
             if not c.can_override:
                 continue
             response = self.client.post(self.url % c.key, {'value' : c.value})
             self.assertRedirects(response, '/entelib/config/')
             self.assertEquals(c.value, Configuration.objects.get(key=c.key).value)
 
-#    def test_override_append_letter_to_non_ints(self):
-#        for c in Configuration.objects.all():
-#            if not c.can_override:
-#                continue
-#            if isinstance(c.value, int):
-#                continue
-#            response = self.client.post(self.url % c.key, {'value' : c.value + 'a'})
-#            self.assertRedirects(response, '/entelib/config/')
-#            self.assertEquals(c.value + 'a', Configuration.objects.get(key=c.key).value)
-#
-#
-#            #self.assertEquals(200, response.status_code)
+    def test_is_local(self):
+        response = self.client.get(self.url % self.overridable_key)
+        self.assertFalse(response.context['is_global'])
+
+
+class EditGlobalConfigOptionTest(TestWithSmallDB):
+    def setUp(self):
+        self.url = '/entelib/config/%s,global/'
+        self.overridable_key = 'display_tips'
+        self.unoverridable_key = 'default_go_back_link_name'
+
+    def test_overridable_global_dispalyed(self):
+        self.log_admin()
+        response = self.client.get(self.url % self.overridable_key)
+        self.assertTrue(response.context['is_global'])
+
+    def test_unoverridable_global_dispalyed(self):
+        # admin can global edit option  
+        self.log_admin()
+        response = self.client.get(self.url % self.unoverridable_key)
+        self.assertEqual(200, response.status_code)
+        
+    def test_user_cannot_override_global(self):
+        self.log_user()
+        response = self.client.get(self.url % self.overridable_key)
+        self.assertRedirects(response, '/entelib/login/?next='+(self.url % self.overridable_key))
+
+    def test_admin_can_override_global(self):
+        self.log_admin()
+        response = self.client.get(self.url % self.overridable_key)
+        self.assertTrue(response.context['is_global'])
 
 
 class ShowEmailLogTest(TestWithSmallDB):

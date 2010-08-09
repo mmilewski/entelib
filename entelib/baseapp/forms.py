@@ -11,6 +11,7 @@ from baseapp.views_aux import get_phones_for_user
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import ModelForm
 from django.db.models.query_utils import Q
+import models_config as CFG
 
 attrs_dict = { 'class': 'required' }
 
@@ -20,12 +21,23 @@ class ConfigOptionEditForm(forms.Form):
     '''
     Form for editing config's option.
     '''
-    def __init__(self, user, option_key, *args, **kwargs):
+    def __init__(self, user, option_key, is_global, *args, **kwargs):
         super(ConfigOptionEditForm, self).__init__(*args, **kwargs)
         self.user = user
         self.option_key = option_key
+        self.is_global = is_global
 
     value = forms.CharField(required=True)
+    can_override = forms.BooleanField(required=False)
+    description = forms.CharField(required=False, widget=forms.Textarea, max_length=CFG.configuration_descirption_len)
+
+    def clean_description(self):
+        if self.is_global:
+            if len(self.cleaned_data['description']) < 2:
+                raise forms.ValidationError('Description cannot be empty')
+            return self.cleaned_data['description']
+        else:
+            return ''
 
     def clean_value(self):
         if not 'value' in self.cleaned_data:
@@ -35,14 +47,24 @@ class ConfigOptionEditForm(forms.Form):
     def clean(self):
         config = Config(self.user)
         key = self.option_key
-        if not config.can_override(key):
-            raise forms.ValidationError(u"Key %s cannot be overriden" % (key,))
+        is_global = self.is_global
+        if not is_global:
+            if not config.can_override(key):
+                raise forms.ValidationError(u"Key %s cannot be overriden" % (key,))
+        else:
+            pass
         return self.cleaned_data
 
     def save(self):
         key = self.option_key
-        config = Config(self.user)
-        config[key] = self.cleaned_data['value']
+        if self.is_global:
+            config = Config()
+            config.set_global_value(key, self.cleaned_data['value'])
+            config.set_can_override(key, self.cleaned_data['can_override'])
+            config.set_description(key, self.cleaned_data['description'])
+        else:
+            config = Config(self.user)
+            config[key] = self.cleaned_data['value']
 
 
 class BookRequestForm(forms.Form):

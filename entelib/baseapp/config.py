@@ -34,7 +34,6 @@ class Config(object):
         def __unicode__(self):
             return u'%s %s %s' % (self.can_override, self.key, self.value)
 
-
     class KeyDoesNotExist(KeyError):
         pass
 
@@ -65,7 +64,7 @@ class Config(object):
             result[key] = opt.value
 
         return result
-    
+
     def get_all_options(self):
         '''
         Gets all config options and returns it as a dict of Config.Option records -- { key: option }
@@ -73,17 +72,17 @@ class Config(object):
         self.user must be valid.
         '''
         assert self.user, 'User instance is corrupted'
-        
-        
-        config_options = Configuration.objects.all()
+
+        config_options = list(Configuration.objects.all())
         overridable_options = [opt for opt in config_options if opt.can_override]
         user_options = UserConfiguration.objects.filter(user=self.user)
 
         result = {}
         for opt in config_options:
             option = Config.Option(key=opt.key, value=opt.value, can_override=opt.can_override, description=opt.description)
+            option.global_value = config_options[config_options.index(opt)].value
             result[opt.key] = option
-        
+
         # override some options
         for overr_option in overridable_options:
             candidate_options = [user_opt for user_opt in user_options if user_opt.option.key == overr_option.key]
@@ -99,12 +98,14 @@ class Config(object):
         
         If user is None ~~> see __init__ method.
         '''
-        
         self.user = user
         self._fill_cache()
     
     def _fill_cache(self):
-        ''' Fills cache with values from db. If user is not set, then cache is empty. '''
+        ''' 
+        Fills cache with values from db. If user is not set, then cache is empty. 
+        Cache is empty because one may create global Config instance and user set later.
+        '''
         if self.user:
             self._cached_data = self.get_all_key_value_options()
         else:
@@ -135,11 +136,43 @@ class Config(object):
         else:
             try:
                 option = Configuration.objects.get(key=key)
-                self._cached_data[key] = option.value
-                return option.value
             except Configuration.DoesNotExist, e:
-                # print Configuration.objects.all()
                 raise Configuration.DoesNotExist(e.args + (key,))
+            
+            options = Configuration.objects.all()
+            for option in list(options):
+                self._cached_data[option.key] = option.value            
+            return self._cached_data[key]
+
+    def _value_to_repr(self, value):
+        '''
+        Returns internal representation of given value.
+        In example True is converted to Config._true_value
+        '''
+        if value == True:
+            value = Config._true_value
+        elif value == False:
+            value = Config._false_value
+        elif isinstance(value, list):
+            value = json.dumps(value)
+        elif isinstance(value, dict):
+            assert(False and 'Config is unable to handle dicts')
+        else:
+            value = unicode(value)
+        return value
+
+    def set_global_value(self, key, value):
+        '''
+        Sets global value for key.
+        Global means not per user.
+        '''
+        assert (key in self)
+        value = self._value_to_repr(value)
+        config_option = Configuration.objects.get(key=key)
+        config_option.value = value
+        config_option.save()
+
+        del self._cached_data[key]
 
     def __setitem__(self, key, value):
         '''
@@ -160,17 +193,8 @@ class Config(object):
             raise Config.KeyCannotBeOverrided
         
         # reveal how value should be stored in model
-        if value == True:
-            value = Config._true_value
-        elif value == False:
-            value = Config._false_value
-        elif isinstance(value, list):
-            value = json.dumps(value)
-        elif isinstance(value, dict):
-            assert(False and 'Config is unable to handle dicts')
-        else:
-            value = unicode(value)
-            
+        value = self._value_to_repr(value)
+        
         # insert new key, value pair
         if key not in self:
             record = Configuration(key=key, value=value, description='')

@@ -33,6 +33,7 @@ def render_response(request, template, context={}):
     context.update( {'go_back_link' : '<a href="javascript: history.go(-1)">Back</a>',
                      'can_access_admin_panel' : user.is_staff or user.is_superuser,
                      'display_tips' : config.get_bool('display_tips'),
+                     'display_only_editable_config_options' : config.get_bool('display_only_editable_config_options'),
                      })
     # as far as we use perms with following convention, we can pass perms to templates easily:
     # if in-code perm's name is list_book, then template gets can_list_books variable
@@ -722,3 +723,16 @@ def when_copy_reserved(book_copy):
 
     result_list = [{'from' : a, 'to' : b} for (a,b) in new_list]
     return result_list
+
+
+def can_edit_global_config(user):
+    '''
+    Returns True iff user can edit global values of given config option.
+    
+    Args:
+        user -- instance of User
+    '''
+    config = Config(user)
+    display_only_editable_config_options = config.get_bool('display_only_editable_config_options')
+    return user.is_staff or (not display_only_editable_config_options)
+    

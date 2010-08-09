@@ -15,6 +15,10 @@
 </div>
 {% endif %}
 
+{% if not confirmation %}
 <p><a href="/entelib/load_default_config/1/">Yes, restore default config</a></p>
+{% else %}
+<p><a href="{% url config_all %}">Go to configuration</a></p>
+{% endif %}
 
 {% endblock %}

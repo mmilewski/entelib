@@ -20,12 +20,23 @@
     <div class="config_options_wrapper">
       {% if options %}
       {% for opt in options %}
-      <div class="option">
-        <!-- <dt class="key">{{opt.key}} <a href="/entelib/admin/baseapp/configuration/{{opt.key}}/"><img src="/media/images/edit.png" alt="edit"></a></dt> -->
-        <dt class="key">{{opt.key}}    {%if opt.can_override%}<a href="{{opt.key}}/"><img src="/media/images/edit.png" alt="edit"></a> {%endif%}  </dt>
-        <dd class="value">{{opt.value}}</dd>
-        <dd class="desc">{{opt.description}}</dd>
-      </div>
+          {% if display_only_editable_options or opt.can_override or can_edit_global_config %}
+          <div class="option">
+            <dt class="key">{{opt.key}}
+              <div class="actions">
+                {%if opt.can_override%}<a href="{{opt.key}}/" class="local"><span>edit</span></a> {%endif%}
+                {%if can_edit_global_config%}<a href="{{opt.key}},global/" class="global"><span>edit global</span></a> {%endif%}
+              </div>
+            </dt>
+            {% if opt.can_override%}
+                <dd class="value"><span class="label">Value</span>: {{opt.value}}</dd>
+            {%endif%}
+            {% if can_edit_global_config %}
+                <dd class="global_value"><span class="label">Global value</span>: {{opt.global_value}}</dd>
+            {% endif %}
+            <dd class="desc">{{opt.description}}</dd>
+          </div>
+          {% endif %}
       {% endfor %}
       {% else %}
       <p>No config options were found.</p>

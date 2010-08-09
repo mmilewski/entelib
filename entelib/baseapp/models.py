@@ -135,6 +135,7 @@ class UserProfile(models.Model):
             ('view_others_profile', "Can view other people' profile"),
             ('list_reports', 'Can list reports'),     # FIXME: this shouldn't be here, but I don't know where is the right place for that, since no Report model is defined
         )
+        unique_together = (('user',),)
 
     def __unicode__(self):
         return u"%s's profile" % self.user.username

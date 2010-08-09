@@ -4,7 +4,7 @@
 
 {% block title %}Edit config option{% endblock %}
 
-{% block header %}Edit config option - {{form.option_key}}{% endblock %}
+{% block header %}Edit {%if is_global%}global {%endif%}config option - {{form.option_key}}{% endblock %}
 
 {% block content %}
 
@@ -19,10 +19,17 @@
         <tr><td>{{form.non_field_errors}}</td></tr>
         {% endif %}
         <tr><td><span class="label">Key:</span> {{form.option_key}} </td> </tr>
-        <tr><td><span class="label">Description:</span> {{form.description}} </td> </tr>
-        <tr><td><span class="label">Can override:</span> {{form.can_override}} </td> </tr>
+        {% if is_global %}
+        <tr><td><span class="label">Description:</span> <br/>{{form.description}} {{form.description.errors}}</td> </tr>
+        <tr><td><label for="id_can_override"><span class="label">Can override:</span></label> {{form.can_override}}</td> </tr>
+        {% else %}
+        <tr><td><span class="label">Description:</span> {{option.description|linebreaksbr}} </td> </tr>
+        <tr><td><span class="label">Can override:</span> {{option.can_override}} </td> </tr>
+        {% endif %}
         <tr><td >
-            <span class="label">Value:</span>
+            {% if is_global %}  <span class="label">Global value:</span>
+            {% else %}          <span class="label">Value:</span>
+            {%endif%}
             {{ form.value.errors }}
             {{ form.value }}
         </td></tr>
@@ -33,7 +40,6 @@
   </form>
 </div>
 
-{% go_back_link "Go back" %}
 {% endif %}
 
 {% endblock %}

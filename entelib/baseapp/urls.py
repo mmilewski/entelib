@@ -90,8 +90,9 @@ urlpatterns = patterns(
     (r'^emaillog/$', view.show_email_log),
 
     # config
-    (r'^config/$', view.show_config_options),
-    (r'^config/(?P<option_key>(\w+))/$', view.edit_config_option),
+    url(r'^config/$', view.show_config_options, name="config_all"),
+    url(r'^config/(?P<option_key>(\w+))/$', view.edit_config_option, name="config_edit_option"),
+    url(r'^config/(?P<option_key>(\w+)),global/$', view.edit_config_option, {'is_global':True}, name="config_edit_global_option"),
     (r'load_default_config/(?P<do_it>(\d))?/?$', view.load_default_config),
 
     # admin panel urls

@@ -286,7 +286,17 @@
             "receiver": "Librariano \u015amietano <librarian@bestbook.travel>"
         }
     }, 
+
     
+    { 
+        "pk": "display_only_editable_config_options",
+        "model": "baseapp.configuration", 
+        "fields": {
+            "can_override": false, 
+            "description": "True iff user see only editable options.", 
+            "value": "1"
+        }
+    }, 
     { 
         "pk": "tb_max_days_in_date_range", 
         "model": "baseapp.configuration", 

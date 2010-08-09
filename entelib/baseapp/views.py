@@ -32,10 +32,13 @@ def load_default_config(request, do_it=False):
     '''
     Restores default values to config. This is rather for developement than production usage.
     '''
+    context = {}
     if do_it:
         from dbconfigfiller import fill_config
         fill_config()
-    return render_response(request, 'load_default_config.html', {})
+        context['confirmation'] = 'Default configuration loaded'
+        messages.info(request, 'Default config loaded.')
+    return render_response(request, 'load_default_config.html', context)
 
 
 @permission_required('baseapp.list_config_options')
@@ -48,38 +51,61 @@ def show_config_options(request):
     opts = config.get_all_options().values()
     lex_by_key = lambda a,b : -1 if a.key < b.key else (1 if a.key > b.key else 0)
     opts.sort(cmp=lex_by_key)
+    can_edit_global = aux.can_edit_global_config(request.user)
     context = {
-        'options' : opts,
+        'can_edit_global_config' : can_edit_global,
+        'options'                : opts,
         }
     return render_response(request, template, context)
 
 
 @permission_required('baseapp.edit_option')
-def edit_config_option(request, option_key, edit_form=ConfigOptionEditForm):
+def edit_config_option(request, option_key, is_global=False, edit_form=ConfigOptionEditForm):
     '''
     Handles editing config option by user.
     '''
-    user = request.user
-
+    isinstance(is_global, bool)
     tpl_edit_option = 'config/edit_option.html'
-    context = {}
-    config = Config(user)
+    user = request.user
+    if is_global:
+        config = Config()
+    else:
+        config = Config(user)
+
+    redirect_response_here = HttpResponseRedirect(settings.LOGIN_URL + '?next=' + request.get_full_path()) 
+    if is_global and (not aux.can_edit_global_config(user)):  # edit global without perms
+        return redirect_response_here
+    if (not is_global) and (not config.can_override(option_key)):         # edit local unoverridable key
+        return redirect_response_here
+
     if option_key not in config:
         return render_not_found(request, item_name='Config option')
 
-    form_initial = {'value': config[option_key]}
+    option = { 'can_override'  : config.can_override(option_key),
+               'description'   : config.get_description(option_key),
+        } 
+    context = {
+        'is_global'   : is_global,
+        'option'      : option,
+        }
+    form_initial = {'value'         : config[option_key],
+                    'can_override'  : option['can_override'],
+                    'description'   : option['description'], 
+        }
     # redisplay form
     if request.method == 'POST':
-        form = edit_form(user=user, option_key=option_key, data=request.POST, initial=form_initial)
+        form = edit_form(user=user, option_key=option_key, is_global=is_global, data=request.POST, initial=form_initial)
         if form.is_valid():
             form.save()
             value = request.POST['value']
             msg = 'Key %s has now value %s' % (option_key, value)
             messages.success(request, msg)
             return HttpResponseRedirect('/entelib/config/')
+        else:
+            pass
     # display fresh new form
     else:
-        form = edit_form(user=user, option_key=option_key, initial=form_initial)
+        form = edit_form(user=user, option_key=option_key, is_global=is_global, initial=form_initial)
 
     form.option_key = option_key
     form.description = config.get_description(option_key)

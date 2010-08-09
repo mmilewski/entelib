@@ -388,12 +388,36 @@ div.config_options_wrapper dt.key {
     font-family: monospace;
     font-weight: bold;
 }
-div.config_options_wrapper dt.key img {
-    border: none;
+div.config_options_wrapper div.option dd span.label {
+    font-weight: bold;
 }
 div.config_options_wrapper dd.value {
     font-size: 110%;
 }
+div.config_options_wrapper div.actions {
+    float: right;
+}
+div.config_options_wrapper a.local {
+    background: url('/media/images/edit.png') no-repeat left center;
+    display: inline;  width: 35px;  height: 16px;  float: left;  margin: 0 .4em;
+}
+div.config_options_wrapper a.local:hover {
+    background: url('/media/images/edit_hover.png') no-repeat left center;
+}
+div.config_options_wrapper a.local span {
+    display: none;
+}
+div.config_options_wrapper a.global {
+    background: url('/media/images/edit_global.png') no-repeat left center;
+    display: inline;  width: 82px;  height: 16px;  float: left;  margin: 0 .4em;
+}
+div.config_options_wrapper a.global:hover {
+    background: url('/media/images/edit_global_hover.png') no-repeat left center;
+}
+div.config_options_wrapper a.global span {
+    display: none;
+}
+
 
 form.edit_option_form td span.label {
     font-weight: bold;
