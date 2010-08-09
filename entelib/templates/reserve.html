@@ -2,9 +2,11 @@
 
 {% block header %}{% if for_whom %} {{ for_whom }} {% else %} Book reservation {% endif %} {% endblock %}
 
+{% comment %}
 {% block go_up %}
     <a href=up/>Go up</a><br />
 {% endblock %}
+{% endcomment %}
 
 {% block form %}
     {% if reserved.msg %}

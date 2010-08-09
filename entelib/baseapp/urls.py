@@ -72,10 +72,10 @@ urlpatterns = patterns(
     url(r'^bookcopy/(\d+)/edit/$', view.show_edit_bookcopy, name="copy_edit"),
     url(r'^bookcopy/add,(\d+)/$', view.show_add_bookcopy, name="copy_add"),
     (r'^bookcopy/(\d+)/up/$', view.book_copy_up_link),
-    (r'^bookcopy/\d+/user/$', view.show_users),
+    (r'^bookcopy/\d+/user/$', view.find_user_to_rent_him),
     (r'^bookcopy/(\d+)/user/(\d+)/$', view.reserve),
     (r'^bookcopy/(\d+)/reserve/$', view.reserve),
-    (r'^bookcopy/(\d+)/reserve/up/$', view.show_book_copy),
+    # (r'^bookcopy/(\d+)/reserve/up/$', view.show_book_copy),
 
     # locations
     url(r'^locations/$', view.show_locations, name="location_all"),

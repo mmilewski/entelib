@@ -25,6 +25,7 @@
                         Not logged in. <a href="/entelib/login/">Login</a> or <a href="/entelib/register/newuser">register</a>.
                     {% else %}
                         Logged as: <strong>{{ user.username }}</strong> {% if user.is_superuser %}(superuser){% endif%}
+                        <a href='/entelib/logout/'>(Logout)</a>
                     {% endif %}
                 </div>
                 <!-- end of log-in state box -->

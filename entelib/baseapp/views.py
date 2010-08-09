@@ -309,7 +309,7 @@ def show_books(request, non_standard_user_id=False):
         'bookcopies' : bookcopies,
         'search' : search_data,
         'can_add_book' : request.user.has_perm('baseapp.add_book'),
-        'none_found' : not len(books) and request.method == 'POST'
+        'none_found' : not len(books) and not bookcopies and request.method == 'POST'
         }
     return render_response(request, 'books.html', context)
 
@@ -446,7 +446,7 @@ def user_book_copy_up_link(request, user_id, bookcopy_id):
 
 @permission_required('baseapp.list_users')
 def find_user_to_rent_him(request):
-    show_users(request) 
+    return show_users(request) 
 
 
 @permission_required('baseapp.add_book')

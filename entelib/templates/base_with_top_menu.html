@@ -3,17 +3,17 @@
 {% block menu %}
     <div id='menu'>
         <ul>
-            {% if can_list_books %}                <li><a href="/entelib/books/">Book list</a></li>                        {% endif %}
-            {% if can_add_bookrequest %}           <li><a href="/entelib/requestbook/">Request book</a></li>               {% endif %}
-            {% if can_view_own_profile %}          <li><a href="/entelib/profile/">My profile</a></li>                     {% endif %}
-            {% if can_view_own_profile %}          <li><a href="/entelib/profile/rentals/">My rentals</a></li>             {% endif %}
-            {% if can_view_own_profile %}          <li><a href="/entelib/profile/reservations/">My reservations</a></li>   {% endif %}
-            {% if can_list_config_options %}       <li><a href="/entelib/config/">Configuration</a></li>                   {% endif %}
-            {% if can_list_users %}                <li><a href="/entelib/users/">User list</a></li>                        {% endif %}
-            {% if can_list_reports %}              <li><a href="/entelib/report/">Reports</a></li>                         {% endif %}
-            {% if can_list_locations %}            <li><a href="/entelib/locations/">Locations</a></li>                    {% endif %}
-            {% if can_access_admin_panel %}        <li><a href="/entelib/admin/">Admin panel</a></li>                      {% endif %}
-                                                   <li><a href="/entelib/logout/">Logout</a></li>
+            {% if can_list_books %}                <li><a href="/entelib/books/">                  Book list</a></li>         {% endif %}
+            {% if can_view_own_profile %}          <li><a href="/entelib/profile/rentals/">        My rentals</a></li>        {% endif %}
+            {% if can_view_own_profile %}          <li><a href="/entelib/profile/reservations/">   My reservations</a></li>   {% endif %}
+            {% if can_view_own_profile %}          <li><a href="/entelib/profile/">                My profile</a></li>        {% endif %}
+            {% if can_add_bookrequest %}           <li><a href="/entelib/requestbook/">            Request a book</a></li>    {% endif %}
+            {% if can_list_config_options %}       <li><a href="/entelib/config/">                 Configuration</a></li>     {% endif %}
+            {% if can_list_users %}                <li><a href="/entelib/users/">                  User list</a></li>         {% endif %}
+            {% if can_list_reports %}              <li><a href="/entelib/report/">                 Reports</a></li>           {% endif %}
+            {% if can_list_locations %}            <li><a href="/entelib/locations/">              Locations</a></li>         {% endif %}
+            {% if can_access_admin_panel %}        <li><a href="/entelib/admin/">                  Admin panel</a></li>       {% endif %}
+                                                   <li><a href="/entelib/logout/">                 Logout</a></li>
         </ul>
     </div>
 
@@ -32,7 +32,12 @@
     <div id='content'>
         {% block go_up %} 
             <p>
-                <a href="../">Go UP</a>
+                <div class="goUpWrapper">
+                    <a href="../">Up</a>
+                </div>
+                <div class="gobackWrapper">
+                  <a href="javascript:history.go(-1)">Back</a>
+                </div>
             </p> 
         {% endblock %} 
         {% block content %}

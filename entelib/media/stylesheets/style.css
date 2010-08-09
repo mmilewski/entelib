@@ -240,6 +240,16 @@ div#footer
     position: absolute;
 }
 
+div.goUpWrapper {
+    margin: 1em 0;
+}
+div.goUpWrapper a {
+    background: url('/media/images/iconGoUp.png') no-repeat !important;
+    padding: 0 0 .1em 20px;
+    text-decoration: none;
+    border-bottom: 1px dashed brown;
+}
+
 div.gobackWrapper {
     margin: 1em 0;
 }
