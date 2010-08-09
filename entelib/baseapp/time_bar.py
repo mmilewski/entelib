@@ -513,12 +513,19 @@ def get_time_bar_code_for_copy(config, book_copy, from_date, to_date):
                                       .order_by('start_date')
 
     segments = [ Segment(r.start_date, r.end_date) for r in reservations ]
-    # NOTE: if one would like to add some extra informations to segments, it can be done in above line 
+    # NOTE: if one would like to add some extra informations to segments, it can be done in above line. 
+    #       This is why segment is an object and not a tuple.
 
+    # ok, we gathered segments, now let's create time bar on top of them
     tb = TimeBar(config, one=timedelta(1))
-    result_segments = tb.divide_colliding_segments(segments, shuffle=False)
-    grouped_segs = tb.split_segments_by_depth(result_segments)
+    result_segments = tb.divide_colliding_segments(segments, shuffle=False)   # detect collisions
+    grouped_segs = tb.split_segments_by_depth(result_segments)                # and collect them in groups
     
+    # set number of colliding groups. Cut surplus. 
+    max_colliding_groups = 5 
+    grouped_segs = grouped_segs[:max_colliding_groups]
+    
+    # "correct" each group, which means add "green segments" in between, cut/enlarge start and end dates properly
     result_segments = []
     for group in grouped_segs:
         # each of operations below may drop some segments. It may happen that all segments will be dropped.

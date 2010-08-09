@@ -21,8 +21,18 @@
         <li><span class="label">Building:</span> {{loc.building}}</li>
         <li><span class="label">Maintainers:</span> 
           <ul class="maintainers">
-            {% for mt in maintainers %}
-            <li>{{ mt }}</li>
+            {% for mt in loc.maintainer.all %}
+            <li><a href="{% url user_one mt.id %}">{{ mt }}</a>
+              <ul class="phones">
+                {% for p in mt.userprofile.phone.all %}
+                <li class="phone">
+                  {%ifequal p.type.name "Skype" %}   <a class="skype" href="skype:{{p.value}}">{{p.type.name}}: {{p.value}}</a>
+                  {% else %}                         {{p.type.name}}: {{p.value}}
+                  {% endifequal %}
+                </li>
+                {% endfor %}
+              </ul>
+            </li>
             {% empty %}
             No maintainers defined.
             {% endfor %}

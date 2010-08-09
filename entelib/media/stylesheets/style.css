@@ -295,12 +295,28 @@ div.book_authors dd, div.book_categories dd {
     display:inline;
 }
 
+form.book_search .first {
+    padding-right: 1.5em;
+    border-right: 1px solid black;
+}
+form.book_search .second {
+    padding-left: 1.5em;
+}
+table.book_details tr.book_category select {
+    width: 15em;
+}
+
 
 div.copy_info {    /* bookcopy.html */
     
 }
 div.copy_info span.label {
     font-weight: bold;
+}
+div.copy_info .book_shelf_mark {
+    font-size: 110%;
+    font-weight: bold;
+    letter-spacing: .1em;
 }
 div.picture {
     float: right;
@@ -433,6 +449,10 @@ form.edit_option_form td input#id_value {
 
 ul.userProfile li .label {
     font-weight: bold;
+}
+
+div.profile_editWrapper input[type="submit"] {
+    width: 100%;
 }
 
 div.messagesWrapper {

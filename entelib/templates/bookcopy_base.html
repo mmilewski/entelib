@@ -12,11 +12,6 @@
     <div class="edit_copy"><a href="{% url copy_edit copy.id %}" title="Edit this book copy"><span>edit</span></a></div>
     {% endif %}
     
-    <div class="reserve_rent_form">
-    {% block form %}
-    {% endblock %}
-    </div>
-
     {% if copy.picture %}
     <div class="picture">
       <img src="/media/{{ copy.picture.file }}"
@@ -28,8 +23,6 @@
     {% endif %}
 
     <div class="copy_info">
-
-        
         <ul class="spaces">
             <li class="book_authors">
                 {% if copy.authors %}
@@ -38,8 +31,7 @@
                     No authors.
                 {% endif %}
             </li>
-            <li class="book_shelfmark"><span class="label">ID:</span> {{ copy.shelf_mark }}</li>            
-            <li class="book_state"><span class="label">State</span>: {{ copy.state }}</li>
+            <li class="book_shelf_mark"><span class="label">ID:</span> {{ copy.shelf_mark }}</li>            
             {% if can_list_cost_centers %}<li class="costcenter"><span class="label">Cost Center</span>: {{ copy.cost_center }}</li>{%endif%}
             <li class="book_publisher"><span class="label">Publishing</span>: {{ copy.publication_nr }}, {{ copy.publisher }} {{ copy.year }}</li>
             <!-- <li class="desc_url"><a href='{{ copy.desc_url }}'>See external description</a></li> -->
@@ -49,40 +41,68 @@
                 {% else %}
                     {{ copy.location }}
                 {% endif %}
+                    <ul class="maintainers">
+                      {% for mt in copy.location.maintainer.all %}
+                      <li>{{ mt }}
+                        <ul class="phones">
+                          {% for p in mt.userprofile.phone.all %}
+                          <li class="phone">
+                            {%ifequal p.type.name "Skype" %}   <a class="skype" href="skype:{{p.value}}">{{p.type.name}}: {{p.value}}</a>
+                            {% else %}                         {{p.type.name}}: {{p.value}}
+                            {% endifequal %}
+                          </li>
+                          {% endfor %}
+                        </ul>
+                      </li>
+                      {% empty %}
+                      No maintainers defined.
+                      {% endfor %}
+                    </ul>
             </li>
         </ul>
-
-        <!--  TOC  -->
-        {% if copy.toc or copy.toc_url %}
-        <h3 id="toc" class="book_toc">Table Of Contents</h3>
-        <div class="book_tocWrapper">
-          {% if copy.toc_url %}  <div class="book_toc_url">  <p><a href="{{ copy.toc_url }}">Click to see external table of contents.</a></p>  </div>   {% endif %}
-          {% if copy.toc %}      <div class="book_toc">  {{ copy.toc|linebreaks }}  </div>    {% endif %}
-        </div>
-        {% endif %}
-
-        <!--  DESC  -->
-        {% if copy.desc or copy.desc_url %}
-        <h3 id="description" class="book_desc">Description</h3>
-        <div class="book_descWrapper">
-          {% if copy.desc_url %}  <div class="book_desc_url">  <p><a href="{{ copy.desc_url }}">Click to see external description</a></p>  </div>    {% endif %}
-          {% if copy.desc %}      <div class="book_desc">  {{ copy.desc|linebreaks }}  </div>     {% endif %}
-        </div>
-        {% endif %}
 
         {% block links %}
         {% endblock %}
 
     </div> <!-- /copy_info -->
 
+    <!-- RENTAL FORM -->
+    <div class="reserve_rent_form">
+    {% block form %}
+    {% endblock %}
+    </div>
+
     <!-- TIME BAR -->
     {% if display_time_bar %}
     <div class="time_barWrapper">
       <h3 id="availability">Availability</h3>
+      <div class="copy_info">
+        <ul class="spaces">
+          <li class="book_state"><span class="label">State</span>: {{ copy.state }}</li>
+        </ul>
+      </div>
       {% include "time_bar/controls.html" %}
       {% include "time_bar/standalone_copy_code.html" %}
       {% endif %}
     </div>
+
+    <!--  TOC  -->
+    {% if copy.toc or copy.toc_url %}
+    <h3 id="toc" class="book_toc">Table Of Contents</h3>
+    <div class="book_tocWrapper">
+      {% if copy.toc_url %}  <div class="book_toc_url">  <p><a href="{{ copy.toc_url }}">Click to see external table of contents.</a></p>  </div>   {% endif %}
+      {% if copy.toc %}      <div class="book_toc">  {{ copy.toc|linebreaks }}  </div>    {% endif %}
+    </div>
+    {% endif %}
+
+    <!--  DESC  -->
+    {% if copy.desc or copy.desc_url %}
+    <h3 id="description" class="book_desc">Description</h3>
+    <div class="book_descWrapper">
+      {% if copy.desc_url %}  <div class="book_desc_url">  <p><a href="{{ copy.desc_url }}">Click to see external description</a></p>  </div>    {% endif %}
+      {% if copy.desc %}      <div class="book_desc">  {{ copy.desc|linebreaks }}  </div>     {% endif %}
+    </div>
+    {% endif %}
 
 </div>
 {% endblock %}

@@ -4,7 +4,7 @@
 
 {% if perms.auth.change_user or user_id == user.id %}
 
-	<div class="editingWrapper">
+	<div class="profile_editWrapper">
 	  <h2 id="edit">Edit profile</h2>
 	    {% if display_tips %}
 	    <div class="tip">
@@ -14,22 +14,45 @@
 	      </ol>
 	    </div>
 	    {% endif %}
-	    <div style='margin-top: 2em;'>
-	        <div class='content_form' style='margin-top: 1em'>
-	            <form action='#edit' method='POST' class='registration_form' name="Freg">
+	    <div style="margin-top: 2em;">
+	        <div class="content_form" style="margin-top: 1em">
+	            <form action="#edit" method="POST" class="registration_form" name="Freg">
 	                {{ form_content.non_field_errors }}
 	                <table>
-	                    {% for field in form_content %}
-	                        <tr>
-	                            <td>{%if field.label_tag|removetags:"label" %}{{ field.label_tag }}:{%endif%}</td>
-	                            <td>{{ field }}</td>
-	                            <td>{{ field.errors }}</td>
-	                        </tr>
-	                    {% endfor %}
-	                    <tr><td></td><td><input type="submit" value="Update profile"></td><td></td></tr>
-	                </table>
+                      <tr>
+                        <td style="vertical-align:top; padding-right: 2em;">
+                            <table>
+                            {% for field in form_content %}
+                                {% if "Phone" not in field.label_tag  and "Value" not in field.label_tag %}
+                                <tr>
+                                    <td>{%if field.label_tag|removetags:"label" %}{{ field.label_tag }}:{%endif%}</td>
+                                    <td>{{ field }} {{ field.errors }}</td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                            </table>
+                        </td>
+                        <td style="vertical-align:top; padding-left: 2em;">
+                            <table>
+                            {% for field in form_content %}
+                                {% if "Phone" in field.label_tag  or "Value" in field.label_tag %}
+                                <tr>
+                                    <td>{%if field.label_tag|removetags:"label" %}{{ field.label_tag }}:{%endif%}</td>
+                                    <td>{{ field }} {{ field.errors }}</td>
+                                </tr>
+                                {%endif%}
+                            {% endfor %}
+                            </table>
+                            </td>
+                      </tr>
+                      <tr>
+                        <td colspan="2">
+                            <input type="submit" value="Update profile">
+                        </td>
+                      </tr>
+                    </table>
 	            </form>
-	            
+
 				<script type="text/javascript">
 					document.Freg.username.focus();
 				</script>

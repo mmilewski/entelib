@@ -382,6 +382,7 @@ librarians_perms = ['list_users', 'list_reports',
                     'add_rental', 'change_rental', 'change_reservation', 
                     'add_book', 'change_book',
                     'add_bookcopy', 'change_bookcopy',
+                    'list_cost_centers',
                     ]
 readd_group('Readers',    perms=readers_perms)
 readd_group('Librarians', perms=librarians_perms)

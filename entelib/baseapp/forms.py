@@ -196,6 +196,9 @@ class ProfileEditForm(forms.Form):
             self.editor = profile_owner
         self.profile_owner = profile_owner
         super(ProfileEditForm, self).__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs['readonly'] = True
+        self.fields['first_name'].widget.attrs['readonly'] = True
+        self.fields['last_name'].widget.attrs['readonly'] = True
 
 
     def clean(self):
@@ -593,3 +596,8 @@ class BookCopyForm(ModelForm):
     class Meta:
         model = BookCopy
         exclude=['picture']
+
+    def __init__(self, *args, **kwargs):
+        super(BookCopyForm, self).__init__(*args, **kwargs)
+        self.fields['book'].widget.attrs['readonly'] = True
+        self.fields['book'].widget.attrs['disabled'] = True
