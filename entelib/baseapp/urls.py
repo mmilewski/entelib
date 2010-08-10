@@ -15,7 +15,7 @@ admin.autodiscover()
 
 def get_redirect_function_to_url(url):
     ''' Create response object which redirects client to given url. '''
-    return (lambda request: HttpResponseRedirect(url))
+    return (lambda request, *args, **kwargs: HttpResponseRedirect(url))
 
 urlpatterns = patterns(
     '',
@@ -35,14 +35,16 @@ urlpatterns = patterns(
     (r'^users/(\d+)/reservations/$', view.show_user_reservations),
     (r'^users/(\d+)/reservations/archive/$', view.show_user_reservation_archive),
     (r'^users/(\d+)/reservations/(\d+)/$', view.show_user_reservation),
-    (r'^users/(\d+)/reservations/new/$', view.find_book_for_user),
-    (r'^users/(\d+)/reservations/new/books/(\d+)/$', view.find_book_for_user),
-    (r'^users/(\d+)/reservations/new/bookcopy/(\d+)/$', view.reserve_for_user),
-    (r'^users/(\d+)/reservations/new/bookcopy/(\d+)/up/$', view.user_book_copy_up_link),
+    (r'^users/(\d+)/reservations/new/$', get_redirect_function_to_url('../../books/')),
+    (r'^users/(\d+)/books/$', view.find_book_for_user),
+    (r'^users/(\d+)/books/(\d+)/$', view.find_book_for_user),
+    (r'^users/(\d+)/bookcopy/(\d+)/$', view.reserve_for_user),
+    (r'^users/(\d+)/bookcopy/(\d+)/up/$', view.user_book_copy_up_link),
     (r'^users/(\d+)/reservations/cancel-all/$', view.cancel_all_user_resevations),
     # (r'^users/(\d+)/rent-book/(\d+)/$', view.show_user_reservation),
     # (r'^users/(\d+)/rent-book/$', view.user_list_books),
     (r'^users/(\d+)/rentals/$', view.show_user_rentals),
+    (r'^users/(\d+)/rentals/new/$', get_redirect_function_to_url('../../books/')),
     (r'^users/(\d+)/rentals/archive/$', view.show_user_rental_archive),
     # (r'^users/(\d+)/rentals/(\d+)/$', view.user_rental),
     # (r'^users/(\d+)/books/$', view.user_books),
@@ -54,6 +56,7 @@ urlpatterns = patterns(
     (r'^profile/reservations/new/$', view.my_new_reservation),
     (r'^profile/reservations/cancel-all/$', view.cancel_all_my_reserevations),
     (r'^profile/rentals/$', view.show_my_rentals),
+    (r'^profile/rentals/new/$', view.my_new_reservation),
     (r'^profile/rentals/archive/$', view.show_my_rental_archive),
 
     # registration
@@ -93,6 +96,8 @@ urlpatterns = patterns(
     url(r'^config/$', view.show_config_options, name="config_all"),
     url(r'^config/(?P<option_key>(\w+))/$', view.edit_config_option, name="config_edit_option"),
     url(r'^config/(?P<option_key>(\w+)),global/$', view.edit_config_option, {'is_global':True}, name="config_edit_global_option"),
+    url(r'^profile/config/$', view.show_config_options_per_user, name='profile_config'),
+    url(r'^profile/config/(?P<option_key>(\w+))/$', view.edit_config_option, name="profile_config_edit_option"),
     (r'load_default_config/(?P<do_it>(\d))?/?$', view.load_default_config),
 
     # admin panel urls

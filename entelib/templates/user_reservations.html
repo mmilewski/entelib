@@ -6,7 +6,8 @@
 
 {% block content %}
 
-<p class="user_name" style="font-weight:bold;">{{ first_name }} {{ last_name }}, <span class="email">{{ email|urlize }}</span></p>
+<p class="user_name" style="font-weight:bold;">{{ first_name }} {{ last_name }}<br />
+<span class="email">{{ email|urlize }}</span></p>
 <p class="message">{{ message }}</p>
 
 <ul class='spaces'>
@@ -38,12 +39,11 @@
 </ul>
 
 
-<a href='{{ cancel_all_url }}'>Cancel all reservations</a>
 <p>
 <a href='archive/'>Show archive</a>
 <p>
 <a href='new/'>Rent something else.</a>
 <p>
+<a href='{{ cancel_all_url }}'>Cancel all reservations</a>
 
-<br/>
 {% endblock %}

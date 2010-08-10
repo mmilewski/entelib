@@ -42,6 +42,24 @@ def load_default_config(request, do_it=False):
 
 
 @permission_required('baseapp.list_config_options')
+def show_config_options_per_user(request):
+    '''
+    Handles listing config options from Configuration model (also Config class).
+    '''
+    template = 'config/list.html'
+    config = Config(user=request.user)
+    opts = config.get_all_options().values()
+    lex_by_key = lambda a,b : -1 if a.key < b.key else (1 if a.key > b.key else 0)
+    opts.sort(cmp=lex_by_key)
+    can_edit_global = False
+    context = {
+        'can_edit_global_config' : can_edit_global,
+        'options'                : opts,
+        }
+    return render_response(request, template, context)
+
+
+@permission_required('baseapp.list_config_options')
 def show_config_options(request):
     '''
     Handles listing config options from Configuration model (also Config class).
@@ -236,12 +254,8 @@ def show_books(request, non_standard_user_id=False):
         In that case non_standard_user_id is most likely different than request.user
     '''
     # data for the template
-    book_url = u'/entelib/books/%d/'    # where you go after clicking "search" button
-    if non_standard_user_id is not False:  # and where you go if there is a non std user given
-        book_url = u'/entelib/users/%d/reservations/new/book/%s/' % (int(non_standard_user_id), '%d')
-    bookcopy_url = u'/entelib/bookcopy/%d/'    # where you go after clicking "search" button with shelf mark field (ID) filled
-    if non_standard_user_id is not False:  # and where you go if there is a non std user given and you filled shelf mark (ID) field
-        bookcopy_url = u'/entelib/users/%d/reservations/new/bookcopy/%s/' % (int(non_standard_user_id), '%d')
+    book_url = u'%d/'    # where you go after clicking "search" button
+    bookcopy_url = u'../bookcopy/%d/'    # where you go after clicking "search" button with shelf mark field (ID) filled
     config = Config(request.user)
     search_data = {}                    # data of searching context
     selected_categories_ids = []        # ids of selected categories -- needed to reselect them on site reload
@@ -467,7 +481,7 @@ def book_copy_up_link(request, bookcopy_id):
 
 def user_book_copy_up_link(request, user_id, bookcopy_id):
     book_id = get_object_or_404(BookCopy, id=bookcopy_id).book.id
-    return HttpResponseRedirect('/entelib/users/%s/reservations/new/books/%s/' % (user_id,  book_id))
+    return HttpResponseRedirect('/entelib/users/%s/books/%s/' % (user_id,  book_id))
 
 
 @permission_required('baseapp.list_users')

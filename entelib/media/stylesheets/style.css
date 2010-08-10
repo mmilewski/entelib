@@ -90,6 +90,20 @@ table select {
     width: 100%;
 }
 
+/* itemsWrapper */
+div.itemsWrapper table {
+    margin-top: 1em;
+    width: 100%;
+    border: 1px solid #000;
+    text-align: center;
+}
+div.itemsWrapper table td,
+div.itemsWrapper table th {
+    padding: .4em .5em;
+    border: 1px solid #000;
+}
+
+
 /* reservation archive */
 div.rsv_archive table {
     margin-top: 1em;

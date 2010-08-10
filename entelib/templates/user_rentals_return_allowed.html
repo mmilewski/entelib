@@ -3,9 +3,14 @@
 {% block message %}<br /> {{ message }} {% endblock %}
 
 {% block return %}
-     <form action='.' method='post'>
-        <input type='hidden' name='returned' value='{{ rental.id }}'>
-        <input type='submit' name='action' value='Return'>
-     </form>
+    <th>
+        <form action='.' method='post'>
+           <input type='hidden' name='returned' value='{{ row.id }}'>
+           <input type='submit' name='action' value='Return'>
+        </form>
+    </th>
+{% endblock %}
+{% block return_header %}
+    <th>Return</th>
 {% endblock %}
 

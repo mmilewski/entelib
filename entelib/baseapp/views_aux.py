@@ -241,7 +241,7 @@ def reservation_status(reservation):
     # some older reservation is active
     if all.filter(id__lt=reservation.id).filter(start_date__lte=today()).filter(Q_reservation_active).count() > 0:
         # WARNING: this might need modification if additional conditions are added to definition of active reservation
-        return 'Reservation not first'
+        return 'Reservation filed'
     max_allowed = config.get_int('rental_duration')
     try:
         max_possible = (min([r.start_date for r in all.filter(id__lt=reservation.id).filter(start_date__gt=today())]) - today()).days
@@ -483,13 +483,13 @@ def show_user_rentals(request, user_id=False):
                    'shelf_mark' : r.reservation.book_copy.shelf_mark,
                    'title' : r.reservation.book_copy.book.title,
                    'authors' : [a.name for a in r.reservation.book_copy.book.author.all()],
-                   'from_date' : r.start_date,
+                   'from_date' : r.start_date.date(),
                    'to_date' : r.reservation.end_date,
                   }
                   for r in user_rentals ]
 
     # put rentals into context
-    context['rentals'] = rent_list
+    context['rows'] = rent_list
 
     # if user can change rentals then he can return books
     template = 'user_rentals_return_allowed.html' if request.user.has_perm('baseapp.change_rental') else 'user_rentals.html'
@@ -503,7 +503,7 @@ def show_user_rental_archive(request, user_id=False):
     else:
         user = request.user
 
-    rentals = Rental.objects.all() #filter(reservation__for_whom=user)
+    rentals = Rental.objects.filter(reservation__for_whom=user)
 
     rent_list = []
     for rental in rentals:
@@ -511,8 +511,8 @@ def show_user_rental_archive(request, user_id=False):
             'id' : rental.reservation.book_copy.shelf_mark,
             'title' : rental.reservation.book_copy.book.title,
             'authors' : [a.name for a in rental.reservation.book_copy.book.author.all()],
-            'rented' : rental.start_date.date().isoformat(),
-            'returned' : rental.end_date.date().isoformat() if rental.end_date else None,
+            'rented' : rental.start_date.date(),
+            'returned' : rental.end_date.date() if rental.end_date else None,
             })
 
     context = { 'rows' : rent_list,
@@ -607,9 +607,9 @@ def show_user_reservation_archive(request, user_id=None):
         cancelled = None
 
         if reservation.rental_set.all():
-            rented = reservation.rental_set.all()[0].start_date.date().isoformat()
+            rented = reservation.rental_set.all()[0].start_date.date()
             if reservation.rental_set.all()[0].end_date:
-                returned = reservation.rental_set.all()[0].end_date.date().isoformat()
+                returned = reservation.rental_set.all()[0].end_date.date()
             
         if reservation.who_cancelled:
             cancelled = 'Cancelled %s (%s)' % (reservation.when_cancelled.date().isoformat(), reservation.who_cancelled.first_name +\
@@ -622,8 +622,8 @@ def show_user_reservation_archive(request, user_id=None):
             'id' : reservation.book_copy.shelf_mark,
             'title' : reservation.book_copy.book.title,
             'authors' : [a.name for a in reservation.book_copy.book.author.all()],
-            'reserved' : reservation.start_date.isoformat(),
-            'reservation_end' : reservation.end_date.isoformat(),
+            'reserved' : reservation.start_date,
+            'reservation_end' : reservation.end_date,
             'rented' : rented,
             'returned' : returned, 
             'cancelled' : cancelled,

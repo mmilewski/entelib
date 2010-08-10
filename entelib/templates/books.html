@@ -1,5 +1,7 @@
 {% extends 'base_with_top_menu.html' %}
 
+{% load go_back_link %}
+
 {% block title %}Book list{% endblock %}
 
 {% block header %} {% if for_whom %} {{ for_whom }} {% else %} Book list {% endif %} {% endblock %}
@@ -8,25 +10,27 @@
     {% if display_tips %}
     <div class="tip">
       <ol>
-        <li><p>Two ways of using this view:
-            <ol>
-                <li>
-                    You type into ID field a prefix of specific book copy shelf mark:
-                    <ul>
-                        <li>You are shown all copies with IDs starting with that prefix.</li>
-                        <li>All other field are ignored</li>
-                    </ul>
-                </li>
-                <li>
-                    You don't type into ID field:
-                    <ul>
-                        <li>You are shown all titles (not copies) filtered by all fields you typed into.</li>
-                        <li>You don't need to type anything. Simply clicking Search button will list all books</li>
-                        <li>Selecting checkbox next to search field will cause filtering on that field behave like there is an <i>or</i> between search words. Unselecting it inserts an <i>and</i>.</li>
-                        <li>Regexp is not supported.</li>
-                    </ul>
-            </ol>
-
+        {% if perms.baseapp.list_users %}
+            <li><p>Two ways of using this view:
+                <ol>
+                    <li>
+                        You type into ID field a prefix of specific book copy shelf mark:
+                        <ul>
+                            <li>You are shown all copies with IDs starting with that prefix.</li>
+                            <li>All other field are ignored</li>
+                        </ul>
+                    </li>
+                    <li>
+                        You don't type into ID field:
+                        <ul>
+                            <li>You are shown all titles (not copies) filtered by all fields you typed into.</li>
+                            <li>You don't need to type anything. Simply clicking Search button will list all books</li>
+                            <li>Selecting checkbox next to search field will cause filtering on that field behave like there is an <i>or</i> between search words. Unselecting it inserts an <i>and</i>.</li>
+                            <li>Regexp is not supported.</li>
+                        </ul>
+                </ol>
+            </li>
+        {% endif %}
         <li><p>If you use Firefox or Opera you can click and drag to multiselect locations. In Chrome you can use CTRL+click. In IE both ways works.</p></li>
         <li><p>In categories, selecting "Any" has effect iff nothing else is selected. If "Any" and sth else is selected, then "Any" would be automatically deselected.</p></li>
       </ol>
@@ -41,10 +45,12 @@
                 <td class="first">
                     <table class="book_details">
                     <tbody>
-                        <tr class="book_id">
-                            <td>ID: <br><input type="text" name="id" value="{{ search.id }}"></td>
-                            <td></td>
-                        </tr>
+                        {% if perms.baseapp.list_users %}
+                            <tr class="book_id">
+                                <td>ID: <br><input type="text" name="id" value="{{ search.id }}"></td>
+                                <td></td>
+                            </tr>
+                        {% endif %}
                         <tr class="book_title">
                             <td>Title: <br><input type="text" name="title" value="{{ search.title }}"></td>
                             <td><input type="checkbox" name="title_any" id="title_any" value="any"  {% if search.title_any_checked %} checked {% endif %} >
@@ -146,7 +152,9 @@
             <tbody>
                 {% for copy in bookcopies %}
                 <tr class="book">
-                    <td class="shelfmark"><a href="{{ copy.url }}">{{ copy.shelf_mark }}</a></td>
+                    {% if perms.baseapp.list_users %}
+                        <td class="shelfmark"><a href="{{ copy.url }}">{{ copy.shelf_mark }}</a></td>
+                    {% endif %}
                     <td class="state">{{ copy.state }}</td>
                     <td class="title"><a href="{% url book_one copy.book.id %}">{{ copy.title }}</a></td>
                     <td class="authors">{% if copy.authors %}{{ copy.authors|join:', '}}{% else %}No authors.{% endif %}</td>
@@ -161,6 +169,8 @@
 
     {% if none_found %} 
         <p><b>Sorry, no books.</b></p>
+    {% else %}
+        {% go_back_link %}
     {% endif %}
     
     {% if display_tips and none_found %}

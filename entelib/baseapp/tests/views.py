@@ -858,11 +858,11 @@ class ShowReportsTest(TestWithSmallDB):
 class FindBookForUserTest(ShowBooksTest, ShowBookTest):
     def setUp(self):
         self.log_lib()
-        self.url = '/entelib/users/1/reservations/new/'
-        self.url_book = '/entelib/users/1/reservations/new/books/%d/'
-        self.url_user_book = '/entelib/users/%d/reservations/new/books/%s/'
-        self.response1 = self.client.get('/entelib/users/1/reservations/new/books/1/')
-        self.response2 = self.client.get('/entelib/users/2/reservations/new/books/2/')
+        self.url = '/entelib/users/1/books/'
+        self.url_book = '/entelib/users/1/books/%d/'
+        self.url_user_book = '/entelib/users/%d/books/%s/'
+        self.response1 = self.client.get('/entelib/users/1/books/1/')
+        self.response2 = self.client.get('/entelib/users/2/books/2/')
 
     def test_all_book_ids_displayed(self):  # most likely in links
         books = [b for b in Book.objects.all()]  # which books we expect
@@ -874,7 +874,7 @@ class FindBookForUserTest(ShowBooksTest, ShowBookTest):
         # user 1 is tested with all inherited methods' calls, so we retrieve other users' ids
         users_ids = [u.id for u in User.objects.all() if u.id is not 1]
 
-        self.url_book_base = '/entelib/users/%d/reservations/new/'
+        self.url_book_base = '/entelib/users/%d/books/'
         self.log_lib()
         
         # for every user
@@ -882,7 +882,7 @@ class FindBookForUserTest(ShowBooksTest, ShowBookTest):
             # run all tests
             for test in tests:
                 # prepare url
-                self.url = '/entelib/users/%d/reservations/new/' % user_id
+                self.url = '/entelib/users/%d/books/' % user_id
                 self.url_book = self.url_user_book % (user_id, '%d')
                 self.__getattribute__(test)()  # calling test method
 
@@ -1205,7 +1205,7 @@ class ReserveForUserTest(ShowBookcopyTest, ReserveTest):
         but it saved a LOT of typing (or copying text). '''
     def setUp(self):
         self.log_lib()
-        self.url_copy= '/entelib/users/1/reservations/new/bookcopy/%d/'
+        self.url_copy= '/entelib/users/1/bookcopy/%d/'
 
     # following 3 methods are necessary - otherwise they would be inherited and would fail
 
@@ -1230,7 +1230,7 @@ class ReserveForUserTest(ShowBookcopyTest, ReserveTest):
 #        tests = [met for met in dir(self) if met.startswith('test_')]
 #        from entelib.baseapp.models import User
 #        users = [u.id for u in User.objects.all() if u.id is not 1]
-#        self.url_base = '/entelib/users/%d/reservations/new/bookcopy/%s/'
+#        self.url_base = '/entelib/users/%d/bookcopy/%s/'
 #        self.log_lib()
 #        
 #        # for every copy
@@ -1293,8 +1293,8 @@ class CancelAllUserResevationsTest(TestWithSmallDB):
 class UserBookCopyUpLinkTest(TestWithSmallDB):
     def setUp(self):
         self.log_lib()
-        self.url_user_copy = '/entelib/users/%d/reservations/new/bookcopy/%d/up/'
-        self.redirect_url_user_book = '/entelib/users/%d/reservations/new/books/%d/'
+        self.url_user_copy = '/entelib/users/%d/bookcopy/%d/up/'
+        self.redirect_url_user_book = '/entelib/users/%d/books/%d/'
 
     def test_redirects_to_correct_book(self):
         for user in User.objects.all():

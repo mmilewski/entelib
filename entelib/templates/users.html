@@ -1,5 +1,7 @@
 {% extends 'base_with_top_menu.html' %}
 
+{% load go_back_link %}
+
 {% block title %}User list{% endblock %}
 
 {% block header %}Find user{% endblock %}
@@ -63,5 +65,6 @@
                 No users found.
             {% endif %}
         </ul>
+        {% go_back_link %}
     </div>
 {% endblock %}

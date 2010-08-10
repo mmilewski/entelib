@@ -1,34 +1,47 @@
-{% extends 'base_with_top_menu.html' %}
-
-{% load go_back_link %}
+{% extends 'base_with_listing.html' %}
 
 {% block title %}User rentals{% endblock %}
 
 {% block header %}User rentals{% endblock %}
 
-{% block content %}
-<p>{% go_back_link "Go back" %}</p>
+{% block befor_table %}
     <b>
         {{ first_name }} {{ last_name }}
         <br>
         {{ email|urlize }}
     </b>
     {% block message %}{% endblock %}
-    <ul class='spaces'>
-        {% for rental in rentals %}
-            <li><b>{{ rental.title }}</b>{% block return %}{% endblock %}
-                <ul>
-                    <li>Authors: {{ rental.authors|join:', ' }}</li>
-                    <li>From: {{ rental.from_date }}</li>
-                    <li>To: {{ rental.to_date }}</li>
-                    <li>ID: {{ rental.shelf_mark }}</li>
-                </ul>
-            </li>
-        {% empty %}
-            <b>No rentals.</b>
-        {% endfor %}
-    </ul>
+{% endblock %}
 
-<a href='archive/'>Show archive</a>
+{% block header_row %}
+    {% block return_header %}{% endblock %}
+    <th>ID</th>
+    <th>Title</th>
+    <th>Authors</th>
+    <th>From</th>
+    <th>To</th>
+{% endblock %}
+
+{% block item_row %}
+        {% block return %}{% endblock %}
+    <td>
+        <b>{{ row.shelf_mark }}</b>
+    </td> <td>
+        {{ row.title }}
+    </td> <td>
+        {{ row.authors|join:', ' }}
+    </td> <td>
+        {{ row.from_date }}
+    </td> <td>
+        {{ row.to_date }}
+    </td>
+{% endblock %}
+
+{% block after_table %}
+    <p>
+    <a href='archive/'>Show archive</a>
+    <p>
+    <a href='new/'>Rent something else.</a>
+
 {% endblock %}
 

@@ -12,10 +12,14 @@
     <h3 id="rr">Reserve/Rent</h3>
     
     {% if reserved.msg %}
-        <b>{{ reserved.msg }}.</b>
+        <font color='green'>
+            <b>{{ reserved.msg }}.</b>
+        </font>
     {% else %}
         {% if reserved.error %}
-            {{ reserved.error }}
+            <font color='red'>
+                <b>{{ reserved.error }}</b>
+            </font>
         {% endif %}
         <div class='content_form' style='margin-top: 1em'>
             <form action='.' method='post' name="Freserve">

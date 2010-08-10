@@ -8,7 +8,7 @@
             {% if can_view_own_profile %}          <li><a href="/entelib/profile/reservations/">   My reservations</a></li>   {% endif %}
             {% if can_view_own_profile %}          <li><a href="/entelib/profile/">                My profile</a></li>        {% endif %}
             {% if can_add_bookrequest %}           <li><a href="/entelib/requestbook/">            Request a book</a></li>    {% endif %}
-            {% if can_list_config_options %}       <li><a href="/entelib/config/">                 Configuration</a></li>     {% endif %}
+            {% if user.is_staff %}                 <li><a href="/entelib/config/">                 Configuration</a></li>     {% endif %}
             {% if can_list_users %}                <li><a href="/entelib/users/">                  User list</a></li>         {% endif %}
             {% if can_list_reports %}              <li><a href="/entelib/report/">                 Reports</a></li>           {% endif %}
             {% if can_list_locations %}            <li><a href="/entelib/locations/">              Locations</a></li>         {% endif %}
@@ -30,16 +30,18 @@
 
 {% block rest %}
     <div id='content'>
-        {% block go_up %} 
             <p>
-                <div class="goUpWrapper">
-                    <a href="../">Up</a>
-                </div>
-                <div class="gobackWrapper">
-                  <a href="javascript:history.go(-1)">Back</a>
-                </div>
+                {% block go_up %} 
+                    <div class="goUpWrapper">
+                        <a href="../">Up</a>
+                    </div>
+                {% endblock %} 
+                {% block go_back %} 
+                    <div class="gobackWrapper">
+                      <a href="javascript:history.go(-1)">Back</a>
+                    </div>
+                {% endblock %} 
             </p> 
-        {% endblock %} 
         {% block content %}
         {% endblock %}
     </div>
