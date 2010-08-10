@@ -169,7 +169,6 @@ def get_book_details(book_copy):
         'desc_url'       : book_copy.description_url,
         'toc'            : book_copy.toc,
         'toc_url'        : book_copy.toc_url,
-        'picture'        : book_copy.picture,
     }
     return book_desc
 
@@ -728,12 +727,9 @@ def when_copy_reserved(book_copy):
 
 def can_edit_global_config(user):
     '''
-    Returns True iff user can edit global values of given config option.
+    Returns True iff user can edit global values.
     
     Args:
         user -- instance of User
     '''
-    config = Config(user)
-    display_only_editable_config_options = config.get_bool('display_only_editable_config_options')
-    return user.is_staff or (not display_only_editable_config_options)
-    
+    return user.is_staff

@@ -595,7 +595,6 @@ class BookForm(ModelForm):
 class BookCopyForm(ModelForm):   
     class Meta:
         model = BookCopy
-        exclude=['picture']
 
     def __init__(self, *args, **kwargs):
         super(BookCopyForm, self).__init__(*args, **kwargs)

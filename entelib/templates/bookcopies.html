@@ -130,9 +130,9 @@
                     {% endif %}
 
                     <!-- COPY's DETAILS -->
-                    <tr>
+                    <tr class="copy_details">
                         <td class="shelfmark"><a href='{{ item.url }}'>{{ item.shelf_mark }}</a></td>
-                        <td class="state">{{ item.state }} {% if not item.is_available %}<span style="color:red;" title="Unavailable, sorry"><br/>(unavailable)</span>{%endif%}</td>
+                        <td class="state"><span title="{{item.state.description|default:"No description"}}">{{ item.state }}</span> {% if not item.is_available %}<span class="unavailable" title="Unavailable, sorry"><br/>(unavailable)</span>{%endif%}</td>
                         <td class="publisher">{{ item.publisher }}</td>
                         <td class="year">{{ item.year }}</td>
                         <td class="location">{{ item.location }}</td>

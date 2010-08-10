@@ -27,11 +27,9 @@ phonetype_verify_re_len = 100         # regular expression to verify phone type 
 phonetype_description_len = 100       # some info for users. One can give example phone numbers
 
 state_name_len = 30
+state_description_len = 200           # hover description
 
 publisher_name_len = 50
-
-picture_description_len = 50
-picture_upload_to = 'book_pictures'      # directory where pictures will be uploaded
 
 author_name_len = 50
 

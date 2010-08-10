@@ -3,7 +3,6 @@ print '---  Running dbfiller  ---'
 
 #
 # TODO:
-#  - pictures generating
 #  - rentals generating
 #  - reservations generating
 
@@ -19,7 +18,6 @@ Location.objects.all().delete()
 Building.objects.all().delete()
 Reservation.objects.all().delete()
 Rental.objects.all().delete()
-Picture.objects.all().delete()
 State.objects.all().delete()
 Publisher.objects.all().delete()
 Author.objects.all().delete()
@@ -39,7 +37,6 @@ User.objects.all().delete()
 locations_count = 8
 buildings_count = 4
 authors_count = 20
-pictures_count = 3
 publishers_count = 7
 books_count = 11
 states_count = 3
@@ -129,20 +126,6 @@ for author in authors:
     author.save()
 
 
-# # pictures
-
-#
-# TODO: implement filling pictture models
-#
-# picture_descs = [ get_random_text(40) for i in range(pictures_count) ]
-# picture_files = [ ]  # ??
-# pictures = [ Picture(description = picture_descs[i]
-#                      file = picture_files[i] )
-#              for i in range(pictures_count) ]
-# for picture in pictures:
-#     picture.save()
-
-
 # states
 print 'Adding %d states' % states_count
 # state_names = [ get_random_string(3,7) for i in range(states_count) ]
@@ -195,7 +178,6 @@ copies = [ BookCopy(book           = choice(books),
                     state          = choice(states),
                     location       = choice(locs),
                     publisher      = choice(publishers),
-                    # picture        = choice(pictures),
                     description    = get_random_text(30),
                     publication_nr = randint(1,10),
                     cost_center    = choice(cost_centers),

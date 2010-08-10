@@ -72,18 +72,20 @@
     {% endblock %}
     </div>
 
-    <!-- TIME BAR -->
-    {% if display_time_bar %}
-    <div class="time_barWrapper">
+    <div class="availability">
       <h3 id="availability">Availability</h3>
       <div class="copy_info">
         <ul class="spaces">
           <li class="book_state"><span class="label">State</span>: {{ copy.state }}</li>
         </ul>
       </div>
-      {% include "time_bar/controls.html" %}
-      {% include "time_bar/standalone_copy_code.html" %}
-      {% endif %}
+      <!-- TIME BAR -->
+      {% if display_time_bar %}
+      <div class="time_barWrapper">
+        {% include "time_bar/controls.html" %}
+        {% include "time_bar/standalone_copy_code.html" %}
+        {% endif %}
+      </div>
     </div>
 
     <!--  TOC  -->

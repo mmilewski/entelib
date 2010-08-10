@@ -295,6 +295,9 @@ div.book_copies > h3#book_copies {
     margin-top: 1.3em;
     margin-bottom: 0;
 }
+div.book_copies tr.copy_details span.unavailable {
+    color: red;
+}
 
 div.book_authors, div.book_copies, div.book_categories {    /* bookcopies.html */
     margin-top: 1em;

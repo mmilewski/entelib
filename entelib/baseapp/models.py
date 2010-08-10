@@ -231,6 +231,7 @@ class State(models.Model):
     name = models.CharField(max_length=CFG.state_name_len)
     is_available = models.BooleanField()
     is_visible = models.BooleanField()
+    description = models.CharField(blank=True, null=True, max_length=CFG.state_description_len)
 
     def __unicode__(self):
         return self.name
@@ -248,15 +249,6 @@ class Publisher(models.Model):
 
     class Meta:
         unique_together = (('name',),)
-
-
-class Picture(models.Model):
-    id = models.AutoField(primary_key=True)
-    description = models.CharField(max_length=CFG.picture_description_len)
-    file = models.ImageField(upload_to=CFG.picture_upload_to)  # TODO: ograniczenia obrazka
-
-    def __unicode__(self):
-        return self.description
 
 
 class Author(models.Model):
@@ -348,7 +340,6 @@ class BookCopy(models.Model):
     publisher = models.ForeignKey(Publisher)
     year = models.IntegerField()
     publication_nr = models.IntegerField(null=True, blank=True)
-    picture = models.ForeignKey(Picture, null=True, blank=True)
     toc = models.TextField(blank=True, verbose_name="Table of contents")                   # table of contents
     toc_url = models.CharField(blank=True, max_length=CFG.copy_toc_url_len, verbose_name="Link to table of contents")    # external link to TOC
     description = models.TextField(blank=True)                                             # description
@@ -483,4 +474,4 @@ class Rental(models.Model):
 
 ## Defined model list contains all classes where has_perm will look for permissions.
 ## If you know how to do this automaticaly, feel free to update :) I think it's possible. It's enough to walk through all classes and check for Meta inner class existance
-#_defined_models = [Configuration, PhoneType, Phone, User, UserProfile, Location, State, Publisher, Picture, Author, Book, CostCenter, BookCopy, Reservation, Rental]
+#_defined_models = [Configuration, PhoneType, Phone, User, UserProfile, Location, State, Publisher, Author, Book, CostCenter, BookCopy, Reservation, Rental]

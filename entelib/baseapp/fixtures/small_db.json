@@ -1,247 +1,4 @@
 [
-    {
-        "pk": 11, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "userconfiguration", 
-            "name": "Configuration per user", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 20, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "author", 
-            "name": "author", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 22, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "book", 
-            "name": "book", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 25, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "bookcopy", 
-            "name": "book copy", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 23, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "bookrequest", 
-            "name": "book request", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 15, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "building", 
-            "name": "building", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 21, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "category", 
-            "name": "category", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 10, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "configuration", 
-            "name": "configuration", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 5, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "contenttype", 
-            "name": "content type", 
-            "app_label": "contenttypes"
-        }
-    }, 
-    {
-        "pk": 24, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "costcenter", 
-            "name": "cost center", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 9, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "emaillog", 
-            "name": "email log", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "group", 
-            "name": "group", 
-            "app_label": "auth"
-        }
-    }, 
-    {
-        "pk": 16, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "location", 
-            "name": "location", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 8, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "logentry", 
-            "name": "log entry", 
-            "app_label": "admin"
-        }
-    }, 
-    {
-        "pk": 4, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "message", 
-            "name": "message", 
-            "app_label": "auth"
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "permission", 
-            "name": "permission", 
-            "app_label": "auth"
-        }
-    }, 
-    {
-        "pk": 13, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "phone", 
-            "name": "phone", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 12, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "phonetype", 
-            "name": "phone type", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 19, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "picture", 
-            "name": "picture", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 18, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "publisher", 
-            "name": "publisher", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 27, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "rental", 
-            "name": "rental", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 26, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "reservation", 
-            "name": "reservation", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 6, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "session", 
-            "name": "session", 
-            "app_label": "sessions"
-        }
-    }, 
-    {
-        "pk": 7, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "site", 
-            "name": "site", 
-            "app_label": "sites"
-        }
-    }, 
-    {
-        "pk": 17, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "state", 
-            "name": "state", 
-            "app_label": "baseapp"
-        }
-    }, 
-    {
-        "pk": 3, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "user", 
-            "name": "user", 
-            "app_label": "auth"
-        }
-    }, 
-    {
-        "pk": 14, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "userprofile", 
-            "name": "user profile", 
-            "app_label": "baseapp"
-        }
-    }, 
 
     {
         "pk": 1, 
@@ -890,7 +647,6 @@
             "publisher": 4, 
             "description": "Dmwt xdrs ubif bejglp orla jk ", 
             "shelf_mark": 275136651, 
-            "picture": null, 
             "toc_url": "", 
             "publication_nr": 9, 
             "state": 3, 
@@ -909,7 +665,6 @@
             "publisher": 5, 
             "description": "Otwas lraw xn ysuw bhbn ah nnm", 
             "shelf_mark": 218237006, 
-            "picture": null, 
             "toc_url": "", 
             "publication_nr": 9, 
             "state": 2, 
@@ -928,7 +683,6 @@
             "publisher": 3, 
             "description": "Dceonw b i yg g pvbw vz rbqp m", 
             "shelf_mark": 595138997, 
-            "picture": null, 
             "toc_url": "", 
             "publication_nr": 4, 
             "state": 3, 
@@ -947,7 +701,6 @@
             "publisher": 8, 
             "description": "V pbdp fjue kycb xpqm am cib i", 
             "shelf_mark": 830262752, 
-            "picture": null, 
             "toc_url": "", 
             "publication_nr": 2, 
             "state": 2, 
@@ -966,7 +719,6 @@
             "publisher": 7, 
             "description": "Gnfe n xxpfj i dopir pjy bfcig", 
             "shelf_mark": 498096051, 
-            "picture": null, 
             "toc_url": "", 
             "publication_nr": 5, 
             "state": 1, 
