@@ -152,8 +152,8 @@ class UserProfile(models.Model):
         return lib_group in self.user.groups.all()
 
     def is_admin(self):
-        lib_group = Group.objects.get(name='Admins')
-        return lib_group in self.user.groups.all()
+        admin_group = Group.objects.get(name='Admins')
+        return admin_group in self.user.groups.all()
 
     # def perm_exists(self, perm):
     #     '''

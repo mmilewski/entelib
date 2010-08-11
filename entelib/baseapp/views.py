@@ -152,20 +152,22 @@ def request_book(request, request_form=BookRequestForm):
     Handles requesting for book by any user.
     '''
     user = request.user
-
     template = 'book_request.html'
     context = {}
-
+    config = Config(user)
+    initial_data = {
+        'info' : config.get_str('book_request_info_template'),
+        }
     # redisplay form
     if request.method == 'POST':
-        form = request_form(user=user, data=request.POST, files=request.FILES)
+        form = request_form(user=user, data=request.POST)
         if form.is_valid():
             form.save()
             context['show_confirmation_msg'] = True
             return render_response(request, template, context)
     # display fresh new form
     else:
-        form = request_form(user=user)
+        form = request_form(user=user, initial=initial_data)
 
     context['form_content'] = form
     context['books'] = Book.objects.all()

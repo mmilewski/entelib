@@ -34,7 +34,7 @@ div.group div.green_segment {
 
 div.scaleWrapper {
     width: 100%;
-    clear:both;
+    clear: both;
     display: block;
 }
 
@@ -49,4 +49,16 @@ div.scale_part {
 
 div.time_bar_date_selectorWrapper {
     text-align: right;
+}
+
+
+div.time_bar_date_selectorWrapper input[value='Show'] {
+    padding: .3em 1.2em;
+}
+div.time_bar_date_selectorWrapper .helper_buttons {
+    padding-top: .7em;
+}
+div.time_bar_date_selectorWrapper .helper_buttons input {
+    font-size: 90%;
+    padding: .2em .5em;
 }
