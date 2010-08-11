@@ -382,6 +382,7 @@ class Reservation(models.Model):
     who_cancelled = models.ForeignKey(User, related_name='canceller', null=True, blank=True)
     when_cancelled = models.DateTimeField(null=True, blank=True)
     active_since = models.DateField(null=True, blank=True)
+    send_requested = models.BooleanField()
 
     class Admin:
         pass

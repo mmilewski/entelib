@@ -26,6 +26,7 @@ import baseapp.emails as mail
 import settings
 
 today = date.today
+now = datetime.now
 
 @permission_required('baseapp.load_default_config')
 def load_default_config(request, do_it=False):
@@ -811,7 +812,7 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
         r = Reservation(who_reserved=request.user, book_copy=book_copy, for_whom=user)
 
         # reserve requested:
-        if 'action' in post and post['action'].lower() == 'reserve':
+        if 'reserve_button' in post:
             try:
                 if 'from' in post and post['from'] != u'':
                     try:
@@ -845,8 +846,10 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
                 reserved.update({'msg' : config.get_str('message_book_reserved') % (r.start_date.isoformat(), r.end_date.isoformat())})
                 reserved.update({'from' : r.start_date.isoformat()})
                 reserved.update({'to' : r.end_date.isoformat()})
+                reserved.update({'reservation' : r.id})
+                reserved.update({'send_possible' : aux.internal_post_send_possible(r)})
         # renting action requested
-        elif 'action' in post and post['action'].lower() == 'rent':
+        elif 'rent_button' in post:
             if not request.user.has_perm('baseapp.add_rental'):
                 raise PermissionDenied('User not allowed to rent')
             if not is_book_copy_rentable(book_copy):
@@ -878,6 +881,18 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
                 reserved.update({'error' : 'error - possibly incorrect date format'})
             except EntelibWarning, w:
                 reserved.update({'error' : str(w)})
+        elif 'reservation_to_send_or_cancel' in post:
+            reservation = get_object_or_404(Reservation, id=int(post['reservation_to_send_or_cancel']))
+            if 'cancel_button' in post:
+                reservation.when_cancelled = now()
+                reservation.who_cancelled = request.user
+                reservation.save()
+                reserved.update({'error' : 'Reservation cancelled'})
+            if 'send_button' in post:
+                reservation = get_object_or_404(Reservation, id=int(post['reservation_to_send_or_cancel']))
+                reservation.send_requested = True
+                reservation.save()
+                reserved.update({'msg' : 'Send-request has been set'})
             
     book_desc = aux.get_book_details(book_copy)
 

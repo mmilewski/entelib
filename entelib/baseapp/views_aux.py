@@ -733,3 +733,7 @@ def can_edit_global_config(user):
         user -- instance of User
     '''
     return user.is_staff
+
+
+def internal_post_send_possible(reservation):
+    return 'True' if reservation.book_copy.location.maintainer.count() > 0 else False

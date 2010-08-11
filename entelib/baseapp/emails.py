@@ -51,6 +51,14 @@ def default_email(recipients, template, context, subject=None, sender=None):
     subject = subject if subject else Config().get_str('default_email_subject')
     send(subject, msg, sender, recipients)
 
+def send_request_to_send_with_internal_post(reservation):
+    recipients = list(reservation.book_copy.location.maintainer.all())
+    template = 'email/send_with_internal_post_request'
+    context = {'user' : reservation.for_whom,
+               'reservation' : reservation,
+              }
+    default_email(recipients, template, context, subject='Internal-post-send request')
+
 
 def notify_book_copy_available(reservation):
     tpl = 'rental_possible'

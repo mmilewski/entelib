@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # inject specific version of Django and Imaging (PIL)
 # Where should be Django-1.2.1? Here is dump of  tree -L 2

@@ -1,5 +1,7 @@
 {% extends 'bookcopy_base.html' %}
 
+{% load cancel_or_request %}
+
 {% block header %}{% if for_whom %} {{ for_whom }} {% else %} Book reservation {% endif %} {% endblock %}
 
 {% comment %}
@@ -13,8 +15,14 @@
     
     {% if reserved.msg %}
         <font color='green'>
-            <b>{{ reserved.msg }}.</b>
+            <b>{{ reserved.msg }}.</b><br />
         </font>
+        {% if reserved.reservation %}
+            {% cancel_or_request_form %}
+        {% endif %}
+        {% comment %}
+        --------{{reserved.copy_id}}--------
+        {% endcomment %}
     {% else %}
         {% if reserved.error %}
             <font color='red'>
@@ -50,13 +58,13 @@
                     </tr>
                     <tr>
                         <td></td>
-                        <td><input type='submit' name='action' value='reserve' {% if not can_reserve %} disabled {% endif %}  ></td>
+                        <td><input type='submit' name='reserve_button' value='Reserve' {% if not can_reserve %} disabled {% endif %}  ></td>
                         <td></td>
                     </tr>
                     {% if perms.baseapp.add_rental %}
                         <tr>
                             <td></td>
-                            <td><input type='submit' name='action' value='rent' {% if not rental_possible %} disabled {% endif %} ></td>
+                            <td><input type='submit' name='rent_button' value='Rent' {% if not rental_possible %} disabled {% endif %} ></td>
                             <td></td>
                             {% if display_tips %}
                             <div class="tip">

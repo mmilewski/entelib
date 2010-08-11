@@ -6,6 +6,9 @@ from datetime import date, timedelta
 from entelib.baseapp.config import Config
 from entelib.baseapp.models import Reservation, Rental, User, UserProfile, Book, BookCopy, BookRequest, Configuration, Phone, Building
 
+#def today():
+#    return date(2010, 7, 20)
+
 def choice(collection):
     ''' simplified pseudo-choice ensuring repeatable results '''
     lst = list(collection)
@@ -413,7 +416,7 @@ class ShowBookcopyTest(TestWithSmallDB):
         lib_response = self.client.get(url)
         self.log_admin()
         admin_response = self.client.get(url)
-
+        # lala
         # this part of page everybody should have the same
         contents_user = re.search(r"<div id='content'>.*<div class='content_form'>", ''.join(user_response.content.splitlines())).group()
         contents_user += re.search(r"<a href='reserve/'>Reserve for me</a>.*", ''.join(user_response.content.splitlines())).group()
@@ -899,18 +902,18 @@ class ReserveTest(TestWithSmallDB):
     def test_user_doesnt_have_rent_button(self):
         self.log_user()
         response = self.client.get(self.url_copy % 2) # book copy 218237006 (Ogniem i mieczem)
-        self.assertNotContains(response, "<input type='submit' name='action' value='rent'  ></td>")
+        self.assertNotContains(response, "<input type='submit' name='rent_button' value='Rent'  ></td>")
 
     def test_admin_has_rent_button(self):
         self.log_admin()
         response = self.client.get(self.url_copy % 2) # book copy 218237006 (Ogniem i mieczem)
-        self.assertContains(response, "<input type='submit' name='action' value='rent'  ></td>")
+        self.assertContains(response, "<input type='submit' name='rent_button' value='Rent'")
 
     def test_rent_button_inactive(self):
         self.log_lib()
         url = self.url_copy % 3  # permanently unavailable copy
         response = self.client.get(url)
-        self.assertContains(response, "<td><input type='submit' name='action' value='rent'  disabled  ></td>")
+        self.assertContains(response, "<td><input type='submit' name='rent_button' value='Rent'  disabled  ></td>")
 
     
     # assertions for rentals and reservations
@@ -924,7 +927,7 @@ class ReserveTest(TestWithSmallDB):
         nr_of_rentals_before = len(rentals_before)
 
         # request
-        response = self.client.post(url, {'action' : 'rent', 'from' : from_, 'to' : to, })
+        response = self.client.post(url, {'rent_button' : 'Rent', 'from' : from_, 'to' : to, })
         
         # response code was 200
         self.assertEquals(200, response.status_code)
@@ -963,7 +966,7 @@ class ReserveTest(TestWithSmallDB):
         reservations_before = list(Reservation.objects.all())
 
         # request
-        response = self.client.post(url, {'action' : 'rent', 'from' : from_, 'to' : to, })
+        response = self.client.post(url, {'rent_button' : 'Rent', 'from' : from_, 'to' : to, })
 
         # situation after
         rentals_after = list(Rental.objects.all())
@@ -985,7 +988,7 @@ class ReserveTest(TestWithSmallDB):
         reservations_before = list(Reservation.objects.all())
 
         # request
-        response = self.client.post(url, {'action' : 'reserve', 'from' : from_, 'to' : to, })
+        response = self.client.post(url, {'reserve_button' : 'Reserve', 'from' : from_, 'to' : to, })
         
         # response code was 200
         self.assertEquals(200, response.status_code)
@@ -1025,7 +1028,7 @@ class ReserveTest(TestWithSmallDB):
         self.assertEquals((reservations_before + [last_reservation]).sort(), [r for r in Reservation.objects.all()].sort())   # old set + newest == newset
         self.assertEquals([r for r in reservations_before], [r for r in Reservation.objects.all()][:-1])                      # old set == newset - newest
 
-    def assert_reservation_not_made(self, book_copy_id, from_='', to='', status_code=200):
+    def assert_reservation_not_made(self, book_copy_id, from_=today(), to=after_days(25), status_code=200):
         url = self.url_copy % book_copy_id
 
         # situation before
@@ -1033,7 +1036,7 @@ class ReserveTest(TestWithSmallDB):
         reservations_before = list(Reservation.objects.all())
 
         # request
-        response = self.client.post(url, {'action' : 'reserve', 'from' : from_, 'to' : to, })
+        response = self.client.post(url, {'reserve_button' : 'Reserve', 'from' : from_, 'to' : to, })
 
         # situation after
         rentals_after = list(Rental.objects.all())

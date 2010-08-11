@@ -329,7 +329,7 @@ from dbconfigfiller import fill_config
 config = fill_config()
 
 
-# -- PUPULATE GROUPS --
+# -- POPULATE GROUPS --
 # add few groups
 def readd_group(group_name, perms=[], direct_add=False):
     '''
