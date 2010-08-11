@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from django.contrib.auth.models import User  #, UserManager, Permission
+from django.contrib.auth.models import User, Group  #, UserManager, Permission
 import models_config as CFG
 from django.db.models import signals
 #import settings
@@ -146,7 +146,14 @@ class UserProfile(models.Model):
             self.user == other.user and \
             list(self.phone.all()) == list(other.phone.all()) and \
             self.building == self.building
-        
+
+    def is_librarian(self):
+        lib_group = Group.objects.get(name='Librarians')
+        return lib_group in self.user.groups.all()
+
+    def is_admin(self):
+        lib_group = Group.objects.get(name='Admins')
+        return lib_group in self.user.groups.all()
 
     # def perm_exists(self, perm):
     #     '''
