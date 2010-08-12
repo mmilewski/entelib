@@ -1,0 +1,14 @@
+<form action='.' method='post'>
+<input type='hidden' name='reservation_to_send_or_cancel' value='{{ cancelled_or_requested_reservation }}'>
+<table>
+    <tr>
+        <td>
+            <input type='submit' name='cancel_button' value='Cancel'>
+        </td>
+        <td>
+            <input type='submit' name='send_button'   value='Send to me'{% if not send_possible %}disabled='disabled'{% endif %}>
+        </td>
+    </tr>
+</table>
+
+</form>
