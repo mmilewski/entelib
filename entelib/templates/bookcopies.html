@@ -131,7 +131,7 @@
 
                     <!-- COPY's DETAILS -->
                     <tr class="copy_details">
-                        <td class="shelfmark"><a href='{{ item.url }}'>{{ item.shelf_mark }}</a></td>
+                        <td class="shelfmark"><a href='../../bookcopy/{{ item.id }}/'>{{ item.shelf_mark }}</a></td>
                         <td class="state"><span title="{{item.state.description|default:"No description"}}">{{ item.state }}</span> {% if not item.is_available %}<span class="unavailable" title="Unavailable, sorry"><br/>(unavailable)</span>{%endif%}</td>
                         <td class="publisher">{{ item.publisher }}</td>
                         <td class="year">{{ item.year }}</td>
@@ -145,7 +145,7 @@
                                 {%endif%}
                                 {%if item.is_reservable and item.is_available %}
                                 <li class="reserve">
-                                    <a href='{{ item.reserve_url }}'
+                                    <a href='../../bookcopy/{{ item.id }}/reserve/'
                                        {% if not item.is_available %}class="unavailable" title="Book is unavailable"{% endif %}>
                                     Reserve
                                 </a></li> 

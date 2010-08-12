@@ -14,9 +14,11 @@
     <h3 id="rr">Reserve/Rent</h3>
     
     {% if reserved.msg %}
-        <font color='green'>
-            <b>{{ reserved.msg }}.</b><br />
-        </font>
+        <p class='positive_message'>
+            {{ reserved.msg }}.
+        </p>
+        <a href={% url user_one reader_id %}>Go to profile</a><br /><br />
+
         {% if reserved.reservation %}
             {% cancel_or_request_form %}
         {% endif %}
@@ -25,9 +27,9 @@
         {% endcomment %}
     {% else %}
         {% if reserved.error %}
-            <font color='red'>
-                <b>{{ reserved.error }}</b>
-            </font>
+           <p class='negative_message'> 
+                {{ reserved.error }}
+            </p>
         {% endif %}
         <div class='content_form' style='margin-top: 1em'>
             <form action='.' method='post' name="Freserve">
@@ -54,7 +56,7 @@
                                    disabled='disabled' 
                                    >
                         </td>
-                        <td></td>
+                        <td><a href={% url user_one reader_id %}>(Profile)</a></td>
                     </tr>
                     <tr>
                         <td></td>

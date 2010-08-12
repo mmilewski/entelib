@@ -20,7 +20,7 @@ from baseapp.models import *
 from baseapp.reports import get_report_data, generate_csv
 from baseapp.utils import pprint, str_to_date, remove_non_ints
 from baseapp.time_bar import get_time_bar_code_for_copy, TimeBarRequestProcessor
-from baseapp.views_aux import render_forbidden, render_response,     filter_query, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, is_book_copy_rentable, get_locations_for_book, Q_reservation_active, cancel_reservation, when_copy_reserved
+from baseapp.views_aux import render_forbidden, render_response,     filter_query, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, get_locations_for_book, Q_reservation_active, cancel_reservation, when_copy_reserved
 import baseapp.views_aux as aux
 import baseapp.emails as mail
 import settings
@@ -363,24 +363,25 @@ def show_book(request, book_id, non_standard_user_id=False):
     Finds all copies of a book.
     '''
     config = Config(request.user)
+    book = get_object_or_404(Book,id=book_id)
     context = {}
     
     # if we have a non_standard_user we treat him special
-    url_for_non_standard_users = u'/entelib/users/%d/reservations/new/bookcopy/%s/' % (int(non_standard_user_id), u'%d')
-    show_url = u'/entelib/bookcopy/%d/' if non_standard_user_id == False else url_for_non_standard_users
-    if non_standard_user_id == False:
-        if request.user.has_perm('baseapp.add_rental'):
-            reserve_url = u'/entelib/bookcopy/%d/user/'
-        else:
-            reserve_url = u'/entelib/bookcopy/%d/reserve/'
-    else:
-        reserve_url = url_for_non_standard_users
+    # url_for_non_standard_users = u'/entelib/users/%d/bookcopy/%s/' % (int(non_standard_user_id), u'%d')
+    # show_url = u'/entelib/bookcopy/%d/' if non_standard_user_id == False else url_for_non_standard_users
+    # if non_standard_user_id == False:
+    #     if request.user.has_perm('baseapp.add_rental'):
+    #         reserve_url = u'/entelib/bookcopy/%d/user/'
+    #     else:
+    #         reserve_url = u'/entelib/bookcopy/%d/reserve/'
+    # else:
+    #     reserve_url = url_for_non_standard_users
     # do we have such book?
-    book = get_object_or_404(Book,id=book_id)
     ## try:
     ##     book = Book.objects.get(id=book_id)
     ## except Book.DoesNotExist:
     ##     return render_not_found(request, item_name='Book')
+
     # find all visible copies of given book
     book_copies = BookCopy.objects.filter(book=book_id).filter(state__is_visible=True)
     selected_locations = []
@@ -408,8 +409,8 @@ def show_book(request, book_id, non_standard_user_id=False):
     for elem in book_copies:
         curr_copies.append({
             'id'            : elem.id,
-            'url'           : show_url % elem.id,
-            'reserve_url'   : reserve_url % elem.id,
+            # 'url'           : show_url % elem.id,
+            # 'reserve_url'   : reserve_url % elem.id,
             'shelf_mark'    : elem.shelf_mark,
             'location'      : elem.location,
             'state'         : elem.state,
@@ -854,7 +855,9 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
         elif 'rent_button' in post:
             if not request.user.has_perm('baseapp.add_rental'):
                 raise PermissionDenied('User not allowed to rent')
-            if not is_book_copy_rentable(book_copy):
+            if not request.user in book_copy.location.maintainer.all():
+                raise PermissionDenied('User not allowed to rent book from this location')
+            if not aux.is_book_copy_rentable(book_copy):
                 return aux.render_forbidden(request, 'Book copy not rentable')
             r.start_date = date.today()  # always rent from now
             # for how long rental is possible
@@ -885,6 +888,9 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
                 reserved.update({'error' : str(w)})
         elif 'reservation_to_send_or_cancel' in post:
             reservation = get_object_or_404(Reservation, id=int(post['reservation_to_send_or_cancel']))
+            if not request.user.has_perm('baseapp.change_reservation') and \
+               not (request.user.has_perm('baseapp.change_own_reservation') and user == reservation.for_whom):
+                raise PermissionDenied('User not allowed to change or cancel this reservation')
             if 'cancel_button' in post:
                 reservation.when_cancelled = now()
                 reservation.who_cancelled = request.user
@@ -902,13 +908,14 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
     # if for_whom:
     #     context.update({'user' : User.objects.get(id=non_standard_user_id)})
 
-    # TODO: default start/end dates
     context.update({
+        'reader_id'       : user.id,
+        'copy_id'         : copy,
         'copy'            : book_desc,
         'reserved'        : reserved,
         'for_whom'        : for_whom,
-        'can_reserve'     : request.user.has_perm('baseapp.add_reservation') and book_copy.state.is_visible,
-        'rental_possible' : is_book_copy_rentable(book_copy),
+        'can_reserve'     : book_copy.state.is_visible and request.user.has_perm('baseapp.add_reservation'),
+        'rental_possible' : aux.is_book_copy_rentable(book_copy) and request.user in book_copy.location.maintainer.all(),
     })
 
     # time bar        
@@ -980,7 +987,7 @@ def show_location(request, loc_id, edit_form=LocationForm):
     
     context = {
         'loc'         : location,
-        'maintainers' : location.maintainer.all(),
+        'maintainer' : location.maintainer.all(),
         'form'        : form,
         }
     

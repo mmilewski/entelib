@@ -512,3 +512,11 @@ div.book_contentWrapper div.edit_book a span,
 div.copy_contentWrapper div.edit_copy a span {
     display: none;   /* hide text */
 }
+div.reserve_rent_form .positive_message {
+  font-weight: bold;
+  color: green;
+}
+div.reserve_rent_form .negative_message {
+  font-weight: bold;
+  color: red;
+}

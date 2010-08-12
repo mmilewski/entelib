@@ -10,7 +10,7 @@
     {% if display_tips %}
     <div class="tip">
       <ol>
-        {% if perms.baseapp.list_users %}
+        {% if user.get_profile.is_librarian %}
             <li><p>Two ways of using this view:
                 <ol>
                     <li>

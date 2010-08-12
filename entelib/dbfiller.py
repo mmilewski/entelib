@@ -389,5 +389,5 @@ for group_name in config.get_list('user_after_registration_groups'):
     u.groups.add(Group.objects.get(name=group_name))
     u.groups.add(Group.objects.get(name="Librarians"))
 
-# -- /PUPULATE GROUPS --
+# -- /POPULATE GROUPS --
 

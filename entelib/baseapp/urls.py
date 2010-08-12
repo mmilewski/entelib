@@ -39,6 +39,7 @@ urlpatterns = patterns(
     (r'^users/(\d+)/books/$', view.find_book_for_user),
     (r'^users/(\d+)/books/(\d+)/$', view.find_book_for_user),
     (r'^users/(\d+)/bookcopy/(\d+)/$', view.reserve_for_user),
+    (r'^users/(\d+)/bookcopy/(\d+)/reserve/$', get_redirect_function_to_url('../')),
     (r'^users/(\d+)/bookcopy/(\d+)/up/$', view.user_book_copy_up_link),
     (r'^users/(\d+)/reservations/cancel-all/$', view.cancel_all_user_resevations),
     # (r'^users/(\d+)/rent-book/(\d+)/$', view.show_user_reservation),

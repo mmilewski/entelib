@@ -654,13 +654,13 @@ def cancel_user_resevations(user, canceller):
         cancel_reservation(r, canceller)
 
 
-def user_full_name(user_id, format='Lastname, Firstname'):
+def user_full_name(user_id, first_name_first=False):
     '''
     Return unicode string containing users first and last name if user_id is correct, None otherwise.
     '''
     try:
         u = User.objects.get(id=user_id)
-        if format == 'Firstname Lastname':
+        if first_name_first:
             return u.first_name + ' ' + u.last_name
         else:
             return  u.last_name + ', ' + u.first_name  # default

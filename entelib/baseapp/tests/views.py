@@ -972,13 +972,13 @@ class ReserveTest(TestWithSmallDB):
         rentals_after = list(Rental.objects.all())
         reservations_after = list(Reservation.objects.all())
 
-        # no reservation or rental were added
-        self.assertEquals(rentals_before, rentals_after)
-        self.assertEquals(reservations_before, reservations_after)
-
         # test status code (if given)
         if status_code:
             self.assertEquals(status_code, response.status_code)
+
+        # no reservation or rental were added
+        self.assertEquals(rentals_before, rentals_after)
+        self.assertEquals(reservations_before, reservations_after)
 
     def assert_reservation_made(self, copy_id, from_=today().isoformat(), to=after_days(Config().get_int('reservation_duration')).isoformat()):
         url = self.url_copy % copy_id
@@ -1089,36 +1089,32 @@ class ReserveTest(TestWithSmallDB):
         self.assert_reservation_not_made(0, from_=today().isoformat(), to=today().isoformat(), status_code=404)
         # book copy of id 0 doesn't exist even if we add some post
 
-    def test_no_from(self):
-        self.assert_reservation_made(4, to=(today() + timedelta(3)).isoformat())
-        # it's ok, should be rented from today
-
-    def test_no_to(self):
-        self.assert_reservation_made(4, from_=(today()+timedelta(3)).isoformat())
-        # it's ok, should be rented for maximum possible time
-
     def test_start_date_later_than_end_date(self):
         self.assert_reservation_not_made(4, from_=(today()+timedelta(5)).isoformat(), to=(today()+timedelta(3)).isoformat())
         # cannot end before it starts
 
     def test_from_today(self):
-        self.assert_reservation_made(4, from_=today().isoformat())
+        self.assert_reservation_made(5, from_=today().isoformat())
         # you sure can rent from today - for maximum time
 
     def test_empty_fields(self):
-        self.assert_reservation_made(4)
-        # why not - default start and end dates (today, today+max_rental_time)
+        self.assert_reservation_not_made(3, from_='', to='')
+        # empty field are forbidden
+
+    def test_empty_fields_forbidden_copy(self, from_='', to=''):
+        self.assert_reservation_not_made(4, from_=from_, to=to)
+        # empty field are forbidden
 
     def test_till_today(self):
         self.assert_reservation_made(4, to=today().isoformat())
         # you can reserve for one day - you just have to return it by then end of the day
 
     def test_from_today_till_today(self):
-        self.assert_reservation_made(4, from_=today().isoformat(), to=today().isoformat())
+        self.assert_reservation_made(3, from_=today().isoformat(), to=today().isoformat())
         # ok, just for today
 
     def test_admin_rents_book_copy(self):
-        book_copy_id = 4
+        book_copy_id = 5
         self.log_admin()
         self.assert_rental_made(book_copy_id)
 
@@ -1139,18 +1135,17 @@ class ReserveTest(TestWithSmallDB):
     def test_no_to_date(self):
         self.log_lib()
         book_copy_id = 4
-        self.assert_rental_made(book_copy_id, from_=today().isoformat())
+        self.assert_rental_not_made(book_copy_id, from_=today().isoformat(), to='')
         # ok: default max rental time, from ignored
         
     def test_max_time(self):
         self.log_lib()
-        book_copy_id = 4
-        self.assert_rental_made(book_copy_id, to=today().isoformat())
-        # ok: default max rental time
+        book_copy_id = 5
+        self.assert_rental_made(book_copy_id, to=after_days(2))
         
     def test_one_day(self):
         self.log_lib()
-        book_copy_id = 4
+        book_copy_id = 5
         self.assert_rental_made(book_copy_id, to=(today() + timedelta(1)).isoformat())
         # ok: rental for one day
         
@@ -1162,7 +1157,7 @@ class ReserveTest(TestWithSmallDB):
         
     def test_rent_for_max_time(self):
         self.log_lib()
-        book_copy_id = 4
+        book_copy_id = 5
         self.assert_rental_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration'))).isoformat())
         # ok: max rental duration
         
@@ -1174,25 +1169,25 @@ class ReserveTest(TestWithSmallDB):
         
     def test_one_day_less_than_max(self):
         self.log_lib()
-        book_copy_id = 4
+        book_copy_id = 5
         self.assert_rental_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration') - 1)).isoformat())
         # ok: one day less than max, from ignored
         
     def test_one_day_less_than_max_from_today(self):
         self.log_lib()
-        book_copy_id = 4
+        book_copy_id = 5
         self.assert_rental_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration') - 1)).isoformat(), from_=today())
         # ok: one day less than max, from ignored
         
     def test_one_day_less_than_max_from_yesterday(self):
         self.log_lib()
-        book_copy_id = 4
+        book_copy_id = 5
         self.assert_rental_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration') - 1)).isoformat(), from_=today() - timedelta(1))
         # ok: one day less than max, from ignored
         
     def test_one_day_less_than_max_from_tomorrow(self):
         self.log_lib()
-        book_copy_id = 4
+        book_copy_id = 5
         self.assert_rental_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration') - 1)).isoformat(), from_=today() + timedelta(1))
         # ok: one day less than max, from ignored
         
