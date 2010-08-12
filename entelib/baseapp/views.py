@@ -987,7 +987,6 @@ def show_location(request, loc_id, edit_form=LocationForm):
     
     context = {
         'loc'         : location,
-        'maintainer' : location.maintainer.all(),
         'form'        : form,
         }
     

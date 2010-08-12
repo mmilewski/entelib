@@ -44,7 +44,15 @@
         }
     }, 
 
-    
+    { 
+        "pk": "book_request_info_template",
+        "model": "baseapp.configuration", 
+        "fields": {
+            "can_override": false, 
+            "description": "Template which is displayed to help in filling request book form", 
+            "value": "Title:\n\n\nAuthors:\n\n\nPublication:\n\n\nUrl:\n\n"
+        }
+    }, 
     { 
         "pk": "display_only_editable_config_options",
         "model": "baseapp.configuration", 

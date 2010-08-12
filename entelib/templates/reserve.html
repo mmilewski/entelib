@@ -36,14 +36,14 @@
                 <table>
                     <tr>
                         <td>From: </td>
-                        <td><input type='text' maxlength='10' name='from' value='{{ reserve_from }}' onClick='showKal(this)'></td>
+                        <td><input type='text' maxlength='10' class="datepicker" name='from' value='{{ reserve_from }}' onClick='showKal(this)'></td>
                         {% if perms.baseapp.add_rental %}
                             <td>(Ignored if renting. You always rent from today)</td>
                         {% endif %}
                     </tr>
                     <tr>
                         <td>To: </td>
-                        <td><input type='text' maxlength='10' name='to' value='{{ reserve_to }}' onClick='showKal(this)'></td>
+                        <td><input type='text' maxlength='10' class="datepicker" name='to' value='{{ reserve_to }}' onClick='showKal(this)'></td>
                     </tr>
                     <tr>
                         <td>User</td>
