@@ -1,21 +1,17 @@
 {% extends 'base_with_top_menu.html' %}
 
-{% load go_back_link %}
-
 {% block title %}Book copy's details{% endblock %}
 
 {% block header %}Book copy's details{% endblock %}
 
 {% block go_up %} 
     <p>
-        <a href="{% url book_one book.id %}">Go UP</a><br />
+        <a href="{% url book_one book.id %}">Up</a><br />
     </p> 
 {% endblock %} 
         
 {% block content %}
 <div class="copy_one">
-    {% go_back_link "Go back" %}
-    
     <p class="links">
       <a href="{% url book_all %}">Show all books</a> 
       <a href="{% url book_one book.id %}">Show related book</a> 

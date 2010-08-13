@@ -1254,7 +1254,7 @@ class CancelAllMyReserevationsTest(TestWithSmallDB):
         before = self.get_state(*classes)
 
         # request
-        response = self.client.get(url)
+        self.response = self.client.post(url, {'sure' : 'true'}, follow=True)
 
         # after
         after = self.get_state(*classes)
@@ -1262,9 +1262,6 @@ class CancelAllMyReserevationsTest(TestWithSmallDB):
         # nothing changed
         self.assertEquals(before['Rental'], after['Rental'])
         self.assertEquals(before['Reservation'], after['Reservation'])
-
-        # allow more tests on response
-        self.response = response
 
     def test_no_reservations_to_cancel(self):
         # at first there is nothing to cancel

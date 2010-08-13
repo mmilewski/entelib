@@ -645,13 +645,34 @@ def cancel_reservation(reservation, user):
     reservation.save()
 
 
-def cancel_user_resevations(user, canceller):
-    '''
-    Desc:
-        all active user's resrvations are cancelled by librarian (which might be the same as user)
-    '''
+def do_cancel_user_resevations(user, canceller):
     for r in Reservation.objects.filter(for_whom=user).filter(Q_reservation_active):
         cancel_reservation(r, canceller)
+
+
+def cancel_all_user_resevations(request, user):
+    '''
+    Desc:
+        all user's resrvations are cancelled by canceller (who might be user)
+    '''
+    canceller = request.user
+
+    post = request.POST
+    if request.method == 'POST' and 'sure' in post and post['sure'] == 'true':
+        do_cancel_user_resevations(canceller, user)
+        post = request.POST
+
+        return render_response(request, 'reservations_cancelled.html',
+            { 'first_name' : user.first_name,
+              'last_name'  : user.last_name,
+              'email'      : user.email,
+            })
+    else:
+        return render_response(request, 'cancel_reservations.html',
+            { 'first_name' : user.first_name,
+              'last_name'  : user.last_name,
+              'email'      : user.email,
+            })
 
 
 def user_full_name(user_id, first_name_first=False):

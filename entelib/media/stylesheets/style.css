@@ -520,3 +520,11 @@ div.reserve_rent_form .negative_message {
   font-weight: bold;
   color: red;
 }
+div.positive_message {
+  font-weight: bold;
+  color: green;
+}
+div.warning {
+  font-weight: bold;
+  color: red;
+}

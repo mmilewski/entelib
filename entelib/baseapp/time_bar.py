@@ -509,6 +509,8 @@ def get_time_bar_code_for_copy(config, book_copy, from_date, to_date):
     Q_covers_whole_range = Q(start_date__lte=from_date) & Q(end_date__gte=to_date)    #   |---->----<------|
     
     reservations = Reservation.objects.filter(book_copy=book_copy) \
+                                      .filter(when_cancelled=None) \
+                                      .filter(Q(rental=None)|Q(rental__end_date=None)) \
                                       .filter(Q_start_inside_range | Q_end_inside_range | Q_covers_whole_range) \
                                       .order_by('start_date')
 

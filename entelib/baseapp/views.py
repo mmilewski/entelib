@@ -793,8 +793,8 @@ def show_user_reservation(request, user_id, reservation_id):
 
 
 @permission_required('baseapp.add_reservation')
-def reserve(request, copy, non_standard_user_id=False):  # when non_standard_user_id is set then this view allows also renting
-    book_copy = get_object_or_404(BookCopy, id=copy)
+def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_user_id is set then this view allows also renting
+    book_copy = get_object_or_404(BookCopy, id=copy_id)
     config = Config(user=request.user)
     reserved = {}   # info on reservation
     context = {'reserve_from' : today(),
@@ -837,8 +837,20 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
                             raise EntelibWarning('You can\'t reserve for longer than %d days' % config.get_int('reservation_duration'))
                     except ValueError:
                         raise EntelibWarning('error - possibly incorrect date format')
-                elif r.start_date:
+                elif r.start_date:  # from is correct, to isn't
                     raise EntelibWarning('You need to specify reservation end date')
+                else:
+                    assert False  # flow should never get here: if there is from was incorrect it raised entelib warning
+                overlapping_user_reservations = Reservation.objects \
+                                                           .filter(Q_reservation_active) \
+                                                           .filter(book_copy=book_copy) \
+                                                           .filter(for_whom=user) \
+                                                           .filter(Q(end_date__gte  =r.start_date)&Q(end_date__lte  =r.end_date) |  # other reservations ends during requested one
+                                                                   Q(start_date__gte=r.start_date)&Q(start_date__lte=r.end_date)    # other reservations starts during requested one
+                                                                  ) 
+                if overlapping_user_reservations.count() > 0:
+                    raise EntelibWarning('You have overlapping active reservation on the book.')
+
             except EntelibWarning, e:
                 reserved.update({'error' : str(e)})
             else:
@@ -910,7 +922,7 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
 
     context.update({
         'reader_id'       : user.id,
-        'copy_id'         : copy,
+        'copy_id'         : copy_id,
         'copy'            : book_desc,
         'reserved'        : reserved,
         'for_whom'        : for_whom,
@@ -928,35 +940,15 @@ def reserve(request, copy, non_standard_user_id=False):  # when non_standard_use
 
 @permission_required('baseapp.change_own_reservation')
 def cancel_all_my_reserevations(request):
-    aux.cancel_user_resevations(user=request.user, canceller=request.user)
-    return render_response(request, 'reservations_cancelled.html', {})
+    return aux.cancel_all_user_resevations(request, request.user)
+    # aux.cancel_user_resevations(user=request.user, canceller=request.user)
+    # return render_response(request, 'reservations_cancelled.html', {})
 
 @permission_required('baseapp.list_users')
 @permission_required('baseapp.change_reservation')
 def cancel_all_user_resevations(request, user_id):
-    try:
-        user = User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        render_not_found(request, item='User')
-    canceller = request.user
-    post = request.POST
-
-    if request.method == 'POST' and 'sure' in post and post['sure'] == 'true':
-        aux.cancel_user_resevations(canceller, user)
-
-        return render_response(request, 'reservations_cancelled.html',
-            { 'first_name' : user.first_name,
-              'last_name'  : user.last_name,
-              'email'      : user.email,
-            })
-
-    else:
-        return render_response(request, 'cancel_reservations.html',
-            { 'first_name' : user.first_name,
-              'last_name'  : user.last_name,
-              'email'      : user.email,
-            })
-
+    user = get_object_or_404(User, id=user_id)
+    return aux.cancel_all_user_resevations(request, user)
 
 @permission_required('baseapp.list_locations')
 def show_locations(request):
