@@ -61,6 +61,9 @@ def create_days_between(start, end, include_start=True, include_end=True):
     Args:
         start -- date object.
         end -- date object.
+    
+    Returns:
+        list of Date (or DateTime if start is DateTime) instances.
     '''
     if start > end:
         return []

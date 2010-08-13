@@ -10,6 +10,7 @@ from django.db.models.query_utils import Q
 from django.core.handlers.wsgi import WSGIRequest
 from itertools import groupby
 from baseapp.config import Config
+import datetime
 
 
 def timedelta_as_int(delta):
@@ -171,14 +172,14 @@ class TimeBar(object):
         if len(segments_left) < 2:
             return segments_left
         
-        max_iterations = 15                     # more then this number of iteration means an error probably
+        max_iterations = 10                     # more then this number of iteration means an error probably
         if shuffle:
             random.shuffle(segments_left)
-        result = []                             # list of 3-tuples
+        result = []
         iterations = 0
-        while segments_left:                    # O(n*k), n - #items; k - #iterations
+        while segments_left:
             iterations += 1
-            if iterations > max_iterations:                
+            if iterations > max_iterations:
                 break
             # remove noncolliding segments
             colliding_segments = list(segments_left)
@@ -192,7 +193,7 @@ class TimeBar(object):
                 seg.increment_z()
         
         # check result
-        assert len(result) == len(segments)
+        assert len(result) == len(segments) or len(result) == max_iterations
         for seg in result:
             tmp_result = list(result)
             tmp_result.remove(seg)         # seg collides with seg, so it should be removed before assert
@@ -377,16 +378,25 @@ class TimeBar(object):
                 html += u'</div>'
             html += u'</div>'            
         elif display_weeks:
+            week_to_first_day_map = {}
+            for day in days_in_range:
+                wfd = week_for_day(day) 
+                if wfd not in week_to_first_day_map:
+                    week_to_first_day_map[wfd] = day
+            
             weeks_in_range = [week_for_day(day) for day in days_in_range]
             grouped_weeks = [(key[0],key[1],len(list(group))) for key,group in groupby(weeks_in_range)]  # [year, week_nr, len]
             display_year = len(set([y for y,n,c in grouped_weeks])) > 1
             html = u'<div class="scaleWrapper">'
             for year,week_nr,week_len in grouped_weeks:
+                first_day = week_to_first_day_map[(year,week_nr)]
+                period_name = u'%s, %d (%dw)' % (first_day.strftime('%B'), first_day.day, week_nr)
+                hover_title = period_name
                 if display_year:
                     title = u'%d week of %d' % (week_nr, year)
                 else:
                     title = u'%d week' % (week_nr,)
-                html += u'<div class="scale_part" style="width: %.3f%%" title="%s">' % (100.0 * week_len / width, title)
+                html += u'<div class="scale_part" style="width: %.3f%%" title="%s">' % (100.0 * week_len / width, hover_title)
                 html += title
                 html += u'</div>'
             html += u'</div>'
