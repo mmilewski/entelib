@@ -47,6 +47,6 @@ def fill_config():
     # misc
     _svd(config, False, 'is_cost_center_visible_to_anyone',     False,                    "True iff copy's cost center info is visible to anyone (= no perms required)")
     _svd(config, False, 'default_go_back_link_name',            'Go back to searching.', "Name of link displayed when filtering books/copies/...")
-    _svd(config, True , 'display_tips',                         False,                   "True iff tips are visible")
+    _svd(config, True , 'display_tips',                         True,                   "True iff tips are visible")
     _svd(config, False, 'display_only_editable_config_options', True,                   "True iff user see only editable options.")
     return config

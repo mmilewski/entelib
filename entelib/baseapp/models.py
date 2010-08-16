@@ -407,7 +407,8 @@ class Reservation(models.Model):
           self.when_reserved  == other.when_reserved and \
           self.who_cancelled  == other.who_cancelled and \
           self.when_cancelled == other.when_cancelled and \
-          self.active_since   == other.active_since
+          self.active_since   == other.active_since and \
+          self.send_requested == other.send_requested
 
 
 class Rental(models.Model):

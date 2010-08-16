@@ -1,49 +1,77 @@
-{% extends 'base_with_top_menu.html' %}
+{% extends 'base_with_listing.html' %}
 
 {% block title %}User reservations{% endblock %}
 
 {% block header %}User reservations{% endblock %}
 
-{% block content %}
-
-<p class="user_name" style="font-weight:bold;">{{ first_name }} {{ last_name }}<br />
-<span class="email">{{ email|urlize }}</span></p>
-<p class="message">{{ message }}</p>
-
-<ul class='spaces'>
-    {% for reservation in reservations %}
-        <li>
-            <p><b><a href='{{reservation.url}}'> {{ reservation.title }}</a></b>, {{ reservation.authors|join:', ' }}</p>
-            {% if can_rent %}
-                <form action='.' method='post'>
-                    <input type='hidden' name='rent' value='{{ reservation.id }}'>
-                    <input type='submit' name='action' value='Rent' {% if reservation.rental_impossible %} disabled {% endif %}>
-                </form>
-            {% endif %}
-            {% if can_cancel %}
-                <form action='.' method='post'>
-                    <input type='hidden' name='cancel' value='{{ reservation.id }}'>
-                    <input type='submit' name='action' value='Cancel'>
-                </form>
-            {% endif %}
-            <ul>
-                <li><span class="label">Status</span>: {% firstof reservation.rental_impossible "Ready" %}</li>
-                <li><span class="label">Shelf mark</span>: {{ reservation.shelf_mark }}</li>
-                <!-- <li><span class="label">Authors</span>: {{ reservation.authors|join:', ' }}</li> -->
-                <li><span class="label">Date range</span>: {{ reservation.from_date }} &ndash; {{ reservation.to_date }}</li>
-            </ul>
-        </li>
-    {% empty %}
-        <b>No reservations.</b>
-    {% endfor %}
-</ul>
+{% block header_row %}
+    <th>
+        {% if not can_rent %}
+            Send
+        {% endif %}
+    </th>
+    <th>ID</th>
+    <th>State</th>
+    <th>Title</th>
+    <th>Authors</th>
+    <th>From</th>
+    <th>To</th>
+    <th>Location</th>
+    {% if can_cancel %}
+        <th></th>
+    {% endif %}
+{% endblock %}
 
 
-<p>
-<a href='archive/'>Show archive</a>
-<p>
-<a href='new/'>Rent something else.</a>
-<p>
-<a href='{{ cancel_all_url }}'>Cancel all reservations</a>
+{% block item_row %}
+    <td> 
+        <form action='.' method='post'>
+            {% if row.can_rent %} 
+                <input type='hidden' name='rent' value='{{ row.id }}'>
+                <input type='submit' name='action' value='Rent' {% if row.rental_impossible %} disabled {% endif %}>
+            {% else %}
+                {% if row.send_requested %}
+                    Shipment requested
+                {% else %}
+                    <input type='hidden' name='send' value='{{ row.id }}'>
+                    <input type='submit' name='action' value='Send me'>
+                {% endif %}
+            {% endif %} 
+        </form>
+    </td>
+    <td>
+        <b>{{ row.shelf_mark }}</b>
+    </td> <td>
+        {% firstof row.rental_impossible "Ready" %}
+    </td> <td>
+        {{ row.title }}
+    </td> <td>
+        {{ row.authors|join:', ' }}
+    </td> <td>
+        {{ row.from_date }}
+    </td> <td>
+        {{ row.to_date }}
+    </td> <td>
+        {{ row.location }}
+    </td>
+    {% if can_cancel %}
+        <td>
+            <form action='.' method='post'>
+                <input type='hidden' name='cancel' value='{{ row.id }}'>
+                <input type='submit' name='action' value='Cancel'>
+            </form>
+        </td>
+    {% endif %}
+{% endblock %}
+
+
+{% block after_table %}
+    <p>
+    <a href='archive/'>Show archive</a>
+    <p>
+    <a href='new/'>Rent something else.</a>
+    <p>
+    <a href='{{ cancel_all_url }}'>Cancel all reservations</a>
 
 {% endblock %}
+

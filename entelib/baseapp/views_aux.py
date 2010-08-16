@@ -410,6 +410,8 @@ def rent(reservation, librarian):
     '''
     if not librarian.has_perm('baseapp.add_rental'):
         raise PermissionDenied
+    if not librarian in reservation.book_copy.location.maintainer.all():
+        raise PermissionDenied('One can only rent from location one maintains')
     if not is_reservation_rentable(reservation):
         raise PermissionDenied('Reservation not rentable.')
     rental = Rental(reservation=reservation, who_handed_out=librarian, start_date=datetime.now())
@@ -429,6 +431,8 @@ def return_rental(librarian, rental_id):
     # not everyone can return book
     if not librarian.has_perm('baseapp.change_rental'):
         raise PermissionDenied
+    if not librarian in reservation.book_copy.location.maintainer.all():
+        raise PermissionDenied('One can only rent/return from location one maintains')
 
     returned_rental = Rental.objects.get(id=rental_id)
     # can't return a rental twice
@@ -544,7 +548,6 @@ def show_user_reservations(request, user_id=False):
                 'last_name'      : user.last_name,
                 'email'          : user.email,
                 'cancel_all_url' : 'cancel-all/',
-                'can_rent'       : request.user.has_perm('baseapp.add_rental'),
                 'can_cancel'     : (request.user == user and user.has_perm('baseapp.change_own_reservation'))\
                                    or\
                                    request.user.has_perm('baseapp.change_reservation'),
@@ -563,7 +566,7 @@ def show_user_reservations(request, user_id=False):
             context.update({'message' : 'Successfully rented until ' + str(reservation.end_date)})
 
         # if user is wants to cancel reservation:
-        if 'cancel' in post:
+        elif 'cancel' in post:
             try:
                 reservation = Reservation.objects.get(id=post['cancel'])
             except Reservation.DoesNotExist:
@@ -571,13 +574,20 @@ def show_user_reservations(request, user_id=False):
             # cancel reservation
             cancel_reservation(reservation, request.user)
             context.update({'message' : 'Cancelled.'})  # TODO: maybe we want undo option for that
+        elif 'send' in post:
+            try:
+                reservation = Reservation.objects.get(id=post['send'])
+            except Reservation.DoesNotExist:
+                return render_not_found(request, item_name='Reservation')
+            reservation.send_requested = True
+            reservation.save()
 
     # find user active reservations
     user_reservations = Reservation.objects.filter(for_whom=user)\
                                            .filter(Q_reservation_active)
     # prepare user reservations
     reservation_list = [ {'id' : r.id,
-                          'url' : unicode(r.id) + u'/',
+                          # 'url' : unicode(r.id) + u'/',
                           'book_copy_id' : r.book_copy.id,
                           'shelf_mark' : r.book_copy.shelf_mark,
                           'rental_impossible' : '' if is_reservation_rentable(r) else reservation_status(r),
@@ -585,8 +595,12 @@ def show_user_reservations(request, user_id=False):
                           'authors' : [a.name for a in r.book_copy.book.author.all()],
                           'from_date' : r.start_date,
                           'to_date' : r.end_date,
+                          'location' : unicode(r.book_copy.location),
+                          'can_rent' : request.user.has_perm('baseapp.add_rental') and \
+                                       request.user in r.book_copy.location.maintainer.all(),
+                          'send_requested' : r.send_requested,
                          } for r in user_reservations]
-    context.update({'reservations' : reservation_list})
+    context.update({'rows' : reservation_list})
 
     return render_response(request, 'user_reservations.html', context)
 
