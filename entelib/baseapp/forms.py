@@ -623,8 +623,9 @@ class BookForm(ModelForm):
 class BookCopyForm(ModelForm):   
     class Meta:
         model = BookCopy
+        exclude = ('book',)
 
     def __init__(self, *args, **kwargs):
         super(BookCopyForm, self).__init__(*args, **kwargs)
-        self.fields['book'].widget.attrs['readonly'] = True
-        self.fields['book'].widget.attrs['disabled'] = True
+        # self.fields['book'].widget.attrs['readonly'] = True
+        # self.fields['book'].widget.attrs['disabled'] = True

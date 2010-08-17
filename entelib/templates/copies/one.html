@@ -21,14 +21,18 @@
     {% if perms.baseapp.add_bookcopy %}
     <div class="form_copyWrapper">
         <!-- <h2 id="new_copy">New bookcopy</h2> -->
+        <div class="book_title">
+          <span class="label">Related book</span>: {{ book.title }}
+        </div>
+        
         <form method="POST" action="." name="Fcopy">
             {{ form.non_field_errors }}
             <table>
                 {% for field in form %}
                     <tr>
-                        <td>{%if field.label_tag|removetags:"label" %}{{ field.label_tag }}:{%endif%} 
-                        <br />
-                        {{ field }}</td>
+                        <td>
+                            {{ field.label_tag }}: <br /> {{ field }}
+                        </td>
                         <td>{{ field.errors }}</td>
                     </tr>
                 {% endfor %}
