@@ -3,6 +3,7 @@ from django.test import TestCase
 from baseapp.tests.page_logger import PageLogger
 from baseapp.utils import pprint
 from dbconfigfiller import fill_config
+from baseapp.config import Config
 
 
 class RenderingReportsTest(TestCase, PageLogger):
@@ -10,10 +11,11 @@ class RenderingReportsTest(TestCase, PageLogger):
     Tests rendering reports. 
     '''
 
-    fixtures = ['rentals_reservations.json']
+    fixtures = ['rentals_reservations.json', 'small_db-configuration.json', 'small_db-groups.json']
 
     def setUp(self):
-        self.config = fill_config()
+        # self.config = fill_config()
+        self.config = Config()
         self.login('superadmin', 'superadmin')
     
     def get_post_data_for_report_type(self, report_type):

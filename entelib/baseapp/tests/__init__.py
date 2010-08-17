@@ -2,7 +2,7 @@
 
 PEP8_TEST_ENABLED = False
 
-from baseapp.tests.dbconfig import *
+#from baseapp.tests.dbconfig import *
 from baseapp.tests.page_access import *
 from baseapp.tests.custom_user import *
 from baseapp.tests.user_profile import *

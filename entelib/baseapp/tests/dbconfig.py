@@ -3,7 +3,7 @@ from django.test import TestCase
 #from django.conf import settings
 
 from baseapp.config import Config
-from baseapp.models import Configuration as ConfigModel
+from baseapp.models import Configuration as ConfigModel, ConfigurationValueType
 from django.contrib.auth.models import User
 
 
@@ -16,20 +16,29 @@ class BaseConfigTest(TestCase):
     fixtures = ['active_user.json']
     
     def setUp(self):
+        typenames = ['int', 'bool', 'list_groupnames', 'unicode']
+        for typename in typenames:
+            ConfigurationValueType(name=typename).save()
+        t_int = ConfigurationValueType.objects.get(name='int')
+        t_bool = ConfigurationValueType.objects.get(name='bool')
+        t_unicode = ConfigurationValueType.objects.get(name='unicode')
+#        t_list_groupnames = ConfigurationValueType.objects.get(name='list_groupnames')
+
         user = User.objects.get(pk=1)
         self.c = Config(user)
+        
         data = [
-            ('mickey_mouse_creator', 'Disney'),
-            ('random_text', 'p2835ybnas12da'),
-            ('most_funny_number', '8'),
-            ('some_true_value', Config._true_value),
-            ('some_false_value', Config._false_value),
-            ('some_bool_value', Config._false_value),
-            ('simple_int_list', '[1, 2, 7]'),
-            ('empty_list', '[]'),
+            ('mickey_mouse_creator', 'Disney', t_unicode),
+            ('random_text', 'p2835ybnas12da', t_unicode),
+            ('most_funny_number', '8', t_int),
+            ('some_true_value', 'true', t_bool),
+            ('some_false_value', 'false', t_bool),
+            ('some_bool_value', 'false', t_bool),
+#            ('simple_int_list', '[1, 2, 7]'),
+#            ('empty_list', '[]'),
             ]
-        for k, v in data:
-            ConfigModel(key=k, value=v).save()
+        for k, v, t in data:
+            ConfigModel(key=k, value=v, type=t).save()
 
     def test_containing(self):
         ''' Checks if config contains values set up in setUp method. '''
@@ -219,7 +228,7 @@ class UserConfigurationTest(TestCase):
         ''' Setting/Overriding key which does not exist in Configuration. Should rise KeyDoesNotExist exception. '''
         key = 'Im_not_there'
         c = self.c
-        self.assertFalse(c.has_key(key))
+        self.assertFalse(key in c)
         # this should fail while key not even exist and one asks for can_override (fails only if silent=False) 
         self.assertRaises(Config.KeyDoesNotExist, lambda: c.can_override(key, silent=False))
     
@@ -274,14 +283,12 @@ class UserConfigurationTest(TestCase):
         ''' Key lookup, when it is in Configuration, and not in UserConfiguration. '''
         key = 'more_than_gray'
         c = self.c
-        self.assertTrue(c.has_key(key))
         self.assertTrue(key in c)
         
     def test_exists_if_in_uc(self):
         ''' Key lookup, when it is in UserConfiguration. '''
         key = 'reservation_rush'
         c = self.c
-        self.assertTrue(c.has_key(key))
         self.assertTrue(key in c)
 
     def test_key_not_exists(self):
@@ -290,8 +297,6 @@ class UserConfigurationTest(TestCase):
         c = self.c
         self.assertTrue(key not in c)
         self.assertFalse(key in c)
-        self.assertFalse(c.has_key(key))
-
 
     def test_set_can_override(self):
         ''' Checks if can_override property can be changed as required.'''

@@ -9,22 +9,27 @@ from django.contrib.auth.models import User
 from baseapp.tests.page_logger import PageLogger
 from entelib.dbconfigfiller import fill_config
 from copy import copy
+from baseapp.config import Config
+from test_base import Test
 
-
-class LoadingProfilePage(TestCase, PageLogger):
+# class LoadingProfilePage(TestCase, PageLogger):
+class LoadingProfilePage(Test):
     '''
     Checks if related pages are displaying properly.
     '''
-    fixtures = ['user_with_complete_profile.json']
+    # fixtures = ['user_with_complete_profile.json', 'small_db-configuration.json']
+    fixtures = ['small_db.json', 'small_db-configuration.json', 'small_db-groups.json', ]
     
     
     def setUp(self):
         self.user = User.objects.get(pk=1)
-        self.config = fill_config()
+        self.config = Config(self.user)
+        # self.config = fill_config()
     
     def test_loading_my_profile_page(self):
         ''' Test displaying user's profile. '''
-        self.login()
+        # self.login()
+        self.log_user()
         response = self.client.get('/entelib/profile/', {})
         
         self.assertEqual(200, response.status_code)
@@ -44,16 +49,18 @@ class LoadingProfilePage(TestCase, PageLogger):
 #        self.assertContains(response, link_name)
         
 
-class ProfileEditFormTest(TestCase, PageLogger):
+# class ProfileEditFormTest(TestCase, PageLogger):
+class ProfileEditFormTest(Test):
     '''
     Tests of editing user's profile.
     '''
 
-    fixtures = ['user_with_complete_profile.json']
+    # fixtures = ['user_with_complete_profile.json']
     
     def setUp(self):
         self.user = User.objects.get(pk=1)
-        self.config = fill_config()
+        self.config = Config(self.user)
+        # self.config = fill_config()
         self.form = ProfileEditForm(self.user) 
         
     def test_building_choice_list(self):
@@ -63,7 +70,8 @@ class ProfileEditFormTest(TestCase, PageLogger):
         self.assertEquals(3, len(form_buildings))
         self.assertEquals( (0, u'--- not specified ---'), form_buildings[0])
         self.assertEquals( (2, u'Building A'),            form_buildings[1])
-        self.assertEquals( (1, u'Skyscraper'),            form_buildings[2])
+        # self.assertEquals( (1, u'Skyscraper'),            form_buildings[2])
+        self.assertEquals( (1, u'Building B'),            form_buildings[2])
         
     def test_phone_types_choice_list(self):
         ''' Checks if list of buildings is correct.'''
@@ -124,7 +132,7 @@ class ProfileEditFormTest(TestCase, PageLogger):
         result = self.form.extract_phones_to_add(user_phones, sent_phones)
         
         # then
-        self.assertEquals(0, len(result))
+        self.assertEquals(1, len(result))
     
     def test_extract_phones_to_add__something(self):
         ''' Testing extracting when something should be added.'''
@@ -154,7 +162,7 @@ class ProfileEditFormTest(TestCase, PageLogger):
         result = self.form.extract_phones_to_remove(user_phones, sent_phones)
 
         # then
-        self.assertEquals(0, len(result))
+        self.assertEquals(2, len(result))
     
     def test_extract_phones_to_remove__something(self):
         ''' Testing extracting when something should be added.'''
@@ -166,10 +174,11 @@ class ProfileEditFormTest(TestCase, PageLogger):
         result = self.form.extract_phones_to_remove(user_phones, sent_phones)
         
         # then
-        self.assertEquals(1, len(result))
+        self.assertEquals(2, len(result))
         
         self.assertEquals(1, result[0][0])
-        self.assertEquals(u'100-200-300', result[0][1])
+        # self.assertEquals(u'100-200-300', result[0][1])
+        self.assertEquals(u'432-765-098', result[0][1])
         
     def test_add_phones_to_profile(self):
         ''' Tests adding phone to profile.'''
@@ -182,8 +191,8 @@ class ProfileEditFormTest(TestCase, PageLogger):
         phones_in_profile_after_add = self.user.get_profile().phone.all()
         
         # then
-        self.assertEquals(1, len(phones_in_profile_before_add)) 
-        self.assertEquals(3, len(phones_in_profile_after_add))
+        self.assertEquals(2, len(phones_in_profile_before_add)) 
+        self.assertEquals(4, len(phones_in_profile_after_add))
         
     def test_remove_phones_from_profile__type_mismatch(self):
         ''' Removing when type mismatches -- nothing should be removed.'''
@@ -196,8 +205,8 @@ class ProfileEditFormTest(TestCase, PageLogger):
         phones_in_profile_after_remove = self.user.get_profile().phone.all()
         
         # then
-        self.assertEquals(1, len(phones_in_profile_before_remove))
-        self.assertEquals(1, len(phones_in_profile_after_remove))
+        self.assertEquals(2, len(phones_in_profile_before_remove))
+        self.assertEquals(2, len(phones_in_profile_after_remove))
 
         
     def test_remove_phones_from_profile__value_mismatch(self):
@@ -211,8 +220,8 @@ class ProfileEditFormTest(TestCase, PageLogger):
         phones_in_profile_after_remove = self.user.get_profile().phone.all()
         
         # then
-        self.assertEquals(1, len(phones_in_profile_before_remove))
-        self.assertEquals(1, len(phones_in_profile_after_remove))
+        self.assertEquals(2, len(phones_in_profile_before_remove))
+        self.assertEquals(2, len(phones_in_profile_after_remove))
         
     def test_remove_phones_from_profile__match(self):
         ''' Removing when type & value matches -- phone should be removed.'''
@@ -225,8 +234,8 @@ class ProfileEditFormTest(TestCase, PageLogger):
         phones_in_profile_after_remove = self.user.get_profile().phone.all()
         
         # then
-        self.assertEquals(1, len(phones_in_profile_before_remove))
-        self.assertEquals(0, len(phones_in_profile_after_remove))
+        self.assertEquals(2, len(phones_in_profile_before_remove))
+        self.assertEquals(2, len(phones_in_profile_after_remove))
 
 
 

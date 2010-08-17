@@ -91,7 +91,7 @@ def edit_config_option(request, option_key, is_global=False, edit_form=ConfigOpt
     else:
         config = Config(user)
 
-    redirect_response_here = HttpResponseRedirect(settings.LOGIN_URL + '?next=' + request.get_full_path()) 
+    redirect_response_here = HttpResponseRedirect(settings.LOGIN_URL + '?next=' + request.get_full_path())
     if is_global and (not aux.can_edit_global_config(user)):  # edit global without perms
         return redirect_response_here
     if (not is_global) and (not config.can_override(option_key)):         # edit local unoverridable key
@@ -113,18 +113,19 @@ def edit_config_option(request, option_key, is_global=False, edit_form=ConfigOpt
         }
     # redisplay form
     if request.method == 'POST':
-        form = edit_form(user=user, option_key=option_key, is_global=is_global, data=request.POST, initial=form_initial)
+        form = edit_form(user=user, option_key=option_key, config=config, is_global=is_global, data=request.POST, initial=form_initial)
         if form.is_valid():
             form.save()
-            value = request.POST['value']
-            msg = 'Key %s has now value %s' % (option_key, value)
+#            value = request.POST['value']
+#            print value
+            msg = 'Key %s has now value: %s' % (option_key, config[option_key])
             messages.success(request, msg)
             return HttpResponseRedirect('/entelib/config/')
         else:
             pass
     # display fresh new form
     else:
-        form = edit_form(user=user, option_key=option_key, is_global=is_global, initial=form_initial)
+        form = edit_form(user=user, option_key=option_key, config=config, is_global=is_global, initial=form_initial)
 
     form.option_key = option_key
     form.description = config.get_description(option_key)

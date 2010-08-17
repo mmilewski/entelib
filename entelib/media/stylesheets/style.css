@@ -345,7 +345,7 @@ div.formWrapper th {
 }
 div.formWrapper form.registration_form {
     padding: 1em 0 0 1em;
-    background-image: url(http://www.recipester.org/images/7/7f/Bg-0006.gif);
+    background-image: url('http://www.recipester.org/images/7/7f/Bg-0006.gif');
 }
 
 ul.errorlist {
@@ -455,7 +455,7 @@ div.config_options_wrapper a.global span {
 form.edit_option_form td span.label {
     font-weight: bold;
 }
-form.edit_option_form td input#id_value {
+form.edit_option_form td input#id_value[type="text"] {  /* text input is longer. Checkbox is not. */
     min-width: 25em;
     width: 100%;
 }

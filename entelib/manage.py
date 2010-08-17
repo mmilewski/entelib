@@ -50,4 +50,6 @@ except ImportError:
     sys.exit(1)
 
 if __name__ == "__main__":
+    # import cProfile
+    # cProfile.run('execute_manager(settings)')
     execute_manager(settings)

@@ -29,6 +29,8 @@ CostCenter.objects.all().delete()
 Category.objects.all().delete()
 UserProfile.objects.all().delete()
 User.objects.all().delete()
+Configuration.objects.all().delete()
+ConfigurationValueType.objects.all().delete()
 
 # NOTE: Users are not deleted. Only admin is.
 
@@ -323,12 +325,6 @@ add_librarian()
 add_everyday_user()
 
 
-# fill configuration
-print "Adding config pairs"
-from dbconfigfiller import fill_config
-config = fill_config()
-
-
 # -- POPULATE GROUPS --
 # add few groups
 def readd_group(group_name, perms=[], direct_add=False):
@@ -370,12 +366,19 @@ readd_group('Readers',    perms=readers_perms)
 readd_group('Librarians', perms=librarians_perms)
 readd_group('Admins',     perms=admins_perms, direct_add=True)
 
+
+# fill configuration
+print "Adding config pairs"
+from dbconfigfiller import fill_config
+config = fill_config()      # requires Group model to be filled in (because of config options validation)
+
+
 # add users to default groups
 print "Adding default user to some groups"
-u = User.objects.get(username='admin')
 from baseapp.config import Config
 config=Config()
 
+u = User.objects.get(username='admin')
 for group_name in config.get_list('user_after_registration_groups'):
     u.groups.add(Group.objects.get(name=group_name))
     u.groups.add(Group.objects.get(name="Admins"))
@@ -390,4 +393,3 @@ for group_name in config.get_list('user_after_registration_groups'):
     u.groups.add(Group.objects.get(name="Librarians"))
 
 # -- /POPULATE GROUPS --
-

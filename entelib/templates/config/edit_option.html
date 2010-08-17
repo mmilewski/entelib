@@ -22,18 +22,12 @@
         {% if is_global %}
         <tr><td><span class="label">Description:</span> <br/>{{form.description}} {{form.description.errors}}</td> </tr>
         <tr><td><label for="id_can_override"><span class="label">Can override:</span></label> {{form.can_override}}</td> </tr>
+        <tr><td><span class="label">Global value:</span> <br/>{{ form.value.errors }} {{ form.value }} </td></tr>
         {% else %}
         <tr><td><span class="label">Description:</span> {{option.description|linebreaksbr}} </td> </tr>
         <tr><td><span class="label">Can override:</span> {{option.can_override}} </td> </tr>
+        <tr><td><span class="label">Value:</span> <br/>{{ form.value.errors }} {{ form.value }} </td></tr>
         {% endif %}
-        <tr><td >
-            {% if is_global %}  <span class="label">Global value:</span>
-            {% else %}          <span class="label">Value:</span>
-            {%endif%}
-            {{ form.value.errors }}
-            {{ form.value }}
-        </td></tr>
-        
         <tr> <th></th> <td><input type="submit" value="Save changes"/></td> </tr>
       </tbody>
     </table>

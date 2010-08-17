@@ -22,7 +22,7 @@ class TestWithSmallDB(Test):
     A class to test views. It uses a fixture of a small but complete database dump. 
     By inheriting from Test, it inherits from django.test.TestCase and from baseapp.tests.PageLogger
     '''
-    fixtures = ['small_db.json']
+    fixtures = Test.fixtures
 
 class LoadDefaultConfigTest(TestWithSmallDB):
     pass
@@ -1268,6 +1268,7 @@ class CancelAllMyReserevationsTest(TestWithSmallDB):
         self.assert_nothing_happens(self.url)
 
         # page displayed correctly
+        self.assertEquals([], self.response.redirect_chain)
         self.assertEquals(200, self.response.status_code)
         self.assertContains(self.response, 'Reservations cancelled')
         self.assertTemplateUsed(self.response, 'reservations_cancelled.html')

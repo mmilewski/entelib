@@ -30,6 +30,19 @@ class EmailLog(models.Model):
             )
 
 
+class ConfigurationValueType(models.Model):
+    '''
+    Type of value for key in Configuration.
+    '''
+    name = models.CharField(max_length=CFG.configurationVT_name_len, primary_key=True)
+
+    def __unicode__(self):
+        return '%s' % (self.name,)
+
+    class Meta:
+        unique_together = (('name',),)
+
+
 class Configuration(models.Model):
     '''
     Here all config options are stored as (key, value) pairs.
@@ -41,6 +54,7 @@ class Configuration(models.Model):
     value = models.CharField(max_length=CFG.configuration_value_len)
     description = models.CharField(max_length=CFG.configuration_descirption_len)
     can_override = models.BooleanField(default=True)
+    type = models.ForeignKey(ConfigurationValueType)
 
     class Meta:
         permissions = (
@@ -95,6 +109,8 @@ class PhoneType(models.Model):
     def __unicode__(self):
         return unicode(self.name)
 
+    class Meta:
+        unique_together = (('name',),)
 
 
 class Phone(models.Model):
@@ -225,6 +241,9 @@ class Building(models.Model):
     def __unicode__(self):
         return self.name
 
+    class Meta:
+        unique_together = (('name',),)
+
 
 class Location(models.Model):
     id = models.AutoField(primary_key=True)
@@ -347,6 +366,7 @@ class CostCenter(models.Model):
         permissions = (
             ("list_cost_centers", "Can list cost centers"),
             )
+        unique_together = (('name',),)
 
 
 class BookCopy(models.Model):

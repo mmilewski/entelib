@@ -7,7 +7,7 @@ class Test(TestCase, PageLogger):
     Base class for the rest of tests.
     '''
 
-    fixtures = ['small_db.json']
+    fixtures = ['small_db.json', 'small_db-configuration.json', 'small_db-groups.json', ]
 
     def log_admin(self):
         ''' Logs in admin - with all permissions '''

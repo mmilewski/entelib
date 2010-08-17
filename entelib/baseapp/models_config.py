@@ -14,6 +14,7 @@ emaillog_body_len = 500               # content of email
 configuration_key_len = 60
 configuration_value_len = 256
 configuration_descirption_len = 200
+configurationVT_name_len = 20
 
 location_name_len = 30
 location_remarks_len = 70

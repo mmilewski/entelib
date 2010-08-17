@@ -7,14 +7,6 @@
 {% block header %}List of configurable options{% endblock %}
 
 {% block content %}
-    {% if display_tips %}
-    <div class="tip">
-      <ol>
-        <li><p>0 and 1 usually mean boolean False and True. In general option's name should tell you what is it's type.</p></li>
-      </ol>
-    </div>
-    {% endif %}
-
     {% go_back_link "Go back" %}
 
     <div class="config_options_wrapper">
@@ -28,7 +20,7 @@
                 {%if can_edit_global_config%}<a href="{{opt.key}},global/" class="global"><span>edit global</span></a> {%endif%}
               </div>
             </dt>
-            {% if opt.can_override%}
+            {% if opt.can_override %}
                 <dd class="value"><span class="label">Value</span>: {{opt.value}}</dd>
             {%endif%}
             {% if can_edit_global_config %}

@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from pprint import pprint   # pretty printer
+import logging
 import datetime
 from baseapp.models import User
+
 
 def str_to_date(str, default=None):
     ''' 
@@ -107,3 +109,9 @@ def get_admins():
     users = User.objects.all()
     admins = [u for u in users if u.userprofile.is_admin()]
     return admins
+
+
+def get_logger(name):
+    logger = logging.getLogger(name)
+    # logger.addHandler(logging.StreamHandler())
+    return logger

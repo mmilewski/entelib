@@ -12,6 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import ModelForm
 from django.db.models.query_utils import Q
 import models_config as CFG
+from baseapp.config import ConfigValueTypeHelper
 
 attrs_dict = { 'class': 'required' }
 
@@ -21,15 +22,18 @@ class ConfigOptionEditForm(forms.Form):
     '''
     Form for editing config's option.
     '''
-    def __init__(self, user, option_key, is_global, *args, **kwargs):
+    value        = forms.CharField(required=True, widget=forms.Textarea)
+    can_override = forms.BooleanField(required=False)
+    description  = forms.CharField(required=False, widget=forms.Textarea, max_length=CFG.configuration_descirption_len)
+        
+    def __init__(self, user, option_key, config, is_global, *args, **kwargs):
         super(ConfigOptionEditForm, self).__init__(*args, **kwargs)
         self.user = user
         self.option_key = option_key
         self.is_global = is_global
-
-    value = forms.CharField(required=True)
-    can_override = forms.BooleanField(required=False)
-    description = forms.CharField(required=False, widget=forms.Textarea, max_length=CFG.configuration_descirption_len)
+        self.config = config
+        type = self.config.get_type(self.option_key)
+        self.fields['value'] = ConfigValueTypeHelper().get_form_widget_for_type(type.name)
 
     def clean_description(self):
         if self.is_global:
@@ -42,10 +46,30 @@ class ConfigOptionEditForm(forms.Form):
     def clean_value(self):
         if not 'value' in self.cleaned_data:
             raise forms.ValidationError(u'Value must have any value')
-        return self.cleaned_data['value']
+        config = self.config
+        value = self.cleaned_data['value']
+        type = config.get_type(self.option_key)
+
+        parsers = ConfigValueTypeHelper().get_parsers()
+        
+        for typename, v in parsers.items():
+            if type.name == typename:
+                try:
+                    cast_value = v['parse_fun'](value)
+                except ValueError, e:
+                    if 'error_msg' in v:
+                        msg = v['error_msg']
+                    else:
+                        msg = unicode(e)
+                    raise forms.ValidationError(msg)
+                else:
+                    return cast_value
+        else:
+            raise forms.ValidationError('Unable to verify type. Please contact admin or developer.')
+        return value
 
     def clean(self):
-        config = Config(self.user)
+        config = self.config
         key = self.option_key
         is_global = self.is_global
         if not is_global:
@@ -57,13 +81,12 @@ class ConfigOptionEditForm(forms.Form):
 
     def save(self):
         key = self.option_key
+        config = self.config
         if self.is_global:
-            config = Config()
             config.set_global_value(key, self.cleaned_data['value'])
             config.set_can_override(key, self.cleaned_data['can_override'])
             config.set_description(key, self.cleaned_data['description'])
         else:
-            config = Config(self.user)
             config[key] = self.cleaned_data['value']
 
 
@@ -112,6 +135,7 @@ class BookRequestForm(forms.Form):
     def clean(self):
         config = Config()
         min_info_len = config.get_int('book_request_info_min_len')
+        assert isinstance(min_info_len, int)
         if 'info' in self.cleaned_data:
             info_len = len(self.cleaned_data['info'])
             if info_len < min_info_len:

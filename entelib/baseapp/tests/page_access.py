@@ -2,14 +2,17 @@
 from django.test import TestCase
 from page_logger import *
 from entelib.dbconfigfiller import fill_config
+from baseapp.config import Config
+from test_base import Test
 
-
-class PageAccessTest(TestCase, PageLogger):
+# class PageAccessTest(TestCase, PageLogger):
+class PageAccessTest(Test):
     '''
     Checks whether different urls where rendered properly.
     '''
     def setUp(self):
-        self.config = fill_config()
+        # self.config = fill_config()
+        self.config = Config()
 
     def test_index_page(self):
         ''' Tests correct redirection of index pages. '''
@@ -29,7 +32,8 @@ class PageAccessTest(TestCase, PageLogger):
         self.failUnlessEqual(302, self.get_status_code('/entelib/admin/doc'))
 
     def test_user_list(self):
-        self.login()
+        # self.login()
+        self.log_lib()
         self.failUnlessEqual(200, self.get_status_code('/entelib/users/'))
         
         ''' Test listing users. '''
@@ -39,7 +43,8 @@ class PageAccessTest(TestCase, PageLogger):
         ''' Tests listing books. '''
         url = '/entelib/books/'
         self.assert_(page_not_accessed(self.get_response(url)))     # no access for anonymous user
-        self.login()                                                # but if we log in...
+        # self.login()
+        self.log_user()
         self.assert_(page_accessed(self.get_response(url)))         # ... access is granted.
 
 
@@ -47,7 +52,8 @@ class PageAccessTest(TestCase, PageLogger):
         ''' Shows first book '''
         url = '/entelib/books/0/'
         self.failUnlessEqual(302, self.get_status_code(url))  # redirect to login
-        self.login()
+        # self.login()
+        self.log_user()
         self.failUnlessEqual(404, self.get_status_code(url))  # now we see there no such book
 
     def test_login_urls_redirected_if_no_login(self):
