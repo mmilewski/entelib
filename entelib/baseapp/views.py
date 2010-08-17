@@ -216,7 +216,8 @@ def register(request, action, registration_form=RegistrationForm, extra_context=
                 form = registration_form(data=request.POST, files=request.FILES)
                 if form.is_valid():
                     new_user = form.save()
-                    messages.success(request, 'User registered, wait for activation.')
+                    messages.success(request, 'Registered as %s, wait for activation.' % new_user.username)
+                    mail.user_registered(new_user)
                     return HttpResponseRedirect('/entelib/')
             # display form
             else:
@@ -983,3 +984,18 @@ def show_location(request, loc_id, edit_form=LocationForm):
         }
     
     return render_response(request, 'locations/one.html', context)
+    
+
+@permission_required('auth.change_user')
+def activate_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    if not user.is_active:
+        profile = user.userprofile
+        profile.awaits_activation = False
+        profile.save()
+        user.is_active = True
+        user.save()
+        mail.user_activated(user)
+        return render_response(request, 'registration/user_activated.html')
+    else:
+        return render_response(request, 'registration/user_already_active.html')

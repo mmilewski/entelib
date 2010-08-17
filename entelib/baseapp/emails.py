@@ -5,6 +5,7 @@ from django.core.mail import send_mail as django_send_mail
 from baseapp.models import Book, BookCopy, User, Reservation, EmailLog
 from datetime import date, timedelta
 from config import Config
+from baseapp.utils import get_admins
 
 
 # _from_address = Config().get_str('mail_sender_address')   # is this one incorrect?
@@ -54,9 +55,9 @@ def default_email(recipients, template, context, subject=None, sender=None):
 def send_request_to_send_with_internal_post(reservation):
     recipients = list(reservation.book_copy.location.maintainer.all())
     template = 'email/send_with_internal_post_request'
-    context = {'user' : reservation.for_whom,
+    context = Context({'user' : reservation.for_whom,
                'reservation' : reservation,
-              }
+              })
     default_email(recipients, template, context, subject='Internal-post-send request')
 
 
@@ -108,3 +109,32 @@ def made_rental(rental):
 def _make_recipient_from_user(user_instance):
     u = user_instance
     return u'%s %s <%s>' % (u.first_name, u.last_name, u.email)
+
+
+def user_registered(user):
+    '''
+    Desc:
+        Send confirmation message to freshly registered user and notifies admin.
+    Arg:
+        user is User object
+    '''
+    tpl_for_user = 'email/registered'
+    tpl_for_admin = 'email/activate'
+    ctx = Context({'user' : user})
+    reader = _make_recipient_from_user(user)
+    default_email([reader], tpl_for_user, ctx)
+    default_email(map(_make_recipient_from_user, get_admins()), tpl_for_admin, ctx)
+
+
+def user_activated(user):
+    '''
+    Desc:
+        Send notification to freshly activated user
+    Arg:
+        user is User object
+    '''
+    tpl = 'email/activated'
+    ctx = Context({'user' : user})
+    recipient = _make_recipient_from_user(user)
+    default_email([recipient], tpl, ctx)
+    

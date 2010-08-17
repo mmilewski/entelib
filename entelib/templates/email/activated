@@ -1,0 +1,2 @@
+Congratulations {{ user.first_name }} {{ user.last_name }}, your account has been activated, you can use the library with no limitations.
+For login use username {{ user.username }} and password you typed at registration.

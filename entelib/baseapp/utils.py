@@ -2,6 +2,7 @@
 
 from pprint import pprint   # pretty printer
 import datetime
+from baseapp.models import User
 
 def str_to_date(str, default=None):
     ''' 
@@ -100,3 +101,9 @@ def order_asc_by_key(key):
     
 def order_desc_by_key(key):
     return lambda a,b:  1 if a[key] < b[key] else (-1 if a[key] > b[key] else 0)
+
+
+def get_admins():
+    users = User.objects.all()
+    admins = [u for u in users if u.userprofile.is_admin()]
+    return admins

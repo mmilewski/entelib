@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from baseapp.utils import pprint
 from django.db import models
 from django.contrib.auth.models import User, Group  #, UserManager, Permission
 import models_config as CFG
@@ -127,6 +128,7 @@ class UserProfile(models.Model):
     shoe_size = models.PositiveIntegerField(null=True, blank=True)  # :)
     phone = models.ManyToManyField(Phone, null=True, blank=True)
     building = models.ForeignKey('Building', null=True, blank=True)
+    awaits_activation = models.BooleanField()
 
     class Meta:
         permissions = (
@@ -136,6 +138,17 @@ class UserProfile(models.Model):
             ('list_reports', 'Can list reports'),     # FIXME: this shouldn't be here, but I don't know where is the right place for that, since no Report model is defined
         )
         unique_together = (('user',),)
+
+    def __init__(self, *args, **kwargs):
+        '''
+        When new user is created we want him to not to be able to login yet. This is achieved by setting User.is_active to False.
+        But sometimes we deactivate user and set his User.is_active to False as well. So, to avoid confiusion, new users' field 
+        awaits_activation is set to True. Later on, when he gets activated, the field will be set to False, so when he get deactivated
+        he is not regarded the same way as new users - admin won't see him when listing users to activate. This will work best with
+        database trigger setting awaits_activation to False when is_active is set to False.
+        '''
+        models.Model.__init__(self, *args, **kwargs)
+        self.awaits_activation = True
 
     def __unicode__(self):
         return u"%s's profile" % self.user.username

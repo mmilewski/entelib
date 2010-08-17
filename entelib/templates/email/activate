@@ -1,0 +1,3 @@
+{{ user.first_name }} {{ user.last_name }} has requested acces to library.<br />
+
+Activate him at http://entelib.nsn/users/{{ user.id }}/acivate/.

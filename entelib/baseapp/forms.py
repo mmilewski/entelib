@@ -502,13 +502,13 @@ class RegistrationForm(forms.Form):
     Subclasses should feel free to add any additional validation they need, but should
     either preserve the base ``save()``
     '''
-    username = forms.RegexField(regex=r'^\w+$',
-                                min_length=3,
-                                max_length=30,
-                                widget=forms.TextInput(attrs=attrs_dict),
-                                label=(u'Username'),
-                                help_text=r'Can contain only alphanumeric values or underscores. Length should be at least 3.'
-                                )
+    # username = forms.RegexField(regex=r'^\w+$',
+    #                             min_length=3,
+    #                             max_length=30,
+    #                             widget=forms.TextInput(attrs=attrs_dict),
+    #                             label=(u'Username'),
+    #                             help_text=r'Can contain only alphanumeric values or underscores. Length should be at least 3.'
+    #                             )
     first_name = forms.CharField(max_length=30,
                                  widget=forms.TextInput(attrs=attrs_dict),
                                  label=(u'First name')
@@ -529,11 +529,14 @@ class RegistrationForm(forms.Form):
         '''
         Validate that the username is alphanumeric and is not already in use.
         '''
+        username = self.cleaned_data['first_name'] + self.cleaned_data['last_name']
         try:
-            user = User.objects.get(username__iexact=self.cleaned_data['username'])
+            user = User.objects.get(username__iexact=username)
         except User.DoesNotExist:
-            return self.cleaned_data['username']
-        raise forms.ValidationError(u'This username is already taken. Please choose another.')
+            self.cleaned_data['username'] = username
+            return username
+        else:
+            raise forms.ValidationError(u'%s is already registered. Please contact administrator.' % username)
 
 
     def clean(self):
@@ -542,6 +545,7 @@ class RegistrationForm(forms.Form):
         Note that an error here will end up in ``non_field_errors()`` because
         it doesn't apply to a single field.
         '''
+        self.clean_username()
         if 'password1' in self.cleaned_data and 'password2' in self.cleaned_data:
             if self.cleaned_data['password1'] != self.cleaned_data['password2']:
                 raise forms.ValidationError(u'You must type the same password each time.')

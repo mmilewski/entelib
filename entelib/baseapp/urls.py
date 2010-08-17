@@ -32,6 +32,7 @@ urlpatterns = patterns(
     url(r'^users/$', view.show_users, name="user_all"),
     url(r'^users/add/$', view.add_user, name="user_add"),
     url(r'^users/(\d+)/$', view.show_user, name="user_one"),
+    url(r'^users/(\d+)/activate/$', view.activate_user, name="activate_user"),
     (r'^users/(\d+)/reservations/$', view.show_user_reservations),
     (r'^users/(\d+)/reservations/archive/$', view.show_user_reservation_archive),
     (r'^users/(\d+)/reservations/(\d+)/$', view.show_user_reservation),
