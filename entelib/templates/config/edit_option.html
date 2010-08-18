@@ -1,14 +1,10 @@
 {% extends 'base_with_top_menu.html' %}
 
-{% load go_back_link %}
-
 {% block title %}Edit config option{% endblock %}
 
 {% block header %}Edit {%if is_global%}global {%endif%}config option - {{form.option_key}}{% endblock %}
 
 {% block content %}
-
-{% go_back_link "Go back" %}
 
 {% if form %}
 <div class="formWrapper">

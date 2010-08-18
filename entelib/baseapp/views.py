@@ -192,6 +192,8 @@ def register(request, action, registration_form=RegistrationForm, extra_context=
             return HttpResponseRedirect('/entelib/register/newuser/')
         if action == 'newactiveuser':
             # commit
+            if not request.user.has_perms(['auth.change_user', 'auth.add_user']):
+                return render_forbidden(request)
             if request.method == 'POST':
                 form = registration_form(data=request.POST, files=request.FILES)
                 if form.is_valid():
@@ -611,7 +613,7 @@ def show_users(request):
         context['buildings'][building_index].update({'selected' : True})
 
         context.update({
-            'users'            : user_list,
+            'rows'            : user_list,
             'search'           : search_data,
             'non_found'        : not len(user_list),  # if no users was found were pass True
             'from_my_building' : request_from_my_building,

@@ -1,3 +1,3 @@
-{{ user.first_name }} {{ user.last_name }} has requested acces to library.<br />
+{{ user.first_name }} {{ user.last_name }} has requested access to library.<br />
 
-Activate him at http://entelib.nsn/users/{{ user.id }}/acivate/.
+Activate him at http://entelib.nsn/users/{{ user.id }}/activate/.

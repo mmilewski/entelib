@@ -1,15 +1,11 @@
 {% extends 'base_with_top_menu.html' %}
 
-{% load go_back_link %}
-
 {% block title %}Book's details{% endblock %}
 
 {% block header %}Book's details{% endblock %}
 
 {% block content %}
 <div class="book_one">
-    {% go_back_link "Go back" %}
-
     <p class="links">
       <a href="{% url book_all %}">Show all books</a> 
       {%if is_updating%}<a href="{% url book_one book.id %}">Show this book</a>{% endif %}

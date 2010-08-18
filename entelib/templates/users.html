@@ -1,4 +1,4 @@
-{% extends 'base_with_top_menu.html' %}
+{% extends 'base_with_listing.html' %}
 
 {% load go_back_link %}
 
@@ -6,24 +6,24 @@
 
 {% block header %}Find user{% endblock %}
 
-{% block content %}
+{% block before_table %}
     <div class='content_form'>
         <form action='.' method='post' name="Fusers">
             <table>
                 <tr>
                     <td>First name: </td>
-                    <td><input type='text' name='first_name' value='{{ search.first_name }}'></td>
+                    <td><input type='text' tabindex='2' name='first_name' value='{{ search.first_name }}'></td>
                 </tr><tr>
                     <td>Last name: </td>
-                    <td><input type='text' name='last_name' value='{{ search.last_name }}'></td>
+                    <td><input type='text' tabindex='1' name='last_name' value='{{ search.last_name }}'></td>
                 </tr><tr>
                     <td>Email: </td>
-                    <td><input type='text' name='email' value='{{ search.email|urlize }}'></td>
+                    <td><input type='text' tabindex='3' name='email' value='{{ search.email|urlize }}'></td>
                 </tr><tr>
                 </tr><tr>
                     <td>Building:</td>
                     <td>
-                        <select name="building">
+                        <select name="building" tabindex='4' >
                             {% for building in buildings %}
                                 <option value={{ building.id }} {% if building.selected %} selected='selected' {% endif %} >
                                     {{ building.name }}
@@ -32,21 +32,21 @@
                         </select>
                     </td>
                     <td>
-                        <input type='checkbox' name='from_my_building' value='checked' {% if from_my_building %} checked='checked' {% endif %} >
+                        <input type='checkbox' name='from_my_building' value='checked' tabindex='5' {% if from_my_building %} checked='checked' {% endif %} >
                         From my building 
                     </td>
                 </tr><tr>
                     <!-- <td></td> -->
                     <td> </td>
                     <td>
-                        <input type='submit'  name='action' value='Search'>
+                        <input type='submit'  name='action' value='Search' tabindex='5' >
                     </td>
                 </tr>
             </table>
         </form>
         
         <script type="text/javascript">
-            document.Fusers.first_name.focus();
+            document.Fusers.last_name.focus();
         </script>
     </div>
 
@@ -55,16 +55,31 @@
       <a href="/entelib/users/add/">Add new user</a>
     </div>
     {% endif %}
-    
-    <div style='margin-top: 1em'>
-        <ul class='spaces'>
-            {% for user in users %}
-                <li><b><a href='{{ user.url }}'>{{user.username}}, {{ user.first_name }} {{ user.last_name }} ({{ user.email }})</a></b></li>
-            {% endfor %}
-            {% if non_found %} 
-                No users found.
-            {% endif %}
-        </ul>
+{% endblock before_table %}
+
+
+{% block header_row %}
+    <th>Username</th>
+    <th>First name, last name</th>
+    <th>Email</th>
+{% endblock header_row %}
+
+
+{% block item_row %}
+        <td>
+            <a href='{{ row.url }}'>{{ row.username }}</a>
+        </td> <td>
+            <a href='{{ row.url }}'>{{ row.first_name }} {{ row.last_name }}</a>
+        </td> <td>
+            <a href='mailto:{{row.email}}'>{{ row.email }}</a>
+        </td>
+{% endblock item_row %}
+
+
+{% block after_table %}
+    {% if non_found %} 
+        <p><b>No users found.</b></p>
+    {% else %}
         {% go_back_link %}
-    </div>
+    {% endif %}
 {% endblock %}

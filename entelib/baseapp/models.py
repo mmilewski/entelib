@@ -158,10 +158,10 @@ class UserProfile(models.Model):
     def __init__(self, *args, **kwargs):
         '''
         When new user is created we want him to not to be able to login yet. This is achieved by setting User.is_active to False.
-        But sometimes we deactivate user and set his User.is_active to False as well. So, to avoid confiusion, new users' field 
-        awaits_activation is set to True. Later on, when he gets activated, the field will be set to False, so when he get deactivated
+        But sometimes we deactivate user and set his User.is_active to False as well. So, to avoid confusion, new users' field 
+        awaits_activation is set to True. Later on, when he gets activated, the field will be set to False, so when he gets deactivated
         he is not regarded the same way as new users - admin won't see him when listing users to activate. This will work best with
-        database trigger setting awaits_activation to False when is_active is set to False.
+        database trigger setting awaits_activation to False when is_active is set to True.
         '''
         models.Model.__init__(self, *args, **kwargs)
         self.awaits_activation = True
