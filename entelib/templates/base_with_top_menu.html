@@ -21,7 +21,8 @@
           <li>
             Work
               <ul>
-                {% if user.get_profile.is_librarian %}    <li><a href="/entelib/shipment">    Shipment requests</a></li>  {% endif %}
+                {% if user.get_profile.is_librarian %}    <li><a href="/entelib/shipment">              Shipment requests</a></li>    {% endif %}
+                {% if user.get_profile.is_librarian %}    <li><a href="/entelib/current_reservations/"> Current reservations</a></li> {% endif %}
               </ul>
           </li>
         {% endif %}

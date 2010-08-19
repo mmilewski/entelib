@@ -1006,34 +1006,9 @@ def activate_user(request, user_id):
 
 @permission_required('baseapp.add_rental')
 def show_shipment_requests(request):
-    context = {}
-    locations = request.user.location_set.all()  # locations maintained by user
-    reservations_to_send = Reservation.objects.filter(Q_reservation_active)  \
-                                              .filter(start_date__lte=today()) \
-                                              .filter(book_copy__location__in=locations)
-    if request.method == 'POST':
-        post = request.POST
-        reservation = get_object_or_404(Reservation, id=post['reservation_id'])
-        if 'rent' in post:
-            user = reservation.for_whom
-            Rental(reservation=reservation, start_date=date.today(), who_handed_out=request.user).save()
-            context.update({'success_msg' : 'Rented %s (%s) to %s.' % \
-                (reservation.book_copy.book.title, reservation.book_copy.shelf_mark, aux.user_full_name(reservation.for_whom))})
-        if 'cancel' in post:
-            aux.cancel_reservation(reservation, request.user)
-            context.update({'message' : 'Cancelled.'})
-
-    reservation_list = [
-                        { 'id'         : r.id,
-                          'user'       : aux.user_full_name(r.for_whom.id),
-                          'start_date' : r.start_date,
-                          'end_date'   : r.end_date,
-                          'location'   : r.book_copy.location,  # TODO tu być może trzeba dodać unicode(...)
-                          'shelf_mark' : r.book_copy.shelf_mark,
-                          'title'      : r.book_copy.book.title,
-                          'authors'    : [a.name for a in r.book_copy.book.author.all()]
-                        } for r in reservations_to_send if aux.is_reservation_rentable(r) ]
-    context.update({ 'rows' : reservation_list })
-    return render_response(request, 'shipment_requests.html', context)
+    return aux.show_reservations(request, shipment_requested=True)
 
                        
+@permission_required('baseapp.add_rental')
+def show_current_reservations(request, show_all=False):
+    return aux.show_reservations(request, only_rentable=show_all)

@@ -669,7 +669,7 @@ def do_cancel_user_reservations(user, canceller):
 def cancel_all_user_reservations(request, user):
     '''
     Desc:
-        all user's resrvations are cancelled by canceller (who might be user)
+        all user's reservations are cancelled by canceller (who might be user)
     '''
     canceller = request.user
 
@@ -774,3 +774,39 @@ def can_edit_global_config(user):
 
 def internal_post_send_possible(reservation):
     return 'True' if reservation.book_copy.location.maintainer.count() > 0 else False
+
+
+def show_reservations(request, shipment_requested=False, only_rentable=True, all_locations=False):
+    context = {}
+    locations = request.user.location_set.all()  # locations maintained by user
+    reservations = Reservation.objects.filter(Q_reservation_active)
+    if shipment_requested:
+        reservations = reservations.filter(shipment_requested=True)
+    if not all_locations:
+        reservations = reservations.filter(book_copy__location__in=locations)
+    if only_rentable:
+        reservations = [r for r in reservations.filter(start_date__lte=today()) if is_reservation_rentable(r)]
+    if request.method == 'POST':
+        post = request.POST
+        reservation = get_object_or_404(Reservation, id=post['reservation_id'])
+        if 'rent' in post:
+            user = reservation.for_whom
+            Rental(reservation=reservation, start_date=date.today(), who_handed_out=request.user).save()
+            context.update({'message' : 'Rented %s (%s) to %s.' % \
+                (reservation.book_copy.book.title, reservation.book_copy.shelf_mark, user_full_name(reservation.for_whom))})
+        if 'cancel' in post:
+            cancel_reservation(reservation, request.user)
+            context.update({'message' : 'Cancelled.'})
+
+    reservation_list = [
+                        { 'id'         : r.id,
+                          'user'       : user_full_name(r.for_whom.id),
+                          'start_date' : r.start_date,
+                          'end_date'   : r.end_date,
+                          'location'   : r.book_copy.location,
+                          'shelf_mark' : r.book_copy.shelf_mark,
+                          'title'      : r.book_copy.book.title,
+                          'authors'    : [a.name for a in r.book_copy.book.author.all()]
+                        } for r in reservations if is_reservation_rentable(r) ]
+    context.update({ 'rows' : reservation_list })
+    return render_response(request, 'shipment_requests.html', context)
