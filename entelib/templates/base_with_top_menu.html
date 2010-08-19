@@ -9,7 +9,7 @@
 
         {% if can_view_own_profile %}              <li><a href="/entelib/profile/">                My profile</a>       
           <ul>
-            {% if can_view_own_profile %}          <li><a href="/entelib/profile/">                My profile</a></li>        {% endif %}
+            {% if can_view_own_profile %}          <li><a href="/entelib/profile/">                Show my profile</a>        {% endif %}
             {% if can_view_own_profile %}          <li><a href="/entelib/profile/rentals/">        My rentals</a></li>        {% endif %}
             {% if can_view_own_profile %}          <li><a href="/entelib/profile/reservations/">   My reservations</a></li>   {% endif %}
             {% if can_view_own_profile %}          <li><a href="/entelib/profile/config/">         Configuration</a></li>   {% endif %}
@@ -44,7 +44,7 @@
 
 
         
-        {% if user.is_staff %}                 <li><a href="/entelib/config/">                 Global Configuration</a></li>     {% endif %}
+        {% if user.is_staff %}                 <li><a href="/entelib/config/">                 Global configuration</a></li>     {% endif %}
         {% if can_access_admin_panel %}        <li><a href="/entelib/admin/">                  Admin panel</a></li>              {% endif %}
         {% if can_load_default_config %}       <li><a href="/entelib/load_default_config/">Load default config</a></li>          {% endif %}
         {% if can_list_emaillog %}             <li><a href="/entelib/emaillog/">Email logs</a></li>                              {% endif %}

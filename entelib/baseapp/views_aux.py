@@ -14,6 +14,7 @@ from baseapp.utils import pprint
 from baseapp.exceptions import *
 import baseapp.emails as mail
 from django.db.models.aggregates import Min
+import random
 
 config = Config()
 today = date.today
@@ -34,6 +35,7 @@ def render_response(request, template, context={}):
                      'can_access_admin_panel' : user.is_staff or user.is_superuser,
                      'display_tips' : config.get_bool('display_tips'),
                      'display_only_editable_config_options' : config.get_bool('display_only_editable_config_options'),
+                     'unique_num' : random.randint(0,9999999999999),
                      })
     # as far as we use perms with following convention, we can pass perms to templates easily:
     # if in-code perm's name is list_book, then template gets can_list_books variable

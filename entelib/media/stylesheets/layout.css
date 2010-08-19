@@ -3,7 +3,7 @@ body, html {
     background-color: white;
     color: black;
     font-family: verdana,arial,helvetica,sans-serif;
-    font-size: 9pt;
+    font-size: 8pt;
 }
 
 #pageWrapper {
@@ -22,6 +22,7 @@ body, html {
     /* border: 1px dotted blue; */
     padding: 10px;
     margin-left: 230px;
+    position: relative;
 }
 
 #footer {

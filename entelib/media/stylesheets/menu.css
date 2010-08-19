@@ -5,12 +5,14 @@ body{behavior:url(/media/stylesheets/cssHoverFix.htc);}
     /* border: 1px dashed gray; */
     width: 220px;
     float: left;
-    margin: 3.6em 0 2em 0;
+    margin: 3.4em 0 2em 0;
     padding: 0 .3em;
+    position: relative;
+    z-index: 2000;
 }
 
 /*Main Menu*/
-#menu ul {margin:0px; padding:0px; background-color:#eee; list-style: none; z-index:10; }
+#menu ul {margin:0px; padding:0px; background-color:#eee; list-style: none;}
 
 #menu ul li {
     height: 2.7em; line-height: 2.7em;
@@ -28,7 +30,9 @@ body{behavior:url(/media/stylesheets/cssHoverFix.htc);}
 #menu ul li:hover {background-color:#FF8400; position:relative;}
  
 /*Sub Menu*/
-#menu ul ul {display:none; position:absolute; left:12em; top:5px; border:#fff solid; border-width:2px; background-color:#ddd; z-index:11; }
+#menu ul ul {display:none; position:absolute; left:11em; top:.5em; /*border:#fff solid; border-width:1px; */ background-color:#ddd;
+             border-left: 4px solid #8010a1;
+            }
 #menu ul li:hover ul {display:block;}
  
 #menu ul ul li { width:20em; float:left; display:inline; border:none;}
@@ -36,5 +40,5 @@ body{behavior:url(/media/stylesheets/cssHoverFix.htc);}
  
 #menu li:hover ul li ul {display:none;}
  
-#menu ul ul li ul {left:18em; background-color:#0099CC;index:12; }
+#menu ul ul li ul {left:18em; background-color:#0099CC;}
 #menu ul ul li:hover ul {display:block;}

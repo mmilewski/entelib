@@ -13,7 +13,7 @@ a[href*="@"] { font-style: italic; }
 
 div.logged_user_info {
     line-height: 1.7em;
-    background-color: #def;
+    background: #def url("/media/images/bluebar.gif") bottom left repeat-x;
     color: #2A4666;
     text-align: right;  vertical-align: top;
     font-size: 8pt;
@@ -194,7 +194,6 @@ div.user_search input#email {   /* users.html */
    margin: 0 auto;
    margin-top: 2em;
    margin-bottom: 0;
-   z-index:1;
 }
 .inner_menu ul {
    margin:0;           padding:0;
