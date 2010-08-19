@@ -5,6 +5,34 @@
 {% block header %}Book's details{% endblock %}
 
 {% block content %}
+
+	<script type="text/javascript">
+	$(function() {
+                {% autoescape off %}
+                var availableTags =  [ {{all_authors}} ]
+                {% endautoescape %}
+        
+		function split(val) {  return val.split(/,\s*/);  }
+		function extractLast(term) {  return split(term).pop();  }
+		
+		$("#ac_authors").autocomplete({
+	                delay: 10,
+	                minLength: 0,
+        
+			source: function(request, response) { response($.ui.autocomplete.filter(availableTags, extractLast(request.term))); },
+			focus: function() { return false; },
+			select: function(event, ui) {
+				var terms = split( this.value );
+				terms.pop();                     // remove the current input
+				terms.push( ui.item.value );     // add the selected item
+				terms.push("");                  // add placeholder to get the comma-and-space at the end
+				this.value = terms.join(", ");
+				return false;
+			}
+		});
+	});
+	</script>
+
 <div class="book_one">
   <div class="inner_menu">
     <ul>
@@ -21,10 +49,15 @@
             <table>
                 {% for field in form %}
                     <tr>
-                        <td>{%if field.label_tag|removetags:"label" %}{{ field.label_tag }}:{%endif%} 
+                        <td>{{ field.label_tag }}:
                         <br />
-                        {{ field }}</td>
-                        <td>{{ field.errors }}</td>
+                        {% if field.label == 'Author' %}
+                            <textarea id="ac_authors" name="author" rows="5">{{ac_authors}}</textarea>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                        {{ field.errors }} </td>
+                        <td></td>
                     </tr>
                 {% endfor %}
                 <tr>

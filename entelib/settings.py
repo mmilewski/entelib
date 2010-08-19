@@ -78,7 +78,7 @@ TEMPLATE_LOADERS = (
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.common.CommonMiddleware',           # see DISALLOWED_USER_AGENTS, APPEND_SLASH, PREPEND_WWW 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -110,7 +110,7 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 MESSAGE_LEVEL = messages.DEBUG
 
 # debug toolbar's settings -- see  http://github.com/robhudson/django-debug-toolbar
-INTERNAL_IPS = ('127.0.0.1', '10.154.4.75', '10.154.7.179', )
+INTERNAL_IPS = ('127.0.0.1', '10.154.4.75', '10.154.7.179', '192.168.1.14')
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
     'SHOW_TOOLBAR_CALLBACK': None,

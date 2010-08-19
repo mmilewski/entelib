@@ -115,3 +115,34 @@ def get_logger(name):
     logger = logging.getLogger(name)
     # logger.addHandler(logging.StreamHandler())
     return logger
+
+
+class AutocompleteHelper(object):
+    def __init__(self, items=[], string=''):
+        '''
+        Args:
+            items -- iterable. List of items that will be converted to string.
+            str -- basestring. String describing list which will be parsed.
+        '''
+        self.items = list(items)
+        self.string = string
+
+    def as_str(self, sep=', ', delim='"'):
+        '''
+        In constructor 'items' should be given.
+        '''
+        items = [ ('%s%s%s' % (delim,i,delim)) for i in self.items ]
+        result = sep.join(items)
+        return result
+
+    def from_str(self, sep=","):
+        '''
+        In constructor 'str' should be given.
+        '''
+        names = self.string
+        names = names.replace("u'", '').replace('u"', '')    # naive method of parsing. How to do it better?
+        names = names.replace('"', '').replace("'", '')
+        names = names.replace('[', '').replace("]", '')
+        list_of_names = names.split(sep)
+        list_of_names = [name.strip() for name in list_of_names if len(name.strip())]
+        return list_of_names

@@ -4,6 +4,7 @@
     {% endif %}
 
     <div class="content_form">
+      <center>
       <div class="date_range">
           <span class="title">Date range:</span> <br />
           <input type="text" maxlength="10" class="datepicker" name="from" value="{{ search.from }}" onClick="showKal(this)" />
@@ -13,5 +14,6 @@
           <input type="submit" name="btn_show" value="Show" />
           <input type="submit" name="btn_generate_csv" value="Export as CSV" />
       </div>
+      </center>
       <input type="hidden" name="ordering" value="{{ ordering|first }}"/>
     </div>

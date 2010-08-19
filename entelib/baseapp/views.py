@@ -18,7 +18,8 @@ from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm, Co
     LocationForm, BookForm, BookCopyForm
 from baseapp.models import *
 from baseapp.reports import get_report_data, generate_csv
-from baseapp.utils import pprint, str_to_date, remove_non_ints
+from baseapp.utils import pprint
+import baseapp.utils as utils
 from baseapp.time_bar import get_time_bar_code_for_copy, TimeBarRequestProcessor
 from baseapp.views_aux import render_forbidden, render_response,     filter_query, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, get_locations_for_book, Q_reservation_active, cancel_reservation, when_copy_reserved
 import baseapp.views_aux as aux
@@ -506,28 +507,38 @@ def show_add_book(request, edit_form=BookForm):
             messages.info(request, 'Book successfully added.')
     else:
         form = edit_form()
-    
+    book_authors = ''
+    if 'author' in request.POST:
+        book_authors = request.POST['author']
+    all_authors = utils.AutocompleteHelper(Author.objects.values_list('name',flat=True).order_by('name')).as_str()
     context = {
         'form'        : form,
-        'is_adding'   : True,    # adding new book
+        'is_adding'   : True,         # adding new book
+        'ac_authors'  : book_authors,
+        'all_authors' : all_authors,
         }
     return render_response(request, 'books/one.html', context)
 
 @permission_required('baseapp.change_book')
 def show_edit_book(request, book_id, edit_form=BookForm):
     book = get_object_or_404(Book, id=book_id)
+    book_authors = utils.AutocompleteHelper(book.author.values_list('name',flat=True).order_by('name')).as_str(delim='')+','
     if request.method == 'POST':
-        form = edit_form(data=request.POST, instance=book)
+        form = edit_form(data=request.POST, instance=book, initial={'author':'asdfasdfas'})
+        book_authors = request.POST['author']
         if form.is_valid():
             form.save()
             messages.info(request, 'Book successfully updated.')
     else:
-        form = edit_form(instance=book)
-    
+        form = edit_form(instance=book, initial={'author':'asdfasdfas'})
+
+    all_authors = utils.AutocompleteHelper(Author.objects.values_list('name',flat=True).order_by('name')).as_str()
     context = {
         'form'        : form,
         'book'        : book,
-        'is_updating' : True,    # editing existing book
+        'ac_authors'  : book_authors,
+        'all_authors' : all_authors,
+        'is_updating' : True,        # editing existing book
         }
     return render_response(request, 'books/one.html', context)
 
@@ -731,9 +742,9 @@ def show_reports(request, name=''):
         from_date = date(2000, 1, 1)
         to_date = date(2500, 1, 1)
         if 'from' in post:
-            from_date = str_to_date(post['from'], from_date)
+            from_date = utils.str_to_date(post['from'], from_date)
         if 'to' in post:
-            to_date = str_to_date(post['to'], to_date)
+            to_date = utils.str_to_date(post['to'], to_date)
         search_data = {'from': unicode(from_date), 'to': unicode(to_date)}
         context['search'] = search_data
         
@@ -755,7 +766,8 @@ def show_reports(request, name=''):
                 return response
             else:  # sort command lookup
                 btn_sort_prefix = 'btn_sort_'
-                order_by = [ k[len(btn_sort_prefix):] for k in post.keys() if k.startswith(btn_sort_prefix)]
+                # :-2  is used because <input type="image"...> is sent as "btn_sort_location.x" :/
+                order_by = [ k[len(btn_sort_prefix):-2] for k in post.keys() if k.startswith(btn_sort_prefix)]
                 if not order_by:
                     return render_not_found(request, msg='Action not recognized')
                 

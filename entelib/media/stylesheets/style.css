@@ -8,6 +8,7 @@ div.tmp_log_as a:hover  {  background-color: #ff8400;  }
     
 .clear {  clear: both;  }
 a { color: black; border-bottom: 1px dotted gray; text-decoration: none; }
+a:hover { text-decoration: underline; border: 0; }
 a[href*="@"] { font-style: italic; }
 #header h1 { margin-top: 40px; margin-bottom:0; font-size: xx-large;}
 
@@ -54,8 +55,10 @@ form.registration_form table.basic_fields input {
 
 
 /* TIPS */
+div.collapsedTip {  /*width: 10px; */ height: 10px;  overflow: hidden;  /*position: relative; float:left;  */}
 div.tip,
 div.itip {
+    
     font-size: x-small;
     border: 1px solid #ff8400;
     background: #ffcf00 url("/media/images/tip_off.gif") top left no-repeat;
@@ -136,6 +139,10 @@ div.itemsWrapper table th {
 
 
 /* FORMS */
+div.form_bookWrapper #id_title,
+div.form_bookWrapper #ac_authors { width: 35em; }  /* books/one.html */
+div.form_bookWrapper table { margin: 0 auto; }
+
 form.book_search .first {     /* books.html */
     padding-right: 1em;
     text-align: left;
@@ -179,6 +186,15 @@ div.user_search input#email {   /* users.html */
     width: 30em;
     min-width: 30em;
 }
+
+.reportItems th {     /* reports/....html */
+    background: #eee url('/media/images/sort-bg.gif') left top repeat;
+}
+.reportItems th input {
+    border-bottom: 1px solid inherit;
+    padding: 0 2px;
+}
+/* .reportItems th input:hover { border-left: 2px solid #8010a2; border-right: 2px solid #8010a2; } */
 /* / FORMS */
 
 
@@ -267,8 +283,12 @@ div.book_authors dd, div.book_categories dd {
 /* EDIT PENCIL */
 div.book_contentWrapper div.edit_book,
 div.copy_contentWrapper div.edit_copy {    /* bookcopies.html, bookcopy_base.html */
-    display: block;   float: right;
+    /* display: block;   float: right; */ /* pencil disappears in IE */
     width:  48px;     height: 39px;
+}
+html>/**/body div.book_contentWrapper div.edit_book,
+html>/**/body div.copy_contentWrapper div.edit_copy { /* HACK: only modern browsers */
+    position: absolute; right: 2em;
 }
 div.book_contentWrapper div.edit_book a,
 div.copy_contentWrapper div.edit_copy a {
@@ -318,10 +338,12 @@ ul.phones a.skype {
 div.config_options_wrapper a { border: 0; }
 div.config_options_wrapper div.option {
     padding: .5em 1em;
+    z-index: 1000;
 }
 div.config_options_wrapper div.option:hover {
     background: #ffcf00;
     font-size: 115%;
+    z-index: 1000;
 }
 div.config_options_wrapper dt.key {
     font-family: monospace;
@@ -382,12 +404,18 @@ div.emails_wrapper table.emails th {
 /* / EMAIL LOGS */
 
 
+/* JQUERY */
+.ui-datepicker-calendar {  border:0;  }  /* fix */
+.ui-autocomplete { height:20em; overflow-y:scroll; overflow-x:hidden; }
+/* / JQUERY */
+
+
 /* MISC */
 div.add_new_user a,           /* 'add user' link */
 div.book_actions a.add_book,  /* 'add book' link */
 div.bookcopy_actions a {      /* 'add book copy' link */
     background: url('/media/images/add-icon.gif') no-repeat;
-    padding: 0 0 .2em 20px;
+    padding: 0 0 .3em 20px;
     display: block;
     margin: .5em 0;
     border: 0;
@@ -403,7 +431,8 @@ form table {     /* table in form is usually layout table */
     border: 0;
 }
 table select {  width: 100%;  }
-.ui-datepicker-calendar {  border:0;  }  /* fix for jquery */
 
 ul.errorlist {  color: red;  }
 /* / MISC */
+
+

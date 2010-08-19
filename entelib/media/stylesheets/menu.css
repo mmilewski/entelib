@@ -30,7 +30,7 @@ body{behavior:url(/media/stylesheets/cssHoverFix.htc);}
 #menu ul li:hover {background-color:#FF8400; position:relative;}
  
 /*Sub Menu*/
-#menu ul ul {display:none; position:absolute; left:11em; top:.5em; /*border:#fff solid; border-width:1px; */ background-color:#ddd;
+#menu ul ul {display:none; position:absolute; left:20.5em; top:-.2em; /*border:#fff solid; border-width:1px; */ background-color:#ddd;
              border-left: 4px solid #8010a1;
             }
 #menu ul li:hover ul {display:block;}

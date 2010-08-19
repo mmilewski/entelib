@@ -2,10 +2,11 @@
 from django import forms
 from django.contrib.auth.models import Group, User
 from baseapp.models import Book, BookRequest, Building, PhoneType, Phone,\
-    Location, BookCopy
+    Location, BookCopy, Category, Author
 # from baseapp.models import CustomUser
 from config import Config
 from baseapp.utils import pprint
+import baseapp.utils as utils
 from copy import copy
 from baseapp.views_aux import get_phones_for_user
 from django.core.exceptions import ObjectDoesNotExist
@@ -620,6 +621,22 @@ class LocationForm(ModelForm):
 class BookForm(ModelForm):   
     class Meta:
         model = Book
+        fields = ('title', 'category', 'author')
+
+    author = forms.CharField(widget=forms.Textarea)
+    category = forms.ModelMultipleChoiceField(Category.objects.all().order_by('name'))
+
+    def clean_author(self):
+        names_str = self.cleaned_data['author']
+        name_list = utils.AutocompleteHelper(string=names_str).from_str()
+        instances = []
+        for name in name_list:
+            authors = list(Author.objects.filter(name=name))
+            if len(authors) < 1:
+                raise forms.ValidationError("Name `%s` doesn't name any author" % name)
+            else:
+                instances.append(authors[0].id)
+        return instances
 
 
 class BookCopyForm(ModelForm):   

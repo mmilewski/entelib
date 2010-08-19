@@ -41,7 +41,7 @@ div.scaleWrapper {
 }
 div.scale_part {
     font-size: 85%;
-    height: 1em;
+    height: 1.3em;
     float: left;
     background: #ffcf00 url('/media/images/tb_scale_bar.gif') repeat-y left top !important;
     overflow: hidden;
@@ -81,10 +81,19 @@ table.tb_booklist .authors {
 }
 table.tb_booklist .actions {
     text-align: left;
-    margin: 0.5em 0 0.5em 2em;
+    margin: 0.5em 0 0.5em 1em;
     padding: 0;
     background-color: #ffcf00;
 }
+table.tb_booklist .actions ul { list-style: none; }
+table.tb_booklist .actions li.edit a {
+    background: url('/media/images/edit-small.gif') center left no-repeat;
+    padding: 0 0 .3em 20px;
+    display: block;
+    margin: .5em 0;
+    border: 0;
+}
+table.tb_booklist .actions a:hover { text-decoration: underline; border:0; }
 table.tb_booklist .unavailable {
     color: red;
 }

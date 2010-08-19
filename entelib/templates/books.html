@@ -100,7 +100,11 @@
     </div>
 
     <script type="text/javascript">
+      {% if user.get_profile.is_librarian %}
       document.Fbook_search.id.focus();
+      {% else %}
+      document.Fbook_search.title.focus();
+      {% endif %}
     </script>
 
     <div class="book_actions">

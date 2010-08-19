@@ -6,16 +6,20 @@
 <form action="." method="POST">
     {% include "reports/date_controls.html" %}
 
-    <div class="itemsWrapper">
+    <div class="itemsWrapper reportItems">
             <table>
               <thead>
                 <tr>
                     <th>Title
-                      <input type="submit" name="btn_sort_title" value="^" title="Ascending"/>
-                      <input type="submit" name="btn_sort_-title" value="v" title="Descending"/></th>
+                      <input type="image" name="btn_sort_title" src="/media/images/sort-desc.gif" height="17" width="17" alt="Ascending" title="Ascending">
+                      <input type="image" name="btn_sort_-title" src="/media/images/sort-asc.gif" height="17" width="17" alt="Descending" title="Descending">
+                      <!-- <input type="submit" name="btn_sort_title" value="^" title="Ascending"/> -->
+                      <!-- <input type="submit" name="btn_sort_-title" value="v" title="Descending"/></th> -->
                     <th>Number of reservations
-                      <input type="submit" name="btn_sort_num_rsvs" value="^" title="Ascending"/>
-                      <input type="submit" name="btn_sort_-num_rsvs" value="v" title="Descending"/></th>
+                      <input type="image" name="btn_sort_num_rsvs" src="/media/images/sort-desc.gif" height="17" width="17" alt="Ascending" title="Ascending">
+                      <input type="image" name="btn_sort_-num_rsvs" src="/media/images/sort-asc.gif" height="17" width="17" alt="Descending" title="Descending">
+                      <!-- <input type="submit" name="btn_sort_num_rsvs" value="^" title="Ascending"/> -->
+                      <!-- <input type="submit" name="btn_sort_-num_rsvs" value="v" title="Descending"/></th> -->
                 </tr>
               </thead>
               <tbody>
