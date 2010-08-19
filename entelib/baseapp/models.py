@@ -5,6 +5,9 @@ from django.db import models
 from django.contrib.auth.models import User, Group  #, UserManager, Permission
 import models_config as CFG
 from django.db.models import signals
+from django.core.exceptions import ValidationError
+import datetime
+
 #import settings
 
 APPLICATION_NAME = 'baseapp'     # should be read from somewhere, I think
@@ -369,6 +372,13 @@ class CostCenter(models.Model):
         unique_together = (('name',),)
 
 
+def sane_year(year):
+    if year > datetime.date.today().year:
+        raise ValidationError(u"C'mon, it couldn't be published in the FUTURE")
+    if year < 1900:
+        raise ValidationError(u"C'mon, it can't be THAT old")
+            
+
 class BookCopy(models.Model):
     id = models.AutoField(primary_key=True)
     # shelf_mark = models.PositiveIntegerField()                                # big number for client's internal use
@@ -378,7 +388,7 @@ class BookCopy(models.Model):
     location = models.ForeignKey(Location)
     state = models.ForeignKey(State)
     publisher = models.ForeignKey(Publisher)
-    year = models.IntegerField()
+    year = models.IntegerField(validators=[sane_year])
     publication_nr = models.IntegerField(null=True, blank=True)
     toc = models.TextField(blank=True, verbose_name="Table of contents")                   # table of contents
     toc_url = models.CharField(blank=True, max_length=CFG.copy_toc_url_len, verbose_name="Link to table of contents")    # external link to TOC
@@ -415,7 +425,7 @@ class Reservation(models.Model):
     who_cancelled = models.ForeignKey(User, related_name='canceller', null=True, blank=True)
     when_cancelled = models.DateTimeField(null=True, blank=True)
     active_since = models.DateField(null=True, blank=True)
-    send_requested = models.BooleanField()
+    shipment_requested = models.BooleanField()
 
     class Admin:
         pass
@@ -432,16 +442,16 @@ class Reservation(models.Model):
         return \
           isinstance(other,Reservation) and \
           self.id == other.id and \
-          self.book_copy      == other.book_copy and \
-          self.for_whom       == other.for_whom and \
-          self.start_date     == other.start_date and \
-          self.end_date       == other.end_date and \
-          self.who_reserved   == other.who_reserved and \
-          self.when_reserved  == other.when_reserved and \
-          self.who_cancelled  == other.who_cancelled and \
-          self.when_cancelled == other.when_cancelled and \
-          self.active_since   == other.active_since and \
-          self.send_requested == other.send_requested
+          self.book_copy          == other.book_copy and \
+          self.for_whom           == other.for_whom and \
+          self.start_date         == other.start_date and \
+          self.end_date           == other.end_date and \
+          self.who_reserved       == other.who_reserved and \
+          self.when_reserved      == other.when_reserved and \
+          self.who_cancelled      == other.who_cancelled and \
+          self.when_cancelled     == other.when_cancelled and \
+          self.active_since       == other.active_since and \
+          self.shipment_requested == other.shipment_requested
 
 
 class Rental(models.Model):

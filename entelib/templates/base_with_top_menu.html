@@ -9,11 +9,21 @@
 
         {% if can_view_own_profile %}              <li><a href="/entelib/profile/">                My profile</a>       
           <ul>
+            {% if can_view_own_profile %}          <li><a href="/entelib/profile/">                My profile</a></li>        {% endif %}
             {% if can_view_own_profile %}          <li><a href="/entelib/profile/rentals/">        My rentals</a></li>        {% endif %}
             {% if can_view_own_profile %}          <li><a href="/entelib/profile/reservations/">   My reservations</a></li>   {% endif %}
             {% if can_view_own_profile %}          <li><a href="/entelib/profile/config/">         Configuration</a></li>   {% endif %}
           </ul>
         </li>
+        {% endif %}
+
+        {% if user.get_profile.is_librarian %}    
+          <li>
+            Work
+              <ul>
+                {% if user.get_profile.is_librarian %}    <li><a href="/entelib/shipment">    Shipment requests</a></li>  {% endif %}
+              </ul>
+          </li>
         {% endif %}
         
         {% if can_add_bookrequest %}           <li><a href="/entelib/requestbook/">            Request a book</a></li>    {% endif %}
@@ -44,17 +54,18 @@
       </ul>
 <!--
         <ul>
-            {% if can_list_books %}                <li><a href="/entelib/books/">                  Book list</a></li>         {% endif %}
-            {% if can_view_own_profile %}          <li><a href="/entelib/profile/rentals/">        My rentals</a></li>        {% endif %}
-            {% if can_view_own_profile %}          <li><a href="/entelib/profile/reservations/">   My reservations</a></li>   {% endif %}
-            {% if can_view_own_profile %}          <li><a href="/entelib/profile/">                My profile</a></li>        {% endif %}
-            {% if can_add_bookrequest %}           <li><a href="/entelib/requestbook/">            Request a book</a></li>    {% endif %}
-            {% if user.is_staff %}                 <li><a href="/entelib/config/">                 Configuration</a></li>     {% endif %}
-            {% if can_list_users %}                <li><a href="/entelib/users/">                  User list</a></li>         {% endif %}
-            {% if can_list_reports %}              <li><a href="/entelib/report/">                 Reports</a></li>           {% endif %}
-            {% if can_list_locations %}            <li><a href="/entelib/locations/">              Locations</a></li>         {% endif %}
-            {% if can_access_admin_panel %}        <li><a href="/entelib/admin/">                  Admin panel</a></li>       {% endif %}
-                                                   <li><a href="/entelib/logout/">                 Logout</a></li>
+            {% if can_list_books %}                   <li><a href="/entelib/books/">                  Book list</a></li>         {% endif %}
+            {% if user.get_profile.is_librarian %}    <li><a href="/entelib/shipment">                Shipment requests</a><li>  {% endif %}
+            {% if can_view_own_profile %}             <li><a href="/entelib/profile/rentals/">        My rentals</a></li>        {% endif %}
+            {% if can_view_own_profile %}             <li><a href="/entelib/profile/reservations/">   My reservations</a></li>   {% endif %}
+            {% if can_view_own_profile %}             <li><a href="/entelib/profile/">                My profile</a></li>        {% endif %}
+            {% if can_add_bookrequest %}              <li><a href="/entelib/requestbook/">            Request a book</a></li>    {% endif %}
+            {% if user.is_staff %}                    <li><a href="/entelib/config/">                 Configuration</a></li>     {% endif %}
+            {% if can_list_users %}                   <li><a href="/entelib/users/">                  User list</a></li>         {% endif %}
+            {% if can_list_reports %}                 <li><a href="/entelib/report/">                 Reports</a></li>           {% endif %}
+            {% if can_list_locations %}               <li><a href="/entelib/locations/">              Locations</a></li>         {% endif %}
+            {% if can_access_admin_panel %}           <li><a href="/entelib/admin/">                  Admin panel</a></li>       {% endif %}
+                                                      <li><a href="/entelib/logout/">                 Logout</a></li>
         </ul>
       <ul>
             {% if can_load_default_config %}       <li><a href="/entelib/load_default_config/">Load default config</a></li>   {% endif %}

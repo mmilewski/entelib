@@ -42,7 +42,7 @@ urlpatterns = patterns(
     (r'^users/(\d+)/bookcopy/(\d+)/$', view.reserve_for_user),
     (r'^users/(\d+)/bookcopy/(\d+)/reserve/$', get_redirect_function_to_url('../')),
     (r'^users/(\d+)/bookcopy/(\d+)/up/$', view.user_book_copy_up_link),
-    (r'^users/(\d+)/reservations/cancel-all/$', view.cancel_all_user_resevations),
+    (r'^users/(\d+)/reservations/cancel-all/$', view.cancel_all_user_reservations),
     # (r'^users/(\d+)/rent-book/(\d+)/$', view.show_user_reservation),
     # (r'^users/(\d+)/rent-book/$', view.user_list_books),
     (r'^users/(\d+)/rentals/$', view.show_user_rentals),
@@ -85,6 +85,9 @@ urlpatterns = patterns(
     # locations
     url(r'^locations/$', view.show_locations, name="location_all"),
     url(r'^locations/(\d+)/$', view.show_location, name="location_one"),
+
+    # librarian work
+    url(r'^shipment/$', view.show_shipment_requests, name="shipment"),
 
     # reports
     url(r'^report/$', view.show_reports, name="report_all"),

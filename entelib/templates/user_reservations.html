@@ -6,9 +6,7 @@
 
 {% block header_row %}
     <th>
-        {% if not can_rent %}
-            Send
-        {% endif %}
+        Send
     </th>
     <th>ID</th>
     <th>State</th>
@@ -28,13 +26,13 @@
         <form action='.' method='post'>
             {% if row.can_rent %} 
                 <input type='hidden' name='rent' value='{{ row.id }}'>
-                <input type='submit' name='action' value='Rent' {% if row.rental_impossible %} disabled {% endif %}>
+                <input type='submit' name='action' value='Rent' {% if row.rental_impossible %} disabled='disabled' {% endif %}>
             {% else %}
-                {% if row.send_requested %}
+                {% if row.shipment_requested %}
                     Shipment requested
                 {% else %}
                     <input type='hidden' name='send' value='{{ row.id }}'>
-                    <input type='submit' name='action' value='Send me'>
+                    <input type='submit' name='action' value='Send me' {% if row.rental_impossible %} disabled='disabled' {% endif %}
                 {% endif %}
             {% endif %} 
         </form>

@@ -579,7 +579,7 @@ def show_user_reservations(request, user_id=False):
                 reservation = Reservation.objects.get(id=post['send'])
             except Reservation.DoesNotExist:
                 return render_not_found(request, item_name='Reservation')
-            reservation.send_requested = True
+            reservation.shipment_requested = True
             reservation.save()
 
     # find user active reservations
@@ -590,7 +590,7 @@ def show_user_reservations(request, user_id=False):
                           # 'url' : unicode(r.id) + u'/',
                           'book_copy_id' : r.book_copy.id,
                           'shelf_mark' : r.book_copy.shelf_mark,
-                          'rental_impossible' : '' if is_reservation_rentable(r) else reservation_status(r),
+                          'rental_impossible' : '' if is_reservation_rentable(r) and r.book_copy.location.maintainer.count() > 0 else reservation_status(r),
                           'title' : r.book_copy.book.title,
                           'authors' : [a.name for a in r.book_copy.book.author.all()],
                           'from_date' : r.start_date,
@@ -598,7 +598,7 @@ def show_user_reservations(request, user_id=False):
                           'location' : unicode(r.book_copy.location),
                           'can_rent' : request.user.has_perm('baseapp.add_rental') and \
                                        request.user in r.book_copy.location.maintainer.all(),
-                          'send_requested' : r.send_requested,
+                          'shipment_requested' : r.shipment_requested,
                          } for r in user_reservations]
     context.update({'rows' : reservation_list})
 
@@ -659,12 +659,12 @@ def cancel_reservation(reservation, user):
     reservation.save()
 
 
-def do_cancel_user_resevations(user, canceller):
+def do_cancel_user_reservations(user, canceller):
     for r in Reservation.objects.filter(for_whom=user).filter(Q_reservation_active):
         cancel_reservation(r, canceller)
 
 
-def cancel_all_user_resevations(request, user):
+def cancel_all_user_reservations(request, user):
     '''
     Desc:
         all user's resrvations are cancelled by canceller (who might be user)
@@ -673,7 +673,7 @@ def cancel_all_user_resevations(request, user):
 
     post = request.POST
     if request.method == 'POST' and 'sure' in post and post['sure'] == 'true':
-        do_cancel_user_resevations(canceller, user)
+        do_cancel_user_reservations(canceller, user)
         post = request.POST
 
         return render_response(request, 'reservations_cancelled.html',

@@ -26,7 +26,7 @@ import baseapp.emails as mail
 import settings
 
 today = date.today
-now = datetime.now
+now = datetime.datetime.now  # this seems like an error, but it stopped working as "now = datetime.now"
 
 @permission_required('baseapp.load_default_config')
 def load_default_config(request, do_it=False):
@@ -914,7 +914,7 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
                 reserved.update({'error' : 'Reservation cancelled'})
             if 'send_button' in post:
                 reservation = get_object_or_404(Reservation, id=int(post['reservation_to_send_or_cancel']))
-                reservation.send_requested = True
+                reservation.shipment_requested = True
                 reservation.save()
                 reserved.update({'msg' : 'Send-request has been set'})
             
@@ -944,15 +944,15 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
 
 @permission_required('baseapp.change_own_reservation')
 def cancel_all_my_reserevations(request):
-    return aux.cancel_all_user_resevations(request, request.user)
-    # aux.cancel_user_resevations(user=request.user, canceller=request.user)
+    return aux.cancel_all_user_reservations(request, request.user)
+    # aux.cancel_user_reservations(user=request.user, canceller=request.user)
     # return render_response(request, 'reservations_cancelled.html', {})
 
 @permission_required('baseapp.list_users')
 @permission_required('baseapp.change_reservation')
-def cancel_all_user_resevations(request, user_id):
+def cancel_all_user_reservations(request, user_id):
     user = get_object_or_404(User, id=user_id)
-    return aux.cancel_all_user_resevations(request, user)
+    return aux.cancel_all_user_reservations(request, user)
 
 @permission_required('baseapp.list_locations')
 def show_locations(request):
@@ -1002,3 +1002,38 @@ def activate_user(request, user_id):
         return render_response(request, 'registration/user_activated.html')
     else:
         return render_response(request, 'registration/user_already_active.html')
+
+
+@permission_required('baseapp.add_rental')
+def show_shipment_requests(request):
+    context = {}
+    locations = request.user.location_set.all()  # locations maintained by user
+    reservations_to_send = Reservation.objects.filter(Q_reservation_active)  \
+                                              .filter(start_date__lte=today()) \
+                                              .filter(book_copy__location__in=locations)
+    if request.method == 'POST':
+        post = request.POST
+        reservation = get_object_or_404(Reservation, id=post['reservation_id'])
+        if 'rent' in post:
+            user = reservation.for_whom
+            Rental(reservation=reservation, start_date=date.today(), who_handed_out=request.user).save()
+            context.update({'success_msg' : 'Rented %s (%s) to %s.' % \
+                (reservation.book_copy.book.title, reservation.book_copy.shelf_mark, aux.user_full_name(reservation.for_whom))})
+        if 'cancel' in post:
+            aux.cancel_reservation(reservation, request.user)
+            context.update({'message' : 'Cancelled.'})
+
+    reservation_list = [
+                        { 'id'         : r.id,
+                          'user'       : aux.user_full_name(r.for_whom.id),
+                          'start_date' : r.start_date,
+                          'end_date'   : r.end_date,
+                          'location'   : r.book_copy.location,  # TODO tu być może trzeba dodać unicode(...)
+                          'shelf_mark' : r.book_copy.shelf_mark,
+                          'title'      : r.book_copy.book.title,
+                          'authors'    : [a.name for a in r.book_copy.book.author.all()]
+                        } for r in reservations_to_send if aux.is_reservation_rentable(r) ]
+    context.update({ 'rows' : reservation_list })
+    return render_response(request, 'shipment_requests.html', context)
+
+                       
