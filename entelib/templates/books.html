@@ -40,6 +40,7 @@
 
     <div class="content_form">
         <form action="." method="post" name="Fbook_search" class="book_search">
+          <center>
             <table>
             <tbody>
             <tr>
@@ -48,19 +49,19 @@
                     <tbody>
                         {% if user.get_profile.is_librarian %}
                             <tr class="book_id">
-                                <td>ID: <br><input type="text" name="id" value="{{ search.id }}"></td>
+                                <td>ID: <br><input type="text" name="id" id="id" value="{{ search.id }}"></td>
                                 <td></td>
                             </tr>
                         {% endif %}
                         <tr class="book_title">
-                            <td>Title: <br><input type="text" name="title" value="{{ search.title }}"></td>
-                            <td><input type="checkbox" name="title_any" id="title_any" value="any"  {% if search.title_any_checked %} checked {% endif %} >
-                                <label for="title_any">Any of keywords</label></td>
+                            <td>Title: <br><input type="text" name="title" id="title" value="{{ search.title }}">
+                                <input type="checkbox" name="title_any" id="title_any" value="any"  {% if search.title_any_checked %} checked {% endif %} >
+                                <label for="title_any" title="Any of keywords">Any</label></td>
                         </tr>
                         <tr class="book_author">
-                            <td>Author: <br><input type="text" name="author" value="{{ search.author }}"></td>
-                            <td><input type="checkbox" name="author_any" id="author_any" value="any"  {% if search.author_any_checked %} checked {% endif %} >
-                                <label for="author_any">Any of keywords</label></td>
+                            <td>Author: <br><input type="text" name="author" id="author" value="{{ search.author }}">
+                                <input type="checkbox" name="author_any" id="author_any" value="any"  {% if search.author_any_checked %} checked {% endif %} >
+                                <label for="author_any" title="Any of keywords">Any</label></td>
                         </tr>
                     </tbody>
                     </table>
@@ -80,19 +81,21 @@
                               <!-- <input type="text" name="category" value="{{ search.category }}"> -->
                             </td>
                             <td class="any"><input type="checkbox" name="category_any" id="category_any" value="any"  {% if search.category_any_checked %} checked {% endif %} >
-                                <label for="category_any">Any of keywords</label></td>
+                                <label for="category_any" title="Any of keywords">Any</label></td>
                         </tr>
                     </tbody>
                     </table>
                 </td>
             </tr>
             <tr class="book_search">
-                <td colspan="2"> 
+                <td> 
                     <input type="submit" name="action" value="Search"> 
                 </td>
+                <td></td>
             </tr>
             </tbody>
             </table>
+          </center>
         </form>
     </div>
 
@@ -112,7 +115,7 @@
             $(document).ready(function()  { $("#booklist").tablesorter( {sortList: [[1,0]]} ); } );
         </script>
 
-        <div class="found_books">
+        <div class="found_books itemsWrapper">
             <table class="booklist tablesorter" id="booklist">
             <thead>
                 <tr class="header">
@@ -139,7 +142,7 @@
             $(document).ready(function()  { $("#booklist").tablesorter( {sortList: [[1,0]]} ); } );
         </script>
 
-        <div class="found_books">
+        <div class="found_books itemsWrapper">
             <table class="booklist tablesorter" id="booklist">
             <thead>
                 <tr class="header">

@@ -6,9 +6,11 @@
 
 {% block content %}
     {% if perms.baseapp.list_locations %}
-    <p>
-      <a href="../">Show all locations</a>
-    </p>
+    <div class="inner_menu">
+      <ul>
+        <li><a href="../">Show all locations</a></li>
+      </ul>
+    </div>
     {% endif %}
     
     <div class="location_info">

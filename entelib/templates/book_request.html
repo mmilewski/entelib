@@ -31,22 +31,27 @@
         </div>
             
         <form class="book_request_form" action="." method="POST" name="Frequest">
+          <center>
             <table class="basic_fields">
             <tbody>
                 <tr>
-                    <td>  {{form_content.book.label}}:<br/>{{form_content.book}}    </td>
-                    <td>  {{form_content.book.errors}}   </td>
+                    <td>  {{form_content.book.label}}:
+                      <br/>{{form_content.book}}
+                      <br/>{{form_content.book.errors}}
+                    </td>
                 </tr>
                 <tr>
-                    <td>  {{form_content.info.label}}:<br/>{{form_content.info}}    </td>
-                    <td>  {{form_content.info.errors}}   </td>
+                    <td>  {{form_content.info.label}}:
+                      <br/>{{form_content.info}}
+                      <br/>{{form_content.info.errors}}   </td>
                 </tr>
                 <tr> 
-                    <td colspan="2">  <input type="submit" value="Send request"/>  </td>
-                     
+                    <td>  <input type="submit" value="Send request"/>  </td>
+                    <td></td>
                 </tr>
             </tbody>
             </table>
+          </center>
         </form>
     </div>
     <script type="text/javascript">

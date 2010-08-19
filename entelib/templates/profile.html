@@ -11,16 +11,19 @@
 	      <ol>
 	        <li><p>To remove chosen phone make it's value empty.</p></li>
 	        <li><p>To change any part of your data, password is required. Make sure you typed it.</p></li>
+	        <li><p>If new password input is left empty, password will not be changed.</p></li>
 	      </ol>
 	    </div>
 	    {% endif %}
-	    <div style="margin-top: 2em;">
+
+            <center>
+	    <div>
 	        <div class="content_form" style="margin-top: 1em">
-	            <form action="#edit" method="POST" class="registration_form" name="Freg">
+	            <form action="#edit" method="POST" class="edit_profile" name="Freg">
 	                {{ form_content.non_field_errors }}
 	                <table>
                       <tr>
-                        <td style="vertical-align:top; padding-right: 2em;">
+                        <td class="first">
                             <table>
                             {% for field in form_content %}
                                 {% if "Phone" not in field.label_tag  and "Value" not in field.label_tag %}
@@ -32,7 +35,7 @@
                             {% endfor %}
                             </table>
                         </td>
-                        <td style="vertical-align:top; padding-left: 2em;">
+                        <td class="second">
                             <table>
                             {% for field in form_content %}
                                 {% if "Phone" in field.label_tag  or "Value" in field.label_tag %}
@@ -60,6 +63,7 @@
 	        </div>
 	        <b>{{ edit_info }}</b>
 	    </div>
+            </center>
 	</div>
 	
 {% endif %} <!-- has edit perms -->

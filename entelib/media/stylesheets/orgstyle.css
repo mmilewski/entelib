@@ -1,0 +1,530 @@
+html, body
+{
+    background-color: #666;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-size: 9pt;
+    font-family: Arial, sans-serif;
+}
+
+div.tip,
+div.itip {
+    border: 1px solid #842DCE;
+    background: #FFF380 url("/media/images/tip_off.png") top left no-repeat;
+    padding: 1em 1em .5em 2em;
+    margin: .5em;
+    text-align:left;
+}
+div.tip:hover,
+div.itip:hover {
+    background: #FFFF90 url("/media/images/tip_on.png") top left no-repeat;
+    border: 1px solid #943DdE;
+    border-bottom-left-radius: 1.5em;
+    -moz-border-radius-bottomleft: 1.5em;
+    -webkit-border-bottom-left-radius: 1.5em;
+}
+div.tip p,
+div.itip p {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+div.tip em,
+div.itip em {
+    font-weight: bold;
+}
+div.itip {
+    display: inline;
+}
+
+a
+{
+    color: #000;
+}
+
+h1, h2
+{
+    margin: 0.1em;
+}
+
+.green
+{
+    background-color: green;
+    border-width: 0 !important;
+}
+
+.red
+{
+    background-color: red;
+    border-width: 0 !important;
+}
+
+#tr_range
+{
+    font-weight: bold;
+}
+
+.no_padding_and_margin
+{
+    padding: 0;
+    margin: 0;
+}
+
+.cloud
+{
+    position: fixed; 
+    background-color:#dedede; 
+    border: solid 1px; 
+    padding: 0.1em; 
+    display: none; 
+    z-index: 1000000;
+}
+
+table
+{
+    border-collapse: collapse;
+    border: 0;
+}
+
+table select {
+    width: 100%;
+}
+
+/* itemsWrapper */
+div.itemsWrapper table {
+    margin-top: 1em;
+    width: 100%;
+    border: 1px solid #000;
+    text-align: center;
+}
+div.itemsWrapper table td,
+div.itemsWrapper table th {
+    padding: .4em .5em;
+    border: 1px solid #000;
+}
+
+
+/* reservation archive */
+div.rsv_archive table {
+    margin-top: 1em;
+    width: 100%;
+    border: 1px solid #000;
+    text-align: center;
+}
+div.rsv_archive table td,
+div.rsv_archive table th {
+    padding: .4em .5em;
+    border: 1px solid #000;
+}
+
+
+/* locations list */
+div.locs_list table {      /* locations/list.html */
+    margin-top: 1em;
+    width: 100%;
+    border: 1px solid #000;
+    text-align: center;
+}
+div.locs_list table td,
+div.locs_list table th {
+    padding: .4em .5em;
+    border: 1px solid #000;
+}
+
+
+/* book list */
+table.booklist {
+    margin-top: 1em;
+    width: 100%;
+    border: 1px solid #000;
+    text-align: center;
+}
+
+table.booklist td,
+table.booklist th {
+    padding: .4em .5em;
+    border: 1px solid #000;
+}
+table.booklist .title,
+table.booklist .authors {
+    text-align: left;
+}
+table.booklist .actions {   /* bookcopies.html */
+    text-align: left;
+    margin: 0.5em 0 0.5em 2em;
+    padding: 0;
+    background-color: #79F;
+}
+table.booklist .actions a.unavailable {
+    color: red;
+}
+
+
+ul.spaces > li {
+    margin-bottom: 0.5em;
+}
+
+.clear {
+    clear: both;
+}
+
+div#top
+{
+    background-color: #eee;
+    margin: 0 auto;
+    padding: 1em;
+    width: 80%;
+    min-height: 100%;
+    position: relative;
+}
+
+div.content_form
+{
+    margin-left: 10em;
+}
+
+div.content_form > .tip {
+    text-align: center;
+}
+
+div#header
+{
+    background-color: #BCE954;
+    border-left: 2px solid #4AA02C;
+    margin: 0 auto 1em auto;
+    padding: 0.5em;
+    overflow: hidden;
+}
+
+div#menu
+{
+    background-color: #bbb;
+    margin: 0 0.5em 0 0;
+    padding: 0;
+    width: 120px;
+    float: left;
+    overflow: hidden;
+    clear: both;
+}
+
+div#menu ul
+{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    border: 0.5em solid #888;
+    border-left: 0;
+    border-right: 0;
+}
+
+div#menu ul li {
+    padding: 0;
+    margin: 0;
+    border-top: 1px dotted #888;
+}
+
+div#menu ul li a {
+    /* border: 1px solid red; */
+    display: block;
+    padding: 1em 0 1em 1em;
+    text-decoration: none;
+}
+
+div#menu ul li a:hover {
+    background-color: yellow;
+}
+
+div#login
+{
+    margin: 3em 0 0 15em;
+}
+
+div#content
+{
+    margin: 0;
+    padding: 0.5em;
+    overflow: auto;
+}
+
+div#footer
+{
+    clear: both;
+    width: 100%;
+    bottom: 0;
+    position: absolute;
+}
+
+div.goUpWrapper {
+    margin: 1em 0;
+}
+div.goUpWrapper a {
+    background: url('/media/images/iconGoUp.png') no-repeat !important;
+    padding: 0 0 .1em 20px;
+    text-decoration: none;
+    border-bottom: 1px dashed brown;
+}
+
+div.gobackWrapper {
+    margin: 1em 0;
+}
+div.gobackWrapper a {
+    background: url('/media/images/iconGoBack.png') no-repeat !important;
+    padding: 0 0 .1em 20px;
+    text-decoration: none;
+    border-bottom: 1px dashed brown;
+}
+
+
+div.book_actions a,       /* 'add book' link */
+div.bookcopy_actions a {  /* 'add book copy' link */
+    background: url('/media/images/add-icon.png') no-repeat;
+    padding: 0 0 .1em 20px;
+    text-decoration: none;
+    border-bottom: 1px dashed brown;
+}
+
+div.add_new_user a {       /* 'add user' link */
+    background: url('/media/images/add-icon.png') no-repeat;
+    padding: 0 0 .1em 20px;
+    text-decoration: none;
+    border-bottom: 1px dashed brown;
+}
+
+
+div.book_copies > h3#book_copies {
+    margin-top: 1.3em;
+    margin-bottom: 0;
+}
+div.book_copies tr.copy_details span.unavailable {
+    color: red;
+}
+
+div.book_authors, div.book_copies, div.book_categories {    /* bookcopies.html */
+    margin-top: 1em;
+}
+div.book_authors dt, div.book_categories dt {    /* bookcopies.html */
+    font-weight: bold;
+    display: inline;
+}
+div.book_authors dd, div.book_categories dd {
+    margin:0;
+    padding:0;
+    display:inline;
+}
+
+form.book_search .first {
+    padding-right: 1.5em;
+    border-right: 1px solid black;
+}
+form.book_search .second {
+    padding-left: 1.5em;
+}
+table.book_details tr.book_category select {
+    width: 15em;
+}
+
+
+div.copy_info {    /* bookcopy.html */
+    
+}
+div.copy_info span.label {
+    font-weight: bold;
+}
+div.copy_info .book_shelf_mark {
+    font-size: 110%;
+    font-weight: bold;
+    letter-spacing: .1em;
+}
+div.picture {
+    float: right;
+    margin: 1em;
+}
+
+div.formWrapper th {
+    vertical-align: top;
+}
+div.formWrapper form.registration_form {
+    padding: 1em 0 0 1em;
+    background-image: url('http://www.recipester.org/images/7/7f/Bg-0006.gif');
+}
+
+ul.errorlist {
+    color: red;
+    
+}
+
+form.registration_form input.required {
+    border: 1px solid red;
+}
+form.registration_form table.basic_fields  th {
+    text-align: right;
+    vertical-align: top;
+    padding-right: 1em;
+    /* border: 1px solid green; */
+}
+form.registration_form table.basic_fields  td {
+    padding-bottom: 1.5em;
+    /* border: 1px solid red; */
+}
+form.registration_form table.basic_fields ul.errorlist {
+    list-style-type: none;
+    float: none;
+    color: red;
+    margin: 0 0 1em 0;
+    padding: 0;
+    font-size: 90%;
+}
+form.registration_form table.basic_fields  td ul.errorlist {
+    list-style-type: none;
+    float: none;
+    color: red;
+    margin: 0;
+    padding: 0;
+    font-size: 90%;
+}
+form.registration_form table.basic_fields  td ul.errorlist li {
+    padding: 0;
+}
+
+form.book_search input[type="submit"],
+form.copy_search input[type="submit"] {
+    width: 100%;
+}
+
+ul.phones a.skype {
+    background: url('/media/images/skype-icon.png') no-repeat right;
+    padding: 0 26px 0 0;
+    text-decoration: none;
+}
+
+div.emails_wrapper div.email {
+    border-top: 1px solid black;
+    margin-bottom: 2em;
+}
+div.emails_wrapper table.emails {
+    border: 1px solid black;
+}
+div.emails_wrapper table.emails td,
+div.emails_wrapper table.emails th {
+    padding: 0.5em;
+    border: 1px solid #000;
+}
+
+div.config_options_wrapper div.option {
+    padding: .5em 1em;
+}
+div.config_options_wrapper div.option:hover {
+    background: #ddd;
+    font-size: 115%;
+}
+div.config_options_wrapper dt.key {
+    font-family: monospace;
+    font-weight: bold;
+}
+div.config_options_wrapper div.option dd span.label {
+    font-weight: bold;
+}
+div.config_options_wrapper dd.value {
+    font-size: 110%;
+}
+div.config_options_wrapper div.actions {
+    float: right;
+}
+div.config_options_wrapper a.local {
+    background: url('/media/images/edit.png') no-repeat left center;
+    display: inline;  width: 35px;  height: 16px;  float: left;  margin: 0 .4em;
+}
+div.config_options_wrapper a.local:hover {
+    background: url('/media/images/edit_hover.png') no-repeat left center;
+}
+div.config_options_wrapper a.local span {
+    display: none;
+}
+div.config_options_wrapper a.global {
+    background: url('/media/images/edit_global.png') no-repeat left center;
+    display: inline;  width: 82px;  height: 16px;  float: left;  margin: 0 .4em;
+}
+div.config_options_wrapper a.global:hover {
+    background: url('/media/images/edit_global_hover.png') no-repeat left center;
+}
+div.config_options_wrapper a.global span {
+    display: none;
+}
+
+
+form.edit_option_form td span.label {
+    font-weight: bold;
+}
+form.edit_option_form td input#id_value[type="text"] {  /* text input is longer. Checkbox is not. */
+    min-width: 25em;
+    width: 100%;
+}
+
+.tb_stripes {
+    background-image: url('/media/images/tb_stripes.png') !important;
+}
+
+ul.userProfile li .label {
+    font-weight: bold;
+}
+
+div.profile_editWrapper input[type="submit"] {
+    width: 100%;
+}
+
+div.messagesWrapper {
+    padding: .3em 0em;
+    background-color: yellow;
+    border: 1px solid violet;
+}
+div.messagesWrapper ul#messages {
+}
+
+
+div.location_info {   /* locations/one.html */
+}
+div.location_info span.label {
+    font-weight: bold;
+}
+
+
+div.book_contentWrapper div.edit_book,
+div.copy_contentWrapper div.edit_copy {    /* bookcopies.html, bookcopy_base.html */
+    display: block;
+    width:  48px;
+    height: 39px;
+    float: right;
+}
+div.book_contentWrapper div.edit_book a,
+div.copy_contentWrapper div.edit_copy a {
+    background: url('/media/images/edit_big.png') no-repeat left center;
+    display: block;
+    width:  100%;
+    height: 100%;
+    position: relative;
+    right: 0px;
+}
+div.book_contentWrapper div.edit_book a:hover,
+div.copy_contentWrapper div.edit_copy a:hover {
+    background: url('/media/images/edit_big_hover.png') no-repeat left center;    
+}
+div.book_contentWrapper div.edit_book a span,
+div.copy_contentWrapper div.edit_copy a span {
+    display: none;   /* hide text */
+}
+div.reserve_rent_form .positive_message {
+  font-weight: bold;
+  color: green;
+}
+div.reserve_rent_form .negative_message {
+  font-weight: bold;
+  color: red;
+}
+div.positive_message {
+  font-weight: bold;
+  color: green;
+}
+div.warning {
+  font-weight: bold;
+  color: red;
+}

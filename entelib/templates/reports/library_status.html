@@ -6,8 +6,9 @@
 <form action="." method="POST">
     {% include "reports/date_controls.html" %}
 
-    <div style='margin-top: 1em'>
-            <table class='booklist'>
+    <div class="itemsWrapper">
+            <table>
+              <thead>
                 <tr>
                     <th rowspan='2'>Title
                       <br>
@@ -41,6 +42,8 @@
                       <input type="submit" name="btn_sort_librarian" value="^" title="Ascending"/>
                       <input type="submit" name="btn_sort_-librarian" value="v" title="Descending"/></td>
                 </tr>
+              </thead>
+              <tbody>
                 {% for book in report %}
                 <tr>
                     <td>{{ book.title }}</td>
@@ -56,6 +59,7 @@
                     {% endif %}
                 </tr>
                 {% endfor %}
+              </tbody>
             </table>
     </div>
 </form>

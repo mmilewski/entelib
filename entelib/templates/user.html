@@ -27,6 +27,7 @@
     {% endif %}
     
     <div class='content_form'> {# Przydala by sie klasa dla tego czegos, jakies menu albo co #}
+      <!--
         <b> {% comment %} Przydaloby sie zeby do bylo wieksze, latwiejsze do trafienia i bardziej sie rzucalo w oczy {% endcomment %}
         | <a href='reservations/new/'>Rent something</a>
         | <a href='reservations/'>Reservations</a> 
@@ -36,6 +37,18 @@
         {% endif %}
         |
         </b>
+      -->
+
+        <div class="inner_menu">
+          <ul>
+            <li><a href='reservations/new/'>Rent something</a></li>
+            <li><a href='reservations/'>Reservations</a> </li>
+            <li><a href='rentals/'>Rentals</a></li>
+            {% if user.id == user_id %}
+                <li><a href='config/'>Configuration</a></li>
+            {% endif %}
+          </ul>
+        </div>
     </div>
 
     {% block edit_form %}

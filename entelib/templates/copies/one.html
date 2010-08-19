@@ -12,11 +12,20 @@
         
 {% block content %}
 <div class="copy_one">
+  <div class="inner_menu">
+    <ul>
+      <li><a href="{% url book_all %}">Show all books</a> </li>
+      <li><a href="{% url book_one book.id %}">Show related book</a> </li>
+      {%if is_updating%}<li><a href="{% url copy_one copy.id %}">Show this copy</a></li>{% endif %}
+  </div>
+  
+  <!--
     <p class="links">
       <a href="{% url book_all %}">Show all books</a> 
       <a href="{% url book_one book.id %}">Show related book</a> 
       {%if is_updating%}<a href="{% url copy_one copy.id %}">Show this copy</a>{% endif %}
     </p>
+  -->
     
     {% if perms.baseapp.add_bookcopy %}
     <div class="form_copyWrapper">

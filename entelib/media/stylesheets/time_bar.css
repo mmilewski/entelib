@@ -1,3 +1,7 @@
+.tb_stripes {
+    background-image: url('/media/images/tb_stripes.gif') !important;
+}
+
 div.time_bar_codeWrapper {  /* wraps code only. see time_barWrapper */
 }
 
@@ -11,16 +15,14 @@ div.group {
     display: block;
     clear: both;
 }
-
 div.group div.red_segment {
-    background-color: #f00;
-    background-image: url('/media/images/tb_stripes.png') !important;
+    background-color: #ff8400;
+    background-image: url('/media/images/tb_stripes.gif') !important;
     color: white;
 }
 div.group div.green_segment {
     background-color: #0d0;
 }
-
 div.group div.red_segment,
 div.group div.green_segment {
     display: block;
@@ -37,12 +39,11 @@ div.scaleWrapper {
     clear: both;
     display: block;
 }
-
 div.scale_part {
     font-size: 85%;
     height: 1em;
     float: left;
-    background: yellow url('/media/images/tb_scale_bar.png') repeat-y left top !important;
+    background: #ffcf00 url('/media/images/tb_scale_bar.gif') repeat-y left top !important;
     overflow: hidden;
 }
 
@@ -59,6 +60,32 @@ div.time_bar_date_selectorWrapper .helper_buttons {
     padding-top: .7em;
 }
 div.time_bar_date_selectorWrapper .helper_buttons input {
-    font-size: 90%;
+    font-size: x-small;
     padding: .2em .5em;
 }
+
+/* TIME BAR SEGMENTS TABLE */
+table.tb_booklist {
+    width: 96%;
+    margin-top: 1em;
+    text-align: center;
+}
+table.tb_booklist td,
+table.tb_booklist th {
+    padding: .4em .5em;
+    border: 1px solid #000;
+}
+table.tb_booklist .title,
+table.tb_booklist .authors {
+    text-align: left;
+}
+table.tb_booklist .actions {
+    text-align: left;
+    margin: 0.5em 0 0.5em 2em;
+    padding: 0;
+    background-color: #ffcf00;
+}
+table.tb_booklist .unavailable {
+    color: red;
+}
+/* / TIME BAR SEGMENTS TABLE */

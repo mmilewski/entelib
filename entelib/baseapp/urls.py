@@ -52,7 +52,7 @@ urlpatterns = patterns(
     # (r'^users/(\d+)/books/$', view.user_books),
 
     # user profile
-    (r'^profile/$', view.edit_user_profile),
+    url(r'^profile/$', view.edit_user_profile, name="profile_edit"),
     (r'^profile/reservations/$', view.show_my_reservations),
     (r'^profile/reservations/archive/$', view.show_my_reservation_archive),
     (r'^profile/reservations/new/$', view.my_new_reservation),

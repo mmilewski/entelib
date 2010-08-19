@@ -1,0 +1,40 @@
+/*http://devinrolsen.com/wp-content/themes/typebased/demos/css/vertical-menu/WORKS.html*/
+body{behavior:url(/media/stylesheets/cssHoverFix.htc);}
+#menu a {  border:0;  }
+#menu {
+    /* border: 1px dashed gray; */
+    width: 220px;
+    float: left;
+    margin: 3.6em 0 2em 0;
+    padding: 0 .3em;
+}
+
+/*Main Menu*/
+#menu ul {margin:0px; padding:0px; background-color:#eee; list-style: none; z-index:10; }
+
+#menu ul li {
+    height: 2.7em; line-height: 2.7em;
+    padding-left: 1em;
+    border-top:#fff solid; 
+    border-bottom:#fff solid; 
+    border-width:1px;
+}
+#menu ul li a {
+    width: 100%;
+    display: block;
+    cursor:pointer;
+}
+
+#menu ul li:hover {background-color:#FF8400; position:relative;}
+ 
+/*Sub Menu*/
+#menu ul ul {display:none; position:absolute; left:12em; top:5px; border:#fff solid; border-width:2px; background-color:#ddd; z-index:11; }
+#menu ul li:hover ul {display:block;}
+ 
+#menu ul ul li { width:20em; float:left; display:inline; border:none;}
+#menu ul ul li:hover {border:none;}
+ 
+#menu li:hover ul li ul {display:none;}
+ 
+#menu ul ul li ul {left:18em; background-color:#0099CC;index:12; }
+#menu ul ul li:hover ul {display:block;}

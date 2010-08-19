@@ -55,16 +55,16 @@
                         </ul>
                       </li>
                       {% empty %}
-                      No maintainers defined.
+                      <li>No maintainers defined</li>
                       {% endfor %}
                     </ul>
             </li>
         </ul>
 
-        {% block links %}
-        {% endblock %}
-
     </div> <!-- /copy_info -->
+
+    {% block links %}
+    {% endblock %}
 
     <!-- RENTAL FORM -->
     <div class="reserve_rent_form">
@@ -84,10 +84,9 @@
       <div class="time_barWrapper">
         {% include "time_bar/controls.html" %}
         {% include "time_bar/standalone_copy_code.html" %}
-        {% endif %}
       </div>
+      {% endif %}
     </div>
-
     <!--  TOC  -->
     {% if copy.toc or copy.toc_url %}
     <h3 id="toc" class="book_toc">Table Of Contents</h3>
@@ -105,6 +104,5 @@
       {% if copy.desc %}      <div class="book_desc">  {{ copy.desc|linebreaks }}  </div>     {% endif %}
     </div>
     {% endif %}
-
 </div>
 {% endblock %}

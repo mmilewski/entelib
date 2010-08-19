@@ -1,15 +1,16 @@
 {% extends 'bookcopy_base.html' %}
 {% block links %}
-    <h3 id="rr">Reserve/Rent</h3>
-    <div class='content_form'>
-            {% if perms.baseapp.add_rental %}
-                | <b><a href='user/'>Reserve/rent for user</a></b> |
-            {% endif %}
-            {# przydaloby sie to jakos ladnie rozdzielic #}
-            {%if perms.baseapp.add_reservation %}
-                | <b><a href='reserve/'>Reserve for me</a></b> |
-            {% endif %}
-    </div>
+  <h3 id="rr">Reserve/Rent</h3>
+  {% if perms.baseapp.add_rental or perms.baseapp.add_reservation %}
+      <div class="inner_menu">
+        <ul>
+            {% if perms.baseapp.add_rental %}        <li><a href='user/'>Reserve/rent for user</a></li>    {% endif %}
+            {% if perms.baseapp.add_reservation %}   <li><a href='reserve/'>Reserve for me</a></li>        {% endif %}
+        </ul>
+      </div>
+  {% else %}
+    <p>Lack of permissions</p>
+  {% endif %}
 {% endblock %}
 
 {% block go_up %}

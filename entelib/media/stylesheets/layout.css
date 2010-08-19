@@ -1,0 +1,36 @@
+body, html {
+    margin: 0;  padding: 0;
+    background-color: white;
+    color: black;
+    font-family: verdana,arial,helvetica,sans-serif;
+    font-size: 9pt;
+}
+
+#pageWrapper {
+    margin: 0;  padding: 0;
+}
+
+#header {
+    background: white url("/media/images/logo-small.jpg") top left no-repeat;
+    height: 90px;
+    padding-left: 170px;
+    border: 1px dotted white;
+    /* border: 1px solid red; */
+}
+
+#rest {
+    /* border: 1px dotted blue; */
+    padding: 10px;
+    margin-left: 230px;
+}
+
+#footer {
+    /* border: 1px solid magenta; */
+    border-top: 1px solid gray;
+    margin: 1em 1% .5em 1%;
+    font-size: x-small;
+    text-align: center;
+    padding: .5em 1em 1em 0;
+    clear: both;
+    
+}

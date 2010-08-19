@@ -3,6 +3,8 @@
     <head>
         <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
 
+        <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/layout.css'>
+        <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/menu.css'>
         <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/style.css'>
         <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/time_bar.css'>
         <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/tablesorter.css'>
@@ -10,8 +12,8 @@
         
         <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.4.2.min.js"></script>
         <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.tablesorter.min.js"></script>
-        <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-ui-1.8.4.custom.min.js" /></script>
-        <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-datepicker-call.js" /></script>
+        <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-ui-1.8.4.custom.min.js"></script>
+        <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-datepicker-call.js"></script>
 
         <script language="javascript" type="text/javascript">
           $(document).ready(function() {showKal('init');});
@@ -20,43 +22,41 @@
         <title>{% block title %}{% endblock %}</title>
     </head>
     <body>
-        <div id='top'>
-          <div style="margin: 0 1em;">
-            <a href="/_login_user/" style="padding:1em">Login as user</a>
-            <a href="/_login_lib/" style="padding:1em">Login as librarian</a>
-            <a href="/_login_admin/" style="padding:1em">Login as admin</a>
+        <div id="pageWrapper">
+          <div class="logged_user_info">
+            {% if user.is_anonymous %}
+                Not logged in. <a href="/entelib/login/">Login</a> or <a href="/entelib/register/newuser">register</a>.
+            {% else %}
+                Welcome <span class="who">{{ user.first_name }} {{ user.last_name }}</span> {% if user.is_superuser %}(superuser){% endif%}
+                <a href='/entelib/logout/'>(Logout)</a>
+            {% endif %}
           </div>
-          
-            <br>
-            <div id='header'>
-                <div style='float: left;'>
-                    <h1>{% block header %}{% endblock %}</h1>
-                </div>
-                <!-- box with info 'Logged as:...' or 'Not logged in' -->
-                <div class="logged_user_info" style="text-align:right; vertical-align:top;">
-                    {% if user.is_anonymous %}
-                        Not logged in. <a href="/entelib/login/">Login</a> or <a href="/entelib/register/newuser">register</a>.
-                    {% else %}
-                        Logged as: <strong>{{ user.username }}</strong> {% if user.is_superuser %}(superuser){% endif%}
-                        <a href='/entelib/logout/'>(Logout)</a>
-                    {% endif %}
-                </div>
-                <!-- end of log-in state box -->
-            </div>
+          <div id='header'>
+            <h1><span>{% block header %}{% endblock %}</span></h1>
+          </div>
 
 {% if messages %}
 <div class="messagesWrapper">
   <ul id="messages">
     {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
     {% endfor %}
   </ul>
 </div>
 {% endif %}
-            
+
             {% block menu %}{% endblock %}
-            {% block rest %}{% endblock %}
-            <div id='footer'></div>
+            <div id="rest">
+              {% block rest %}{% endblock %}
+            </div>
+
+            <div id='footer'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla mattis massa eget interdum. Nulla facilisi. Pellentesque vel purus at arcu consectetur gravida vitae eu nisl. Quisque id lacus a tellus tempus sollicitudin at quis nisl. Sed fermentum orci id lectus blandit mattis. Integer pharetra arcu vestibulum justo interdum sed tempus ipsum aliquet. Curabitur cursus est ut diam auctor non mattis mi iaculis.</div>
+        </div>
+
+        <div class="tmp_log_as">
+          <a href="/_login_user/">Login as user</a>
+          <a href="/_login_lib/">Login as librarian</a>
+          <a href="/_login_admin/">Login as admin</a>
         </div>
     </body>
 </html>

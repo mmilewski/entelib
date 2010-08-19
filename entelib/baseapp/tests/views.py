@@ -456,19 +456,27 @@ class ShowUsersTest(TestWithSmallDB):
         self.assertContains(response, 'checked', count=1)
         self.assertNotContains(response, 'superadmin')
         self.assertNotContains(response, 'Admino Domino')
-        self.assertNotContains(response, 'Librariano')
+        # self.assertNotContains(response, 'Librariano')
+        self.assertContains(response, 'Librariano', count=1)    # in 'welcome Librariano'. He is logged in
         self.assertNotContains(response, 'Grzegorz')
         self.assertNotContains(response, 'No users found')
         
     def test_admins_found_by_name(self):
         self.log_lib()
         response = self.client.post(self.url, {'action' : 'Search', 'first_name' : 'admino', 'building' : '0'})
+        # self.assertContains(response, 'checked', count=1)
+        # self.assertContains(response, 'superadmin', count=1)
+        # self.assertContains(response, u'Admino Domino', count=1)
+        # self.assertContains(response, u'admino', count=2)
+        # self.assertNotContains(response, 'Librariano')
+        # self.assertNotContains(response, 'Grzegorz')
         self.assertContains(response, 'checked', count=1)
-        self.assertContains(response, 'superadmin', count=1)
-        self.assertContains(response, u'Admino Domino', count=1)
-        self.assertContains(response, u'admino', count=2)
-        self.assertNotContains(response, 'Librariano')
-        self.assertNotContains(response, 'Grzegorz')
+        rows = response.context['rows']
+        firstnames = [ r['first_name'] for r in rows ]
+        self.assert_('Admino' in firstnames)
+        self.assert_('Superadmino' in firstnames)
+        self.assert_('Librarian' not in firstnames)
+        self.assert_('Grzegorz' not in firstnames)
 
     def test_grzegorz_found_by_part_of_surname(self):
         self.log_lib()
@@ -476,7 +484,8 @@ class ShowUsersTest(TestWithSmallDB):
         self.assertContains(response, 'checked', count=1)
         self.assertNotContains(response, 'superadmin')
         self.assertNotContains(response, 'Admino Domino')
-        self.assertNotContains(response, 'Librariano')
+        # self.assertNotContains(response, 'Librariano')
+        self.assertContains(response, 'Librariano', count=1)   # in 'Welcome Librariano' he is logged in
         self.assertContains(response, 'Grzegorz', count=1)
 
     def test_find_all(self):
@@ -486,7 +495,7 @@ class ShowUsersTest(TestWithSmallDB):
         self.assertContains(response, 'checked', count=1)
         self.assertContains(response, 'superadmin', count=1)
         self.assertContains(response, 'Admino Domino', count=1)
-        self.assertContains(response, 'Librariano', count=1)
+        self.assertContains(response, 'Librariano', count=2)      # one in results + one in 'Welcome Librariano' (he is logged in)
         self.assertContains(response, 'Grzegorz', count=1)
         
     def test_none_found(self):
@@ -496,7 +505,8 @@ class ShowUsersTest(TestWithSmallDB):
         self.assertContains(response, 'checked', count=1)
         self.assertNotContains(response, 'superadmin')
         self.assertNotContains(response, 'Admino Domino')
-        self.assertNotContains(response, 'Librariano')
+        # self.assertNotContains(response, 'Librariano')
+        self.assertContains(response, 'Librariano', count=1)   # in 'Welcome Librariano' he is logged in
         self.assertNotContains(response, 'Grzegorz')
         self.assertContains(response, 'No users found', count=1)
 
@@ -507,7 +517,8 @@ class ShowUsersTest(TestWithSmallDB):
         self.assertContains(response, 'checked', count=1)
         self.assertNotContains(response, 'superadmin')
         self.assertNotContains(response, 'Admino Domino')
-        self.assertNotContains(response, 'Librariano')
+        # self.assertNotContains(response, 'Librariano')
+        self.assertContains(response, 'Librariano', count=1)     # in 'Welcome Librariano Śmietano'. He is logged in
         self.assertNotContains(response, 'Grzegorz')
         self.assertContains(response, 'No users found', count=1)
 
@@ -697,7 +708,7 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
         self.client.login(username='user', password=new_password, follow=True)
         
         response = self.client.get('/entelib/', follow=True)
-        self.assertContains(response, 'Logged')         # login with new password succeeded
+        self.assertContains(response, 'Welcome')         # login with new password succeeded
         self.assertEquals(200, response.status_code)
 
     def test_user_cannot_change_others_email(self):

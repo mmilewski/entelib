@@ -102,7 +102,7 @@ class BookRequestForm(forms.Form):
         return [na] + [(b.id,b.title) for b in Book.objects.all().order_by('title')]
 
     book = forms.ChoiceField(choices=_books_choice_list(), label="Book")
-    info = forms.CharField(widget=forms.Textarea,
+    info = forms.CharField(widget=forms.Textarea(attrs={'cols': 90, 'rows': 16}),
                            label=(u'Information about book you request'),
                            required=True,
                            )
@@ -553,6 +553,8 @@ class RegistrationForm(forms.Form):
         '''
         Validate that the username is alphanumeric and is not already in use.
         '''
+        if ('first_name' not in self.cleaned_data) or ('last_name' not in self.cleaned_data):
+            raise forms.ValidationError(u'First and last name must be given')
         username = self.cleaned_data['first_name'] + self.cleaned_data['last_name']
         try:
             user = User.objects.get(username__iexact=username)

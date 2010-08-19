@@ -1,308 +1,259 @@
-html, body
-{
-    background-color: #666;
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-size: 9pt;
-    font-family: Arial, sans-serif;
+/* orange: #ff8400
+   violet: #8010a2
+   yellow: #ffcf00
+*/
+
+div.tmp_log_as a {  text-decoration: none;  border:0;  padding: 1em;  }
+div.tmp_log_as a:hover  {  background-color: #ff8400;  }
+    
+.clear {  clear: both;  }
+a { color: black; border-bottom: 1px dotted gray; text-decoration: none; }
+a[href*="@"] { font-style: italic; }
+#header h1 { margin-top: 40px; margin-bottom:0; font-size: xx-large;}
+
+div.logged_user_info {
+    line-height: 1.7em;
+    background-color: #def;
+    color: #2A4666;
+    text-align: right;  vertical-align: top;
+    font-size: 8pt;
+    padding-right: 1em;
 }
 
+
+/* LOGIN FORM */
+#login {
+    padding: 20px;
+    text-align: center;
+    margin: auto;
+    position: relative;
+    left: -120px;
+}
+#login ul.errorlist {  list-style: none;  }
+#login table {  margin: 0 auto;  }
+#login form input {  width: 15em;  }
+/* / LOGIN FORM */
+
+
+/* REGISTRATION */
+form.registration_form table.basic_fields {
+    padding: 20px;
+    text-align: center;
+    margin: auto;
+    position: relative;
+    left: -120px;
+}
+form.registration_form table.basic_fields  th {
+    text-align: left;
+    vertical-align: top;
+}
+form.registration_form table.basic_fields input {
+    width: 20em;
+}
+/* / REGISTRATION */
+
+
+/* TIPS */
 div.tip,
 div.itip {
-    border: 1px solid #842DCE;
-    background: #FFF380 url("/media/images/tip_off.png") top left no-repeat;
+    font-size: x-small;
+    border: 1px solid #ff8400;
+    background: #ffcf00 url("/media/images/tip_off.gif") top left no-repeat;
     padding: 1em 1em .5em 2em;
     margin: .5em;
-    text-align:left;
+    text-align: left;
 }
 div.tip:hover,
 div.itip:hover {
-    background: #FFFF90 url("/media/images/tip_on.png") top left no-repeat;
-    border: 1px solid #943DdE;
+    background: #ffcf00 url("/media/images/tip_on.gif") top left no-repeat;
     border-bottom-left-radius: 1.5em;
     -moz-border-radius-bottomleft: 1.5em;
     -webkit-border-bottom-left-radius: 1.5em;
 }
-div.tip p,
-div.itip p {
-    margin-bottom: 0;
-    padding-bottom: 0;
+div.tip p, div.itip p {  margin-bottom: 0;  padding-bottom: 0; }
+div.tip em, div.itip em {  font-weight: bold; }
+div.itip    {  display: inline; }
+/* / TIPS */
+
+
+/* GO UP, GO BACK */
+div.goThereWrapper {  padding: 0 0.5em 1em 0; }
+div.goUpWrapper, div.goBackWrapper {  display: inline;  margin: .5em .5em 1em 0; }
+div.goUpWrapper a,
+div.goBackWrapper a {
+    background: url('/media/images/iconGoUp.gif') no-repeat;
+    padding: 0 0 .1em 20px;
+    text-decoration: none;
+    border-width: 0;
 }
-div.tip em,
-div.itip em {
+div.goBackWrapper a {
+    background: url('/media/images/iconGoBack.gif') no-repeat;
+}
+/* / GO UP, GO BACK */
+
+
+/* INFO MESSAGES */
+div.messagesWrapper {   /* messages framework */
+    padding: .3em 0em;
+    background-color: #ffcf00;
+    border: 1px solid black;
+    border-left: 0;
+    border-right: 0;
+}
+
+div.reserve_rent_form .positive_message {
     font-weight: bold;
+    color: green;
 }
-div.itip {
-    display: inline;
-}
-
-a
-{
-    color: #000;
-}
-
-h1, h2
-{
-    margin: 0.1em;
-}
-
-.green
-{
-    background-color: green;
-    border-width: 0 !important;
-}
-
-.red
-{
-    background-color: red;
-    border-width: 0 !important;
-}
-
-#tr_range
-{
+div.reserve_rent_form .negative_message {
     font-weight: bold;
+    color: red;
 }
-
-.no_padding_and_margin
-{
-    padding: 0;
-    margin: 0;
+div.positive_message {
+    font-weight: bold;
+    color: green;
 }
-
-.cloud
-{
-    position: fixed; 
-    background-color:#dedede; 
-    border: solid 1px; 
-    padding: 0.1em; 
-    display: none; 
-    z-index: 1000000;
+div.warning {
+    font-weight: bold;
+    color: red;
 }
+/* / INFO MESSAGES */
 
-table
-{
-    border-collapse: collapse;
-    border: 0;
-}
 
-table select {
-    width: 100%;
-}
-
-/* itemsWrapper */
+/* ITEMS WRAPPER */
 div.itemsWrapper table {
-    margin-top: 1em;
-    width: 100%;
-    border: 1px solid #000;
+    margin: 1em auto;
+    width: 96%;
+    border: 1px solid black;
     text-align: center;
 }
 div.itemsWrapper table td,
 div.itemsWrapper table th {
     padding: .4em .5em;
-    border: 1px solid #000;
+    border: 1px solid black;
 }
+/* / ITEMS WRAPPER */
 
 
-/* reservation archive */
-div.rsv_archive table {
-    margin-top: 1em;
-    width: 100%;
-    border: 1px solid #000;
-    text-align: center;
+/* FORMS */
+form.book_search .first {     /* books.html */
+    padding-right: 1em;
+    text-align: left;
+    /* border-right: 1px solid black; */
+    min-width: 35em;    width: 35em;
 }
-div.rsv_archive table td,
-div.rsv_archive table th {
-    padding: .4em .5em;
-    border: 1px solid #000;
+table.book_details tr.book_category select {
+    min-width: 15em;    width: 15em;
 }
-
-
-/* locations list */
-div.locs_list table {      /* locations/list.html */
-    margin-top: 1em;
-    width: 100%;
-    border: 1px solid #000;
-    text-align: center;
-}
-div.locs_list table td,
-div.locs_list table th {
-    padding: .4em .5em;
-    border: 1px solid #000;
+form.book_search input#id,
+form.book_search input#title,
+form.book_search input#author {
+    min-width: 25em;    width: 25em;
 }
 
+form.copy_search select#location {    /* bookcopies.html */
+    width: 30em;
+    min-width: 30em;
+}
+form.copy_search table {  margin: 0 auto; }
 
-/* book list */
-table.booklist {
-    margin-top: 1em;
-    width: 100%;
-    border: 1px solid #000;
-    text-align: center;
+form.edit_profile .first {    /* profile.html */
+    text-align: left;
+    vertical-align: top;
+    padding-right: 3em;
+}
+form.edit_profile .first input {
+    min-width: 25em;    width: 25em;
+}
+form.edit_profile .second input {
+    min-width: 15em;    width: 15em;
 }
 
-table.booklist td,
-table.booklist th {
-    padding: .4em .5em;
-    border: 1px solid #000;
-}
-table.booklist .title,
-table.booklist .authors {
+form.book_request_form .basic_fields {  /* book_request.html */
     text-align: left;
 }
-table.booklist .actions {   /* bookcopies.html */
-    text-align: left;
-    margin: 0.5em 0 0.5em 2em;
+
+div.user_search input#first_name,
+div.user_search input#last_name,
+div.user_search input#email {   /* users.html */
+    width: 30em;
+    min-width: 30em;
+}
+/* / FORMS */
+
+
+/* REPORTS MENU */
+/* http://matthewjamestaylor.com/blog/beautiful-css-centered-menus-no-hacks-full-cross-browser-support */
+.inner_menu {
+   /* float:left; */
+   width:99%;
+   overflow:hidden;
+   position:relative;
+   background: white;
+   border-top: 1px solid #8010a2;
+   margin: 0 auto;
+   margin-top: 2em;
+   margin-bottom: 0;
+   z-index:1;
+}
+.inner_menu ul {
+   margin:0;           padding:0;
+   clear:left;         float:left;
+   position:relative;  left:50%;
+   list-style:none;
+   height: 3.9em;
+   text-align:center;
+}
+.inner_menu ul li {
+   display:block;     float:left;
+   margin:0;          padding:0;
+   position:relative;
+   right:50%;
+}
+.inner_menu ul li a {
+   display:block;
+   margin:0 0 0 1px;
+   padding: .4em 1.5em;
+   background: #8010a2;
+   color: white;
+   text-decoration:none;
+   line-height:1.7em;
+   border:0;
+}
+.inner_menu ul li a:hover {
+   background:#ff8400;
+   color:#fff;
+   line-height:3em;
+}
+.inner_menu ul li a.active,
+.inner_menu ul li a.active:hover {
+   color:#fff;
+   background:#000;
+   font-weight:bold;
+}
+
+
+/* COPY SHOW */
+div.copy_info ul {    /* bookcopy.html */
+    list-style: none;
+    margin-left: 1em;
     padding: 0;
-    background-color: #79F;
 }
-table.booklist .actions a.unavailable {
-    color: red;
+div.copy_info ul li      {  margin-left: 0; margin-top: .5em;  }
+div.copy_info span.label {  font-weight: bold;  }
+div.copy_info .book_shelf_mark {
+    font-size: 110%;
+    font-weight: bold;
+    letter-spacing: .1em;
 }
+/* / COPY SHOW */
 
 
-ul.spaces > li {
-    margin-bottom: 0.5em;
-}
-
-.clear {
-    clear: both;
-}
-
-div#top
-{
-    background-color: #eee;
-    margin: 0 auto;
-    padding: 1em;
-    width: 80%;
-    min-height: 100%;
-    position: relative;
-}
-
-div.content_form
-{
-    margin-left: 10em;
-}
-
-div.content_form > .tip {
-    text-align: center;
-}
-
-div#header
-{
-    background-color: #BCE954;
-    border-left: 2px solid #4AA02C;
-    margin: 0 auto 1em auto;
-    padding: 0.5em;
-    overflow: hidden;
-}
-
-div#menu
-{
-    background-color: #bbb;
-    margin: 0 0.5em 0 0;
-    padding: 0;
-    width: 120px;
-    float: left;
-    overflow: hidden;
-    clear: both;
-}
-
-div#menu ul
-{
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    border: 0.5em solid #888;
-    border-left: 0;
-    border-right: 0;
-}
-
-div#menu ul li {
-    padding: 0;
-    margin: 0;
-    border-top: 1px dotted #888;
-}
-
-div#menu ul li a {
-    /* border: 1px solid red; */
-    display: block;
-    padding: 1em 0 1em 1em;
-    text-decoration: none;
-}
-
-div#menu ul li a:hover {
-    background-color: yellow;
-}
-
-div#login
-{
-    margin: 3em 0 0 15em;
-}
-
-div#content
-{
-    margin: 0;
-    padding: 0.5em;
-    overflow: auto;
-}
-
-div#footer
-{
-    clear: both;
-    width: 100%;
-    bottom: 0;
-    position: absolute;
-}
-
-div.goUpWrapper {
-    margin: 1em 0;
-}
-div.goUpWrapper a {
-    background: url('/media/images/iconGoUp.png') no-repeat !important;
-    padding: 0 0 .1em 20px;
-    text-decoration: none;
-    border-bottom: 1px dashed brown;
-}
-
-div.gobackWrapper {
-    margin: 1em 0;
-}
-div.gobackWrapper a {
-    background: url('/media/images/iconGoBack.png') no-repeat !important;
-    padding: 0 0 .1em 20px;
-    text-decoration: none;
-    border-bottom: 1px dashed brown;
-}
-
-
-div.book_actions a,       /* 'add book' link */
-div.bookcopy_actions a {  /* 'add book copy' link */
-    background: url('/media/images/add-icon.png') no-repeat;
-    padding: 0 0 .1em 20px;
-    text-decoration: none;
-    border-bottom: 1px dashed brown;
-}
-
-div.add_new_user a {       /* 'add user' link */
-    background: url('/media/images/add-icon.png') no-repeat;
-    padding: 0 0 .1em 20px;
-    text-decoration: none;
-    border-bottom: 1px dashed brown;
-}
-
-
-div.book_copies > h3#book_copies {
-    margin-top: 1.3em;
-    margin-bottom: 0;
-}
-div.book_copies tr.copy_details span.unavailable {
-    color: red;
-}
-
+/* BOOK SHOW */
 div.book_authors, div.book_copies, div.book_categories {    /* bookcopies.html */
     margin-top: 1em;
 }
-div.book_authors dt, div.book_categories dt {    /* bookcopies.html */
+div.book_authors dt, div.book_categories dt {
     font-weight: bold;
     display: inline;
 }
@@ -311,110 +262,66 @@ div.book_authors dd, div.book_categories dd {
     padding:0;
     display:inline;
 }
-
-form.book_search .first {
-    padding-right: 1.5em;
-    border-right: 1px solid black;
-}
-form.book_search .second {
-    padding-left: 1.5em;
-}
-table.book_details tr.book_category select {
-    width: 15em;
-}
+/* / BOOK SHOW */
 
 
-div.copy_info {    /* bookcopy.html */
-    
+/* EDIT PENCIL */
+div.book_contentWrapper div.edit_book,
+div.copy_contentWrapper div.edit_copy {    /* bookcopies.html, bookcopy_base.html */
+    display: block;   float: right;
+    width:  48px;     height: 39px;
 }
-div.copy_info span.label {
+div.book_contentWrapper div.edit_book a,
+div.copy_contentWrapper div.edit_copy a {
+    background: url('/media/images/edit_big.png') no-repeat left center;
+    display: block;
+    width:  100%;        height: 100%;
+    position: relative;  right: 0px;
+    border: 0;
+}
+div.book_contentWrapper div.edit_book a:hover,
+div.copy_contentWrapper div.edit_copy a:hover {
+    background: url('/media/images/edit_big_hover.png') no-repeat left center;    
+}
+div.book_contentWrapper div.edit_book a span,
+div.copy_contentWrapper div.edit_copy a span {
+    display: none;   /* hide text */
+}
+/* / EDIT PENCIL */
+
+
+/* LOCATION SHOW */
+div.location_info ul {    /* locations/one.html */
+    list-style: none;
+    margin-left: 1em;
+    padding: 0;
+}
+div.location_info ul li      {  margin-left: 0; margin-top: .5em;  }
+div.location_info span.label {  font-weight: bold;  }
+div.form_locationWrapper input {  width: 100%;  }
+div.form_locationWrapper select#id_building {  width: 25em;  }
+/* / LOCATION SHOW */
+
+
+/* USER SHOW */
+ul.userProfile li .label {
     font-weight: bold;
 }
-div.copy_info .book_shelf_mark {
-    font-size: 110%;
-    font-weight: bold;
-    letter-spacing: .1em;
-}
-div.picture {
-    float: right;
-    margin: 1em;
-}
-
-div.formWrapper th {
-    vertical-align: top;
-}
-div.formWrapper form.registration_form {
-    padding: 1em 0 0 1em;
-    background-image: url('http://www.recipester.org/images/7/7f/Bg-0006.gif');
-}
-
-ul.errorlist {
-    color: red;
-    
-}
-
-form.registration_form input.required {
-    border: 1px solid red;
-}
-form.registration_form table.basic_fields  th {
-    text-align: right;
-    vertical-align: top;
-    padding-right: 1em;
-    /* border: 1px solid green; */
-}
-form.registration_form table.basic_fields  td {
-    padding-bottom: 1.5em;
-    /* border: 1px solid red; */
-}
-form.registration_form table.basic_fields ul.errorlist {
-    list-style-type: none;
-    float: none;
-    color: red;
-    margin: 0 0 1em 0;
-    padding: 0;
-    font-size: 90%;
-}
-form.registration_form table.basic_fields  td ul.errorlist {
-    list-style-type: none;
-    float: none;
-    color: red;
-    margin: 0;
-    padding: 0;
-    font-size: 90%;
-}
-form.registration_form table.basic_fields  td ul.errorlist li {
-    padding: 0;
-}
-
-form.book_search input[type="submit"],
-form.copy_search input[type="submit"] {
-    width: 100%;
-}
-
 ul.phones a.skype {
     background: url('/media/images/skype-icon.png') no-repeat right;
     padding: 0 26px 0 0;
     text-decoration: none;
 }
+/* / USER SHOW */
 
-div.emails_wrapper div.email {
-    border-top: 1px solid black;
-    margin-bottom: 2em;
-}
-div.emails_wrapper table.emails {
-    border: 1px solid black;
-}
-div.emails_wrapper table.emails td,
-div.emails_wrapper table.emails th {
-    padding: 0.5em;
-    border: 1px solid #000;
-}
 
+/* CONFIGURATION */
+div.config_options_wrapper a { border: 0; }
 div.config_options_wrapper div.option {
     padding: .5em 1em;
 }
 div.config_options_wrapper div.option:hover {
-    background: #ddd;
+    background: #ffcf00;
     font-size: 115%;
 }
 div.config_options_wrapper dt.key {
@@ -435,7 +342,7 @@ div.config_options_wrapper a.local {
     display: inline;  width: 35px;  height: 16px;  float: left;  margin: 0 .4em;
 }
 div.config_options_wrapper a.local:hover {
-    background: url('/media/images/edit_hover.png') no-repeat left center;
+    background: url('/media/images/edit_hover.gif') no-repeat left center;
 }
 div.config_options_wrapper a.local span {
     display: none;
@@ -445,13 +352,11 @@ div.config_options_wrapper a.global {
     display: inline;  width: 82px;  height: 16px;  float: left;  margin: 0 .4em;
 }
 div.config_options_wrapper a.global:hover {
-    background: url('/media/images/edit_global_hover.png') no-repeat left center;
+    background: url('/media/images/edit_global_hover.gif') no-repeat left center;
 }
 div.config_options_wrapper a.global span {
     display: none;
 }
-
-
 form.edit_option_form td span.label {
     font-weight: bold;
 }
@@ -459,72 +364,47 @@ form.edit_option_form td input#id_value[type="text"] {  /* text input is longer.
     min-width: 25em;
     width: 100%;
 }
+/* / CONFIGURATION */
 
-.tb_stripes {
-    background-image: url('/media/images/tb_stripes.png') !important;
+
+/* EMAIL LOGS */
+div.emails_wrapper div.email {
+    border-top: 1px solid black;
+    margin-bottom: 2em;
 }
-
-ul.userProfile li .label {
-    font-weight: bold;
+div.emails_wrapper table.emails {
+    border: 1px solid black;
 }
-
-div.profile_editWrapper input[type="submit"] {
-    width: 100%;
+div.emails_wrapper table.emails td,
+div.emails_wrapper table.emails th {
+    padding: 0.5em;
+    border: 1px solid #000;
 }
-
-div.messagesWrapper {
-    padding: .3em 0em;
-    background-color: yellow;
-    border: 1px solid violet;
-}
-div.messagesWrapper ul#messages {
-}
+/* / EMAIL LOGS */
 
 
-div.location_info {   /* locations/one.html */
-}
-div.location_info span.label {
-    font-weight: bold;
-}
-
-
-div.book_contentWrapper div.edit_book,
-div.copy_contentWrapper div.edit_copy {    /* bookcopies.html, bookcopy_base.html */
+/* MISC */
+div.add_new_user a,           /* 'add user' link */
+div.book_actions a.add_book,  /* 'add book' link */
+div.bookcopy_actions a {      /* 'add book copy' link */
+    background: url('/media/images/add-icon.gif') no-repeat;
+    padding: 0 0 .2em 20px;
     display: block;
-    width:  48px;
-    height: 39px;
-    float: right;
+    margin: .5em 0;
+    border: 0;
+    text-decoration: none;
 }
-div.book_contentWrapper div.edit_book a,
-div.copy_contentWrapper div.edit_copy a {
-    background: url('/media/images/edit_big.png') no-repeat left center;
-    display: block;
-    width:  100%;
-    height: 100%;
-    position: relative;
-    right: 0px;
+
+table {
+    border-collapse: collapse;
+    border: 1px solid black;
 }
-div.book_contentWrapper div.edit_book a:hover,
-div.copy_contentWrapper div.edit_copy a:hover {
-    background: url('/media/images/edit_big_hover.png') no-repeat left center;    
+form table {     /* table in form is usually layout table */
+    border-collapse: collapse;
+    border: 0;
 }
-div.book_contentWrapper div.edit_book a span,
-div.copy_contentWrapper div.edit_copy a span {
-    display: none;   /* hide text */
-}
-div.reserve_rent_form .positive_message {
-  font-weight: bold;
-  color: green;
-}
-div.reserve_rent_form .negative_message {
-  font-weight: bold;
-  color: red;
-}
-div.positive_message {
-  font-weight: bold;
-  color: green;
-}
-div.warning {
-  font-weight: bold;
-  color: red;
-}
+table select {  width: 100%;  }
+.ui-datepicker-calendar {  border:0;  }  /* fix for jquery */
+
+ul.errorlist {  color: red;  }
+/* / MISC */

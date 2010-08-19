@@ -5,7 +5,7 @@
 {% block header %}All locations{% endblock %}
 
 {% block order %} [[1,0]] {% endblock %}
-{% block itemsWrapper %}locs_list{% endblock %}
+{% block itemsWrapper %}locs_list itemsWrapper{% endblock %}
 
     {% block header_row %}
         <th></th>
@@ -17,7 +17,7 @@
 
     {% block item_row %}
         <td class="show"><a href="{{ row.id }}/">Show details</a></td>
-        <td class="details">{{ row.building.name }}: {{ row.details }}</td>
+        <td class="details"><a href="{{ row.id }}/">{{ row.building.name }}: {{ row.details }}</a></td>
 <!--        <td class="building_name">{{ row.building.name }}</td>  -->
         <td class="remarks">{{row.remarks|default:"-"}}</td>
         <td class="mtrs">{{ row.maintainer.all|join:", "|default:"-"}}</td>

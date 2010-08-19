@@ -6,10 +6,12 @@
 
 {% block content %}
 <div class="book_one">
-    <p class="links">
-      <a href="{% url book_all %}">Show all books</a> 
-      {%if is_updating%}<a href="{% url book_one book.id %}">Show this book</a>{% endif %}
-    </p>
+  <div class="inner_menu">
+    <ul>
+      <li><a href="{% url book_all %}">Show all books</a> </li>
+      {%if is_updating%}<li><a href="{% url book_one book.id %}">Show this book</a></li>{% endif %}
+    </ul>
+  </div>
     
     {% if perms.baseapp.add_book %}
     <div class="form_bookWrapper">

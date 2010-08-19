@@ -66,12 +66,12 @@
 
 
 {% block after_table %}
-    <p>
-    <a href='archive/'>Show archive</a>
-    <p>
-    <a href='new/'>Rent something else.</a>
-    <p>
-    <a href='{{ cancel_all_url }}'>Cancel all reservations</a>
-
+        <div class="inner_menu">
+          <ul>
+            <li><a href='archive/'>Show archival reservations</a></li>
+            <li><a href='new/'>Rent something else</a></li>
+            <li><a href='{{ cancel_all_url }}'>Cancel all reservations</a></li>
+          </ul>
+        </div>
 {% endblock %}
 
