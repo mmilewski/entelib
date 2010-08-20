@@ -221,9 +221,11 @@ class ProfileEditForm(forms.Form):
             self.editor = profile_owner
         self.profile_owner = profile_owner
         super(ProfileEditForm, self).__init__(*args, **kwargs)
-        self.fields['username'].widget.attrs['readonly'] = True
         self.fields['first_name'].widget.attrs['readonly'] = True
         self.fields['last_name'].widget.attrs['readonly'] = True
+        # only admin can edit username
+        if not self.editor.userprofile.is_admin():
+            self.fields['username'].widget.attrs['readonly'] = True
 
 
     def clean(self):
@@ -261,6 +263,14 @@ class ProfileEditForm(forms.Form):
         return value
         
     def clean_username(self):
+        # if unchanged, then exit
+        if self.profile_owner.username == self.cleaned_data['username']:
+            return self.profile_owner.username
+
+        # only admin can edit
+        if not self.editor.userprofile.is_admin():
+            raise forms.ValidationError('Only administrator can change usernames')
+
         value = self.cleaned_data['username']
         try:
             threatened_user = User.objects.get(username=value)
@@ -449,7 +459,10 @@ class ProfileEditForm(forms.Form):
                 
         self.profile_owner.first_name = self.cleaned_data['first_name']
         self.profile_owner.last_name = self.cleaned_data['last_name']
-        self.profile_owner.username = self.cleaned_data['username']
+
+        # only admin can change usernames
+        if self.editor.userprofile.is_admin():
+            self.profile_owner.username = self.cleaned_data['username']
 
         cleaned_phones   = self.get_cleaned_phones(self.cleaned_data)
         phones_as_list   = self.transform_cleaned_phones_to_list_of_phones(cleaned_phones)        

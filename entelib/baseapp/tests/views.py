@@ -686,9 +686,12 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
 
     # tests
 
-    def test_user_can_change_username(self):
+    def test_user_cannot_change_username(self):
         user = User.objects.get(username='user')
-        self.assert_can_change_own_field(user, 'user', 'username', 'Robocop')
+        password = 'user'
+        victim = user
+        # uses ...change_others... because there is no version for self
+        self.assert_cannot_change_others_field(user, password, victim.id, 'username', 'moj_nowy_wypasiony_username')
 
     def test_user_can_change_email(self):
         user = User.objects.get(username='user')
@@ -715,14 +718,12 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
     def test_user_cannot_change_others_email(self):
         user = User.objects.get(username='user')
         password = 'user'
-        password = 'user'
         for victim in User.objects.all():
             self.assert_cannot_change_others_field(user, password, victim.id, 'email', 'no-darn@email.works')
 
     def test_admin_can_change_users_username(self):
         admin = User.objects.get(username='admin')
         passwd = 'admin'
-
         for user in User.objects.exclude(username='admin'):
             self.assert_can_change_someone_elses_field(admin, passwd, 'username', 'username', 'some_%d' % user.id, user)
 

@@ -62,6 +62,8 @@
     <th>Username</th>
     <th>First name, last name</th>
     <th>Email</th>
+    <th>Is librarian</th>
+    <th>Is admin</th>
 {% endblock header_row %}
 
 
@@ -72,6 +74,10 @@
             <a href='{{ row.url }}'>{{ row.first_name }} {{ row.last_name }}</a>
         </td> <td>
             <a href='mailto:{{row.email}}'>{{ row.email }}</a>
+        </td> <td>
+            {{ row.userprofile.is_librarian|yesno:_("Yes,No") }}
+        </td> <td>
+            {{ row.userprofile.is_admin|yesno:_("Yes,No") }}
         </td>
 {% endblock item_row %}
 

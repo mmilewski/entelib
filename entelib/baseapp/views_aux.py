@@ -132,6 +132,7 @@ def get_users_details_list(first_name, last_name, email, building_id):
                          'last_name'  : u.last_name,
                          'first_name' : u.first_name,
                          'email'      : u.email,
+                         'userprofile': u.userprofile,
                          'url'        : "%d/" % u.id,  # relative path to user profile
                          }      for u in User.objects.filter(first_name__icontains=first_name)
                                                      .filter(last_name__icontains=last_name)

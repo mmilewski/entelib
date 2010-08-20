@@ -435,6 +435,5 @@ form table {     /* table in form is usually layout table */
 table select {  width: 100%;  }
 
 ul.errorlist {  color: red;  }
+input[readonly] { background-color: #eee; }  /* chrome doesn't gray out readonly fields */
 /* / MISC */
-
-

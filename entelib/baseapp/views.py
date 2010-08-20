@@ -627,7 +627,7 @@ def show_users(request):
         context['buildings'][building_index].update({'selected' : True})
 
         context.update({
-            'rows'            : user_list,
+            'rows'             : user_list,
             'search'           : search_data,
             'non_found'        : not len(user_list),  # if no users was found were pass True
             'from_my_building' : request_from_my_building,
