@@ -1,0 +1,53 @@
+{% extends 'base_with_listing.html' %}
+
+{% block title %} Current rentals {% endblock %}
+
+{% block header %} Current rentals {% endblock %}
+
+{% block before_table %}
+    {% if display_tips %}
+        <div class="tip tips">
+          {% if not all_locations %}
+            <p>Here you can accept returnals of books in locations maintained by you.</p>
+          {% endif %}
+        </div>
+    {% endif %}
+{% endblock before_table %}
+
+
+{% block header_row %}
+    <th> {# Return #} </th>
+    <th> ID </th>
+    <th> Title </th>
+    <th> Authors </th>
+    <th> Start date </th>
+    <th> End date </th>
+    <th> User </th>
+    <th> Location </th>
+{% endblock header_row %}
+
+
+{% block item_row %}
+    {# with row as reservation #}
+    <form method='post' action='.'>
+        <input type='hidden' name='rental_id' value='{{ row.id }}' />
+        <td>
+            <input type='submit' name='return' value='Accept'>
+        </td><td>
+            {{ row.shelf_mark }}
+        </td><td>
+            {{ row.title }}
+        </td><td>
+            {{ row.authors|join:', ' }}
+        </td><td>
+            {{ row.start_date }}
+        </td><td>
+            {{ row.end_date }}
+        </td><td>
+            {{ row.user }}
+        </td><td>
+            {{ row.location }}
+        </td>
+    </form>
+
+{% endblock item_row %}

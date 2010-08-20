@@ -431,13 +431,14 @@ def return_rental(librarian, rental_id):
         librarian - accepts returnal
         rental_id - id of rental being ended
     '''
+    returned_rental = get_object_or_404(Rental, id=rental_id)
+
     # not everyone can return book
     if not librarian.has_perm('baseapp.change_rental'):
         raise PermissionDenied
-    if not librarian in reservation.book_copy.location.maintainer.all():
+    if not librarian in returned_rental.reservation.book_copy.location.maintainer.all():
         raise PermissionDenied('One can only rent/return from location one maintains')
 
-    returned_rental = Rental.objects.get(id=rental_id)
     # can't return a rental twice
     if returned_rental.end_date is not None:
         raise Rental.DoesNotExist('Rental already returned')

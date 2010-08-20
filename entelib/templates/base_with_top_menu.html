@@ -4,15 +4,15 @@
 
     <div id='menu'>
       <ul> 
-        {% if can_list_books %}                <li><a href="/entelib/books/">                      Book list</a></li>         {% endif %}
-                                               <li><a href="/entelib/profile/reservations/new/">   Rent something</a></li>
-
-        {% if can_view_own_profile %}              <li><a href="/entelib/profile/">                My profile</a>       
-          <ul>
-            {% if can_view_own_profile %}          <li><a href="/entelib/profile/">                Show my profile</a>        {% endif %}
-            {% if can_view_own_profile %}          <li><a href="/entelib/profile/rentals/">        My rentals</a></li>        {% endif %}
-            {% if can_view_own_profile %}          <li><a href="/entelib/profile/reservations/">   My reservations</a></li>   {% endif %}
-            {% if can_view_own_profile %}          <li><a href="/entelib/profile/config/">         Configuration</a></li>   {% endif %}
+        {% if can_list_books %}                <li><a href="/entelib/books/">                           Book list             </a></li> {% endif %}
+                                               <li><a href="/entelib/profile/reservations/new/">        Rent something        </a></li>
+                                                                                                                              
+        {% if can_view_own_profile %}              <li><a href="/entelib/profile/">                     My profile            </a>      
+          <ul>                                                                                                                
+            {% if can_view_own_profile %}          <li><a href="/entelib/profile/">                     Show my profile       </a>      {% endif %}
+            {% if can_view_own_profile %}          <li><a href="/entelib/profile/rentals/">             My rentals            </a></li> {% endif %}
+            {% if can_view_own_profile %}          <li><a href="/entelib/profile/reservations/">        My reservations       </a></li> {% endif %}
+            {% if can_view_own_profile %}          <li><a href="/entelib/profile/config/">              Configuration         </a></li> {% endif %}
           </ul>
         </li>
         {% endif %}
@@ -21,8 +21,9 @@
           <li>
             Work
               <ul>
-                {% if user.get_profile.is_librarian %}    <li><a href="/entelib/shipment">              Shipment requests</a></li>    {% endif %}
-                {% if user.get_profile.is_librarian %}    <li><a href="/entelib/current_reservations/"> Current reservations</a></li> {% endif %}
+                {% if user.get_profile.is_librarian %}    <li><a href="/entelib/shipment">              Shipment requests     </a></li> {% endif %}
+                {% if user.get_profile.is_librarian %}    <li><a href="/entelib/current_reservations/"> Current reservations  </a></li> {% endif %}
+                {% if user.get_profile.is_librarian %}    <li><a href="/entelib/current_rentals/">      Current rentals       </a></li> {% endif %}
               </ul>
           </li>
         {% endif %}

@@ -1024,5 +1024,36 @@ def show_shipment_requests(request):
 @permission_required('baseapp.add_rental')
 def show_current_reservations(request, show_all=False):
     only_rentable = not show_all
-    print only_rentable
     return aux.show_reservations(request, only_rentable=only_rentable)
+
+                       
+@permission_required('baseapp.change_rental')
+def show_current_rentals(request, all_locations=False):
+    context = {}
+
+    locations = request.user.location_set.all()  # locations maintained by user
+    rentals = Rental.objects.filter(end_date=None)
+    if not all_locations:
+        reservations = rentals.filter(reservation__book_copy__location__in=locations)
+
+    if request.method == 'POST':
+        post = request.POST
+        if 'return' in post:
+            rental = get_object_or_404(Rental, id=post['rental_id'])
+            aux.return_rental(request.user, rental)
+            context.update({'message' : 'Accepted returnal of %s (%s) from %s.' % \
+                (rental.reservation.book_copy.book.title, rental.reservation.book_copy.shelf_mark, aux.user_full_name(rental.reservation.for_whom))})
+
+    rental_list = [
+                        { 'id'                : r.id,
+                          'user'              : aux.user_full_name(r.reservation.for_whom.id),
+                          'start_date'        : r.start_date.date,
+                          'end_date'          : r.reservation.end_date,
+                          'location'          : r.reservation.book_copy.location,
+                          'shelf_mark'        : r.reservation.book_copy.shelf_mark,
+                          'title'             : r.reservation.book_copy.book.title,
+                          'authors'           : [a.name for a in r.reservation.book_copy.book.author.all()],
+                        } for r in rentals ]
+    context.update({ 'rows' : rental_list })
+    return render_response(request, 'current_rentals.html', context)
+    
