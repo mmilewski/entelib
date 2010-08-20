@@ -1,0 +1,71 @@
+{% extends 'base_with_listing.html' %}
+
+{% block title %} {{ header }} {% endblock %}
+
+{% block header %} {{ header }} {% endblock %}
+
+{% block before_table %}
+    {% if display_tips %}
+        <div class="tip tips">
+          {% if not all_locations %}
+            <p>Here you can see reservations on books in locations maintained by you.</p>
+          {% endif %}
+          {% if shipments %}
+            <p> Use this view to mark books you are sending via internal post. </p>
+          {% endif %}
+          {% if not show_all %}
+            <p> Only reservations that can be pursued right away are listed. </p>
+          {% endif %}
+          {% if show_all %}
+            <p> All active reservations are listed here, though no all of them can be pursued immediately </p>
+          {% endif %}
+        </div>
+    {% endif %}
+{% endblock before_table %}
+
+
+{% block header_row %}
+    <th> {# Rent #} </th>
+    <th> ID </th>
+    <th> Title </th>
+    <th> Authors </th>
+    <th> End date </th>
+    <th> User </th>
+    <th> Location </th>
+    <th> {# Cancel #} </th>
+{% endblock header_row %}
+
+
+{% block item_row %}
+    {# with row as reservation #}
+    <form method='post' action='.'>
+        <input type='hidden' name='reservation_id' value='{{ row.id }}' />
+        <td>
+            <input type='submit' name='rent' value=
+                {% if shipments %} 'Send' {% else %} 'Rent' {% endif %}
+                {% if not row.rental_possible %} disabled {% endif %} >
+        </td><td>
+            {{ row.shelf_mark }}
+        </td><td>
+            {{ row.title }}
+        </td><td>
+            {{ row.authors|join:', ' }}
+        </td><td>
+            {{ row.end_date }}
+        </td><td>
+            {{ row.user }}
+        </td><td>
+            {{ row.location }}
+        </td><td>
+            <input type='submit' name='cancel' value='Cancel'>
+        </td>
+    </form>
+
+{% endblock item_row %}
+
+
+{% block after_table %}
+      {% if not show_all and not shipments %}
+            <p> <a href='all/'>Show also not rentable</a></p>
+      {% endif %}
+{% endblock after_table %}
