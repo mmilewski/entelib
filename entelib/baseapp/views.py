@@ -201,6 +201,9 @@ def register(request, action, registration_form=RegistrationForm, extra_context=
                     new_user = form.save()
                     new_user.is_active = True
                     new_user.save()
+                    profile = new_user.userprofile
+                    userprofile.awaits_activation = False
+                    userprofile.save()
                     messages.success(request, 'User registered and activated.')
                     return HttpResponseRedirect('/entelib/users/%d/' % new_user.id)
             # display form
@@ -1032,7 +1035,7 @@ def show_current_rentals(request, all_locations=False):
     context = {}
 
     locations = request.user.location_set.all()  # locations maintained by user
-    rentals = Rental.objects.filter(end_date=None)
+    rentals = Rental.objects.filter(end_date=None).select_related()
     if not all_locations:
         reservations = rentals.filter(reservation__book_copy__location__in=locations)
 
@@ -1040,9 +1043,13 @@ def show_current_rentals(request, all_locations=False):
         post = request.POST
         if 'return' in post:
             rental = get_object_or_404(Rental, id=post['rental_id'])
-            aux.return_rental(request.user, rental)
+            aux.return_rental(request.user, rental.id)
             context.update({'message' : 'Accepted returnal of %s (%s) from %s.' % \
-                (rental.reservation.book_copy.book.title, rental.reservation.book_copy.shelf_mark, aux.user_full_name(rental.reservation.for_whom))})
+                (rental.reservation.book_copy.book.title,
+                 rental.reservation.book_copy.shelf_mark,
+                 aux.user_full_name(rental.reservation.for_whom)
+                )
+                })
 
     rental_list = [
                         { 'id'                : r.id,
