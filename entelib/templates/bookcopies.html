@@ -137,7 +137,7 @@
                         <td class="publisher">{{ item.publisher }}</td>
                         <td class="year">{{ item.year }}</td>
                         {% if perms.baseapp.view_location %}
-                        <td class="location"><a href="{%url location_one item.location.id %}">{{ item.location }}</a></td>
+                        <td class="location"><a href="{%url location_one item.location.id %}" title="{{item.maintainers}}">{{ item.location }}</a></td>
                         {% else %}
                         <td class="location">{{ item.location }}</td>
                         {% endif %}

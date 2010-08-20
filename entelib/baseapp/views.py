@@ -421,6 +421,7 @@ def show_book(request, book_id, non_standard_user_id=False):
             # 'reserve_url'   : reserve_url % elem.id,
             'shelf_mark'    : elem.shelf_mark,
             'location'      : elem.location,
+            'maintainers'   : ",".join([ "%s %s"%(f,l) for f,l in elem.location.maintainer.values_list('first_name', 'last_name') ]),
             'state'         : elem.state,
             'publisher'     : elem.publisher,
             'year'          : elem.year,
