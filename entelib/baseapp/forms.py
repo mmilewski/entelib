@@ -221,7 +221,7 @@ class ProfileEditForm(forms.Form):
             self.editor = profile_owner
         self.profile_owner = profile_owner
         super(ProfileEditForm, self).__init__(*args, **kwargs)
-        # only admin can edit username, first name and last name
+        # editing username, first name and last name requires perm
         if not self.editor.has_perm('baseapp.edit_xname'):
             self.fields['username'].widget.attrs['readonly'] = True
             self.fields['first_name'].widget.attrs['readonly'] = True
@@ -470,12 +470,11 @@ class ProfileEditForm(forms.Form):
                 user_profile.building = None
             user_profile.save()
                 
-        self.profile_owner.first_name = self.cleaned_data['first_name']
-        self.profile_owner.last_name = self.cleaned_data['last_name']
-
         # only admin can change usernames
-        if self.editor.userprofile.is_admin():
+        if self.editor.has_perm('baseapp.edit_xname'):
             self.profile_owner.username = self.cleaned_data['username']
+            self.profile_owner.first_name = self.cleaned_data['first_name']
+            self.profile_owner.last_name = self.cleaned_data['last_name']
 
         cleaned_phones   = self.get_cleaned_phones(self.cleaned_data)
         phones_as_list   = self.transform_cleaned_phones_to_list_of_phones(cleaned_phones)        
