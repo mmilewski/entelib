@@ -154,6 +154,7 @@ class UserProfile(models.Model):
             ("list_users", "Can list users"),
             ('view_own_profile', 'Can view his own profile'),
             ('view_others_profile', "Can view other people' profile"),
+            ('edit_xname', "Can edit username, first name and last name"),
             ('list_reports', 'Can list reports'),     # FIXME: this shouldn't be here, but I don't know where is the right place for that, since no Report model is defined
         )
         unique_together = (('user',),)

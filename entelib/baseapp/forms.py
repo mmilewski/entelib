@@ -221,11 +221,11 @@ class ProfileEditForm(forms.Form):
             self.editor = profile_owner
         self.profile_owner = profile_owner
         super(ProfileEditForm, self).__init__(*args, **kwargs)
-        self.fields['first_name'].widget.attrs['readonly'] = True
-        self.fields['last_name'].widget.attrs['readonly'] = True
-        # only admin can edit username
-        if not self.editor.userprofile.is_admin():
+        # only admin can edit username, first name and last name
+        if not self.editor.has_perm('baseapp.edit_xname'):
             self.fields['username'].widget.attrs['readonly'] = True
+            self.fields['first_name'].widget.attrs['readonly'] = True
+            self.fields['last_name'].widget.attrs['readonly'] = True
 
 
     def clean(self):
@@ -251,25 +251,38 @@ class ProfileEditForm(forms.Form):
     
     
     def clean_first_name(self):
+        # exit if unchanged
+        if self.profile_owner.first_name == self.cleaned_data['first_name']:
+            return self.profile_owner.first_name
+        # check perms
+        if not self.editor.has_perm('baseapp.edit_xname'):
+            raise forms.ValidationError("You don't have permissions to edit first name")
+
         value = self.cleaned_data['first_name']
         if len(value) > 30:
             raise forms.ValidationError('Too long')
         return value
     
     def clean_last_name(self):
+        # exit if unchanged
+        if self.profile_owner.last_name == self.cleaned_data['last_name']:
+            return self.profile_owner.last_name
+        # check perms
+        if not self.editor.has_perm('baseapp.edit_xname'):
+            raise forms.ValidationError("You don't have permissions to edit last name")
+
         value = self.cleaned_data['last_name']
         if len(value) > 30:
             raise forms.ValidationError('Too long')
         return value
         
     def clean_username(self):
-        # if unchanged, then exit
+        # exit if unchanged
         if self.profile_owner.username == self.cleaned_data['username']:
             return self.profile_owner.username
-
-        # only admin can edit
-        if not self.editor.userprofile.is_admin():
-            raise forms.ValidationError('Only administrator can change usernames')
+        # check perms
+        if not self.editor.has_perm('baseapp.edit_xname'):
+            raise forms.ValidationError("You don't have permissions to edit username")
 
         value = self.cleaned_data['username']
         try:
