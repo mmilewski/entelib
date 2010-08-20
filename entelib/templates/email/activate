@@ -1,3 +1,5 @@
-{{ user.first_name }} {{ user.last_name }} has requested access to library.<br />
+{{ user.first_name }} {{ user.last_name }} has requested access to library.
 
-Activate him at http://entelib.nsn/users/{{ user.id }}/activate/.
+Activate him at http://glonull1.mobile.fp.nsn-rdnet.net:8080/entelib/users/{{ user.id }}/activate/.
+
+See his profile at http://glonull1.mobile.fp.nsn-rdnet.net:8080/entelib/users/.

@@ -700,7 +700,7 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
     def test_user_can_change_password(self):
         self.log_user()
         user = User.objects.get(username='user')
-        new_password = 'brand_new_passwd'
+        new_password = u'brandnewpasswd'
 
         dict = self.create_post(user, 'user', {'password1' : new_password, 'password2' : new_password, })
         
@@ -709,7 +709,6 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
         self.assertContains(response, 'updated')
 
         self.logout()
-        self.client.login(username='user', password=new_password, follow=True)
         
         response = self.client.get('/entelib/', follow=True)
         self.assertContains(response, 'Welcome')         # login with new password succeeded

@@ -1070,3 +1070,6 @@ def show_current_rentals(request, all_locations=False):
     context.update({ 'rows' : rental_list })
     return render_response(request, 'current_rentals.html', context)
     
+
+def activate_many(request):
+    pass

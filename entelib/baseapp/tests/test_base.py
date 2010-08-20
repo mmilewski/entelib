@@ -12,21 +12,21 @@ class Test(TestCase, PageLogger):
     def log_admin(self):
         ''' Logs in admin - with all permissions '''
         self.client.logout()
-        self.client.login(username='admin', password='admin')
+        return self.client.login(username='admin', password='admin')
 
     def log_lib(self):
         ''' Logs in as librarian - some more permissions than user '''
         self.client.logout()
-        self.client.login(username='lib', password='lib')
+        return self.client.login(username='lib', password='lib')
 
     def log_user(self):
         ''' Logs in as user '''
         self.client.logout()
-        self.client.login(username='user', password='user')
+        return self.client.login(username='user', password='user')
 
     def logout(self):
         ''' Logs out '''
-        self.client.logout()
+        return self.client.logout()
 
     def test_nothing(self):
         self.assert_(True)

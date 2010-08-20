@@ -42,7 +42,17 @@
         {% endif %}
 
         {% if can_list_locations %}            <li><a href="/entelib/locations/">              Locations</a></li>         {% endif %}
-        {% if can_list_users %}                <li><a href="/entelib/users/">                  User list</a></li>         {% endif %}
+        {% if can_list_users %}                
+            <li>
+                <a href="/entelib/users/">User list</a>
+                <ul>
+                    <li>
+                        <a href="/entelib/users/activate/">Waiting</a>
+                    </li>
+                </ul>
+            </li>         
+        
+        {% endif %}
 
 
         
