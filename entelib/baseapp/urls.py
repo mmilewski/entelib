@@ -89,7 +89,7 @@ urlpatterns = patterns(
     # librarian work
     url(r'^shipment/$', view.show_shipment_requests, name="shipment"),
     url(r'^current_reservations/$', view.show_current_reservations, name="location_reservations_rentable"),
-    url(r'^current_reservations/all/$', view.show_current_reservations, name="location_reservations_all"),
+    url(r'^current_reservations/(?P<show_all>(all))/$', view.show_current_reservations, name="location_reservations_all"),
 
     # reports
     url(r'^report/$', view.show_reports, name="report_all"),

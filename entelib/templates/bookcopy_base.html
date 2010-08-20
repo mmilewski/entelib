@@ -12,6 +12,7 @@
     <div class="edit_copy"><a href="{% url copy_edit copy.id %}" title="Edit this book copy"><span>edit</span></a></div>
     {% endif %}
     
+    {# TODO wywalić picture #}
     {% if copy.picture %}
     <div class="picture">
       <img src="/media/{{ copy.picture.file }}"

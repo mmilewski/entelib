@@ -1023,4 +1023,6 @@ def show_shipment_requests(request):
                        
 @permission_required('baseapp.add_rental')
 def show_current_reservations(request, show_all=False):
-    return aux.show_reservations(request, only_rentable=show_all)
+    only_rentable = not show_all
+    print only_rentable
+    return aux.show_reservations(request, only_rentable=only_rentable)

@@ -266,7 +266,8 @@ class BookCopyStatus(object):
 
     def why_not_available(self):
         if self.is_available():
-            raise ValueError('BookCopyStatus.why_not_available error: available')
+            return False
+            # raise ValueError('BookCopyStatus.why_not_available error: available')
         return self.explanation
 
     def rental_possible_for_days(self):
@@ -791,7 +792,7 @@ def show_reservations(request, shipment_requested=False, only_rentable=True, all
         reservation = get_object_or_404(Reservation, id=post['reservation_id'])
         if 'rent' in post:
             user = reservation.for_whom
-            Rental(reservation=reservation, start_date=date.today(), who_handed_out=request.user).save()
+            rent(reservation, request.user)
             context.update({'message' : 'Rented %s (%s) to %s.' % \
                 (reservation.book_copy.book.title, reservation.book_copy.shelf_mark, user_full_name(reservation.for_whom))})
         if 'cancel' in post:
@@ -799,14 +800,23 @@ def show_reservations(request, shipment_requested=False, only_rentable=True, all
             context.update({'message' : 'Cancelled.'})
 
     reservation_list = [
-                        { 'id'         : r.id,
-                          'user'       : user_full_name(r.for_whom.id),
-                          'start_date' : r.start_date,
-                          'end_date'   : r.end_date,
-                          'location'   : r.book_copy.location,
-                          'shelf_mark' : r.book_copy.shelf_mark,
-                          'title'      : r.book_copy.book.title,
-                          'authors'    : [a.name for a in r.book_copy.book.author.all()]
-                        } for r in reservations if is_reservation_rentable(r) ]
+                        { 'id'                : r.id,
+                          'user'              : user_full_name(r.for_whom.id),
+                          'start_date'        : r.start_date,
+                          'end_date'          : r.end_date,
+                          'location'          : r.book_copy.location,
+                          'shelf_mark'        : r.book_copy.shelf_mark,
+                          'title'             : r.book_copy.book.title,
+                          'authors'           : [a.name for a in r.book_copy.book.author.all()],
+                          'rental_possible'   : is_reservation_rentable(r),
+                        } for r in reservations ]
     context.update({ 'rows' : reservation_list })
-    return render_response(request, 'shipment_requests.html', context)
+    if shipment_requested:
+        context.update({ 'header' : 'Shipment requests',
+                         'shipments' : True, })
+    elif not only_rentable:
+        context.update({ 'header' : 'All active reservations', 
+                         'show_all' : True, })
+    else:
+        context.update({ 'header' : 'Current reservations'})
+    return render_response(request, 'current_reservations.html', context)
