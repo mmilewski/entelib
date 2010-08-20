@@ -6,6 +6,7 @@ from baseapp.models import Book, BookCopy, User, Reservation, EmailLog
 from datetime import date, timedelta
 from config import Config
 from baseapp.utils import get_admins
+from smtplib import SMTPRecipientsRefused
 
 
 # _from_address = Config().get_str('mail_sender_address')   # is this one incorrect?
@@ -32,7 +33,11 @@ def send(subject, msg, sender, recipients):
     if config.get_bool('log_send_emails'):
         log_email(sender, recipients, subject, msg)
     if config.get_bool('send_emails'):
-        django_send_mail(subject, msg, sender, recipients)
+        try:
+            django_send_mail(subject, msg, sender, recipients)
+        except SMTPRecipientsRefused:
+            return 'Incorrect e-mail adress - e-mail not sent'
+    return None
 
 
 def default_email(recipients, template, context, subject=None, sender=None):
