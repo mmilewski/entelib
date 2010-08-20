@@ -8,9 +8,17 @@
      
     {% block before_table %} {% endblock %}
     <script type="text/javascript">
-        $(document).ready(function()  { $("#sortable_table").tablesorter( {
-                                                                            sortList: {%block order%} [[0,0]] {%endblock%}
-                                                                        } ); } );
+        $(document).ready(function() {
+            $("#sortable_table").tablesorter( {
+                sortList: {%block order%} [[0,0]] {%endblock%},
+                textExtraction: function(node) {
+                    var value = $(node.innerHTML).text();
+        
+                    return value; //childNodes[0].childNodes[0].innerHTML; 
+                }
+
+             });
+        });
     </script>
 
     <div class="{%block itemsWrapper%}itemsWrapper{%endblock%}">

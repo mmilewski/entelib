@@ -147,7 +147,7 @@ form.book_search .first {     /* books.html */
     padding-right: 1em;
     text-align: left;
     /* border-right: 1px solid black; */
-    min-width: 35em;    width: 35em;
+    min-width: 40em;    width: 40em;
 }
 table.book_details tr.book_category select {
     min-width: 15em;    width: 15em;
@@ -317,8 +317,10 @@ div.location_info ul {    /* locations/one.html */
 }
 div.location_info ul li      {  margin-left: 0; margin-top: .5em;  }
 div.location_info span.label {  font-weight: bold;  }
-div.form_locationWrapper input {  width: 100%;  }
-div.form_locationWrapper select#id_building {  width: 25em;  }
+div.form_locationWrapper table {  margin: 0 auto;  }
+div.form_locationWrapper input#id_remarks,
+div.form_locationWrapper input#id_details {  width: 100%;  }
+div.form_locationWrapper select#id_building {  width: 30em;  }
 /* / LOCATION SHOW */
 
 

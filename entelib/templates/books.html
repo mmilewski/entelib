@@ -113,12 +113,19 @@
       {% endif %}
     </div>
 
+    <!-- TABLESORTER init -->
+    <script type="text/javascript">
+        $(document).ready(function()  { $("#booklist").tablesorter( {
+            sortList: [[1,0]],
+            textExtraction: function(node) { var value = $(node.innerHTML).text();
+                                             return value; //childNodes[0].childNodes[0].innerHTML; 
+            }
+        } ); } );
+    </script>
+    <!-- / TABLESORTER init -->
+    
     {% if books %}
     <!--- BOOK SECTION -->
-        <script type="text/javascript">
-            $(document).ready(function()  { $("#booklist").tablesorter( {sortList: [[1,0]]} ); } );
-        </script>
-
         <div class="found_books itemsWrapper">
             <table class="booklist tablesorter" id="booklist">
             <thead>
@@ -142,10 +149,6 @@
 
     {% if bookcopies %}
     <!--- BOOK COPIES SECTION -->
-        <script type="text/javascript">
-            $(document).ready(function()  { $("#booklist").tablesorter( {sortList: [[1,0]]} ); } );
-        </script>
-
         <div class="found_books itemsWrapper">
             <table class="booklist tablesorter" id="booklist">
             <thead>

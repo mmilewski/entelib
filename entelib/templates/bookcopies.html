@@ -136,7 +136,11 @@
                         <td class="state"><span title="{{item.state.description|default:"No description"}}">{{ item.state }}</span> {% if not item.is_available %}<span class="unavailable" title="Unavailable, sorry"><br/>(unavailable)</span>{%endif%}</td>
                         <td class="publisher">{{ item.publisher }}</td>
                         <td class="year">{{ item.year }}</td>
+                        {% if perms.baseapp.view_location %}
+                        <td class="location"><a href="{%url location_one item.location.id %}">{{ item.location }}</a></td>
+                        {% else %}
                         <td class="location">{{ item.location }}</td>
+                        {% endif %}
                         <td class="actions">
                             <ul class="actions">
                                 {%if perms.baseapp.change_bookcopy %}

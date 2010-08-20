@@ -12,17 +12,6 @@
     <div class="edit_copy"><a href="{% url copy_edit copy.id %}" title="Edit this book copy"><span>edit</span></a></div>
     {% endif %}
     
-    {# TODO wywalić picture #}
-    {% if copy.picture %}
-    <div class="picture">
-      <img src="/media/{{ copy.picture.file }}"
-           width="{%if copy.picture.file.width > 150 %}150px{%else%}{{copy.picture.file.width}}{%endif%}"
-           alt="{{copy.picture.description}}"
-           title="{{copy.picture.description}}"
-           />
-    </div>
-    {% endif %}
-
     <div class="copy_info">
         <ul class="spaces">
             <li class="book_authors">

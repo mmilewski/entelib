@@ -43,15 +43,29 @@
     {% if perms.baseapp.change_location %}
     <div class="form_locationWrapper">
         <h2 id="edit_location">Edit location</h2>
+
+        {% if display_tips %}
+        <div class="tip">
+          <p>To remove all maintainers from this location, put tick on "No maintainers".</p>
+        </div>
+        {% endif %}
+
         <form method="POST" action="." name="Flocation">
             {{ form.non_field_errors }}
             <table>
                 {% for field in form %}
                     <tr>
-                        <td>{%if field.label_tag|removetags:"label" %}{{ field.label_tag }}:{%endif%} 
-                        <br />
-                        {{ field }}</td>
-                        <td>{{ field.errors }}</td>
+                        <td>{{ field.label_tag }}: <br /> {{ field }}
+                          
+                          {%if field.label == 'Maintainer'%}
+                              <br>
+                              <input type="checkbox" id="no_maintainers" name="no_maintainers" />
+                              <label for="no_maintainers" title="No maintainers">No maintainers</label>
+                          {%endif%}
+                        </td>
+                        <td>
+                          {{ field.errors }}
+                        </td>
                     </tr>
                 {% endfor %}
                 <tr>

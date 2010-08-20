@@ -614,8 +614,8 @@ class LocationForm(ModelForm):
         model = Location
         fields = ('building', 'details', 'remarks', 'maintainer')
 
-    groups = Group.objects.filter(Q(name='Librarians'))
-    maintainer = forms.ModelMultipleChoiceField(User.objects.filter(groups__in=groups))
+    groups = Group.objects.filter(~Q(name='Librarians'))
+    maintainer = forms.ModelMultipleChoiceField(User.objects.filter(groups__in=groups), required=False)
 
 
 class BookForm(ModelForm):   

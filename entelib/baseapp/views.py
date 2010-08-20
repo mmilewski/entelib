@@ -986,6 +986,12 @@ def show_location(request, loc_id, edit_form=LocationForm):
 
     location = get_object_or_404(Location, pk=loc_id)
     if request.method == 'POST':
+        # drop maintainers if checkbox checked
+        if 'no_maintainers' in request.POST:
+            mtrs = request.POST.getlist('maintainer')
+            for i in range(len(mtrs)):
+                mtrs.pop(0)
+        # continue editing
         form = edit_form(data=request.POST, instance=location)
         if form.is_valid():
             form.save()
