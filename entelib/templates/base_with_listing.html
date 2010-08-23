@@ -12,8 +12,7 @@
             $("#sortable_table").tablesorter( {
                 sortList: {%block order%} [[0,0]] {%endblock%},
                 textExtraction: function(node) {
-                    var value = $(node.innerHTML).text();
-        
+                    var value = $('<b>'+node.innerHTML+'</b>').text();
                     return value; //childNodes[0].childNodes[0].innerHTML; 
                 }
 

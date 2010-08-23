@@ -8,12 +8,13 @@
 
 <script language="javascript" type="text/javascript">
   $(document).ready(function() {
-      var fill_email = function() {
+      var fill_autofields = function() {
           $('#id_email').val( $('#id_first_name').val() + '.' + $('#id_last_name').val() + '@nsn.com');
+          $('#id_yourusername').val( ($('#id_first_name').val() + $('#id_last_name').val()) );
       }
-      $('#id_first_name').keyup(fill_email);
-      $('#id_last_name').keyup(fill_email);
-//  $('#id_first_name').keypress( function() { $('#id_email').val();} );
+      $('#id_first_name').keyup(fill_autofields);
+      $('#id_last_name').keyup(fill_autofields);
+      fill_autofields();
   });
 </script>
 
@@ -32,6 +33,7 @@
   <form class="registration_form" action="." method="POST" name="Fregister">
     <table class="basic_fields">
       <tbody>
+        <tr><th>Your username:</th><td><input id="id_yourusername" type="text" value="" readonly="readonly"/></td></tr>
         {{ form_content }}
         <tr><th></th><td><input type="submit" value="Register me"/></td></tr>
       </tbody>

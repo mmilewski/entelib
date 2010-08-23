@@ -32,12 +32,14 @@ def render_response(request, template, context={}):
             )
     
     config = Config(user)
+    application_ip = 8080
     context.update( {'go_back_link' : '<a href="javascript: history.go(-1)">Back</a>',
                      'can_access_admin_panel' : user.is_staff or user.is_superuser,
                      'display_tips' : config.get_bool('display_tips'),
                      'display_only_editable_config_options' : config.get_bool('display_only_editable_config_options'),
                      'unique_num' : random.randint(0,9999999999999),
-                     'application_url' : 'http://glonull1.mobile.fp.nsn-rdnet.net:8080/',   # TODO: maybe it can be read somehow, if not put it in configuration
+                     'application_ip' : application_ip,
+                     'application_url' : 'http://glonull1.mobile.fp.nsn-rdnet.net:%d/' % application_ip,   # TODO: maybe it can be read somehow, if not put it in configuration
                      })
     # as far as we use perms with following convention, we can pass perms to templates easily:
     # if in-code perm's name is list_book, then template gets can_list_books variable
@@ -842,3 +844,15 @@ def activate_user(user):
     profile.save()
     user.is_active = True
     user.save()
+
+
+class ForgotPasswordHandler(object):
+    def __init__(self, user):
+        self.user = user
+
+    def generate_new_password(self):
+        from datetime import datetime
+        from hashlib import md5
+        value_to_hash = repr(datetime.now()) + self.user.email
+        new_password = md5(value_to_hash).hexdigest()
+        return new_password

@@ -110,7 +110,7 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 MESSAGE_LEVEL = messages.DEBUG
 
 # debug toolbar's settings -- see  http://github.com/robhudson/django-debug-toolbar
-INTERNAL_IPS = ('127.0.0.1', '10.154.4.75', '10.154.7.179', '192.168.1.14')
+INTERNAL_IPS = ('127.0.0.1', '10.154.4.75', '10.154.7.179', '192.168.1.105')
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
     'SHOW_TOOLBAR_CALLBACK': None,

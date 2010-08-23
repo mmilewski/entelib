@@ -27,6 +27,9 @@ urlpatterns = patterns(
     (r'^accounts/login$', get_redirect_function_to_url('/entelib/login/')),
     (r'^logout/', view.logout),
     (r'^logout$', get_redirect_function_to_url('/entelib/logout/')),
+    # (r'^register/$', view.register),
+    (r'^register/(?P<action>(.+))/$', view.register),
+    url(r'forgot_password/$', view.show_forgot_passowrd, name="forgot_password"),
 
     # users
     url(r'^users/$', view.show_users, name="user_all"),
@@ -61,10 +64,6 @@ urlpatterns = patterns(
     (r'^profile/rentals/$', view.show_my_rentals),
     (r'^profile/rentals/new/$', view.my_new_reservation),
     (r'^profile/rentals/archive/$', view.show_my_rental_archive),
-
-    # registration
-    # (r'^register/$', view.register),
-    (r'^register/(?P<action>(.+))/$', view.register),
 
     # books
     url(r'^books/$', view.show_books, name="book_all"),

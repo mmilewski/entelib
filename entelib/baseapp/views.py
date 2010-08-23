@@ -177,6 +177,33 @@ def request_book(request, request_form=BookRequestForm):
     return render_response(request, template, context)
 
 
+def show_forgot_passowrd(request):
+    from django.core.validators import email_re
+    context = {}
+    context['errors'] = []
+    if request.method == 'POST':
+        post = request.POST
+        if 'email' in post and len(post['email']) > 0:
+            email = post['email']
+            context['email'] = email
+            if not email_re.match(post['email']):
+                context['errors'].append('Enter a valid e-mail address.')
+            else:
+                users = list(User.objects.filter(email=email)[:1])
+                if not users:
+                    context['errors'].append("Your e-mail wasn't found in database")
+                else:
+                    handler = aux.ForgotPasswordHandler(users[0])
+                    new_password = handler.generate_new_password()
+                    messages.info(request, 'Done: ' + str(new_password))
+        else:
+            context['errors'].append('This field is required.')
+    else:
+        pass
+
+    return render_response(request, 'registration/forgot_password.html', context)
+
+
 @transaction.commit_on_success
 def register(request, action, registration_form=RegistrationForm, extra_context={}):
     '''
@@ -1022,8 +1049,8 @@ def show_location(request, loc_id, edit_form=LocationForm):
 def activate_user(request, user_id):
     user = get_object_or_404(User, id=user_id)
     if not user.is_active:
-        print 'user not active!'
-        print user.id
+        # print 'user not active!'
+        # print user.id
         aux.activate_user(user)
         mail.user_activated(user)
         return render_response(request, 'registration/user_activated.html')
