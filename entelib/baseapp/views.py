@@ -606,11 +606,18 @@ def show_users(request):
         user_list = []
 
         # searching for users
-        if 'action' in post and post['action'] == 'Search':
+        if 'search' in post:
             if request_from_my_building:
                 request_building_id = request.user.userprofile.building.id
 
-            user_list = aux.get_users_details_list(request_first_name, request_last_name, request_email, request_building_id)
+        # inactive users are listed iff current user has permission to change them, e.g. activate
+        show_only_active_users = not request.user.has_perm('auth.change_user')
+
+        user_list = aux.get_users_details_list(request_first_name,
+                                               request_last_name, 
+                                               request_email, 
+                                               request_building_id, 
+                                               active_only=show_only_active_users)
 
         # we want search values back in appropriate fields
         search_data = {
@@ -1015,11 +1022,9 @@ def show_location(request, loc_id, edit_form=LocationForm):
 def activate_user(request, user_id):
     user = get_object_or_404(User, id=user_id)
     if not user.is_active:
-        profile = user.userprofile
-        profile.awaits_activation = False
-        profile.save()
-        user.is_active = True
-        user.save()
+        print 'user not active!'
+        print user.id
+        aux.activate_user(user)
         mail.user_activated(user)
         return render_response(request, 'registration/user_activated.html')
     else:
@@ -1072,5 +1077,24 @@ def show_current_rentals(request, all_locations=False):
     return render_response(request, 'current_rentals.html', context)
     
 
-def activate_many_users(request):
-    pass
+@permission_required('auth.change_user')
+def activate_many_users(request, all_inactive=False):
+    if request.method == 'POST':
+        post = request.POST
+        user = get_object_or_404(User, id=post['user_id'])
+        profile = user.userprofile
+        profile.awaits_activation = False
+        if 'activate' in post:
+            profile.save()
+            user.is_active = True
+            user.save()
+        elif 'refuse' in post:
+            profile.save()
+            
+    users = User.objects.filter(is_active=False)
+    if not all_inactive:
+        users = users.filter(userprofile__awaits_activation=True)
+    context = {'rows' : users}
+
+    return render_response(request, 'users_awaiting_activation.html', context)
+

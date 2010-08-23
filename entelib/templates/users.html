@@ -39,7 +39,7 @@
                     <!-- <td></td> -->
                     <td> </td>
                     <td>
-                        <input type='submit'  name='action' value='Search' tabindex='5' accesskey="s" >
+                        <input type='submit'  name='search' value='Search' tabindex='5' accesskey="s" >
                     </td>
                 </tr>
             </table>
@@ -59,26 +59,34 @@
 
 
 {% block header_row %}
+    {% block header_row_start %}
+    {% endblock header_row_start %}
     <th>Username</th>
     <th>First name, last name</th>
     <th>Email</th>
     <th>Is librarian</th>
     <th>Is admin</th>
+    {% block header_row_end %}
+    {% endblock header_row_end %}
 {% endblock header_row %}
 
 
 {% block item_row %}
+        {% block row_start %}
+        {% endblock row_start %}
         <td>
-            <a href='{{ row.url }}'>{{ row.username }}</a>
+            <a href='{% url user_one row.id %}'>{{ row.username }}</a>
         </td> <td>
-            <a href='{{ row.url }}'>{{ row.first_name }} {{ row.last_name }}</a>
+            <a href='{% url user_one row.id %}'>{{ row.first_name }} {{ row.last_name }}</a>
         </td> <td>
             <a href='mailto:{{row.email}}'>{{ row.email }}</a>
         </td> <td>
             {{ row.userprofile.is_librarian|yesno:_("Yes,No") }}
         </td> <td>
             {{ row.userprofile.is_admin|yesno:_("Yes,No") }}
-        </td>
+        </td> 
+        {% block row_end %}
+        {% endblock row_end %}
 {% endblock item_row %}
 
 

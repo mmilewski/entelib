@@ -464,7 +464,7 @@ class ShowUsersTest(TestWithSmallDB):
         
     def test_admins_found_by_name(self):
         self.log_lib()
-        response = self.client.post(self.url, {'action' : 'Search', 'first_name' : 'admino', 'building' : '0'})
+        response = self.client.post(self.url, {'search' : 'Search', 'first_name' : 'admino', 'building' : '0'})
         # self.assertContains(response, 'checked', count=1)
         # self.assertContains(response, 'superadmin', count=1)
         # self.assertContains(response, u'Admino Domino', count=1)
@@ -481,7 +481,7 @@ class ShowUsersTest(TestWithSmallDB):
 
     def test_grzegorz_found_by_part_of_surname(self):
         self.log_lib()
-        response = self.client.post(self.url, {'action' : 'Search', 'last_name' : 'brz', 'building' : '0'})
+        response = self.client.post(self.url, {'search' : 'Search', 'last_name' : 'brz', 'building' : '0'})
         self.assertContains(response, 'checked', count=1)
         self.assertNotContains(response, 'superadmin')
         self.assertNotContains(response, 'Admino Domino')
@@ -491,7 +491,7 @@ class ShowUsersTest(TestWithSmallDB):
 
     def test_find_all(self):
         self.log_lib()
-        response = self.client.post(self.url, {'action' : 'Search', 'building' : '0', })
+        response = self.client.post(self.url, {'search' : 'Search', 'building' : '0', })
         self.assertEquals(200, response.status_code)
         self.assertContains(response, 'checked', count=1)
         self.assertContains(response, 'superadmin', count=1)
@@ -501,7 +501,7 @@ class ShowUsersTest(TestWithSmallDB):
         
     def test_none_found(self):
         self.log_lib()
-        response = self.client.post(self.url, {'action' : 'Search', 'first_name' : 'urban', 'building' : '0' })
+        response = self.client.post(self.url, {'search' : 'Search', 'first_name' : 'urban', 'building' : '0' })
         self.assertEquals(200, response.status_code)
         self.assertContains(response, 'checked', count=1)
         self.assertNotContains(response, 'superadmin')
@@ -513,7 +513,7 @@ class ShowUsersTest(TestWithSmallDB):
 
     def test_none_found_2(self):
         self.log_lib()
-        response = self.client.post(self.url, {'action' : 'Search', 'first_name' : 'admino', 'last_name' : 'brz', 'email' : 'master-over-masters@super.net', 'building' : '0' })
+        response = self.client.post(self.url, {'search' : 'Search', 'first_name' : 'admino', 'last_name' : 'brz', 'email' : 'master-over-masters@super.net', 'building' : '0' })
         self.assertEquals(200, response.status_code)
         self.assertContains(response, 'checked', count=1)
         self.assertNotContains(response, 'superadmin')
@@ -525,7 +525,7 @@ class ShowUsersTest(TestWithSmallDB):
 
     def test_from_my_building_lib(self):
         self.log_lib()
-        response = self.client.post(self.url, {'action' : 'Search', 'first_name' : '', 'last_name' : '', 'email' : '', 'building' : '0', 'from_my_building' : 'checked' })
+        response = self.client.post(self.url, {'search' : 'Search', 'first_name' : '', 'last_name' : '', 'email' : '', 'building' : '0', 'from_my_building' : 'checked' })
         self.assertEquals(200, response.status_code)
         self.assertContains(response, 'checked', count=3)
         self.assertNotContains(response, 'superadmin')
@@ -536,7 +536,7 @@ class ShowUsersTest(TestWithSmallDB):
 
     def test_from_my_building_lib_building_given(self):
         self.log_lib()
-        response = self.client.post(self.url, {'action' : 'Search', 'first_name' : '', 'last_name' : '', 'email' : '', 'building' : '2', 'from_my_building' : 'checked' })
+        response = self.client.post(self.url, {'search' : 'Search', 'first_name' : '', 'last_name' : '', 'email' : '', 'building' : '2', 'from_my_building' : 'checked' })
         self.assertEquals(200, response.status_code)
         self.assertContains(response, 'checked', count=3)
         self.assertNotContains(response, 'superadmin')
@@ -547,7 +547,12 @@ class ShowUsersTest(TestWithSmallDB):
 
     def test_from_my_building_admin_building_given(self):
         self.log_admin()
-        response = self.client.post(self.url, {'action' : 'Search', 'first_name' : '', 'last_name' : '', 'email' : '', 'building' : '3', 'from_my_building' : 'checked' })
+        response = self.client.post(self.url, {'search' : 'Search',
+                                               'first_name' : '',
+                                               'last_name' : '',
+                                               'email' : '',
+                                               'building' : '3',
+                                               'from_my_building' : 'checked' })
         self.assertEquals(200, response.status_code)
         self.assertContains(response, 'checked', count=3)
         self.assertContains(response, 'superadmin')

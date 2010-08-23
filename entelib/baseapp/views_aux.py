@@ -7,6 +7,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from datetime import date, datetime, timedelta
 from config import Config
+from django.db import transaction
 from django.db.models import Q
 from django.contrib import messages
 from entelib import settings
@@ -116,7 +117,7 @@ def filter_query(class_name, Q_none, constraints):
                 result = result.filter(Q_fun(keyword))
     return result.distinct()
 
-def get_users_details_list(first_name, last_name, email, building_id):
+def get_users_details_list(first_name, last_name, email, building_id, active_only=False, inactive_only=False, awaiting_activation_only=False):
     '''
     Args:
         building_id is an int,
@@ -129,16 +130,26 @@ def get_users_details_list(first_name, last_name, email, building_id):
     if building_id:
         building_filter = Q(userprofile__building__id=building_id)
 
+    users = User.objects
+    
+    if inactive_only:
+        users = users.filter(is_active=False)
+    if active_only:
+        users = users.filter(is_active=True)
+    if awaiting_activation_only:
+        users = users.filter(userprofile__awaits_activation=True)
+
     user_details =    [ {'username'   : u.username,
                          'last_name'  : u.last_name,
                          'first_name' : u.first_name,
                          'email'      : u.email,
                          'userprofile': u.userprofile,
-                         'url'        : "%d/" % u.id,  # relative path to user profile
-                         }      for u in User.objects.filter(first_name__icontains=first_name)
-                                                     .filter(last_name__icontains=last_name)
-                                                     .filter(email__icontains=email)
-                                                     .filter(building_filter)
+                         # 'url'        : "%d/" % u.id,  # relative path to user profile
+                         'id'         : u.id, 
+                         }      for u in users.filter(first_name__icontains=first_name)
+                                              .filter(last_name__icontains=last_name)
+                                              .filter(email__icontains=email)
+                                              .filter(building_filter)
             ]
     return user_details
 
@@ -823,3 +834,11 @@ def show_reservations(request, shipment_requested=False, only_rentable=True, all
     else:
         context.update({ 'header' : 'Current reservations'})
     return render_response(request, 'current_reservations.html', context)
+
+@transaction.commit_on_success
+def activate_user(user):
+    profile = user.userprofile
+    profile.awaits_activation = False
+    profile.save()
+    user.is_active = True
+    user.save()
