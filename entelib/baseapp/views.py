@@ -1072,5 +1072,5 @@ def show_current_rentals(request, all_locations=False):
     return render_response(request, 'current_rentals.html', context)
     
 
-def activate_many(request):
+def activate_many_users(request):
     pass

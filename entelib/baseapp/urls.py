@@ -50,7 +50,7 @@ urlpatterns = patterns(
     (r'^users/(\d+)/rentals/archive/$', view.show_user_rental_archive),
     # (r'^users/(\d+)/rentals/(\d+)/$', view.user_rental),
     # (r'^users/(\d+)/books/$', view.user_books),
-    url(r'^users/activate/$', view.activate_many, name='activate_many'),
+    url(r'^users/activate/$', view.activate_many_users, name='activate_many_users'),
 
     # user profile
     url(r'^profile/$', view.edit_user_profile, name="profile_edit"),

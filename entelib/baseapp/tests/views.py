@@ -709,6 +709,7 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
         self.assertContains(response, 'updated')
 
         self.logout()
+        self.client.login(username='user', password=new_password)
         
         response = self.client.get('/entelib/', follow=True)
         self.assertContains(response, 'Welcome')         # login with new password succeeded

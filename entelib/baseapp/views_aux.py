@@ -36,6 +36,7 @@ def render_response(request, template, context={}):
                      'display_tips' : config.get_bool('display_tips'),
                      'display_only_editable_config_options' : config.get_bool('display_only_editable_config_options'),
                      'unique_num' : random.randint(0,9999999999999),
+                     'application_url' : 'http://glonull1.mobile.fp.nsn-rdnet.net:8080/',   # TODO: maybe it can be read somehow, if not put it in configuration
                      })
     # as far as we use perms with following convention, we can pass perms to templates easily:
     # if in-code perm's name is list_book, then template gets can_list_books variable
