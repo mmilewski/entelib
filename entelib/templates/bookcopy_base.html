@@ -53,20 +53,28 @@
 
     </div> <!-- /copy_info -->
 
-    {% block links %}
-    {% endblock %}
 
-    <!-- RENTAL FORM -->
-    <div class="reserve_rent_form">
-    {% block form %}
-    {% endblock %}
-    </div>
+    {% if 'Unavailable' not in copy.state %}
+      {% block links %}
+      {% endblock %}
+
+      <!-- RENTAL FORM -->
+      <div class="reserve_rent_form">
+      {% block form %}
+      {% endblock %}
+      </div>
+    {% endif %}
+
 
     <div class="availability">
       <h3 id="availability">Availability</h3>
       <div class="copy_info">
         <ul class="spaces">
+        {% if 'Unavailable' in copy.state %}
+          <li class="book_state"><span class="label">State</span>: <span class="unavailable">{{ copy.state }}</span></li>
+        {% else %}
           <li class="book_state"><span class="label">State</span>: {{ copy.state }}</li>
+        {% endif %}
         </ul>
       </div>
       <!-- TIME BAR -->

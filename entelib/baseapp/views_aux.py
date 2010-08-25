@@ -684,10 +684,10 @@ def do_cancel_user_reservations(user, canceller):
 
 
 def cancel_all_user_reservations(request, user):
-    '''
+    """
     Desc:
         all user's reservations are cancelled by canceller (who might be user)
-    '''
+    """
     canceller = request.user
 
     post = request.POST
@@ -709,17 +709,24 @@ def cancel_all_user_reservations(request, user):
 
 
 def user_full_name(user_id, first_name_first=False):
-    '''
+    """
     Return unicode string containing users first and last name if user_id is correct, None otherwise.
-    '''
-    try:
-        u = User.objects.get(id=user_id)
-        if first_name_first:
-            return u.first_name + ' ' + u.last_name
-        else:
-            return  u.last_name + ', ' + u.first_name  # default
-    except:
+    If user_id will be User instance, this function will work as expected.
+    """
+    if isinstance(user_id, User):
+        u = user_id
+    else:
+        try:
+            u = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return None
+    if not isinstance(u, User):
         return None
+
+    if first_name_first:
+        return u.first_name + ' ' + u.last_name
+    else:
+        return  u.last_name + ', ' + u.first_name  # default
 
 
 def when_copy_reserved(book_copy):

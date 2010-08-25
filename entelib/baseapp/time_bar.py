@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from fractions import gcd
 from baseapp.utils import pprint, str_to_date, create_days_between, week_for_day,\
     month_for_day
+import views_aux as aux
 from baseapp.models import Reservation, BookCopy
 from django.db.models.query_utils import Q
 from django.core.handlers.wsgi import WSGIRequest
@@ -56,11 +57,12 @@ class Segment(object):
         Returns string for displaying in html. __unicode__ is not used, because 
         it returns the simplest representation of Segment -- very useful in test.
         """
-        avail_flag = 'T' if self.is_available else 'F'
         rentable_caption = 'rentable' if self.is_available else 'not rentable'
-#        return u'(%s, %s, %s, %s)' % (self.start, self.end, self.z, avail_flag)
-#        return u'(%s, %s)' % (self.start, self.end)
-        return u'(%s, %s) %s' % (self.start, self.end, rentable_caption)
+        if hasattr(self, 'who_reserved'):
+            who = aux.user_full_name(self.who_reserved, True)
+            return u'(%s, %s) %s. Who: %s' % (self.start, self.end, rentable_caption, who)
+        else:
+            return u'(%s, %s) %s' % (self.start, self.end, rentable_caption)
     
     def increment_z(self, by_value=1):
         """ Increases self.z by given value."""
@@ -314,10 +316,8 @@ class TimeBar(object):
         # what about last element?
         if result:
             if result[-1].end < end_value:         #  -----|-------|
-                new_seg = copy(result[-1])         #                    ^
-                new_seg.start = result[-1].end + self.one
-                new_seg.end = end_value
-                new_seg.is_available = True
+                seg = result[-1]                   #                    ^     <--- this says where end_value is
+                new_seg = Segment(start=seg.end + self.one, end=end_value, is_available=True)
                 result.append(new_seg)
             elif result[-1].end > end_value:    #  |------|-------|
                 result[-1].end = end_value      #             ^
@@ -524,8 +524,12 @@ def get_time_bar_code_for_copy(config, book_copy, from_date, to_date):
                                       .filter(Q_start_inside_range | Q_end_inside_range | Q_covers_whole_range) \
                                       .order_by('start_date')
 
-    segments = [ Segment(r.start_date, r.end_date) for r in reservations ]
-    # NOTE: if one would like to add some extra informations to segments, it can be done in above line. 
+    segments = []
+    for r in reservations:
+        seg = Segment(r.start_date, r.end_date)
+        seg.who_reserved = r.who_reserved
+        segments.append(seg)
+    # NOTE: if one would like to add some extra informations to segments, it can be done above.
     #       This is why segment is an object and not a tuple.
 
     # ok, we gathered segments, now let's create time bar on top of them
@@ -559,7 +563,7 @@ def get_time_bar_code_for_copy(config, book_copy, from_date, to_date):
 
     # add scale (or two scales if there is a lot of colliding segments)
     scale = tb.get_html_of_scale(result_segments) if result_segments else ''
-    if len(result_segments) > 1:
+    if len(result_segments) > 100000:
         html = scale + html + scale
     elif len(result_segments) == 1:
         html = scale + html

@@ -3,9 +3,16 @@
 {% block menu %}
 
     <div id='menu'>
-      <ul> 
-        {% if can_list_books %}                <li><a href="/entelib/books/">                           Book list             </a></li> {% endif %}
-                                               <li><a href="/entelib/profile/reservations/new/">        Rent something        </a></li>
+      <ul>
+        {% if can_list_books %}
+          <li><a href="/entelib/books/">Books</a>
+            <ul>
+              {% if can_list_books %}                <li><a href="/entelib/books/">                           Book list             </a></li> {% endif %}
+              {% if perms.baseapp.add_book %}        <li><a href="{% url book_add %}">                        Add book              </a></li> {% endif %}
+            </ul>
+          </li>
+        {% endif %}
+        {% if perms.baseapp.add_reservation %}     <li><a href="/entelib/profile/reservations/new/">    Rent something        </a></li> {% endif %}
                                                                                                                               
         {% if can_view_own_profile %}              <li><a href="/entelib/profile/">                     My profile            </a>      
           <ul>                                                                                                                
