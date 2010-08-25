@@ -1,0 +1,37 @@
+{% extends 'users.html' %}
+
+
+{% block before_table %}
+{% endblock before_table %}
+
+
+{% block header_row_start %}
+    <th> </th>
+{% endblock header_row_start %}
+
+
+
+{% block header_row_end %}
+    <th> </th>
+{% endblock header_row_end %}
+
+
+
+{% block row_start %}
+    <td>
+        <form action='.' name='activation_form' method='post'>
+            <input type='hidden' name='user_id' value='{{ row.id }}'>
+            <input type='submit' name='activate'value='Activate'>
+    </td>
+{% endblock row_start %}
+
+
+
+{% block row_end %}
+    <td>
+            <input type='submit' name='refuse' value='Reject'>
+        </form>
+    </td>
+{% endblock row_end %}
+
+
