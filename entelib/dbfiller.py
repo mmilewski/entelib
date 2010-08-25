@@ -12,29 +12,6 @@ from datetime import datetime, timedelta
 from baseapp.models import *
 from django.contrib.auth.models import Group
 
-# clear database
-print 'Clearing database'
-Location.objects.all().delete()
-Building.objects.all().delete()
-Reservation.objects.all().delete()
-Rental.objects.all().delete()
-State.objects.all().delete()
-Publisher.objects.all().delete()
-Author.objects.all().delete()
-BookCopy.objects.all().delete()
-Book.objects.all().delete()
-Phone.objects.all().delete()
-PhoneType.objects.all().delete()
-CostCenter.objects.all().delete()
-Category.objects.all().delete()
-UserProfile.objects.all().delete()
-User.objects.all().delete()
-Configuration.objects.all().delete()
-ConfigurationValueType.objects.all().delete()
-
-# NOTE: Users are not deleted. Only admin is.
-
-
 # define number of records to create
 locations_count = 8
 buildings_count = 4
@@ -48,17 +25,36 @@ rentals_count = 30
 reservations_count = 50
 users_count = 50
 
+# clear database
+def clear_db():
+    print 'Clearing database'
+    Location.objects.all().delete()
+    Building.objects.all().delete()
+    Reservation.objects.all().delete()
+    Rental.objects.all().delete()
+    State.objects.all().delete()
+    Publisher.objects.all().delete()
+    Author.objects.all().delete()
+    BookCopy.objects.all().delete()
+    Book.objects.all().delete()
+    Phone.objects.all().delete()
+    PhoneType.objects.all().delete()
+    CostCenter.objects.all().delete()
+    Category.objects.all().delete()
+    UserProfile.objects.all().delete()
+    User.objects.all().delete()
+    Configuration.objects.all().delete()
+    ConfigurationValueType.objects.all().delete()
+
 
 def get_random_date():
     return datetime(randint(1990,2010), randint(1,12), randint(1,28),
                     randint(0,23),      randint(0,59), randint(0,59))
 
-
 def get_random_string(min_len, max_len):
     ''' Returns alpha string s, that  min_len <= len(s) < max_len. '''
     return u''.join([ choice('qwertyuiopasdfghjklzxcvbnm')
                       for i in range(0, randint(min_len, max_len)) ])
-
 
 def get_random_text(max_len):
     text = [ get_random_string(1, 6) for i in range(max_len) ]
@@ -66,130 +62,150 @@ def get_random_text(max_len):
 
 
 # categories
-print 'Adding categories'
 cat_names = ['Horror', 'History', 'Sci-Fi', 'Fantasy', 'Thriller', 'Comics']
 shuffle(cat_names)
-categories = [Category(name=cat_name) for cat_name in cat_names]
-for c in categories:
-    c.save()
+categories = []
+def add_categories():
+    global categories
+    print 'Adding categories'
+    categories = [Category(name=cat_name) for cat_name in cat_names]
+    for c in categories:
+        c.save()
 
 
 # buildings
-print 'Adding %d buildings' % buildings_count
 buil_names = [ 'Building A', 'Building B', 'Store', 'Skyscraper' ]
-builds = [ Building(name = buil_names[i]) for i in range(buildings_count) ]
-shuffle(builds)
-for b in builds:
-    b.save()
+builds = []
+def add_buildings():
+    global builds
+    print 'Adding %d buildings' % buildings_count
+    builds = [ Building(name = buil_names[i]) for i in range(buildings_count) ]
+    shuffle(builds)
+    for b in builds:
+        b.save()
 
 
 # locations
-print 'Adding %d locations' % locations_count
 loc_names = [ 'Room %d' % i for i in range(1,10) ]
 loc_names += [ get_random_text(8).capitalize() for i in range(len(loc_names), locations_count) ]
 loc_remarks = ['', 'W remoncie', 'Chwilowo zamknięta z powodu rozlania soku malinowego', 'Klucz na portierni A', 'Kto ma klucz?']
-locs = [ Location(details = loc_names[i],
-                  building = choice(builds),
-                  remarks = choice(loc_remarks))
-         for i in range(locations_count) ]
-shuffle(locs)
-for loc in locs:
-    loc.save()
+locs = []
+def add_locations():
+    global locs
+    print 'Adding %d locations' % locations_count
+    locs = [ Location(details = loc_names[i],
+                      building = choice(builds),
+                      remarks = choice(loc_remarks))
+             for i in range(locations_count) ]
+    shuffle(locs)
+    for loc in locs:
+        loc.save()
 
 
 # publishers
-print 'Adding %d publishers' % publishers_count
-publishers = [
-    Publisher(name=u"Atlas Press"),
-    Publisher(name=u"Book Works"),
-    Publisher(name=u"City Lights Publishers"),
-    Publisher(name=u"Firebrand Books"),
-    Publisher(name=u"Holland Park Press"),
-    Publisher(name=u"Indiana University Press"),
-    Publisher(name=u"Medknow Publications"),
-    Publisher(name=u"MIT Press"),
-    Publisher(name=u"Penguin Books UK"),
-    ]
-publishers += [ Publisher(name = get_random_text(15).upper())
-                for i in range(len(publishers),publishers_count) ]
-for publisher in publishers:
-    publisher.save()
+publishers = []
+def add_publishers():
+    global publishers
+    print 'Adding %d publishers' % publishers_count
+    publishers = [
+        Publisher(name=u"Atlas Press"),
+        Publisher(name=u"Book Works"),
+        Publisher(name=u"City Lights Publishers"),
+        Publisher(name=u"Firebrand Books"),
+        Publisher(name=u"Holland Park Press"),
+        Publisher(name=u"Indiana University Press"),
+        Publisher(name=u"Medknow Publications"),
+        Publisher(name=u"MIT Press"),
+        Publisher(name=u"Penguin Books UK"),
+        ]
+    publishers += [ Publisher(name = get_random_text(15).upper())
+                    for i in range(len(publishers),publishers_count) ]
+    for publisher in publishers:
+        publisher.save()
 
 
 # authors
-print 'Adding %d authors' % authors_count
-author_names = [u'Adam Mickiewicz', u'Heniu Sienkiewicz', u'Stanisław Lem', u'Maria Konopnicka', u'Jan Brzechwa', u'Julian Tuwim', u'Ignacy Krasicki', u'Borys Pasternak', u'Horacy', u'Zbyniu Herbert', u'Marc Abrahams', u'Elizabeth Adler', u'Khadija al-Salami', u'Mitch Albom', u'John Naish', u'Zofia Nałkowska', u'Jenny Nimmo', u'Carlos Eire', u'Barbara Ann Barnett', u'Joanna Czerniawska-Far', u'Hans i Michael Eysenck']
-author_names += [ (get_random_string(4,10) + ' ' + get_random_string(6,12)).title()
-                  for i in range(len(author_names),authors_count) ]   # fill up to limit
-authors = [ Author(name = author_names[i])
-            for i in range(authors_count) ]
-shuffle(author_names)
-for author in authors:
-    author.save()
+authors = []
+def add_authors():
+    global authors
+    print 'Adding %d authors' % authors_count
+    author_names = [u'Adam Mickiewicz', u'Heniu Sienkiewicz', u'Stanisław Lem', u'Maria Konopnicka', u'Jan Brzechwa', u'Julian Tuwim', u'Ignacy Krasicki', u'Borys Pasternak', u'Horacy', u'Zbyniu Herbert', u'Marc Abrahams', u'Elizabeth Adler', u'Khadija al-Salami', u'Mitch Albom', u'John Naish', u'Zofia Nałkowska', u'Jenny Nimmo', u'Carlos Eire', u'Barbara Ann Barnett', u'Joanna Czerniawska-Far', u'Hans i Michael Eysenck']
+    author_names += [ (get_random_string(4,10) + ' ' + get_random_string(6,12)).title()
+                      for i in range(len(author_names),authors_count) ]   # fill up to limit
+    authors = [ Author(name = author_names[i])
+                for i in range(authors_count) ]
+    shuffle(author_names)
+    for author in authors:
+        author.save()
 
 
 # states
-print 'Adding %d states' % states_count
-# state_names = [ get_random_string(3,7) for i in range(states_count) ]
-# state_availability = [ True, False ]
-# states = [ State(name = state_names[i],
-#                  is_available = choice(state_availability))
-#            for i in range(states_count) ]
-states = [
-    State(name="OK", is_available=True, is_visible=True),
-    State(name="Bought & Arrived", is_available=True, is_visible=True),
-    State(name="Lost", is_available=False, is_visible=True),
-    ]
-for state in states:
-    state.save()
+states = []
+def add_states():
+    global states
+    print 'Adding %d states' % states_count
+    states = [
+        State(name="OK", is_available=True, is_visible=True),
+        State(name="Bought & Arrived", is_available=True, is_visible=True),
+        State(name="Lost", is_available=False, is_visible=True),
+        ]
+    for state in states:
+        state.save()
 
 
 # cost centers
-print 'Adding %d cost centers' % cost_centers_count
-cost_centers_names = ['Good deal', 'Profit']
-cost_centers_names += [ get_random_text(15) for i in range(len(cost_centers_names), cost_centers_count) ]  # fill up to cost_centers_count
-shuffle(cost_centers_names)
 cost_centers = []
-for i in range(cost_centers_count):
-    cost_centers.append(CostCenter(name=cost_centers_names[i]))
-    cost_centers[-1].save()
+def add_cc():
+    global cost_centers
+    print 'Adding %d cost centers' % cost_centers_count
+    cost_centers_names = ['Good deal', 'Profit']
+    cost_centers_names += [ get_random_text(15) for i in range(len(cost_centers_names), cost_centers_count) ]  # fill up to cost_centers_count
+    shuffle(cost_centers_names)
+    for i in range(cost_centers_count):
+        cost_centers.append(CostCenter(name=cost_centers_names[i]))
+        cost_centers[-1].save()
 
 
 # books
-print 'Adding %d books' % books_count
-book_titles = [u'Ogniem i mieczem', u'Księga robotów', u'Bomba megabitowa', u'Liryki lozeńskie', u'Na marne', u'Qua Vadis', u'Krzyżacy', u'W pustyni i w puszczy', u'Latarnik', 'Potop', u'Sonety krymskie', u'Pan Tadeusz', u'100 bajeczek kołysaneczek', u'Bajka o szczęściu', u'Czerwony kapturek', u'Żółw i zając', u'Tajemnicza ścieżka', u'Tomcio Paluch']
-book_titles += [ get_random_text(10) for i in range(len(book_titles), books_count) ]  # fill up to books_count
 books = []
-for i in range(books_count):
-    book = Book(title = book_titles[i])
-    book.save()        # see: http://www.djangoproject.com/documentation/models/many_to_many/#sample-usage
-    for author in set([ choice(authors) for i in range(1, 5) ]):
-        book.author.add(author)
-    for category in set([ choice(categories) for i in range(1, 5) ]):
-        book.category.add(category)
-    books.append(book)
-shuffle(books)
-for book in books:
-    book.save()
+def add_books():
+    global books
+    print 'Adding %d books' % books_count
+    book_titles = [u'Ogniem i mieczem', u'Księga robotów', u'Bomba megabitowa', u'Liryki lozeńskie', u'Na marne', u'Qua Vadis', u'Krzyżacy', u'W pustyni i w puszczy', u'Latarnik', 'Potop', u'Sonety krymskie', u'Pan Tadeusz', u'100 bajeczek kołysaneczek', u'Bajka o szczęściu', u'Czerwony kapturek', u'Żółw i zając', u'Tajemnicza ścieżka', u'Tomcio Paluch']
+    book_titles += [ get_random_text(10) for i in range(len(book_titles), books_count) ]  # fill up to books_count
+    for i in range(books_count):
+        book = Book(title = book_titles[i])
+        book.save()        # see: http://www.djangoproject.com/documentation/models/many_to_many/#sample-usage
+        for author in set([ choice(authors) for i in range(1, 5) ]):
+            book.author.add(author)
+        for category in set([ choice(categories) for i in range(1, 5) ]):
+            book.category.add(category)
+        books.append(book)
+    shuffle(books)
+    for book in books:
+        book.save()
 
 
 # copies
-print 'Adding %d copies' % copies_count
-copies = [ BookCopy(book           = choice(books),
-                    year           = randint(1900,2010),
-                    state          = choice(states),
-                    location       = choice(locs),
-                    publisher      = choice(publishers),
-                    description    = get_random_text(30),
-                    publication_nr = randint(1,10),
-                    cost_center    = choice(cost_centers),
-                    toc            = '',
-                    toc_url        = '',
-                    shelf_mark     = randint(123456789,987654321),
-                    )
-           for i in range(copies_count) ]
-for copy in copies:
-    copy.save()
+copies = []
+def add_copies():
+    global copies
+    print 'Adding %d copies' % copies_count
+    copies = [ BookCopy(book           = choice(books),
+                        year           = randint(1900,2010),
+                        state          = choice(states),
+                        location       = choice(locs),
+                        publisher      = choice(publishers),
+                        description    = get_random_text(30),
+                        publication_nr = randint(1,10),
+                        cost_center    = choice(cost_centers),
+                        toc            = '',
+                        toc_url        = '',
+                        shelf_mark     = randint(123456789,987654321),
+                        )
+               for i in range(copies_count) ]
+    for copy in copies:
+        copy.save()
 
 
 # # reservations
@@ -248,13 +264,16 @@ for copy in copies:
 
 
 # add telephone types
-print "Adding phone types"
-phone_types = [ ('Mobile', '(\+?\d{2,3})?.?\d{3}-\d{3}-\d{3}', 'For mobiles'),
-                ('Skype', '[\d\w\-_.]+', 'Skype identifiers'),
-                ]
-for (name, re, desc) in phone_types:
-    pt = PhoneType(name=name, verify_re=re, description=desc)
-    pt.save()
+phone_types = []
+def add_phone_types():
+    global phone_types
+    print "Adding phone types"
+    phone_types = [ ('Mobile', '(\+?\d{2,3})?.?\d{3}-\d{3}-\d{3}', 'For mobiles'),
+                    ('Skype', '[\d\w\-_.]+', 'Skype identifiers'),
+                    ]
+    for (name, re, desc) in phone_types:
+        pt = PhoneType(name=name, verify_re=re, description=desc)
+        pt.save()
 
 
 # here we add a superuser which is available right after filling db
@@ -319,77 +338,97 @@ def add_everyday_user():
 
 
 # add users
-add_superuser()
-add_admin()
-add_librarian()
-add_everyday_user()
+def add_users():
+    print 'Adding users'
+    add_superuser()
+    add_admin()
+    add_librarian()
+    add_everyday_user()
 
 
 # -- POPULATE GROUPS --
-# add few groups
-def readd_group(group_name, perms=[], direct_add=False):
-    '''
-    Add permission from perms to group_name group.
-    If group doesn't exist, new one is created.
-    It direct_add is True, then perms is assumed to be Permission's instance. Otherwise it should be a string.
-    '''
-    g = None
-    try:
-        # delete group if exist
-        Group.objects.get(name=group_name).delete()
-    except Group.DoesNotExist:
-        pass
-    # create a new one
-    g = Group(name=group_name)
-    g.save()
-    for perm in perms:
-        if direct_add:
-            p = perm
-        else:
-            p = Permission.objects.get(codename=perm)
-        g.permissions.add(p)
-    g.save()
+def populate_groups():
+    # add few groups
+    def readd_group(group_name, perms=[], direct_add=False):
+        '''
+        Add permission from perms to group_name group.
+        If group doesn't exist, new one is created.
+        It direct_add is True, then perms is assumed to be Permission's instance. Otherwise it should be a string.
+        '''
+        g = None
+        try:
+            # delete group if exist
+            Group.objects.get(name=group_name).delete()
+        except Group.DoesNotExist:
+            pass
+        # create a new one
+        g = Group(name=group_name)
+        g.save()
+        for perm in perms:
+            if direct_add:
+                p = perm
+            else:
+                p = Permission.objects.get(codename=perm)
+            g.permissions.add(p)
+        g.save()
+    
+    print "Adding app specific groups"
+    from django.contrib.auth.models import Permission
+    from django.db.models import Q
+    admins_perms     = Permission.objects.filter(~Q(codename__icontains='delete'))     # superadmin can delete, admin does not
+    readers_perms    = ['list_books', 'view_own_profile', 'add_reservation', 'change_own_reservation', 'add_bookrequest',
+                        'list_config_options', 'edit_option', 'list_locations', 'view_location']
+    librarians_perms = ['list_users', 'list_reports',
+                        'add_rental', 'change_rental', 'change_reservation', 
+                        'add_book', 'change_book',
+                        'add_bookcopy', 'change_bookcopy',
+                        'list_cost_centers',
+                        ]
+    readd_group('Readers',    perms=readers_perms)
+    readd_group('Librarians', perms=librarians_perms)
+    readd_group('Admins',     perms=admins_perms, direct_add=True)
+    
+    
+    # fill configuration
+    print "Adding config pairs"
+    from dbconfigfiller import fill_config
+    config = fill_config()      # requires Group model to be filled in (because of config options validation)
+    
+    
+    # add users to default groups
+    print "Adding default user to some groups"
+    from baseapp.config import Config
+    config=Config()
 
-print "Adding app specific groups"
-from django.contrib.auth.models import Permission
-from django.db.models import Q
-admins_perms     = Permission.objects.filter(~Q(codename__icontains='delete'))     # superadmin can delete, admin does not
-readers_perms    = ['list_books', 'view_own_profile', 'add_reservation', 'change_own_reservation', 'add_bookrequest',
-                    'list_config_options', 'edit_option', 'list_locations', 'view_location']
-librarians_perms = ['list_users', 'list_reports',
-                    'add_rental', 'change_rental', 'change_reservation', 
-                    'add_book', 'change_book',
-                    'add_bookcopy', 'change_bookcopy',
-                    'list_cost_centers',
-                    ]
-readd_group('Readers',    perms=readers_perms)
-readd_group('Librarians', perms=librarians_perms)
-readd_group('Admins',     perms=admins_perms, direct_add=True)
-
-
-# fill configuration
-print "Adding config pairs"
-from dbconfigfiller import fill_config
-config = fill_config()      # requires Group model to be filled in (because of config options validation)
-
-
-# add users to default groups
-print "Adding default user to some groups"
-from baseapp.config import Config
-config=Config()
-
-u = User.objects.get(username='admin')
-for group_name in config.get_list('user_after_registration_groups'):
-    u.groups.add(Group.objects.get(name=group_name))
-    u.groups.add(Group.objects.get(name="Admins"))
-
-u = User.objects.get(username='user')
-for group_name in config.get_list('user_after_registration_groups'):
-    u.groups.add(Group.objects.get(name=group_name))
-
-u = User.objects.get(username='lib')
-for group_name in config.get_list('user_after_registration_groups'):
-    u.groups.add(Group.objects.get(name=group_name))
-    u.groups.add(Group.objects.get(name="Librarians"))
-
+    if len(User.objects.all()) < 1:
+        add_users()
+    u = User.objects.get(username='admin')
+    for group_name in config.get_list('user_after_registration_groups'):
+        u.groups.add(Group.objects.get(name=group_name))
+        u.groups.add(Group.objects.get(name="Admins"))
+    
+    u = User.objects.get(username='user')
+    for group_name in config.get_list('user_after_registration_groups'):
+        u.groups.add(Group.objects.get(name=group_name))
+    
+    u = User.objects.get(username='lib')
+    for group_name in config.get_list('user_after_registration_groups'):
+        u.groups.add(Group.objects.get(name=group_name))
+        u.groups.add(Group.objects.get(name="Librarians"))
 # -- /POPULATE GROUPS --
+
+def main():
+    clear_db()
+    add_categories()
+    add_buildings()
+    add_locations()
+    add_publishers()
+    add_authors()
+    add_states()
+    add_cc()
+    add_books()
+    add_copies()
+    add_phone_types()
+    add_users()
+    populate_groups()
+

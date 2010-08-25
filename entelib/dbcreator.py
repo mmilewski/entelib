@@ -18,5 +18,5 @@ try:
     open(db_file, 'r')
 except IOError:
     system('echo "no" | python manage.py syncdb')
-    if not system('echo "import dbfiller" | python manage.py shell'):
+    if not system('echo "import dbfiller as F \nF.main()" | python manage.py shell_plus'):
         exit(1)

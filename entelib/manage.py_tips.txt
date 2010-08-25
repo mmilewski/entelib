@@ -27,7 +27,7 @@ python manage.py syncdb
 
 # 3) repopulate groups (and users - they were deleted because of CASCADE)
 python manage.py shell_plus
-# copy-past from dbfiller.py  PUPULATE GROUPS section (near line 330)
+# copy-past from dbfiller.py  PUPULATE GROUPS section (near line 350)
 # 'filling configuration' can be omitted
 
 
