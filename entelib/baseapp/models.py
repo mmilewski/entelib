@@ -14,9 +14,9 @@ APPLICATION_NAME = 'baseapp'     # should be read from somewhere, I think
 
 
 class EmailLog(models.Model):
-    '''
+    """
     Contains information about sent emails.
-    '''
+    """
     sender = models.CharField(max_length=CFG.emaillog_sender_len)
     receiver = models.CharField(max_length=CFG.emaillog_receiver_len)
     sent_date = models.DateTimeField(auto_now_add=True, blank=False, null=False)
@@ -34,9 +34,9 @@ class EmailLog(models.Model):
 
 
 class ConfigurationValueType(models.Model):
-    '''
+    """
     Type of value for key in Configuration.
-    '''
+    """
     name = models.CharField(max_length=CFG.configurationVT_name_len, primary_key=True)
 
     def __unicode__(self):
@@ -47,12 +47,12 @@ class ConfigurationValueType(models.Model):
 
 
 class Configuration(models.Model):
-    '''
+    """
     Here all config options are stored as (key, value) pairs.
     Any option can be customized by user in UserConfiguration model, 
     but only if can_override is True.
     If user will customize option that has can_override=False, it will has no effect.
-    '''
+    """
     key = models.CharField(max_length=CFG.configuration_key_len, primary_key=True)
     value = models.CharField(max_length=CFG.configuration_value_len)
     description = models.CharField(max_length=CFG.configuration_descirption_len)
@@ -80,12 +80,12 @@ class Configuration(models.Model):
 
 
 class UserConfiguration(models.Model):
-    '''
+    """
     Set of options overrided by user. Option is overrided only if can_override is True in Configuration model.
     This model contains only overrided values, NOT all - so it is a subset 
     of Configuration if only keys are considered.
     If user will customize option that has can_override=False, it will has no effect.
-    '''
+    """
     option = models.ForeignKey(Configuration)
     user = models.ForeignKey(User)
     value = models.CharField(max_length=CFG.configuration_value_len)
@@ -101,9 +101,9 @@ class UserConfiguration(models.Model):
 
 
 class PhoneType(models.Model):
-    '''
+    """
     Phone type description.
-    '''
+    """
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=CFG.phonetype_name_len, unique=True)
     verify_re = models.CharField(max_length=CFG.phonetype_verify_re_len, blank=True)
@@ -117,9 +117,9 @@ class PhoneType(models.Model):
 
 
 class Phone(models.Model):
-    '''
+    """
     A broadly defined telephone: VoIP, mobile, fax, ...
-    '''
+    """
     id = models.AutoField(primary_key=True)
     type = models.ForeignKey(PhoneType)
     value = models.CharField(max_length=CFG.phone_value_len)
@@ -139,9 +139,9 @@ class Phone(models.Model):
 
 
 class UserProfile(models.Model):
-    '''
+    """
     User with some extra fields like phone numbers.
-    '''
+    """
 
     user = models.OneToOneField(User, unique=True)
     shoe_size = models.PositiveIntegerField(null=True, blank=True)  # :)
@@ -156,17 +156,18 @@ class UserProfile(models.Model):
             ('view_others_profile', "Can view other people' profile"),
             ('edit_xname', "Can edit username, first name and last name"),
             ('list_reports', 'Can list reports'),     # FIXME: this shouldn't be here, but I don't know where is the right place for that, since no Report model is defined
+            ('assign_user_to_groups', 'Can assign user to groups'), 
         )
         unique_together = (('user',),)
 
     def __init__(self, *args, **kwargs):
-        '''
+        """
         When new user is created we want him to not to be able to login yet. This is achieved by setting User.is_active to False.
         But sometimes we deactivate user and set his User.is_active to False as well. So, to avoid confusion, new users' field 
         awaits_activation is set to True. Later on, when he gets activated, the field will be set to False, so when he gets deactivated
         he is not regarded the same way as new users - admin won't see him when listing users to activate. This will work best with
         database trigger setting awaits_activation to False when is_active is set to True.
-        '''
+        """
         models.Model.__init__(self, *args, **kwargs)
         self.awaits_activation = True
 
@@ -189,9 +190,9 @@ class UserProfile(models.Model):
         return admin_group in self.user.groups.all()
 
     # def perm_exists(self, perm):
-    #     '''
+    #     """
     #     Chcecks whether given permission exists. Returns True or False respectively.
-    #     '''
+    #     """
     #     # query database (Permission table)
     #     prefixes = [APPLICATION_NAME + '.', 'sites.', 'auth.']
     #     for prefix in prefixes:
@@ -217,18 +218,18 @@ class UserProfile(models.Model):
 
 
     # def has_perm(self, perm):
-    #     '''
+    #     """
     #     Checks whether user not only has perminssion 'perm', but also whether such permission exists in project.
     #     Permissions defined in APP_NAME's models are checked like has_perm('baseapp.mypermission'),
     #     and has_perm('mypermission') is INCORRECT.
-    #     '''
+    #     """
     #     if not self.perm_exists(perm):
     #         raise PermisionNotDefined(perm)
     #     return User.has_perm(self, perm)
 
 
 def create_profile_for_user(sender, instance, **kwargs):
-    ''' instance is an instance of User class. '''
+    """ instance is an instance of User class. """
     try:
         UserProfile.objects.get(user__id=instance.id)
     except UserProfile.DoesNotExist:
@@ -408,14 +409,14 @@ class BookCopy(models.Model):
 
 
 class Reservation(models.Model):
-    '''
+    """
     Class for book reservations.
 
     who_cancelled and when_cancelled fields should be normally NULL.
     If who_cancelled is NULL and when_cancelled is not, it means reservation expired.
 
     end_date is set when performing rental. It can be max of #TODO field in configuration table.
-    '''
+    """
     id = models.AutoField(primary_key=True)
     book_copy = models.ForeignKey(BookCopy)
     for_whom = models.ForeignKey(User, related_name='reader')
@@ -456,7 +457,7 @@ class Reservation(models.Model):
 
 
 class Rental(models.Model):
-    '''
+    """
     Stores rental information.
 
     Every rental must be connected with some reservation. Reservation holds informations on who
@@ -470,7 +471,7 @@ class Rental(models.Model):
     who_handed_out is librarian who gave away book
 
     who_received is librarian who received book
-    '''
+    """
     id = models.AutoField(primary_key=True)
     reservation = models.ForeignKey(Reservation)
     start_date = models.DateTimeField()   # (auto_now_add=True)

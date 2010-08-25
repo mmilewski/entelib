@@ -12,7 +12,7 @@ from copy import copy
 
 
 def generate_csv(report_type, from_date, to_date, order_by=[]):
-    '''
+    """
     Desc:
         Returns csv file in HTTP response.
 
@@ -25,7 +25,7 @@ def generate_csv(report_type, from_date, to_date, order_by=[]):
 
     Return:
         csv file in HTTP response.
-    '''
+    """
 
     response = HttpResponse(mimetype='text/csv')
     response['Content-Disposition'] = 'attachment; filename=report.csv'
@@ -85,7 +85,7 @@ def generate_csv(report_type, from_date, to_date, order_by=[]):
 
 
 def get_report_data(report_type, from_date, to_date, order_by=[]):
-    '''
+    """
     Desc:
         Returns data for creating selected report.
 
@@ -102,7 +102,7 @@ def get_report_data(report_type, from_date, to_date, order_by=[]):
                'error'    : error message if sth goes wrong
                'ordering' : list of names used to sort report data
              }
-    '''
+    """
     assert from_date
     assert to_date
     order_by = list(order_by)

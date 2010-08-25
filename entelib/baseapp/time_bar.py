@@ -14,7 +14,7 @@ import datetime
 
 
 def timedelta_as_int(delta):
-    ''' Converts timedelta to integer (days). If delta is int, does nothing.'''
+    """ Converts timedelta to integer (days). If delta is int, does nothing."""
     if isinstance(delta, timedelta):
         return delta.days
     assert isinstance(delta, int)
@@ -31,7 +31,7 @@ class Segment(object):
     
     @classmethod
     def from_tuple(cls, tuple):
-        ''' Creates instance from tuple. It may be done to work with iterable, but is not needed now.'''
+        """ Creates instance from tuple. It may be done to work with iterable, but is not needed now."""
         assert len(tuple) >= 2
         if len(tuple) == 2:
             return cls(tuple[0], tuple[1])
@@ -52,10 +52,10 @@ class Segment(object):
         return u'Segment(%s, %s, %s, %s)' % (self.start, self.end, self.z, avail_flag)
     
     def get_html_str(self):
-        ''' 
+        """ 
         Returns string for displaying in html. __unicode__ is not used, because 
         it returns the simplest representation of Segment -- very useful in test.
-        '''
+        """
         avail_flag = 'T' if self.is_available else 'F'
         rentable_caption = 'rentable' if self.is_available else 'not rentable'
 #        return u'(%s, %s, %s, %s)' % (self.start, self.end, self.z, avail_flag)
@@ -63,11 +63,11 @@ class Segment(object):
         return u'(%s, %s) %s' % (self.start, self.end, rentable_caption)
     
     def increment_z(self, by_value=1):
-        ''' Increases self.z by given value.'''
+        """ Increases self.z by given value."""
         self.z += by_value
     
     def check_invariant(self):
-        ''' This should always be True. '''
+        """ This should always be True. """
         if self.start > self.end:
             return False
         if self.z < 0:
@@ -75,14 +75,14 @@ class Segment(object):
         return True
     
     def collides_with(self, other):
-        ''' 
+        """ 
         Returns True iff self collides with other.
         
         Args:
             other -- Segment instance
             
         Note: (_,5,_) collides with (5,_,_)
-        '''
+        """
         assert self.check_invariant()
         assert other.check_invariant()
         if self.z != other.z:
@@ -103,7 +103,7 @@ class Segment(object):
         assert False, 'unexpected case'
         
     def collides_with_list(self, haystack):
-        ''' 
+        """ 
         Checks if self collides with at least one of segments in haystack.
         
         Args:
@@ -111,7 +111,7 @@ class Segment(object):
         
         Returns:
             True or False respectively.
-        '''
+        """
         assert self.check_invariant()
         
         for needle in haystack:
@@ -124,30 +124,30 @@ class Segment(object):
 class TimeBar(object):
     
     def __init__(self, config, one=1):
-        '''
+        """
         Args:
             config -- instance of Config.
             one -- smallest portion of data. Like 'one day' or '1'. This may be useful when 
                    you want to test using ints and later use dates instead.
-        '''
+        """
         self.config = config
         self.one = one
 
     def get_segments_depth(self, segments):
-        ''' 
+        """ 
         Returns number of unique z-planes for given segments. 
     
         Args:
             segments -- list of Segment objects
-        '''
+        """
         return len(set( [s.z for s in segments] ))
 
     def _assure_segment(self, segment):
-        ''' 
+        """ 
         Returns new instance of Segment.
         Args:
             segment -- tuple or Segment instance.
-        '''
+        """
         if isinstance(segment, Segment):
             return copy(segment)
         if isinstance(segment, tuple):
@@ -157,7 +157,7 @@ class TimeBar(object):
         
         
     def divide_colliding_segments(self, segments, shuffle=False):
-        ''' 
+        """ 
         Divides segments into multiple planes. So this function returns the same segments 
         but with additional coordinate - like z-plane.
         
@@ -167,7 +167,7 @@ class TimeBar(object):
             
         Returns:
             list of Segment objects. Result is not sorted.
-        '''
+        """
         segments_left = [self._assure_segment(s) for s in segments]
         if len(segments_left) < 2:
             return segments_left
@@ -203,14 +203,14 @@ class TimeBar(object):
         
         
     def add_segment_between_each_two(self, segments):
-        '''
+        """
         Between each two segments adds additional segment. But only if there is
         free space for that. Between (1,4,0) and (5,10,0) there is no such space.
         
         Args:
             segments -- list of Segment objects. All must have the same z-value.
                         Should be sorted by start field.
-        '''
+        """
         if len(segments) < 2:
             return segments
         
@@ -231,7 +231,7 @@ class TimeBar(object):
         
         
     def split_segments_by_depth(self, segments, sort=False):
-        '''
+        """
         Splits segments by z coord.
         
         Args:
@@ -243,7 +243,7 @@ class TimeBar(object):
         Returns:
              List of lists, one for each group. Groups' z values are sorted ascending.
              Groups are sorted by start value, if sort is True.
-        '''
+        """
         depth = self.get_segments_depth(segments)
         segments_by_depth = []              # list of depth lists
         
@@ -264,7 +264,7 @@ class TimeBar(object):
     
     
     def start_with_value(self, segments, start_value):
-        ''' 
+        """ 
         Adds segment at the begging of group (list of segments). May return shallow copy. 
         
         Args:
@@ -278,7 +278,7 @@ class TimeBar(object):
             If segments start with segment which start value is lt start_value, then segments is stripped to start_value. 
             Else returns list of segments with prepended segment with start = start_value, 
             and end set to start of first segment.
-        '''
+        """
         if not segments:
             raise ValueError('segments must not be empty. start_value was: ' + repr(start_value))
         result = []
@@ -300,9 +300,9 @@ class TimeBar(object):
         return result
     
     def end_with_value(self, segments, end_value):
-        '''
+        """
         Works similar to start_with_value.
-        '''
+        """
         if not segments:
             raise ValueError('segments must not be empty. end_value was: ' + repr(end_value))
         result = []
@@ -325,7 +325,7 @@ class TimeBar(object):
     
     
     def get_width_of_group(self, group):
-        '''
+        """
         Returns width of group, which means total number of units.
         i.e. width of date range 2010-07-01, 2010-07-10 is 10 (ten days).
         
@@ -334,7 +334,7 @@ class TimeBar(object):
             
         Returns:
             If group is empty, then returns -1
-        '''
+        """
         if not len(group):
             return -1
         group_width = timedelta_as_int(group[-1].end - group[0].start) + 1
@@ -342,7 +342,7 @@ class TimeBar(object):
     
     
     def get_html_of_scale(self, groups):
-        '''
+        """
         Returns html for scale (podziałka).
         
         Args:
@@ -350,7 +350,7 @@ class TimeBar(object):
             
         Raises:
             If group is empty, then raises ValueError
-        '''
+        """
         if not groups:
             raise ValueError('Given groups is empty: %s' % (repr(groups)))
         
@@ -423,11 +423,11 @@ class TimeBar(object):
         
         
     def gcd_for_group(self, group):
-        '''
+        """
         Return greates common divisor for lengths of segments in group.
         
         If group is empty, raises ValueError.
-        '''
+        """
         if not group:
             raise ValueError('Cannot get gcd for empty group')
 
@@ -440,7 +440,7 @@ class TimeBar(object):
         
         
     def get_html_for_segments(self, grouped_segments):
-        '''
+        """
         Returns html for given groups of segments.
         Args:
             grouped_segments -- list of groups of segments (= list of lists of Segment instances).
@@ -448,7 +448,7 @@ class TimeBar(object):
         Returns:
             empty string if grouped_segments is empty
             html, otherwise
-        '''
+        """
         display_text_on_segment = False          #TODO should be get from somewhere
         if not grouped_segments:
             return ''
@@ -495,7 +495,7 @@ class TimeBar(object):
     
     
 def get_time_bar_code_for_copy(config, book_copy, from_date, to_date):
-    '''
+    """
     Returns time bar's html for given copy and date range.
     
     Args:
@@ -505,7 +505,7 @@ def get_time_bar_code_for_copy(config, book_copy, from_date, to_date):
         
     Returns:
         If from_date > to_date, then empty string is returned.
-    '''
+    """
     assert isinstance(book_copy, BookCopy)
     assert isinstance(from_date, date)
     assert isinstance(to_date, date)
@@ -569,7 +569,7 @@ def get_time_bar_code_for_copy(config, book_copy, from_date, to_date):
 class TimeBarRequestProcessor(object):
     
     def __init__(self, request_data, default_date_range, config):
-        '''
+        """
         Args:
             request_data -- dict-like object, from which one can retrieve info about time bar form.
                             Usually request.post is a good choice. If None, then default values will be used.
@@ -577,7 +577,7 @@ class TimeBarRequestProcessor(object):
                             then it will be handled properly (i.e. will look for request.POST).
             default_date_range -- 2-tuple or 2-list, default from_, and to_date.
             config -- instance of Config
-        '''
+        """
         self.config = config
         
         # request_date
@@ -602,7 +602,7 @@ class TimeBarRequestProcessor(object):
         assert isinstance(self.default_date_range[1], date)
         
     def _cut_date_range_if_too_wide(self, date_range):
-        '''
+        """
         Checks if date range is longer then value in config (tb_max_days_in_date_range).
         If so it would be cut. 
         Length of range between (2010,1,25) and (2010,1,30) equals 5 days.
@@ -612,7 +612,7 @@ class TimeBarRequestProcessor(object):
         
         Returns:
             "Correct" date range as 2-tuple.
-        '''
+        """
         assert len(date_range) == 2
         assert isinstance(date_range[0], date)
         assert isinstance(date_range[1], date)
@@ -624,14 +624,14 @@ class TimeBarRequestProcessor(object):
 
         
     def handle_request(self):
-        '''
+        """
         Reads data from self.request and return dict with data useful for response context.
 
         If self.request is None, then default values are used (access via GET probably).
         If self.request is set, then checks what button was pressed (access via POST probably).
         If start_date or end_date value is incorrect (not valid date), then defaults
         are used respectively.  
-        ''' 
+        """ 
         post = self.request
         result = {}
         date_range = self.default_date_range
@@ -665,7 +665,7 @@ class TimeBarRequestProcessor(object):
 
 
     def get_context(self, copy=None):
-        '''
+        """
         Returns request context.
         
         Args:
@@ -674,7 +674,7 @@ class TimeBarRequestProcessor(object):
         Returns:
             dict -- intended to be used like context.update(time_bar_context)
                     { display_time_bar, tb_from_date, tb_to_date, tb_code }, tb_code is present if copy is not None.
-        ''' 
+        """ 
         request_values = self.handle_request()
         from_date, to_date = request_values['date_range']
         display_time_bar = self.config.get_bool('enable_time_bar')
@@ -691,7 +691,7 @@ class TimeBarRequestProcessor(object):
         return context
     
     def get_codes_for_copies(self, copies):
-        '''
+        """
         Return html for given copy.
         
         Args:  
@@ -699,7 +699,7 @@ class TimeBarRequestProcessor(object):
             
         Returns:
             dict { copy.id : time-bar-html-code }
-        '''
+        """
         request_values = self.handle_request()
         from_date, to_date = request_values['date_range']
         

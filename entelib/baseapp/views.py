@@ -31,9 +31,9 @@ now = datetime.datetime.now  # this seems like an error, but it stopped working 
 
 @permission_required('baseapp.load_default_config')
 def load_default_config(request, do_it=False):
-    '''
+    """
     Restores default values to config. This is rather for developement than production usage.
-    '''
+    """
     context = {}
     if do_it:
         from dbconfigfiller import fill_config
@@ -45,9 +45,9 @@ def load_default_config(request, do_it=False):
 
 @permission_required('baseapp.list_config_options')
 def show_config_options_per_user(request):
-    '''
+    """
     Handles listing config options from Configuration model (also Config class).
-    '''
+    """
     template = 'config/list.html'
     config = Config(user=request.user)
     opts = config.get_all_options().values()
@@ -63,9 +63,9 @@ def show_config_options_per_user(request):
 
 @permission_required('baseapp.list_config_options')
 def show_config_options(request):
-    '''
+    """
     Handles listing config options from Configuration model (also Config class).
-    '''
+    """
     template = 'config/list.html'
     config = Config(user=request.user)
     opts = config.get_all_options().values()
@@ -81,9 +81,9 @@ def show_config_options(request):
 
 @permission_required('baseapp.edit_option')
 def edit_config_option(request, option_key, is_global=False, edit_form=ConfigOptionEditForm):
-    '''
+    """
     Handles editing config option by user.
-    '''
+    """
     isinstance(is_global, bool)
     tpl_edit_option = 'config/edit_option.html'
     user = request.user
@@ -137,9 +137,9 @@ def edit_config_option(request, option_key, is_global=False, edit_form=ConfigOpt
 
 @permission_required('baseapp.list_emaillog')
 def show_email_log(request):
-    '''
+    """
     Handles listing all sent emails (logged messages, not adresses).
-    '''
+    """
     template = 'email/list.html'
     context = {
         'emails' : EmailLog.objects.all().order_by('-sent_date'),
@@ -150,9 +150,9 @@ def show_email_log(request):
 
 @permission_required('baseapp.add_bookrequest')
 def request_book(request, request_form=BookRequestForm):
-    '''
+    """
     Handles requesting for book by any user.
-    '''
+    """
     user = request.user
     template = 'book_request.html'
     context = {}
@@ -206,9 +206,9 @@ def show_forgot_passowrd(request):
 
 @transaction.commit_on_success
 def register(request, action, registration_form=RegistrationForm, extra_context={}):
-    '''
+    """
     Handles registration (adding new user) process.
-    '''
+    """
     user = request.user
     action = action if not action.endswith('/') else action[:-1]    # cut trailing slash
     tpl_logout_first = 'registration/reg_logout_first.html'
@@ -283,14 +283,14 @@ def my_new_reservation(request): # that is kinda hack, but I couldn't think of a
 
 @login_required
 def show_books(request, non_standard_user_id=False):
-    '''
+    """
     Desc:
         Allows to find, and lists searched books.
 
     Args:
         non_standard_user_id is used when librarian is searching for a book in the name of user.
         In that case non_standard_user_id is most likely different than request.user
-    '''
+    """
     # data for the template
     book_url = u'%d/'    # where you go after clicking "search" button
     bookcopy_url = u'../bookcopy/%d/'    # where you go after clicking "search" button with shelf mark field (ID) filled
@@ -394,9 +394,9 @@ def show_books(request, non_standard_user_id=False):
 
 @login_required
 def show_book(request, book_id, non_standard_user_id=False):
-    '''
+    """
     Finds all copies of a book.
-    '''
+    """
     config = Config(request.user)
     book = get_object_or_404(Book,id=book_id)
     context = {}
@@ -495,9 +495,9 @@ def show_book(request, book_id, non_standard_user_id=False):
 
 @login_required
 def show_book_copy(request, bookcopy_id):
-    '''
+    """
     Shows book copy's details
-    '''
+    """
     config = Config(request.user)
     book_copy = get_object_or_404(BookCopy, id=bookcopy_id)
     book_desc = aux.get_book_details(book_copy)
@@ -683,20 +683,20 @@ def show_user(request, user_id, redirect_on_success_url='/entelib/users/%d/', pr
 
 
 def _do_edit_user_profile(request, edited_user, redirect_on_success_url='/entelib/users/%d/', profile_edit_form=ProfileEditForm):
-    ''' 
+    """
     Displays form for editing user's profile.
     
     request.user -- user editing someone's profile (it can be his own profile)
     edited_user -- user, whose profile will be edited.
-    '''
+    """
     if '%d' in redirect_on_success_url:
         redirect_on_success_url = redirect_on_success_url % edited_user.id
-    
-    form_initial = profile_edit_form.get_initials_for_user(edited_user)
-    can_change_profile = request.user.id == edited_user.id or request.user.has_perm('auth.change_user')
+    editor = request.user
+    form_initial = profile_edit_form.get_initials_for_user(edited_user, editor)
+    can_change_profile = editor.id == edited_user.id or editor.has_perm('auth.change_user')
     if request.method == 'POST' and can_change_profile:
         # use data from post to fill form
-        form = profile_edit_form(edited_user, editor=request.user, data=request.POST, initial=form_initial)
+        form = profile_edit_form(edited_user, editor=editor, data=request.POST, initial=form_initial)
         if form.is_valid():
             # notify data changed and display profile
             form.save()
@@ -704,7 +704,7 @@ def _do_edit_user_profile(request, edited_user, redirect_on_success_url='/enteli
             return HttpResponseRedirect(redirect_on_success_url)
     else:
         # no POST implies fresh form with profiles' data
-        form = profile_edit_form(edited_user, editor=request.user, initial=form_initial)
+        form = profile_edit_form(edited_user, editor=editor, initial=form_initial)
 
     # prepare context and render site
     context = profile_edit_form.build_default_context_for_user(edited_user)
@@ -714,9 +714,9 @@ def _do_edit_user_profile(request, edited_user, redirect_on_success_url='/enteli
 
 @login_required
 def edit_user_profile(request, redirect_on_success_url=u'/entelib/profile/', profile_edit_form=ProfileEditForm):
-    ''' 
+    """ 
     Displays form for editing user's profile, where user means request.user
-    '''
+    """
     # well, this is the same that user A edits profile of user B, where A==B
     return _do_edit_user_profile(request, request.user, redirect_on_success_url, profile_edit_form)
 

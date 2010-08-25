@@ -20,9 +20,9 @@ attrs_dict = { 'class': 'required' }
 
 
 class ConfigOptionEditForm(forms.Form):
-    '''
+    """
     Form for editing config's option.
-    '''
+    """
     value        = forms.CharField(required=True, widget=forms.Textarea)
     can_override = forms.BooleanField(required=False)
     description  = forms.CharField(required=False, widget=forms.Textarea, max_length=CFG.configuration_descirption_len)
@@ -92,12 +92,12 @@ class ConfigOptionEditForm(forms.Form):
 
 
 class BookRequestForm(forms.Form):
-    '''
+    """
     Form for requesting book. Users can add their propositions of books,
     they would like to have in the library.
 
     see:  http://code.google.com/p/django-registration/source/browse/trunk/registration/forms.py
-    '''
+    """
     def _books_choice_list():
         na = (0, '-- not applicable --')
         return [na] + [(b.id,b.title) for b in Book.objects.all().order_by('title')]
@@ -155,24 +155,24 @@ class BookRequestForm(forms.Form):
 class ProfileEditChoiceList:
     @staticmethod
     def buildings():
-        ''' Builds list od 2-tuples containing Buildings. '''
+        """ Builds list od 2-tuples containing Buildings. """
         choice_list =  [ (0, u'--- not specified ---')]
         choice_list += [(b.id, b.name)  for b in Building.objects.order_by('name').all()] 
         return choice_list
 
     @staticmethod
     def phone_types():
-        ''' Builds list of 2-tuples containing PhoneTypes. '''
+        """ Builds list of 2-tuples containing PhoneTypes. """
         return [(pt.id, pt.name) for pt in PhoneType.objects.order_by('name').all()]
     
 class ProfileEditForm(forms.Form):
-    '''
+    """
     Form for editing user profile.
     User can edit their both email and password.
     The new password must be entered twice in order to catch typos.
 
     Empty field = no edition.
-    '''
+    """
 
     phone_prefix = 'phone'
     phone_type_prefix = phone_prefix + 'Type'
@@ -183,6 +183,7 @@ class ProfileEditForm(forms.Form):
     last_name = forms.CharField(max_length=30, required=False, label=u'Last name')
     email = forms.EmailField(label=(u'E-mail'), required=False)
     work_building = forms.ChoiceField(choices=ProfileEditChoiceList.buildings(), label="Building I work in")
+    groups = forms.CharField(label='helo')
 
     phoneType0 = forms.ChoiceField(choices=ProfileEditChoiceList.phone_types(), label='Phone 0', required=False)
     phoneValue0 = forms.CharField(label='', required=False)
@@ -209,12 +210,12 @@ class ProfileEditForm(forms.Form):
 
 
     def __init__(self, profile_owner, editor=None, *args, **kwargs):
-        '''
+        """
         profile_owner is instance of User, whose profile will be changed.
         editor is instance of User, who will change the profile.
         
         If editor is None, then it is set to profile_owner
-        '''
+        """
         if editor:
             self.editor = editor
         else:
@@ -227,11 +228,18 @@ class ProfileEditForm(forms.Form):
             self.fields['first_name'].widget.attrs['readonly'] = True
             self.fields['last_name'].widget.attrs['readonly'] = True
 
+        # groups form
+        if self.editor.has_perm('baseapp.assign_user_to_groups'):
+            self.fields['groups'] = forms.ModelMultipleChoiceField(Group.objects.all(), required=False)
+        else:
+            self.fields['groups'] = forms.CharField(label='Groups')
+            self.fields['groups'].widget.attrs['readonly'] = True
+
 
     def clean(self):
-        '''
+        """
         Check if passwords matches (these are 'new password' and 'again new password')
-        '''
+        """
         if not ('password1' in self.cleaned_data and 'password2' in self.cleaned_data):
             return self.cleaned_data
         if self.cleaned_data['password1'] != self.cleaned_data['password2']:
@@ -240,16 +248,16 @@ class ProfileEditForm(forms.Form):
 
 
     def clean_current_password(self):
-        '''
+        """
         Verify that the password user typed as their current one is correct.
-        '''
+        """
         if not 'current_password' in self.cleaned_data:
             return self.cleaned_data
         if not self.editor.check_password(self.cleaned_data['current_password']):
             raise forms.ValidationError(u'The password is incorrect.')
         return self.cleaned_data
-    
-    
+
+
     def clean_first_name(self):
         # exit if unchanged
         if self.profile_owner.first_name == self.cleaned_data['first_name']:
@@ -262,7 +270,7 @@ class ProfileEditForm(forms.Form):
         if len(value) > 30:
             raise forms.ValidationError('Too long')
         return value
-    
+
     def clean_last_name(self):
         # exit if unchanged
         if self.profile_owner.last_name == self.cleaned_data['last_name']:
@@ -275,7 +283,7 @@ class ProfileEditForm(forms.Form):
         if len(value) > 30:
             raise forms.ValidationError('Too long')
         return value
-        
+
     def clean_username(self):
         # exit if unchanged
         if self.profile_owner.username == self.cleaned_data['username']:
@@ -295,7 +303,7 @@ class ProfileEditForm(forms.Form):
         if len(value) > 30:
             raise forms.ValidationError('Too long')
         return value
-    
+
     def clean_phone_type(self, key_name):
         data = self.cleaned_data
         return data[key_name] if key_name in data else ''
@@ -336,10 +344,10 @@ class ProfileEditForm(forms.Form):
 
 
     def get_cleaned_phones(self, cleaned_data):
-        '''
+        """
         Gets info dealing with phones from cleaned_data. So returns a subset (subdictionary :>)
         of cleaned_data
-        '''
+        """
         cleaned_phones = {}
         for k, v in cleaned_data.items():
             if k.startswith(self.phone_prefix):
@@ -350,14 +358,14 @@ class ProfileEditForm(forms.Form):
 
 
     def transform_cleaned_phones_to_list_of_phones(self, cleaned_phones):
-        ''' 
+        """ 
         Transforms cleaned_phones dict to list of pairs: (phone_type, phone_value) -- both of these values 
         must exists. 
         
         Elements without it's pair will be omitted in result.
         
         If element's value after striping is empty, then related key will be omitted in result. 
-        '''
+        """
         phones = []
         for i in range(len(cleaned_phones)):                 # this range is a bit (at most twice) too wide, but it doesn't hurt permormance
             type_pref = self.phone_type_prefix + str(i)
@@ -369,7 +377,7 @@ class ProfileEditForm(forms.Form):
 
 
     def extract_phones_to_add(self, user_phones, sent_phones):
-        '''
+        """
         Desc:
             Using sets language: it returns sent_phones\user_phones (where '\' means sets difference) 
             -- these are phones to be added to user's profile.
@@ -381,7 +389,7 @@ class ProfileEditForm(forms.Form):
         
         Return:
             List of 2-tuples: (phone_type_id, phone_value)
-        '''
+        """
         phones_to_add = copy(sent_phones)
         for user_phone in user_phones:
             phone_tuple = (user_phone.type.id, user_phone.value)
@@ -391,7 +399,7 @@ class ProfileEditForm(forms.Form):
 
 
     def extract_phones_to_remove(self, user_phones, sent_phones):
-        '''
+        """
         Desc:
             Returns user_phone\sent_phones, using sets language 
             -- these are phones to be removed from user's profile.
@@ -403,7 +411,7 @@ class ProfileEditForm(forms.Form):
         
         Return:
             List of 2-tuples: (phone_type_id, phone_value)
-        '''       
+        """       
         phones_to_remove = []
         for user_phone in user_phones:
             phone_tuple = (user_phone.type.id, user_phone.value)
@@ -413,7 +421,7 @@ class ProfileEditForm(forms.Form):
 
 
     def add_phones_to_profile(self, phones_to_add):
-        '''
+        """
         Desc:
             Adds phones from 2-tuple list to self.profile_owner's profile. 
             If a phone is already there, it will be duplicated.
@@ -421,7 +429,7 @@ class ProfileEditForm(forms.Form):
         Args:
             phones_to_add -- list of 2-tuples (phone_type_id, phone_value). Can be 
                              obtained from self.extract_phones_to_add()
-         '''
+         """
         user_profile = self.profile_owner.get_profile()
         for phone_type_id, phone_value in phones_to_add:
             new_phone = Phone(type=PhoneType.objects.get(id=phone_type_id),
@@ -432,14 +440,14 @@ class ProfileEditForm(forms.Form):
 
 
     def remove_phones_from_profile(self, phones_to_remove):
-        '''
+        """
         Desc:
             Removes phones from self.profile_owner's profile.
         
         Args:
             phones_to_remove -- list of 2-tuples (phone_type_id, phone_value). Can be 
                                 obtained from self.extract_phones_to_remove()
-         '''
+         """
         user_profile = self.profile_owner.get_profile()
         user_phones = user_profile.phone.all()
 
@@ -448,13 +456,13 @@ class ProfileEditForm(forms.Form):
                 if usr_phone.type.id == rmv_phone[0] and usr_phone.value == rmv_phone[1]:
                     user_profile.phone.remove(usr_phone)
         user_profile.save()
-        
+
 
     def save(self):
-        '''
+        """
         Commit changes in user profile.
         Returns saved user
-        '''
+        """
         if self.cleaned_data['email'] != '':
             new_email = self.cleaned_data['email']
             self.profile_owner.email = new_email
@@ -469,13 +477,19 @@ class ProfileEditForm(forms.Form):
             else:
                 user_profile.building = None
             user_profile.save()
-                
-        # only admin can change usernames
+
+        # changing username, first name or last name requires permission
         if self.editor.has_perm('baseapp.edit_xname'):
             self.profile_owner.username = self.cleaned_data['username']
             self.profile_owner.first_name = self.cleaned_data['first_name']
             self.profile_owner.last_name = self.cleaned_data['last_name']
 
+        # update groups if editor has req. perms
+        if self.editor.has_perm('baseapp.assign_user_to_groups'):
+            groups = self.cleaned_data['groups']
+            self.profile_owner.groups = groups
+
+        # update phones
         cleaned_phones   = self.get_cleaned_phones(self.cleaned_data)
         phones_as_list   = self.transform_cleaned_phones_to_list_of_phones(cleaned_phones)        
         user_phones      = self.profile_owner.get_profile().phone.all()
@@ -505,9 +519,16 @@ class ProfileEditForm(forms.Form):
         
         
     @staticmethod
-    def get_initials_for_user(user):
-        ''' Returns initial fields values for specified user.'''
-        # phones are list of 3-tuples: phone_type_id, phone_type, value
+    def get_initials_for_user(user, editor):
+        """
+        Returns initial fields values for specified user.
+
+        Args:
+            user -- instance of User. Form values will be obtained for him.
+            editor -- instance of User. One, who requested editing profile.
+                    It may be that user == editor (user edits his own profile).
+        """
+        # phones are list of 3-tuples: phone_type_id, phone_type_name, value
         phones = [ (p.type.id, p.type.name, p.value) for p in user.get_profile().phone.all() ]
         # initial values for phones
         phones_initial = {}
@@ -520,7 +541,14 @@ class ProfileEditForm(forms.Form):
                          'last_name'   : user.last_name,
                          'username'    : user.username,
                          'email'       : user.email,
-                        }
+                         'groups'      : utils.AutocompleteHelper(items=user.groups.all()).as_str(delim=''),
+                         }
+
+        if editor.has_perm('baseapp.assign_user_to_groups'):
+            form_initial['groups'] = [u.id for u in user.groups.all()]
+        else:
+            form_initial['groups'] = ', '.join([u.name for u in user.groups.all()])
+
         form_initial.update(phones_initial)
         if user.get_profile().building:
             form_initial['work_building'] = user.get_profile().building.id
@@ -529,7 +557,7 @@ class ProfileEditForm(forms.Form):
     
     @staticmethod
     def build_default_context_for_user(user):
-        ''' Returns default context for specified user.'''
+        """ Returns default context for specified user."""
         context = { 'first_name'   : user.first_name,
                     'last_name'    : user.last_name,
                     'user_id'      : user.id,
@@ -543,7 +571,7 @@ class ProfileEditForm(forms.Form):
                 
                 
 class RegistrationForm(forms.Form):
-    '''
+    """
     Form for registering a new user account.
 
     Validates that the requested username is not already in use, and
@@ -551,7 +579,7 @@ class RegistrationForm(forms.Form):
 
     Subclasses should feel free to add any additional validation they need, but should
     either preserve the base ``save()``
-    '''
+    """
     # username = forms.RegexField(regex=r'^\w+$',
     #                             min_length=3,
     #                             max_length=30,
@@ -576,9 +604,9 @@ class RegistrationForm(forms.Form):
 
 
     def clean_username(self):
-        '''
+        """
         Validate that the username is alphanumeric and is not already in use.
-        '''
+        """
         if ('first_name' not in self.cleaned_data) or ('last_name' not in self.cleaned_data):
             raise forms.ValidationError(u'First and last name must be given')
         username = self.cleaned_data['first_name'] + self.cleaned_data['last_name']
@@ -592,11 +620,11 @@ class RegistrationForm(forms.Form):
 
 
     def clean(self):
-        '''
+        """
         Verifiy that the values entered into the two password fields match.
         Note that an error here will end up in ``non_field_errors()`` because
         it doesn't apply to a single field.
-        '''
+        """
         self.clean_username()
         if 'password1' in self.cleaned_data and 'password2' in self.cleaned_data:
             if self.cleaned_data['password1'] != self.cleaned_data['password2']:
@@ -605,9 +633,9 @@ class RegistrationForm(forms.Form):
 
 
     def save(self):
-        '''
+        """
         Create the new user and returns it.
-        '''
+        """
         user = User.objects.create_user(username = self.cleaned_data['username'],
                                         password = self.cleaned_data['password1'],
                                         email = self.cleaned_data['email']
@@ -640,7 +668,7 @@ class LocationForm(ModelForm):
         fields = ('building', 'details', 'remarks', 'maintainer')
 
     groups = Group.objects.filter(Q(name='Librarians'))
-    maintainer = forms.ModelMultipleChoiceField(User.objects.filter(groups__in=groups), required=False)
+    maintainer = forms.ModelMultipleChoiceField(User.objects.filter(groups__in=groups).order_by('username'), required=False)
 
 
 class BookForm(ModelForm):   

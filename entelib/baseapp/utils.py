@@ -7,10 +7,10 @@ from baseapp.models import User
 
 
 def str_to_date(str, default=None):
-    ''' 
+    """ 
     Converts given string into datetime.date object. String should be like '2010-07-25'.
     If conversion fails - returns default.
-    '''    
+    """    
     try:
         parsed_date = datetime.datetime.strptime(str, "%Y-%m-%d")
     except ValueError:
@@ -27,13 +27,13 @@ def tomorrow():
     return today() + datetime.timedelta(1)
     
 def after_days(n, since=None):
-    ''' Returns date n days after since. If since is not given, today is used.'''
+    """ Returns date n days after since. If since is not given, today is used."""
     since = since or today()
     return since + datetime.timedelta(n)
 
 
 def remove_non_ints(items):
-    '''
+    """
     Filters items selecting those, which can be converted to int. 
     Returns list of items converted to int.
 
@@ -42,7 +42,7 @@ def remove_non_ints(items):
 
     Returns:
         List of ints.
-    '''
+    """
     filtered_items = []
     for item in items:
         try:
@@ -57,7 +57,7 @@ def remove_non_ints(items):
 
 
 def create_days_between(start, end, include_start=True, include_end=True):
-    ''' 
+    """ 
     Returns list of days between start and end. Ends are included respectively to include_start and include_end.
     If start==end, then start will be included iff at least one of include_* is True.
     
@@ -67,7 +67,7 @@ def create_days_between(start, end, include_start=True, include_end=True):
     
     Returns:
         list of Date (or DateTime if start is DateTime) instances.
-    '''
+    """
     if start > end:
         return []
     
@@ -88,13 +88,13 @@ def create_days_between(start, end, include_start=True, include_end=True):
     
     
 def week_for_day(day):
-    ''' Returns year and number of week for given day.'''
+    """ Returns year and number of week for given day."""
     year, week_nr, weekday = day.isocalendar()  #@UnusedVariable
     return (year, week_nr)
 
 
 def month_for_day(day):
-    ''' Returns year and month for given day. Month number contains in [1..12].'''
+    """ Returns year and month for given day. Month number contains in [1..12]."""
     return (day.year, day.month)
 
 
@@ -119,26 +119,26 @@ def get_logger(name):
 
 class AutocompleteHelper(object):
     def __init__(self, items=[], string=''):
-        '''
+        """
         Args:
             items -- iterable. List of items that will be converted to string.
             str -- basestring. String describing list which will be parsed.
-        '''
+        """
         self.items = list(items)
         self.string = string
 
     def as_str(self, sep=', ', delim='"'):
-        '''
+        """
         In constructor 'items' should be given.
-        '''
+        """
         items = [ ('%s%s%s' % (delim,i,delim)) for i in self.items ]
         result = sep.join(items)
         return result
 
     def from_str(self, sep=","):
-        '''
+        """
         In constructor 'str' should be given.
-        '''
+        """
         names = self.string
         names = names.replace("u'", '').replace('u"', '')    # naive method of parsing. How to do it better?
         names = names.replace('"', '').replace("'", '')

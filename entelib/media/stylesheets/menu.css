@@ -31,7 +31,7 @@ body{behavior:url(/media/stylesheets/cssHoverFix.htc);}
  
 /*Sub Menu*/
 #menu ul ul {display:none; position:absolute; left:20.5em; top:-.2em; /*border:#fff solid; border-width:1px; */ background-color:#ddd;
-             border-left: 4px solid #8010a1;
+             border-left: 0px solid #8010a1;
             }
 #menu ul li:hover ul {display:block;}
  
