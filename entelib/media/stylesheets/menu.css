@@ -26,6 +26,11 @@ body{behavior:url(/media/stylesheets/cssHoverFix.htc);}
     display: block;
     cursor:pointer;
 }
+#menu ul li.separator,
+#menu ul li.separator:hover {
+    height: .2em;    line-height: .2em;
+    background-color: #8010a2;
+}
 
 #menu ul li:hover {background-color:#FF8400; position:relative;}
  

@@ -293,6 +293,9 @@ class Publisher(models.Model):
 
     class Meta:
         unique_together = (('name',),)
+        permissions = (
+            ("list_publishers", "Can list publishers"),
+            )
 
 
 class Author(models.Model):
@@ -304,6 +307,9 @@ class Author(models.Model):
 
     class Meta:
         unique_together = (('name',),)
+        permissions = (
+            ("list_authors", "Can list authors"),
+            )
 
 
 class Category(models.Model):
@@ -315,6 +321,9 @@ class Category(models.Model):
 
     class Meta:
         unique_together = (('name',),)
+        permissions = (
+            ("list_categories", "Can list categories"),
+            )
 
 
 class Book(models.Model):
@@ -369,7 +378,7 @@ class CostCenter(models.Model):
 
     class Meta:
         permissions = (
-            ("list_cost_centers", "Can list cost centers"),
+            ("list_costcenters", "Can list cost centers"),
             )
         unique_together = (('name',),)
 

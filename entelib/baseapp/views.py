@@ -16,7 +16,7 @@ from django.template import RequestContext
 from baseapp.config import Config
 from baseapp.exceptions import EntelibWarning
 from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm, ConfigOptionEditForm,\
-    LocationForm, BookForm, BookCopyForm
+    LocationForm, BookForm, BookCopyForm, AuthorForm, CategoryForm, PublisherForm, CostCenterForm
 from baseapp.models import *
 from baseapp.reports import get_report_data, generate_csv
 from baseapp.utils import pprint
@@ -26,6 +26,8 @@ from baseapp.views_aux import render_forbidden, render_response,     filter_quer
 import baseapp.views_aux as aux
 import baseapp.emails as mail
 import settings
+from itertools import chain
+
 
 today = date.today
 now = datetime.datetime.now  # this seems like an error, but it stopped working as "now = datetime.now"
@@ -1137,4 +1139,95 @@ def activate_many_users(request, all_inactive=False):
     context = {'rows' : users}
 
     return render_response(request, 'users_awaiting_activation.html', context)
+
+
+def show_authors(request):
+    authors = Author.objects.all()
+    context = {'rows' : authors,
+               }
+    return render_response(request, 'authors/list.html', context)
+
+def show_author(request, author_id):
+    author = get_object_or_404(Author, id=author_id)
+    context = {
+        'author'         : author,
+        'is_displaying'  : True
+        }
+    return render_response(request, 'authors/one.html', context)
+
+@permission_required('baseapp.add_author')
+def show_add_author(request, edit_form=AuthorForm):
+    context = {}
+    if request.method == 'POST':
+        post = request.POST
+        form = edit_form(data=post)
+        if form.is_valid():
+            if 'btn_propositions' in post:
+                all_authors = list(chain(*Author.objects.values_list('name')))
+                propositions = utils.LevenshteinDistance(post['name'], all_authors).most_accurate(15)
+                context['propositions'] = propositions
+            if ('btn_update' in post) or ('btn_add' in post):
+                new_author = form.save()
+                messages.info(request, 'Author successfully added.')
+                return HttpResponseRedirect(reverse('author_one', args=(new_author.id,)))
+    else:
+        form = edit_form()
+    context.update({
+        'form'        : form,
+        'is_adding'   : True,         # adding new author
+        })
+    return render_response(request, 'authors/one.html', context)
+
+@permission_required('baseapp.change_author')
+def show_edit_author(request, author_id, edit_form=AuthorForm):
+    author = get_object_or_404(Author, id=author_id)
+    context = {}
+    if request.method == 'POST':
+        post = request.POST
+        form = edit_form(data=post, instance=author)
+        if form.is_valid():
+            if 'btn_propositions' in post:
+                all_authors = list(chain(*Author.objects.values_list('name')))
+                propositions = utils.LevenshteinDistance(post['name'], all_authors).most_accurate(15)
+                context['propositions'] = propositions
+            if ('btn_update' in post) or ('btn_add' in post):
+                form.save()
+                messages.info(request, 'Author successfully updated.')
+                return HttpResponseRedirect(reverse('author_one', args=(author.id,)))
+    else:
+        form = edit_form(instance=author)
+    context.update({
+        'form'        : form,
+        'author'      : author,
+        'is_updating' : True,        # editing existing author
+        })
+    return render_response(request, 'authors/one.html', context)
+
+
+def show_categories(request):
+    pass
+def show_category(request, category_id):
+    pass
+def show_add_category(request, edit_form=CategoryForm):
+    pass
+def show_edit_category(request, category_id, edit_form=CategoryForm):
+    pass
+
+def show_publishers(request):
+    pass
+def show_publisher(request, publisher_id):
+    pass
+def show_add_publisher(request, edit_form=PublisherForm):
+    pass
+def show_edit_publisher(request, publisher_id, edit_form=PublisherForm):
+    pass
+
+def show_cost_centers(request):
+    pass
+def show_cost_center(request, cost_center_id):
+    pass
+def show_add_cost_center(request, edit_form=CostCenterForm):
+    pass
+def show_edit_cost_center(request, cost_center_id, edit_form=CostCenterForm):
+    pass
 

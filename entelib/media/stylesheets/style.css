@@ -103,6 +103,7 @@ div.itemsWrapper table th {
     padding: .4em .5em;
     border: 1px solid black;
 }
+div.itemsWrapper tr:hover {  background-color: #ff8400;  }
 /* / ITEMS WRAPPER */
 
 
@@ -415,6 +416,26 @@ div.emails_wrapper table.emails th {
 .ui-datepicker-calendar {  border:0;  }  /* fix */
 .ui-autocomplete { height:20em; overflow-y:scroll; overflow-x:hidden; }
 /* / JQUERY */
+
+
+/* AUTHORS */
+div.form_authorWrapper .propositions {  padding-left: 2em;  }
+div.form_authorWrapper .propositions ul {  margin-left: 1em;  }
+div.form_authorWrapper .propositions ul li {  margin-bottom: .3em;  }
+div.form_authorWrapper input#id_name {  width: 30em;  min-width: 30em;  }
+div.author_info span.label {  font-weight: bold;  }
+div.itemsWrapper td.options {
+    padding:0;
+}
+div.itemsWrapper .options a.edit {
+    background: url('/media/images/edit-small.gif') center left no-repeat;
+    /* padding: 0 0 .3em 20px; */
+    display: block;
+    width: auto;
+    /* margin: .5em 0; */
+    border: 0;
+}
+/* / AUTHORS */
 
 
 /* MISC */

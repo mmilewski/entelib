@@ -123,21 +123,38 @@ def get_logger(name):
 
 
 class LevenshteinDistance(object):
-    def __init__(self, s, t):
+    def __init__(self, s, t, mode='lowersort'):
         """
-        s - always a string
-        t - string or a list of strings. Depends on function you will use later.
+        Args:
+            s - always a string
+            t - string or a list of strings. Depends on function you will use later.
+            sort - 'lowersort'  - characters of s and t will be lowercased, then sorted before comparison.
+                   'sort'       - characters of s and t sorted before comparison.
+                   'lower'      - strings will be lowercased befor comparison.
+                   'mixed'      - uses few methods, and selects most accurate results. May be slow.
+                   'id'         - identity
+                   Otherwise 'id' will be used
         """
         self.s = s
         self.t = t
-        
+        self.mode = mode
+
+        if self.mode == 'mixed':
+            self.mode = 'lowersort'
+        transform = lambda x: x
+        if self.mode == 'lowersort':  transform = lambda x: ''.join(sorted(x.lower()))
+        elif self.mode == 'sort':     transform = lambda x: ''.join(sorted(x))
+        elif self.mode == 'lower':    transform = lambda x: x.lower()
+        elif self.mode == 'id':       transform = lambda x: x
+        self.transform = transform
+
     def distance(self):
         """
         Requires self.t to be string.
         Returns distance of s and t.
         """
         assert isinstance(self.t, basestring)
-        s, t = ' ' + self.s, ' ' + self.t
+        s, t = ' ' + self.transform(self.s), ' ' + self.transform(self.t)
         S, T = len(s), len(t)
         d = {}
         for i in range(S):
@@ -151,13 +168,13 @@ class LevenshteinDistance(object):
                 else:
                     d[i, j] = min(d[i-1, j] + 1, d[i, j-1] + 1, d[i-1, j-1] + 1)
         return d[S-1, T-1]
-    
+
     def distance_tuple(self):
         """
         Returns pair: (distance, t_string)
         """
         return (self.distance(), self.t)
-    
+
     def most_accurate_tuples(self, n=1):
         """
         Requires self.t to be a list of strings.
@@ -165,7 +182,7 @@ class LevenshteinDistance(object):
         assert isinstance(self.t, list)
         if not self.t:
             raise ValueError('Empty list')
-        f = lambda x: LevenshteinDistance(self.s, x).distance_tuple()
+        f = lambda x: LevenshteinDistance(self.s, x, mode=self.mode).distance_tuple()
         return list(sorted(map(f, self.t)))[:n]
 
     def most_accurate(self, n=1):

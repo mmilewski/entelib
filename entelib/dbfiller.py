@@ -377,12 +377,18 @@ def populate_groups():
     from django.db.models import Q
     admins_perms     = Permission.objects.filter(~Q(codename__icontains='delete'))     # superadmin can delete, admin does not
     readers_perms    = ['list_books', 'view_own_profile', 'add_reservation', 'change_own_reservation', 'add_bookrequest',
-                        'list_config_options', 'edit_option', 'list_locations', 'view_location']
+                        'list_config_options', 'edit_option', 'list_locations', 'view_location',
+                        'list_authors', 'list_publishers', 'list_categories',
+                        ]
     librarians_perms = ['list_users', 'list_reports',
+                        'list_costcenters',
                         'add_rental', 'change_rental', 'change_reservation', 
                         'add_book', 'change_book',
                         'add_bookcopy', 'change_bookcopy',
-                        'list_cost_centers',
+                        'add_author', 'change_author',
+                        'add_category', 'change_category',
+                        'add_publisher', 'change_publisher',
+                        'add_costcenter', 'change_costcenter',
                         ]
     readd_group('Readers',    perms=readers_perms)
     readd_group('Librarians', perms=librarians_perms)

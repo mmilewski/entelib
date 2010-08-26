@@ -62,8 +62,8 @@
                 {% endfor %}
                 <tr>
                     <td></td>
-                    {% if is_adding %}<td><input type="submit" value="Add book"></td> {%endif%}
-                    {% if is_updating %}<td><input type="submit" value="Update book"></td> {%endif%}
+                    {% if is_adding %}  <td><input type="submit" name="btn_add"    value="Add book"></td>    {%endif%}
+                    {% if is_updating %}<td><input type="submit" name="btn_update" value="Update book"></td> {%endif%}
                 </tr>
             </table>
         </form>

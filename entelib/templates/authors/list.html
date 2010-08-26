@@ -1,0 +1,28 @@
+{% extends 'base_with_listing.html' %}
+
+{% block title %}All authors{% endblock %}
+
+{% block header %}All authors{% endblock %}
+
+{% block order %} [[1,0]] {% endblock %}
+{% block itemsWrapper %}authors_list itemsWrapper{% endblock %}
+
+    {% block header_row %}
+        <th></th>
+        <th>Name</th>
+        {% if perms.baseapp.change_author %}
+          <th>Options</th>
+        {% endif %}
+    {% endblock %}
+
+    {% block item_row %}
+        <td class="options">
+          <a href="{% url author_one row.id %}">Show details</a>
+        </td>
+        <td class="name"><a href="{% url author_one row.id %}">{{ row.name }}</a></td>
+        {% if perms.baseapp.change_author %}
+          <td class="options">
+            <a class="edit" href="{% url author_edit row.id %}">Edit author</a>
+          </td>
+        {% endif %}
+    {% endblock %}

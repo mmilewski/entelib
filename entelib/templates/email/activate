@@ -3,4 +3,4 @@
 Activate him at http://glonull1.mobile.fp.nsn-rdnet.net:8080/entelib/users/{{ user.id }}/activate/.
 Activate him at {{ application_url }}users/{{ user.id }}/activate/.
 
-See his profile at http://glonull1.mobile.fp.nsn-rdnet.net:8080/entelib/users/.
+See his profile at http://glonull1.mobile.fp.nsn-rdnet.net:8080/entelib/users/{{ user.id }}/.

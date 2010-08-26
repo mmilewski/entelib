@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth.models import Group, User
 from baseapp.models import Book, BookRequest, Building, PhoneType, Phone,\
-    Location, BookCopy, Category, Author
+    Location, BookCopy, Category, Author, Publisher, CostCenter
 # from baseapp.models import CustomUser
 from config import Config
 from baseapp.utils import pprint
@@ -692,7 +692,7 @@ class BookForm(ModelForm):
         return instances
 
 
-class BookCopyForm(ModelForm):   
+class BookCopyForm(ModelForm):
     class Meta:
         model = BookCopy
         # exclude = ('book',)
@@ -701,3 +701,38 @@ class BookCopyForm(ModelForm):
         super(BookCopyForm, self).__init__(*args, **kwargs)
         self.fields['book'].widget.attrs['readonly'] = True
         # self.fields['book'].widget.attrs['disabled'] = True
+
+
+class AuthorForm(ModelForm):
+    class Meta:
+        model = Author
+    def __init__(self, *args, **kwargs):
+        super(AuthorForm, self).__init__(*args, **kwargs)
+    def clean_name(self):
+        import re
+        if ('name' not in self.cleaned_data) or (len(self.cleaned_data['name'].strip())<1):
+            raise forms.ValidationError('Name is required')
+        name = self.cleaned_data['name']
+        if not re.compile('^[a-zA-z0-9 ]+$').match(name):
+            raise forms.ValidationError('Field contains forbidden characters')
+        return name
+        
+
+class CategoryForm(ModelForm):
+    class Meta:
+        model = Category
+    def __init__(self, *args, **kwargs):
+        super(CategoryForm, self).__init__(*args, **kwargs)
+
+class PublisherForm(ModelForm):
+    class Meta:
+        model = Publisher
+    def __init__(self, *args, **kwargs):
+        super(PublisherForm, self).__init__(*args, **kwargs)
+
+class CostCenterForm(ModelForm):
+    class Meta:
+        model = CostCenter
+    def __init__(self, *args, **kwargs):
+        super(CostCenterForm, self).__init__(*args, **kwargs)
+

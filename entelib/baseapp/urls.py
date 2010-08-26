@@ -21,10 +21,10 @@ urlpatterns = patterns(
     '',
 
     # login/logout
-    (r'^login/', django_login),
-    (r'^login$', get_redirect_function_to_url('/entelib/login/')),
     (r'^accounts/login/', get_redirect_function_to_url('/entelib/login/')),
     (r'^accounts/login$', get_redirect_function_to_url('/entelib/login/')),
+    (r'^login/', django_login),
+    (r'^login$', get_redirect_function_to_url('/entelib/login/')),
     (r'^logout/', view.logout),
     (r'^logout$', get_redirect_function_to_url('/entelib/logout/')),
     # (r'^register/$', view.register),
@@ -56,35 +56,56 @@ urlpatterns = patterns(
     url(r'^users/activate/$', view.activate_many_users, name='activate_many_users'),
 
     # user profile
-    url(r'^profile/$', view.edit_user_profile, name="profile_edit"),
-    (r'^profile/reservations/$', view.show_my_reservations),
-    (r'^profile/reservations/archive/$', view.show_my_reservation_archive),
-    (r'^profile/reservations/new/$', view.my_new_reservation),
-    (r'^profile/reservations/cancel-all/$', view.cancel_all_my_reserevations),
-    (r'^profile/rentals/$', view.show_my_rentals),
-    (r'^profile/rentals/new/$', view.my_new_reservation),
-    (r'^profile/rentals/archive/$', view.show_my_rental_archive),
+    url(r'^profile/$',                          view.edit_user_profile, name="profile_edit"),
+    url(r'^profile/reservations/$',             view.show_my_reservations),
+    url(r'^profile/reservations/archive/$',     view.show_my_reservation_archive),
+    url(r'^profile/reservations/new/$',         view.my_new_reservation),
+    url(r'^profile/reservations/cancel-all/$',  view.cancel_all_my_reserevations),
+    url(r'^profile/rentals/$',                  view.show_my_rentals),
+    url(r'^profile/rentals/new/$',              view.my_new_reservation),
+    url(r'^profile/rentals/archive/$',          view.show_my_rental_archive),
+
+    # authors, categories, publishers, cost centers
+    url(r'^authors/$',             view.show_authors,     name="author_all"),
+    url(r'^authors/(\d+)/$',       view.show_author,      name="author_one"),
+    url(r'^authors/(\d+)/edit/$',  view.show_edit_author, name="author_edit"),
+    url(r'^authors/add/$',         view.show_add_author,  name="author_add"),
+
+    url(r'^categories/$',             view.show_categories,    name="category_all"),
+    url(r'^categories/(\d+)/$',       view.show_category,      name="category_one"),
+    url(r'^categories/(\d+)/edit/$',  view.show_edit_category, name="category_edit"),
+    url(r'^categories/add/$',         view.show_add_category,  name="category_add"),
+
+    url(r'^publishers/$',             view.show_publishers,     name="publisher_all"),
+    url(r'^publishers/(\d+)/$',       view.show_publisher,      name="publisher_one"),
+    url(r'^publishers/(\d+)/edit/$',  view.show_edit_publisher, name="publisher_edit"),
+    url(r'^publishers/add/$',         view.show_add_publisher,  name="publisher_add"),
+
+    url(r'^cost_centers/$',             view.show_cost_centers,     name="cost_center_all"),
+    url(r'^cost_centers/(\d+)/$',       view.show_cost_center,      name="cost_center_one"),
+    url(r'^cost_centers/(\d+)/edit/$',  view.show_edit_cost_center, name="cost_center_edit"),
+    url(r'^cost_centers/add/$',         view.show_add_cost_center,  name="cost_center_add"),
 
     # books
-    url(r'^books/$', view.show_books, name="book_all"),
-    url(r'^books/(\d+)/$', view.show_book, name="book_one"),
-    url(r'^books/(\d+)/edit/$', view.show_edit_book, name="book_edit"),
-    url(r'^books/add/$', view.show_add_book, name="book_add"),
-    (r'^requestbook/$', view.request_book),                   # request for book
+    url(r'^books/$',               view.show_books,     name="book_all"),
+    url(r'^books/(\d+)/$',         view.show_book,      name="book_one"),
+    url(r'^books/(\d+)/edit/$',    view.show_edit_book, name="book_edit"),
+    url(r'^books/add/$',           view.show_add_book,  name="book_add"),
+    url(r'^requestbook/$',         view.request_book,   name="request_book"),       # request for book
 
     # book copies
-    url(r'^bookcopy/(\d+)/$', view.show_book_copy, name="copy_one"),
-    url(r'^bookcopy/(\d+)/edit/$', view.show_edit_bookcopy, name="copy_edit"),
-    url(r'^bookcopy/add,(\d+)/$', view.show_add_bookcopy, name="copy_add"),
-    (r'^bookcopy/(\d+)/up/$', view.book_copy_up_link),
-    (r'^bookcopy/\d+/user/$', view.find_user_to_rent_him),
-    (r'^bookcopy/(\d+)/user/(\d+)/$', view.reserve),
-    (r'^bookcopy/(\d+)/reserve/$', view.reserve),
+    url(r'^bookcopy/(\d+)/$',          view.show_book_copy,       name="copy_one"),
+    url(r'^bookcopy/(\d+)/edit/$',     view.show_edit_bookcopy,   name="copy_edit"),
+    url(r'^bookcopy/add,(\d+)/$',      view.show_add_bookcopy,    name="copy_add"),
+    (r'^bookcopy/(\d+)/up/$',          view.book_copy_up_link),
+    (r'^bookcopy/\d+/user/$',          view.find_user_to_rent_him),
+    (r'^bookcopy/(\d+)/user/(\d+)/$',  view.reserve),
+    (r'^bookcopy/(\d+)/reserve/$',     view.reserve),
     # (r'^bookcopy/(\d+)/reserve/up/$', view.show_book_copy),
 
     # locations
-    url(r'^locations/$', view.show_locations, name="location_all"),
-    url(r'^locations/(\d+)/$', view.show_location, name="location_one"),
+    url(r'^locations/$',        view.show_locations, name="location_all"),
+    url(r'^locations/(\d+)/$',  view.show_location,  name="location_one"),
 
     # librarian work
     url(r'^shipment/$', view.show_shipment_requests, name="shipment"),

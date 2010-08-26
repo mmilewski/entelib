@@ -22,7 +22,7 @@
                 {% endif %}
             </li>
             <li class="book_shelf_mark"><span class="label">ID:</span> {{ copy.shelf_mark }}</li>            
-            {% if can_list_cost_centers %}<li class="costcenter"><span class="label">Cost Center</span>: {{ copy.cost_center }}</li>{%endif%}
+            {% if can_display_costcenter %}<li class="costcenter"><span class="label">Cost Center</span>: {{ copy.cost_center }}</li>{%endif%}
             <li class="book_publisher"><span class="label">Publishing</span>: {{ copy.publication_nr }}, {{ copy.publisher }} {{ copy.year }}</li>
             <!-- <li class="desc_url"><a href='{{ copy.desc_url }}'>See external description</a></li> -->
             <li class="book_location"><span class="label">Location</span>:
