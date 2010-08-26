@@ -27,7 +27,7 @@ def log_email(sender, recipients, subject, body):
 
 def send(subject, msg, sender, recipients):
     '''
-    Sends emails. Parameters are defined like in send_mail.
+    Sends emails. Parameters are defined like in django's send_mail.
     '''
     config = Config()
     if config.get_bool('log_send_emails'):
@@ -36,7 +36,7 @@ def send(subject, msg, sender, recipients):
         try:
             django_send_mail(subject, msg, sender, recipients)
         except SMTPRecipientsRefused:
-            return 'Incorrect e-mail adress - e-mail not sent'
+            return 'Incorrect e-mail address - e-mail not sent'
     return None
 
 
@@ -46,11 +46,10 @@ def default_email(recipients, template, context, subject=None, sender=None):
         Sends email to recipients. Email is generated from template and context.
 
     Args:
-        recipients: list of valid email adresses. Valid adresses are for example: "jasiu@onet.pl" or "Jan Kowalski <jan.kwlski@hotmail.com>"
+        recipients: list of valid email addresses. Valid addresses are for example: "jasiu@onet.pl" or "Jan Kowalski <jan.kwlski@hotmail.com>"
         template: django template
         context: django.template.Context object
     '''
-
     t = loader.get_template(template)
     msg = t.render(context)
     sender = sender if sender else Config().get_str('default_email_sender')
@@ -143,3 +142,21 @@ def user_activated(user):
     recipient = _make_recipient_from_user(user)
     default_email([recipient], tpl, ctx)
     
+
+def password_reset(user, new_password):
+    """
+    Desc:
+        Send email if user's password was reset. Usually this means usage of 'Forgot my password.
+    Args:
+        user - instance of User, whose password was reset. E-mail will be sent to him.
+        new_password - new user's password. Not hashed. One will use this to log in. 
+    """
+    tpl = 'email/password_reset'
+    context = Context({'new_password': new_password,
+                       'user': user,
+                       })
+    recipient = _make_recipient_from_user(user)
+    default_email([recipient], tpl, context)
+
+
+

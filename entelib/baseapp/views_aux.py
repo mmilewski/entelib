@@ -855,11 +855,27 @@ def activate_user(user):
 
 class ForgotPasswordHandler(object):
     def __init__(self, user):
+        assert isinstance(user, User)
         self.user = user
+        self.new_password = self.generate_new_password()
 
     def generate_new_password(self):
+        '''
+        Generates new password and returns it.
+        '''
         from datetime import datetime
         from hashlib import md5
         value_to_hash = repr(datetime.now()) + self.user.email
         new_password = md5(value_to_hash).hexdigest()
         return new_password
+
+    def reset_password(self, email_user=True):
+        """
+        Resets user's password. Sends email iff email_user is True.
+        """
+        user = self.user
+        user.set_password(self.new_password)
+        user.save()
+        if email_user:
+            mail.password_reset(self.user, self.new_password)
+

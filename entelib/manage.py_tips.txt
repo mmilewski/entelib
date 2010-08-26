@@ -13,6 +13,14 @@ b) dump selected models
 How to fix small_db fixture?
 ==================================================
 
+ Method 1
+----------
+From app dir (= where manage.py is):
+./utils/fix-permissions.sh
+
+
+ Method 2
+----------
 # This task has few steps. It is possible to be done automatically, but can be difficult to write script for that.
 # 1) drop groups & perms
 python manage.py shell_plus

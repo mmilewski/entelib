@@ -22,38 +22,6 @@ div.logged_user_info {
 }
 
 
-/* LOGIN FORM */
-#login {
-    padding: 20px;
-    text-align: center;
-    margin: auto;
-    position: relative;
-    left: -120px;
-}
-#login ul.errorlist {  list-style: none;  }
-#login table {  margin: 0 auto;  }
-#login form input {  width: 15em;  }
-/* / LOGIN FORM */
-
-
-/* REGISTRATION */
-form.registration_form table.basic_fields {
-    padding: 20px;
-    text-align: center;
-    margin: auto;
-    position: relative;
-    left: -120px;
-}
-form.registration_form table.basic_fields  th {
-    text-align: left;
-    vertical-align: top;
-}
-form.registration_form table.basic_fields input {
-    width: 20em;
-}
-/* / REGISTRATION */
-
-
 /* TIPS */
 div.collapsedTip {  /*width: 10px; */ height: 10px;  overflow: hidden;  /*position: relative; float:left;  */}
 div.tip,
@@ -138,6 +106,38 @@ div.itemsWrapper table th {
 /* / ITEMS WRAPPER */
 
 
+/* LOGIN FORM */
+#login {
+    padding: 20px;
+    text-align: center;
+    margin: auto;
+    position: relative;
+    left: -120px;
+}
+#login ul.errorlist {  list-style: none;  }
+#login table {  margin: 0 auto;  }
+#login form input {  width: 15em;  }
+/* / LOGIN FORM */
+
+
+/* REGISTRATION */
+form.registration_form table.basic_fields {
+    padding: 20px;
+    text-align: center;
+    margin: auto;
+    position: relative;
+    left: -120px;
+}
+form.registration_form table.basic_fields  th {
+    text-align: left;
+    vertical-align: top;
+}
+form.registration_form table.basic_fields input {
+    width: 20em;
+}
+/* / REGISTRATION */
+
+
 /* FORMS */
 div.form_bookWrapper #id_title,
 div.form_bookWrapper #ac_authors { width: 35em; }  /* books/one.html */
@@ -185,6 +185,10 @@ div.user_search input#last_name,
 div.user_search input#email {   /* users.html */
     width: 30em;
     min-width: 30em;
+}
+
+form.forgotten_password_form input#id_email {      /* registration/forgotten_password.html */
+    width: 25em; min-width: 25em;
 }
 
 .reportItems th {     /* reports/....html */

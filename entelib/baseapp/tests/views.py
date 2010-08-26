@@ -5,10 +5,29 @@ from entelib.baseapp.utils import pprint, today, tomorrow, after_days
 from datetime import date, timedelta
 from entelib.baseapp.config import Config
 from entelib.baseapp.models import Reservation, Rental, User, UserProfile, Book, BookCopy, BookRequest, Configuration, Phone, Building
+from django.http import HttpResponseRedirect
 
 #def today():
 #    return date(2010, 7, 20)
 
+def accessed(response):
+    '''
+    Use self.assert_(accessed(response)) to check if page wasn't redirected to login,
+    because lack of perms or sth.
+
+    Returns:
+        True - page rendered properly
+        False - request redirected to login page
+    '''
+    if response.status_code == 200:
+        return True
+    if isinstance(response, HttpResponseRedirect):
+        return '/entelib/login/' not in response['Location']
+    rc = response.redirect_chain
+    if not rc:
+        return True
+    return '/entelib/login/' not in rc[-1][0]
+    
 def choice(collection):
     ''' simplified pseudo-choice ensuring repeatable results '''
     lst = list(collection)
@@ -613,6 +632,7 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
             'username' : user.username,
             'first_name' : user.first_name,
             'last_name' : user.last_name,
+            'groups' : ', '.join(list([g.name for g in user.groups.all()])),
             'current_password' : password,
             'email' : user.email,
             'work_building' : user.userprofile.building_id,
@@ -646,7 +666,8 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
         dict = self.create_post(user, password, {field : new_value})
 
         response = self.client.post(self.url, dict)
-        
+        self.assert_(accessed(response))
+
         after = self.get_state(User, UserProfile)
 
         self.assertEquals(new_value, User.objects.get(id=user.id).__getattribute__(field))
@@ -741,7 +762,8 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
                 dict = self.create_post(user, passwd, {'work_building' : building_to_change_to_id})
                 
                 response = self.client.post(self.url_admin % user.id, dict, follow=True)
-                
+                self.assert_(accessed(response))
+
                 fetched_building = Building.objects.get(id=building_to_change_to_id)
                 self.assertEquals(building_to_change_to_id, str(fetched_building.id))
 
@@ -763,6 +785,7 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
                         })
                     
                     response = self.client.post(self.url_admin % user.id, dict, follow=True)
+                    self.assert_(accessed(response))
                     
                     fetched_value = User.objects.get(id=user.id).userprofile.phone.all()[phone_nr].value
                     self.assert_(new_phone_value in [p.value for p in User.objects.get(id=user.id).userprofile.phone.all()])

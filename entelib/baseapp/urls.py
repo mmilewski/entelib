@@ -29,7 +29,7 @@ urlpatterns = patterns(
     (r'^logout$', get_redirect_function_to_url('/entelib/logout/')),
     # (r'^register/$', view.register),
     (r'^register/(?P<action>(.+))/$', view.register),
-    url(r'forgot_password/$', view.show_forgot_passowrd, name="forgot_password"),
+    url(r'forgot_password/$', view.show_forgot_password, name="forgot_password"),
 
     # users
     url(r'^users/$', view.show_users, name="user_all"),

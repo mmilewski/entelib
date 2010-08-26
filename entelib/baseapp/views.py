@@ -7,6 +7,7 @@ from django.contrib import auth
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponseRedirect, Http404
@@ -177,24 +178,32 @@ def request_book(request, request_form=BookRequestForm):
     return render_response(request, template, context)
 
 
-def show_forgot_passowrd(request):
+def show_forgot_password(request):
     from django.core.validators import email_re
+    logger = utils.get_logger('view.forgot_password')
     context = {}
     context['errors'] = []
     if request.method == 'POST':
         post = request.POST
+        # any email given?
         if 'email' in post and len(post['email']) > 0:
             email = post['email']
             context['email'] = email
+            # invalid ~~> show error?
             if not email_re.match(post['email']):
                 context['errors'].append('Enter a valid e-mail address.')
             else:
+                # valid email, but whether user with such exist?
                 users = list(User.objects.filter(email=email)[:1])
+                if len(users) > 1:
+                    logger.error('%s users have email %s' % (len(users), email))
                 if not users:
                     context['errors'].append("Your e-mail wasn't found in database")
                 else:
-                    handler = aux.ForgotPasswordHandler(users[0])
-                    new_password = handler.generate_new_password()
+                    user = users[0]
+                    handler = aux.ForgotPasswordHandler(user)
+                    handler.reset_password(user)
+                    new_password = handler.new_password
                     messages.info(request, 'Done: ' + str(new_password))
         else:
             context['errors'].append('This field is required.')
@@ -534,8 +543,9 @@ def show_add_book(request, edit_form=BookForm):
     if request.method == 'POST':
         form = edit_form(data=request.POST)
         if form.is_valid():
-            form.save()
+            new_book = form.save()
             messages.info(request, 'Book successfully added.')
+            return HttpResponseRedirect(reverse('book_one', args=(new_book.id,)))
     else:
         form = edit_form()
     book_authors = ''
@@ -560,6 +570,7 @@ def show_edit_book(request, book_id, edit_form=BookForm):
         if form.is_valid():
             form.save()
             messages.info(request, 'Book successfully updated.')
+            return HttpResponseRedirect(reverse('book_one', args=(book.id,)))
     else:
         form = edit_form(instance=book, initial={'author':'asdfasdfas'})
 
@@ -583,8 +594,9 @@ def show_add_bookcopy(request, book_id, edit_form=BookCopyForm):
     if request.method == 'POST':
         form = edit_form(data=request.POST, initial=initial_data)
         if form.is_valid():
-            form.save()
+            new_copy = form.save()
             messages.info(request, 'Book copy successfully added.')
+            return HttpResponseRedirect(reverse('copy_one', args=(new_copy.id,)))
     else:
         form = edit_form(initial=initial_data)
     
@@ -603,6 +615,7 @@ def show_edit_bookcopy(request, copy_id, edit_form=BookCopyForm):
         if form.is_valid():
             form.save()
             messages.info(request, 'Book copy successfully updated.')
+            return HttpResponseRedirect(reverse('copy_one', args=(copy.id,)))
     else:
         form = edit_form(instance=copy)
     

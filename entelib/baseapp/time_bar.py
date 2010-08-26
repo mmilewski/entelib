@@ -317,7 +317,7 @@ class TimeBar(object):
         if result:
             if result[-1].end < end_value:         #  -----|-------|
                 seg = result[-1]                   #                    ^     <--- this says where end_value is
-                new_seg = Segment(start=seg.end + self.one, end=end_value, is_available=True)
+                new_seg = Segment(start=seg.end + self.one, end=end_value, z=seg.z, is_available=True)
                 result.append(new_seg)
             elif result[-1].end > end_value:    #  |------|-------|
                 result[-1].end = end_value      #             ^

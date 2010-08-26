@@ -17,7 +17,12 @@
         <p class='positive_message'>
             {{ reserved.msg }}.
         </p>
-        <a href={% url user_one reader_id %}>Go to profile</a><br /><br />
+
+        <div class="inner_menu">
+          <ul>
+            <li><a href={% url user_one reader_id %}>Go to profile</a></li>
+          </ul>
+        </div>
 
         {% if reserved.reservation %}
             {% cancel_or_request_form %}

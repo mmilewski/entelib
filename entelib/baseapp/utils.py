@@ -111,10 +111,66 @@ def get_admins():
     return admins
 
 
+logger_names = ['view.forgot_password', 'config', 'config.option', ]
+
 def get_logger(name):
+    if name not in logger_names:
+        propositions = LevenshteinDistance( name, logger_names).most_accurate(2)
+        raise ValueError("Logger name wasn't found. Did you mean %s" % ' or '.join(propositions))
     logger = logging.getLogger(name)
     # logger.addHandler(logging.StreamHandler())
     return logger
+
+
+class LevenshteinDistance(object):
+    def __init__(self, s, t):
+        """
+        s - always a string
+        t - string or a list of strings. Depends on function you will use later.
+        """
+        self.s = s
+        self.t = t
+        
+    def distance(self):
+        """
+        Requires self.t to be string.
+        Returns distance of s and t.
+        """
+        assert isinstance(self.t, basestring)
+        s, t = ' ' + self.s, ' ' + self.t
+        S, T = len(s), len(t)
+        d = {}
+        for i in range(S):
+            d[i, 0] = i
+        for j in range (T):
+            d[0, j] = j
+        for j in range(1,T):
+            for i in range(1,S):
+                if s[i] == t[j]:
+                    d[i, j] = d[i-1, j-1]
+                else:
+                    d[i, j] = min(d[i-1, j] + 1, d[i, j-1] + 1, d[i-1, j-1] + 1)
+        return d[S-1, T-1]
+    
+    def distance_tuple(self):
+        """
+        Returns pair: (distance, t_string)
+        """
+        return (self.distance(), self.t)
+    
+    def most_accurate_tuples(self, n=1):
+        """
+        Requires self.t to be a list of strings.
+        """
+        assert isinstance(self.t, list)
+        if not self.t:
+            raise ValueError('Empty list')
+        f = lambda x: LevenshteinDistance(self.s, x).distance_tuple()
+        return list(sorted(map(f, self.t)))[:n]
+
+    def most_accurate(self, n=1):
+        return zip(*self.most_accurate_tuples(n))[1]
+
 
 
 class AutocompleteHelper(object):

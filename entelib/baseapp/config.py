@@ -156,7 +156,7 @@ class Config(object):
                          respectively to can_override.
                          If user_value is None, then value == global_value.
             '''
-            self.logger = get_logger('Config.Option')
+            self.logger = get_logger('config.option')
             assert isinstance(key, basestring)
             assert isinstance(type, ConfigurationValueType)
             assert isinstance(can_override, bool)
