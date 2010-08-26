@@ -56,7 +56,7 @@ def render_response(request, template, context={}):
             context.pop(perm_fullname, None)
 
     # special cases
-    context['can_display_costcenter'] = config.get_bool('is_cost_center_visible_to_anyone')
+    context['can_display_costcenter'] = config.get_bool('is_cost_center_visible_to_anyone') or user.has_perm('baseapp.list_costcenters')
 
 
     for key, value in context.items():

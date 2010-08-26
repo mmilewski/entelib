@@ -204,7 +204,8 @@ class AutocompleteHelper(object):
         """
         In constructor 'items' should be given.
         """
-        items = [ ('%s%s%s' % (delim,i,delim)) for i in self.items ]
+        items = [ unicode(x).replace('"','') for x in self.items ]
+        items = [ ('%s%s%s' % (delim,i,delim)) for i in items ]
         result = sep.join(items)
         return result
 
