@@ -1,0 +1,34 @@
+{% extends 'base_with_listing.html' %}
+
+{% block title %}All costcenters{% endblock %}
+
+{% block header %}All costcenters{% endblock %}
+
+{% block order %} [[1,0]] {% endblock %}
+{% block itemsWrapper %}costcenters_list itemsWrapper{% endblock %}
+
+    {% block header_row %}
+      {% if perms.baseapp.list_costcenters %}
+          <th></th>
+          <th>Name</th>
+          {% if perms.baseapp.change_costcenter %}<th>Options</th>{% endif %}
+      {% else %}
+          <th>Name</th>
+      {% endif %}
+    {% endblock %}
+
+    {% block item_row %}
+      {% if perms.baseapp.list_costcenters %}
+          <td class="options">
+            <a href="{% url costcenter_one row.id %}">Show details</a>
+          </td>
+          <td class="name"><a href="{% url costcenter_one row.id %}">{{ row.name }}</a></td>
+          {% if perms.baseapp.change_costcenter %}
+            <td class="options">
+              <a class="edit" href="{% url costcenter_edit row.id %}">Edit costcenter</a>
+            </td>
+          {% endif %}
+      {% else %}
+          <td class="name">{{ row.name }}</td>
+      {% endif %}
+    {% endblock %}

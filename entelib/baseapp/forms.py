@@ -703,9 +703,24 @@ class BookCopyForm(ModelForm):
         # self.fields['book'].widget.attrs['disabled'] = True
 
 
+def generic_clean_name(form_instance, regexp):
+    import re
+    self = form_instance
+    if ('name' not in self.cleaned_data) or (len(self.cleaned_data['name'].strip()) < 1):
+        raise forms.ValidationError('Name is required')
+    name = self.cleaned_data['name']
+    if not re.compile(regexp).match(name):
+        raise forms.ValidationError('Field contains forbidden characters')
+    return name
+
+
 class BuildingForm(ModelForm):   
     class Meta:
         model = Building
+    def __init__(self, *args, **kwargs):
+        super(BuildingForm, self).__init__(*args, **kwargs)
+    def clean_name(self):
+        return generic_clean_name(self, '^[a-zA-z0-9 \-_]+$')
 
 class AuthorForm(ModelForm):
     class Meta:
@@ -713,29 +728,29 @@ class AuthorForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(AuthorForm, self).__init__(*args, **kwargs)
     def clean_name(self):
-        import re
-        if ('name' not in self.cleaned_data) or (len(self.cleaned_data['name'].strip()) < 1):
-            raise forms.ValidationError('Name is required')
-        name = self.cleaned_data['name']
-        if not re.compile('^[a-zA-z0-9 \-]+$').match(name):
-            raise forms.ValidationError('Field contains forbidden characters')
-        return name
+        return generic_clean_name(self, '^[a-zA-z0-9 \-_]+$')
 
 class CategoryForm(ModelForm):
     class Meta:
         model = Category
     def __init__(self, *args, **kwargs):
         super(CategoryForm, self).__init__(*args, **kwargs)
+    def clean_name(self):
+        return generic_clean_name(self, '^[a-zA-z0-9 \-_]+$')
 
 class PublisherForm(ModelForm):
     class Meta:
         model = Publisher
     def __init__(self, *args, **kwargs):
         super(PublisherForm, self).__init__(*args, **kwargs)
+    def clean_name(self):
+        return generic_clean_name(self, '^[a-zA-z0-9 \-_]+$')
 
 class CostCenterForm(ModelForm):
     class Meta:
         model = CostCenter
     def __init__(self, *args, **kwargs):
         super(CostCenterForm, self).__init__(*args, **kwargs)
+    def clean_name(self):
+        return generic_clean_name(self, u'^[a-zA-z0-9 \-_]+$')
 

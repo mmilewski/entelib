@@ -23,8 +23,8 @@
               {% if perms.baseapp.add_publisher %}      <li><a href="{% url publisher_add %}">          Add publisher         </a></li>
                 <li class="separator"></li>
               {% endif %}
-              {% if perms.baseapp.list_costcenters %}    <li><a href="/entelib/cost_centers/">          Cost Center list      </a></li> {% endif %}
-              {% if perms.baseapp.add_costcenter %}      <li><a href="{% url cost_center_add %}">       Add Cost Center       </a></li> {% endif %}
+              {% if perms.baseapp.list_costcenters %}    <li><a href="{% url costcenter_all %}">       Cost Center list      </a></li> {% endif %}
+              {% if perms.baseapp.add_costcenter %}      <li><a href="{% url costcenter_add %}">       Add Cost Center       </a></li> {% endif %}
             </ul>
           </li>
         {% endif %}

@@ -1164,108 +1164,137 @@ def activate_many_users(request, all_inactive=False):
     return render_response(request, 'users_awaiting_activation.html', context)
 
 
-@login_required
-def show_authors(request):
-    authors = Author.objects.all()
-    context = {'rows' : authors,
-               }
-    return render_response(request, 'authors/list.html', context)
-
-@login_required
-def show_author(request, author_id):
-    author = get_object_or_404(Author, id=author_id)
+def generic_items(request, name_single, name_plural, query):
     context = {
-        'author'         : author,
-        'is_displaying'  : True
+        'rows'         : query,
+        'name_single'  : name_single,
+        'name_plural'  : name_plural,
         }
-    return render_response(request, 'authors/one.html', context)
+    return render_response(request, '%s/list.html' % name_plural, context)
+    
+def generic_item(request, name_single, name_plural, item_id, model_name):
+    item = get_object_or_404(model_name, id=item_id)
+    context = {
+        'item'           : item,
+        name_single      : item,
+        'is_displaying'  : True,
+        'name_single'    : name_single,
+        'name_plural'    : name_plural,
+        }
+    return render_response(request, '%s/one.html' % name_plural, context)
 
-@permission_required('baseapp.add_author')
-def show_add_author(request, edit_form=forms.AuthorForm):
+def generic_add_item(request, name_single, name_plural, edit_form, model_name, field_name='name'):
     context = {}
     if request.method == 'POST':
         post = request.POST
         form = edit_form(data=post)
         if form.is_valid():
             if 'btn_propositions' in post:
-                all_authors = list(chain(*Author.objects.values_list('name')))
-                propositions = utils.LevenshteinDistance(post['name'], all_authors).most_accurate(15)
+                all_items = list(chain(*model_name.objects.values_list(field_name)))
+                propositions = utils.LevenshteinDistance(post[field_name], all_items).most_accurate(15)
                 context['propositions'] = propositions
             if ('btn_update' in post) or ('btn_add' in post):
-                new_author = form.save()
-                messages.info(request, 'Author successfully added.')
-#                 return HttpResponseRedirect(reverse('author_one', args=(new_author.id,)))
+                new_item = form.save()
+                messages.info(request, '%s successfully added.' % name_single.capitalize())
+                return HttpResponseRedirect(reverse('%s_one' % name_single, args=(new_item.id,)))
     else:
         form = edit_form()
     context.update({
-        'form'        : form,
-        'is_adding'   : True,         # adding new author
+        'form'         : form,
+        'is_adding'    : True,         # adding new item
+        'name_single'  : name_single,
+        'name_plural'  : name_plural,
         })
-    return render_response(request, 'authors/one.html', context)
+    return render_response(request, '%s/one.html' % name_plural, context)
 
-@permission_required('baseapp.change_author')
-def show_edit_author(request, author_id, edit_form=forms.AuthorForm):
-    author = get_object_or_404(Author, id=author_id)
+def generic_edit_item(request, name_single, name_plural, item_id, edit_form, model_name, field_name='name'):
+    item = get_object_or_404(model_name, id=item_id)
     context = {}
     if request.method == 'POST':
         post = request.POST
-        form = edit_form(data=post, instance=author)
+        form = edit_form(data=post, instance=item)
         if form.is_valid():
             if 'btn_propositions' in post:
-                all_authors = list(chain(*Author.objects.values_list('name')))
-                propositions = utils.LevenshteinDistance(post['name'], all_authors).most_accurate(15)
+                all_items = list(chain(*model_name.objects.values_list(field_name)))
+                propositions = utils.LevenshteinDistance(post[field_name], all_items).most_accurate(15)
                 context['propositions'] = propositions
             if ('btn_update' in post) or ('btn_add' in post):
                 form.save()
-                messages.info(request, 'Author successfully updated.')
-#                 return HttpResponseRedirect(reverse('author_one', args=(author.id,)))
+                messages.info(request, '%s successfully updated.' % name_single.capitalize())
+                return HttpResponseRedirect(reverse('%s_one' % name_single, args=(item.id,)))
     else:
-        form = edit_form(instance=author)
+        form = edit_form(instance=item)
     context.update({
-        'form'        : form,
-        'author'      : author,
-        'is_updating' : True,        # editing existing author
+        'form'         : form,
+        'item'         : item,
+        name_single    : item,
+        'is_updating'  : True,        # editing existing item
+        'name_single'  : name_single,
+        'name_plural'  : name_plural,
         })
-    return render_response(request, 'authors/one.html', context)
+    return render_response(request, '%s/one.html' % name_plural, context)
 
+@permission_required('baseapp.list_authors')
+def show_authors(request):
+    return generic_items(request, 'author', 'authors', Author.objects.all())
+@permission_required('baseapp.view_author')
+def show_author(request, author_id):
+    return generic_item(request, 'author', 'authors', author_id, Author)
+@permission_required('baseapp.add_author')
+def show_add_author(request, edit_form=forms.AuthorForm):
+    return generic_add_item(request, 'author', 'authors', edit_form, Author)
+@permission_required('baseapp.change_author')
+def show_edit_author(request, author_id, edit_form=forms.AuthorForm):
+    return generic_edit_item(request, 'author', 'authors', author_id, edit_form, Author)
 
+@permission_required('baseapp.list_categories')
+def show_categories(request):
+    return generic_items(request, 'category', 'categories', Category.objects.all())
+@permission_required('baseapp.view_category')
+def show_category(request, category_id):
+    return generic_item(request, 'category', 'categories', category_id, Category)
+@permission_required('baseapp.add_category')
+def show_add_category(request, edit_form=forms.CategoryForm):
+    return generic_add_item(request, 'category', 'categories', edit_form, Category)
+@permission_required('baseapp.change_category')
+def show_edit_category(request, category_id, edit_form=forms.CategoryForm):
+    return generic_edit_item(request, 'category', 'categories', category_id, edit_form, Category)
 
 @permission_required('baseapp.list_buildings')
 def show_buildings(request):
-    pass
-
+    return generic_items(request, 'building', 'buildings', Building.objects.all())
 @permission_required('baseapp.view_building')
-def show_building(request, building_id, edit_form=forms.BuildingForm):
-    pass
-
-@permission_required('baseapp.change_building')
+def show_building(request, building_id):
+    return generic_item(request, 'building', 'buildings', building_id, Building)
+@permission_required('baseapp.add_building')
 def show_add_building(request, edit_form=forms.BuildingForm):
-    pass
+    return generic_add_item(request, 'building', 'buildings', edit_form, Building)
+@permission_required('baseapp.change_building')
+def show_edit_building(request, building_id, edit_form=forms.BuildingForm):
+    return generic_edit_item(request, 'building', 'buildings', building_id, edit_form, Building)
 
-def show_categories(request):
-    pass
-def show_category(request, category_id):
-    pass
-def show_add_category(request, edit_form=forms.CategoryForm):
-    pass
-def show_edit_category(request, category_id, edit_form=forms.CategoryForm):
-    pass
-
+@permission_required('baseapp.list_publishers')
 def show_publishers(request):
-    pass
+    return generic_items(request, 'publisher', 'publishers', Publisher.objects.all())
+@permission_required('baseapp.view_publisher')
 def show_publisher(request, publisher_id):
-    pass
+    return generic_item(request, 'publisher', 'publishers', publisher_id, Publisher)
+@permission_required('baseapp.add_publisher')
 def show_add_publisher(request, edit_form=forms.PublisherForm):
-    pass
+    return generic_add_item(request, 'publisher', 'publishers', edit_form, Publisher)
+@permission_required('baseapp.change_publisher')
 def show_edit_publisher(request, publisher_id, edit_form=forms.PublisherForm):
-    pass
+    return generic_edit_item(request, 'publisher', 'publishers', publisher_id, edit_form, Publisher)
 
-def show_cost_centers(request):
-    pass
-def show_cost_center(request, cost_center_id):
-    pass
-def show_add_cost_center(request, edit_form=forms.CostCenterForm):
-    pass
-def show_edit_cost_center(request, cost_center_id, edit_form=forms.CostCenterForm):
-    pass
-
+@permission_required('baseapp.list_costcenters')
+def show_costcenters(request):
+    return generic_items(request, 'costcenter', 'costcenters', CostCenter.objects.all())
+@permission_required('baseapp.view_costcenter')
+def show_costcenter(request, costcenter_id):
+    return generic_item(request, 'costcenter', 'costcenters', costcenter_id, CostCenter)
+@permission_required('baseapp.add_costcenter')
+def show_add_costcenter(request, edit_form=forms.CostCenterForm):
+    return generic_add_item(request, 'costcenter', 'costcenters', edit_form, CostCenter)
+@permission_required('baseapp.change_costcenter')
+def show_edit_costcenter(request, costcenter_id, edit_form=forms.CostCenterForm):
+    return generic_edit_item(request, 'costcenter', 'costcenters', costcenter_id, edit_form, CostCenter)

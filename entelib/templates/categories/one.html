@@ -1,42 +1,42 @@
 {% extends 'base_with_top_menu.html' %}
 
-{% block title %}Author's details{% endblock %}
+{% block title %}Category's details{% endblock %}
 
-{% block header %}Author's details{% endblock %}
+{% block header %}Category's details{% endblock %}
 
 {% block content %}
 
-<div class="author_one">
+<div class="category_one">
   <div class="inner_menu">
     <ul>
-      {%if is_displaying and perms.baseapp.change_author%}<li><a href="{% url author_edit author.id %}">Edit this author</a> </li>{% endif %}
-      <li><a href="{% url author_all %}">Show all authors</a> </li>
-      {%if is_displaying and perms.baseapp.add_author%}<li><a href="{% url author_add %}">Add another author</a> </li>{% endif %}
-      {%if is_updating%}<li><a href="{% url author_one author.id %}">Show this author</a></li>{% endif %}
+      {%if is_displaying and perms.baseapp.change_category%}<li><a href="{% url category_edit category.id %}">Edit this category</a> </li>{% endif %}
+      <li><a href="{% url category_all %}">Show all categories</a> </li>
+      {%if is_displaying and perms.baseapp.add_category%}<li><a href="{% url category_add %}">Add another category</a> </li>{% endif %}
+      {%if is_updating%}<li><a href="{% url category_one category.id %}">Show this category</a></li>{% endif %}
     </ul>
   </div>
 
     {% if not is_adding %}
-    <div class="author_info item_info">
+    <div class="category_info item_info">
       <ul class="details">
-        <li><span class="label">Name:</span> {{author.name}}</li>
+        <li><span class="label">Name:</span> {{category.name}}</li>
       </ul>
     </div>
     {% endif %}
 
 
-    {% if perms.baseapp.add_author and form %}
+    {% if perms.baseapp.add_category and form %}
       {% if display_tips %}
         <div class="tip" >
-          <p>When you add or update an author, you can add duplicate by mistake. On list below you will find authors'
+          <p>When you add or update an category, you can add duplicate by mistake. On list below you will find categories'
             names which closely match to your input. If you find your input on the list, this means you tried to insert
             a duplicate.
           </p>
         </div>
       {% endif %}
-    <div class="form_authorWrapper form_itemWrapper">
+    <div class="form_categoryWrapper form_itemWrapper">
       <center>
-        <form method="POST" action="." name="Fauthor">
+        <form method="POST" action="." name="Fcategory">
             {{ form.non_field_errors }}
             <table>
                 {% for field in form %}
@@ -55,7 +55,7 @@
                     <tr>
                       <td>
                         <div class="propositions">
-                          <h3>List of closest matching authors</h3>
+                          <h3>List of closest matching categories</h3>
                           <ul>
                             {{ propositions|unordered_list }}
                           </ul>
@@ -68,14 +68,14 @@
                     <td>
                     {% if propositions %}
                       {% if is_adding %}  <input type="submit" name="btn_add"    value="Not on the list, add new one">    {%endif%}
-                      {% if is_updating %}<input type="submit" name="btn_update" value="Update author"> {%endif%}
+                      {% if is_updating %}<input type="submit" name="btn_update" value="Update category"> {%endif%}
                     {% endif %}
                     </td>
                 </tr>
             </table>
         </form>
         <script type="text/javascript"> 
-            document.Fauthor.id_name.focus();
+            document.Fcategory.id_name.focus();
         </script>
       </center>
     </div>

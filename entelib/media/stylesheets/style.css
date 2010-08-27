@@ -419,11 +419,11 @@ div.emails_wrapper table.emails th {
 
 
 /* AUTHORS */
-div.form_authorWrapper .propositions {  padding-left: 2em;  }
-div.form_authorWrapper .propositions ul {  margin-left: 1em;  }
-div.form_authorWrapper .propositions ul li {  margin-bottom: .3em;  }
-div.form_authorWrapper input#id_name {  width: 30em;  min-width: 30em;  }
-div.author_info span.label {  font-weight: bold;  }
+div.item_info span.label {  font-weight: bold;  }
+div.form_itemWrapper .propositions {  padding-left: 2em;  }
+div.form_itemWrapper .propositions ul {  margin-left: 1em;  }
+div.form_itemWrapper .propositions ul li {  margin-bottom: .3em;  }
+div.form_itemWrapper input#id_name {  width: 30em;  min-width: 30em;  }
 div.itemsWrapper td.options {
     padding:0;
 }

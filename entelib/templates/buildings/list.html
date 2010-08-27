@@ -1,0 +1,34 @@
+{% extends 'base_with_listing.html' %}
+
+{% block title %}All buildings{% endblock %}
+
+{% block header %}All buildings{% endblock %}
+
+{% block order %} [[1,0]] {% endblock %}
+{% block itemsWrapper %}buildings_list itemsWrapper{% endblock %}
+
+    {% block header_row %}
+      {% if perms.baseapp.list_buildings %}
+          <th></th>
+          <th>Name</th>
+          {% if perms.baseapp.change_building %}<th>Options</th>{% endif %}
+      {% else %}
+          <th>Name</th>
+      {% endif %}
+    {% endblock %}
+
+    {% block item_row %}
+      {% if perms.baseapp.list_buildings %}
+          <td class="options">
+            <a href="{% url building_one row.id %}">Show details</a>
+          </td>
+          <td class="name"><a href="{% url building_one row.id %}">{{ row.name }}</a></td>
+          {% if perms.baseapp.change_building %}
+            <td class="options">
+              <a class="edit" href="{% url building_edit row.id %}">Edit building</a>
+            </td>
+          {% endif %}
+      {% else %}
+          <td class="name">{{ row.name }}</td>
+      {% endif %}
+    {% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base_with_listing.html' %}
+
+{% block title %}All publishers{% endblock %}
+
+{% block header %}All publishers{% endblock %}
+
+{% block order %} [[1,0]] {% endblock %}
+{% block itemsWrapper %}publishers_list itemsWrapper{% endblock %}
+
+    {% block header_row %}
+      {% if perms.baseapp.list_publishers %}
+          <th></th>
+          <th>Name</th>
+          {% if perms.baseapp.change_publisher %}<th>Options</th>{% endif %}
+      {% else %}
+          <th>Name</th>
+      {% endif %}
+    {% endblock %}
+
+    {% block item_row %}
+      {% if perms.baseapp.list_publishers %}
+          <td class="options">
+            <a href="{% url publisher_one row.id %}">Show details</a>
+          </td>
+          <td class="name"><a href="{% url publisher_one row.id %}">{{ row.name }}</a></td>
+          {% if perms.baseapp.change_publisher %}
+            <td class="options">
+              <a class="edit" href="{% url publisher_edit row.id %}">Edit publisher</a>
+            </td>
+          {% endif %}
+      {% else %}
+          <td class="name">{{ row.name }}</td>
+      {% endif %}
+    {% endblock %}

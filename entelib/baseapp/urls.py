@@ -81,10 +81,10 @@ urlpatterns = patterns(
     url(r'^publishers/(\d+)/edit/$',  view.show_edit_publisher, name="publisher_edit"),
     url(r'^publishers/add/$',         view.show_add_publisher,  name="publisher_add"),
 
-    url(r'^cost_centers/$',             view.show_cost_centers,     name="cost_center_all"),
-    url(r'^cost_centers/(\d+)/$',       view.show_cost_center,      name="cost_center_one"),
-    url(r'^cost_centers/(\d+)/edit/$',  view.show_edit_cost_center, name="cost_center_edit"),
-    url(r'^cost_centers/add/$',         view.show_add_cost_center,  name="cost_center_add"),
+    url(r'^costcenters/$',             view.show_costcenters,     name="costcenter_all"),
+    url(r'^costcenters/(\d+)/$',       view.show_costcenter,      name="costcenter_one"),
+    url(r'^costcenters/(\d+)/edit/$',  view.show_edit_costcenter, name="costcenter_edit"),
+    url(r'^costcenters/add/$',         view.show_add_costcenter,  name="costcenter_add"),
 
     # books
     url(r'^books/$',               view.show_books,     name="book_all"),
