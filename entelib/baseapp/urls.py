@@ -94,18 +94,22 @@ urlpatterns = patterns(
     url(r'^requestbook/$',         view.request_book,   name="request_book"),       # request for book
 
     # book copies
-    url(r'^bookcopy/(\d+)/$',          view.show_book_copy,       name="copy_one"),
-    url(r'^bookcopy/(\d+)/edit/$',     view.show_edit_bookcopy,   name="copy_edit"),
-    url(r'^bookcopy/add,(\d+)/$',      view.show_add_bookcopy,    name="copy_add"),
-    (r'^bookcopy/(\d+)/up/$',          view.book_copy_up_link),
-    (r'^bookcopy/\d+/user/$',          view.find_user_to_rent_him),
-    (r'^bookcopy/(\d+)/user/(\d+)/$',  view.reserve),
-    (r'^bookcopy/(\d+)/reserve/$',     view.reserve),
+    url(r'^bookcopy/(\d+)/$',             view.show_book_copy,       name="copy_one"),
+    url(r'^bookcopy/(\d+)/edit/$',        view.show_edit_bookcopy,   name="copy_edit"),
+    url(r'^bookcopy/add,(\d+)/$',         view.show_add_bookcopy,    name="copy_add"),
+    url(r'^bookcopy/(\d+)/up/$',          view.book_copy_up_link),
+    url(r'^bookcopy/\d+/user/$',          view.find_user_to_rent_him),
+    url(r'^bookcopy/(\d+)/user/(\d+)/$',  view.reserve),
+    url(r'^bookcopy/(\d+)/reserve/$',     view.reserve),
     # (r'^bookcopy/(\d+)/reserve/up/$', view.show_book_copy),
 
-    # locations
-    url(r'^locations/$',        view.show_locations, name="location_all"),
-    url(r'^locations/(\d+)/$',  view.show_location,  name="location_one"),
+    # locations, buildings
+    url(r'^locations/$',        view.show_locations,     name="location_all"),
+    url(r'^locations/(\d+)/$',  view.show_location,      name="location_one"),
+    url(r'^locations/add/$',    view.show_add_location,  name="location_add"),
+    url(r'^buildings/$',        view.show_buildings,     name="building_all"),
+    url(r'^buildings/(\d+)/$',  view.show_building,      name="building_one"),
+    url(r'^buildings/add/$',    view.show_add_building,  name="building_add"),
 
     # librarian work
     url(r'^shipment/$', view.show_shipment_requests, name="shipment"),

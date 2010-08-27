@@ -28,15 +28,15 @@ body{behavior:url(/media/stylesheets/cssHoverFix.htc);}
 }
 #menu ul li.separator,
 #menu ul li.separator:hover {
-    height: .2em;    line-height: .2em;
-    background-color: #8010a2;
+    height: .1em;    line-height: .1em;
+    background-color: #888;
 }
 
 #menu ul li:hover {background-color:#FF8400; position:relative;}
  
 /*Sub Menu*/
 #menu ul ul {display:none; position:absolute; left:20.5em; top:-.2em; /*border:#fff solid; border-width:1px; */ background-color:#ddd;
-             border-left: 0px solid #8010a1;
+             border: 1px solid white;
             }
 #menu ul li:hover ul {display:block;}
  

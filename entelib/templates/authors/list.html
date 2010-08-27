@@ -8,21 +8,28 @@
 {% block itemsWrapper %}authors_list itemsWrapper{% endblock %}
 
     {% block header_row %}
-        <th></th>
-        <th>Name</th>
-        {% if perms.baseapp.change_author %}
-          <th>Options</th>
-        {% endif %}
+      {% if perms.baseapp.list_authors %}
+<!--           <th></th> -->
+          <th>Name</th>
+          {% if perms.baseapp.change_author %}<th>Options</th>{% endif %}
+      {% else %}
+          <th>Name</th>
+      {% endif %}
     {% endblock %}
 
     {% block item_row %}
-        <td class="options">
-          <a href="{% url author_one row.id %}">Show details</a>
-        </td>
-        <td class="name"><a href="{% url author_one row.id %}">{{ row.name }}</a></td>
-        {% if perms.baseapp.change_author %}
-          <td class="options">
-            <a class="edit" href="{% url author_edit row.id %}">Edit author</a>
-          </td>
-        {% endif %}
+      {% if perms.baseapp.list_authors %}
+<!--           <td class="options"> -->
+<!--             <a href="{% url author_one row.id %}">Show details</a> -->
+<!--           </td> -->
+<!--           <td class="name"><a href="{% url author_one row.id %}">{{ row.name }}</a></td> -->
+          <td class="name">{{ row.name }}</td>
+          {% if perms.baseapp.change_author %}
+            <td class="options">
+              <a class="edit" href="{% url author_edit row.id %}">Edit author</a>
+            </td>
+          {% endif %}
+      {% else %}
+          <td class="name">{{ row.name }}</td>
+      {% endif %}
     {% endblock %}

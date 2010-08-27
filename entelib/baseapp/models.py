@@ -248,6 +248,10 @@ class Building(models.Model):
 
     class Meta:
         unique_together = (('name',),)
+        permissions = (
+            ("list_buildings", "Can list buildings"),
+            ("view_building", "Can see building's details"),
+            )
 
 
 class Location(models.Model):
@@ -295,6 +299,7 @@ class Publisher(models.Model):
         unique_together = (('name',),)
         permissions = (
             ("list_publishers", "Can list publishers"),
+            ("view_publisher", "Can see publisher's details"),
             )
 
 
@@ -309,6 +314,7 @@ class Author(models.Model):
         unique_together = (('name',),)
         permissions = (
             ("list_authors", "Can list authors"),
+            ("view_author", "Can see author's details"),
             )
 
 
@@ -320,9 +326,11 @@ class Category(models.Model):
         return unicode(self.name)
 
     class Meta:
+        verbose_name_plural = 'Categories'
         unique_together = (('name',),)
         permissions = (
             ("list_categories", "Can list categories"),
+            ("view_category", "Can see category's details"),
             )
 
 
@@ -379,6 +387,7 @@ class CostCenter(models.Model):
     class Meta:
         permissions = (
             ("list_costcenters", "Can list cost centers"),
+            ("view_costcenter", "Can see cost center's details"),
             )
         unique_together = (('name',),)
 

@@ -339,7 +339,7 @@ def add_everyday_user():
 # add users
 def add_users():
     print 'Adding users'
-    add_superuser()
+#     add_superuser()
     add_admin()
     add_librarian()
     add_everyday_user()
@@ -377,11 +377,17 @@ def populate_groups():
     from django.db.models import Q
     admins_perms     = Permission.objects.filter(~Q(codename__icontains='delete'))     # superadmin can delete, admin does not
     readers_perms    = ['list_books', 'view_own_profile', 'add_reservation', 'change_own_reservation', 'add_bookrequest',
-                        'list_config_options', 'edit_option', 'list_locations', 'view_location',
-                        'list_authors', 'list_publishers', 'list_categories',
+                        'list_config_options', 'edit_option',
+                        'list_locations', 'view_location',
+                        'view_category', 'list_categories',
+                        'view_author', 'list_authors',
+                        'view_publisher',  'list_publishers',
+                        'view_costcenter', 
+                        'list_buildings', 'view_building',
                         ]
     librarians_perms = ['list_users', 'list_reports',
                         'list_costcenters',
+                        'list_authors', 'list_publishers', 'list_categories',
                         'add_rental', 'change_rental', 'change_reservation', 
                         'add_book', 'change_book',
                         'add_bookcopy', 'change_bookcopy',

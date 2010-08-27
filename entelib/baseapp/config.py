@@ -86,7 +86,8 @@ class ConfigValueTypeHelper(object):
         default_widget = forms.CharField(required=True, widget=forms.Textarea)
         widgets = {
             'int'    : forms.IntegerField(required=True),
-            'bool'   : forms.BooleanField(required=False),
+#             'bool'   : forms.BooleanField(required=False),
+            'bool'   : forms.ChoiceField(choices=(('1','True'),('0','False')), required=True),
             'unicode': forms.CharField(required=True, widget=forms.Textarea),
             'list_groupnames': forms.CharField(required=True, widget=forms.Textarea),
             }

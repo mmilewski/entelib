@@ -15,8 +15,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from baseapp.config import Config
 from baseapp.exceptions import EntelibWarning
-from baseapp.forms import RegistrationForm, ProfileEditForm, BookRequestForm, ConfigOptionEditForm,\
-    LocationForm, BookForm, BookCopyForm, AuthorForm, CategoryForm, PublisherForm, CostCenterForm
+import baseapp.forms as forms
 from baseapp.models import *
 from baseapp.reports import get_report_data, generate_csv
 from baseapp.utils import pprint
@@ -83,7 +82,7 @@ def show_config_options(request):
 
 
 @permission_required('baseapp.edit_option')
-def edit_config_option(request, option_key, is_global=False, edit_form=ConfigOptionEditForm):
+def edit_config_option(request, option_key, is_global=False, edit_form=forms.ConfigOptionEditForm):
     """
     Handles editing config option by user.
     """
@@ -152,7 +151,7 @@ def show_email_log(request):
 
 
 @permission_required('baseapp.add_bookrequest')
-def request_book(request, request_form=BookRequestForm):
+def request_book(request, request_form=forms.BookRequestForm):
     """
     Handles requesting for book by any user.
     """
@@ -216,7 +215,7 @@ def show_forgot_password(request):
 
 
 @transaction.commit_on_success
-def register(request, action, registration_form=RegistrationForm, extra_context={}):
+def register(request, action, registration_form=forms.RegistrationForm, extra_context={}):
     """
     Handles registration (adding new user) process.
     """
@@ -541,7 +540,7 @@ def find_user_to_rent_him(request):
 
 
 @permission_required('baseapp.add_book')
-def show_add_book(request, edit_form=BookForm):
+def show_add_book(request, edit_form=forms.BookForm):
     if request.method == 'POST':
         form = edit_form(data=request.POST)
         if form.is_valid():
@@ -563,7 +562,7 @@ def show_add_book(request, edit_form=BookForm):
     return render_response(request, 'books/one.html', context)
 
 @permission_required('baseapp.change_book')
-def show_edit_book(request, book_id, edit_form=BookForm):
+def show_edit_book(request, book_id, edit_form=forms.BookForm):
     book = get_object_or_404(Book, id=book_id)
     book_authors = utils.AutocompleteHelper(book.author.values_list('name',flat=True).order_by('name')).as_str(delim='')+','
     if request.method == 'POST':
@@ -588,7 +587,7 @@ def show_edit_book(request, book_id, edit_form=BookForm):
 
 
 @permission_required('baseapp.add_bookcopy')
-def show_add_bookcopy(request, book_id, edit_form=BookCopyForm):
+def show_add_bookcopy(request, book_id, edit_form=forms.BookCopyForm):
     book = get_object_or_404(Book, id=book_id)
     initial_data = { 
         'book' : book.id,
@@ -610,7 +609,7 @@ def show_add_bookcopy(request, book_id, edit_form=BookCopyForm):
     return render_response(request, 'copies/one.html', context)
 
 @permission_required('baseapp.change_bookcopy')
-def show_edit_bookcopy(request, copy_id, edit_form=BookCopyForm):
+def show_edit_bookcopy(request, copy_id, edit_form=forms.BookCopyForm):
     copy = get_object_or_404(BookCopy, id=copy_id)
     if request.method == 'POST':
         form = edit_form(data=request.POST, instance=copy)
@@ -686,18 +685,18 @@ def show_users(request):
 
 
 @permission_required('auth.add_user')
-def add_user(request, registration_form=RegistrationForm):
+def add_user(request, registration_form=forms.RegistrationForm):
     return register(request, 'newactiveuser')
 
 
 @permission_required('baseapp.list_users')
-def show_user(request, user_id, redirect_on_success_url='/entelib/users/%d/', profile_edit_form=ProfileEditForm):
+def show_user(request, user_id, redirect_on_success_url='/entelib/users/%d/', profile_edit_form=forms.ProfileEditForm):
     user_id = int(user_id)
     edited_user = get_object_or_404(User, id=user_id)
     return _do_edit_user_profile(request, edited_user, redirect_on_success_url, profile_edit_form)
 
 
-def _do_edit_user_profile(request, edited_user, redirect_on_success_url='/entelib/users/%d/', profile_edit_form=ProfileEditForm):
+def _do_edit_user_profile(request, edited_user, redirect_on_success_url='/entelib/users/%d/', profile_edit_form=forms.ProfileEditForm):
     """
     Displays form for editing user's profile.
     
@@ -728,7 +727,7 @@ def _do_edit_user_profile(request, edited_user, redirect_on_success_url='/enteli
 
 
 @login_required
-def edit_user_profile(request, redirect_on_success_url=u'/entelib/profile/', profile_edit_form=ProfileEditForm):
+def edit_user_profile(request, redirect_on_success_url=u'/entelib/profile/', profile_edit_form=forms.ProfileEditForm):
     """ 
     Displays form for editing user's profile, where user means request.user
     """
@@ -1019,6 +1018,8 @@ def cancel_all_user_reservations(request, user_id):
     user = get_object_or_404(User, id=user_id)
     return aux.cancel_all_user_reservations(request, user)
 
+
+
 @permission_required('baseapp.list_locations')
 def show_locations(request):
     locs = Location.objects.select_related().all()
@@ -1026,9 +1027,8 @@ def show_locations(request):
                }
     return render_response(request, 'locations/list.html', context)
 
-
 @permission_required('baseapp.view_location')
-def show_location(request, loc_id, edit_form=LocationForm):
+def show_location(request, loc_id, edit_form=forms.LocationForm):
     try:
         loc_id = int(loc_id)
     except ValueError:
@@ -1053,12 +1053,35 @@ def show_location(request, loc_id, edit_form=LocationForm):
         form = edit_form(instance=location)
     
     context = {
-        'loc'         : location,
-        'form'        : form,
+        'loc'          : location,
+        'form'         : form,
+        'is_updating'  : True,
         }
     
     return render_response(request, 'locations/one.html', context)
-    
+
+@permission_required('baseapp.change_location')
+def show_add_location(request, edit_form=forms.LocationForm):
+    if request.method == 'POST':
+        # drop maintainers if checkbox checked
+        if 'no_maintainers' in request.POST:
+            maintainers = request.POST.getlist('maintainer')
+            for i in range(len(maintainers)):
+                maintainers.pop(0)
+        # continue editing
+        form = edit_form(data=request.POST)
+        if form.is_valid():
+            form.save()
+            messages.info(request, 'Location successfully added')
+    else:
+        form = edit_form()
+
+    context = {
+        'form'        : form,
+        'is_adding'   : True,
+        }
+    return render_response(request, 'locations/one.html', context)
+
 
 @permission_required('auth.change_user')
 def activate_user(request, user_id):
@@ -1141,12 +1164,14 @@ def activate_many_users(request, all_inactive=False):
     return render_response(request, 'users_awaiting_activation.html', context)
 
 
+@login_required
 def show_authors(request):
     authors = Author.objects.all()
     context = {'rows' : authors,
                }
     return render_response(request, 'authors/list.html', context)
 
+@login_required
 def show_author(request, author_id):
     author = get_object_or_404(Author, id=author_id)
     context = {
@@ -1156,7 +1181,7 @@ def show_author(request, author_id):
     return render_response(request, 'authors/one.html', context)
 
 @permission_required('baseapp.add_author')
-def show_add_author(request, edit_form=AuthorForm):
+def show_add_author(request, edit_form=forms.AuthorForm):
     context = {}
     if request.method == 'POST':
         post = request.POST
@@ -1169,7 +1194,7 @@ def show_add_author(request, edit_form=AuthorForm):
             if ('btn_update' in post) or ('btn_add' in post):
                 new_author = form.save()
                 messages.info(request, 'Author successfully added.')
-                return HttpResponseRedirect(reverse('author_one', args=(new_author.id,)))
+#                 return HttpResponseRedirect(reverse('author_one', args=(new_author.id,)))
     else:
         form = edit_form()
     context.update({
@@ -1179,7 +1204,7 @@ def show_add_author(request, edit_form=AuthorForm):
     return render_response(request, 'authors/one.html', context)
 
 @permission_required('baseapp.change_author')
-def show_edit_author(request, author_id, edit_form=AuthorForm):
+def show_edit_author(request, author_id, edit_form=forms.AuthorForm):
     author = get_object_or_404(Author, id=author_id)
     context = {}
     if request.method == 'POST':
@@ -1193,7 +1218,7 @@ def show_edit_author(request, author_id, edit_form=AuthorForm):
             if ('btn_update' in post) or ('btn_add' in post):
                 form.save()
                 messages.info(request, 'Author successfully updated.')
-                return HttpResponseRedirect(reverse('author_one', args=(author.id,)))
+#                 return HttpResponseRedirect(reverse('author_one', args=(author.id,)))
     else:
         form = edit_form(instance=author)
     context.update({
@@ -1204,30 +1229,43 @@ def show_edit_author(request, author_id, edit_form=AuthorForm):
     return render_response(request, 'authors/one.html', context)
 
 
+
+@permission_required('baseapp.list_buildings')
+def show_buildings(request):
+    pass
+
+@permission_required('baseapp.view_building')
+def show_building(request, building_id, edit_form=forms.BuildingForm):
+    pass
+
+@permission_required('baseapp.change_building')
+def show_add_building(request, edit_form=forms.BuildingForm):
+    pass
+
 def show_categories(request):
     pass
 def show_category(request, category_id):
     pass
-def show_add_category(request, edit_form=CategoryForm):
+def show_add_category(request, edit_form=forms.CategoryForm):
     pass
-def show_edit_category(request, category_id, edit_form=CategoryForm):
+def show_edit_category(request, category_id, edit_form=forms.CategoryForm):
     pass
 
 def show_publishers(request):
     pass
 def show_publisher(request, publisher_id):
     pass
-def show_add_publisher(request, edit_form=PublisherForm):
+def show_add_publisher(request, edit_form=forms.PublisherForm):
     pass
-def show_edit_publisher(request, publisher_id, edit_form=PublisherForm):
+def show_edit_publisher(request, publisher_id, edit_form=forms.PublisherForm):
     pass
 
 def show_cost_centers(request):
     pass
 def show_cost_center(request, cost_center_id):
     pass
-def show_add_cost_center(request, edit_form=CostCenterForm):
+def show_add_cost_center(request, edit_form=forms.CostCenterForm):
     pass
-def show_edit_cost_center(request, cost_center_id, edit_form=CostCenterForm):
+def show_edit_cost_center(request, cost_center_id, edit_form=forms.CostCenterForm):
     pass
 

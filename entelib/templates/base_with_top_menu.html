@@ -8,18 +8,22 @@
           <li><a href="/entelib/books/">Books</a>
             <ul>
               {% if perms.baseapp.list_books %}      <li><a href="/entelib/books/">                     Book list             </a></li> {% endif %}
-              {% if perms.baseapp.add_book %}        <li><a href="{% url book_add %}">                  Add book              </a></li> {% endif %}
-              <li class="separator"></li>
+              {% if perms.baseapp.add_book %}        <li><a href="{% url book_add %}">                  Add book              </a></li> 
+                <li class="separator"></li>
+              {% endif %}
               {% if perms.baseapp.list_authors %}    <li><a href="/entelib/authors/">                   Author list           </a></li> {% endif %}
-              {% if perms.baseapp.add_author %}      <li><a href="{% url author_add %}">                Add author            </a></li> {% endif %}
-              <li class="separator"></li>
+              {% if perms.baseapp.add_author %}      <li><a href="{% url author_add %}">                Add author            </a></li>
+                <li class="separator"></li>
+              {% endif %}
               {% if perms.baseapp.list_categories %}    <li><a href="/entelib/categories/">             Category list         </a></li> {% endif %}
-              {% if perms.baseapp.add_category %}      <li><a href="{% url category_add %}">            Add category          </a></li> {% endif %}
-              <li class="separator"></li>
+              {% if perms.baseapp.add_category %}      <li><a href="{% url category_add %}">            Add category          </a></li>
+                <li class="separator"></li>
+              {% endif %}
               {% if perms.baseapp.list_publishers %}    <li><a href="/entelib/publishers/">             Publisher list        </a></li> {% endif %}
-              {% if perms.baseapp.add_publisher %}      <li><a href="{% url publisher_add %}">          Add publisher         </a></li> {% endif %}
-              <li class="separator"></li>
-              {% if perms.baseapp.list_costcenters %}    <li><a href="/entelib/cost_centers/">         Cost Center list      </a></li> {% endif %}
+              {% if perms.baseapp.add_publisher %}      <li><a href="{% url publisher_add %}">          Add publisher         </a></li>
+                <li class="separator"></li>
+              {% endif %}
+              {% if perms.baseapp.list_costcenters %}    <li><a href="/entelib/cost_centers/">          Cost Center list      </a></li> {% endif %}
               {% if perms.baseapp.add_costcenter %}      <li><a href="{% url cost_center_add %}">       Add Cost Center       </a></li> {% endif %}
             </ul>
           </li>
@@ -60,7 +64,21 @@
         </li>
         {% endif %}
 
-        {% if can_list_locations %}            <li><a href="/entelib/locations/">              Locations</a></li>         {% endif %}
+
+        {% if can_list_locations %}
+          <li><a href="/entelib/locations/">Locations</a>
+            <ul>
+              {% if perms.baseapp.list_locations %}  <li><a href="{% url location_all %}">              Location list         </a></li> {% endif %}
+              {% if perms.baseapp.add_location %}    <li><a href="{% url location_add %}">              Add location          </a></li>
+                <li class="separator"></li>
+              {% endif %}
+              {% if perms.baseapp.list_buildings %}  <li><a href="{% url building_all %}">              Building list         </a></li> {% endif %}
+              {% if perms.baseapp.add_building %}    <li><a href="{% url building_add %}">              Add building          </a></li> {% endif %}
+            </ul>
+          </li>              
+        {% endif %}
+
+        
         {% if can_list_users %}                
             <li>
                 <a href="/entelib/users/">User list</a>

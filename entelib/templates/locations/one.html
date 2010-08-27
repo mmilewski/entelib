@@ -9,10 +9,12 @@
     <div class="inner_menu">
       <ul>
         <li><a href="../">Show all locations</a></li>
+        {% if perms.baseapp.add_location %}<li><a href="{% url location_add %}">Add location</a></li>{% endif %}
       </ul>
     </div>
     {% endif %}
-    
+
+    {% if not is_adding %}    
     <div class="location_info">
       <ul class="details">
         <li><span class="label">Full name:</span> {{loc.building}}: {{loc.details}}</li>
@@ -37,7 +39,9 @@
           </ul>
         </li>
         <li><span class="label">Remarks:</span> {{loc.remarks}}</li>
+      </ul>
     </div>
+    {% endif %}
 
     <!-- EDIT LOCATION -->    
     {% if perms.baseapp.change_location %}
@@ -70,7 +74,8 @@
                 {% endfor %}
                 <tr>
                     <td></td>
-                    <td><input type="submit" name="btn_update" value="Update location"></td>
+                    {% if is_updating %}<td><input type="submit" name="btn_update" value="Update location"></td> {% endif %}
+                    {% if is_adding %}<td><input type="submit" name="btn_add" value="Add location"></td> {% endif %}
                 </tr>
             </table>
         </form>

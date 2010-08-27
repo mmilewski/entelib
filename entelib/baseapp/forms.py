@@ -230,7 +230,7 @@ class ProfileEditForm(forms.Form):
 
         # groups form
         if self.editor.has_perm('baseapp.assign_user_to_groups'):
-            self.fields['groups'] = forms.ModelMultipleChoiceField(Group.objects.all(), required=False)
+            self.fields['groups'] = forms.ModelMultipleChoiceField(Group.objects.all().order_by('name'), required=False)
         else:
             self.fields['groups'] = forms.CharField(label='Groups')
             self.fields['groups'].widget.attrs['readonly'] = True
@@ -703,6 +703,10 @@ class BookCopyForm(ModelForm):
         # self.fields['book'].widget.attrs['disabled'] = True
 
 
+class BuildingForm(ModelForm):   
+    class Meta:
+        model = Building
+
 class AuthorForm(ModelForm):
     class Meta:
         model = Author
@@ -710,13 +714,12 @@ class AuthorForm(ModelForm):
         super(AuthorForm, self).__init__(*args, **kwargs)
     def clean_name(self):
         import re
-        if ('name' not in self.cleaned_data) or (len(self.cleaned_data['name'].strip())<1):
+        if ('name' not in self.cleaned_data) or (len(self.cleaned_data['name'].strip()) < 1):
             raise forms.ValidationError('Name is required')
         name = self.cleaned_data['name']
-        if not re.compile('^[a-zA-z0-9 ]+$').match(name):
+        if not re.compile('^[a-zA-z0-9 \-]+$').match(name):
             raise forms.ValidationError('Field contains forbidden characters')
         return name
-        
 
 class CategoryForm(ModelForm):
     class Meta:
