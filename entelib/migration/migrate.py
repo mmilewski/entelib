@@ -75,7 +75,13 @@ def migrate_users():
             new_user.shoe_size = 37
         else:
             new_user.show_size = 46
+        if not u[6]:
+            new_user.is_active = True
         new_user.save()
+        if u[6]:
+            p = new_user.userprofile
+            p.awaits_activation = False
+            p.save()
     maru = User.objects.create_user(username='maru', email='brzoza@jabster.pl', password='lala')
     maru.is_superuser = True
     maru.is_staff = True

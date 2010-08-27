@@ -318,7 +318,7 @@ def show_books(request, non_standard_user_id=False):
         if 'id' in post and post['id'] != '':
             shelf_mark = post['id']
             search_data.update({'id' : shelf_mark})
-            booklist = BookCopy.objects.select_related('book').filter(shelf_mark__startswith=shelf_mark).select_related('author', 'category')
+            booklist = BookCopy.objects.select_related('book').filter(shelf_mark__startswith=shelf_mark).select_related('author', 'category') # TODO last select_related seems unnecessary. Delete it.
             bookcopies = [{'id'         : b.id,
                            'shelf_mark' : b.shelf_mark, 
                            'state'      : aux.book_copy_status(b),
@@ -352,12 +352,13 @@ def show_books(request, non_standard_user_id=False):
                     for category_id in selected_categories_ids:
                         booklist = booklist.filter(category__id=category_id)
 
-            if config.get_bool('cut_categories_list_to_found_books'):
-                # compute set of categories present in booklist (= exists book which has such a category)
-                categories_from_booklist = list(set([c for b in booklist for c in b.category.all()]))
-            else:
-                # list all nonempty categories
-                categories_from_booklist = list(set([c for b in Book.objects.only('category').all() for c in b.category.all()]))
+            # TODO: delete following commented code, remove config options for that
+            # if config.get_bool('cut_categories_list_to_found_books'):
+            #     # compute set of categories present in booklist (= exists book which has such a category)
+            #     categories_from_booklist = list(set([c for b in booklist for c in b.category.all()]))
+            # else:
+            #     # list all nonempty categories
+            #     categories_from_booklist = list(set([c for b in Book.objects.only('category').all() for c in b.category.all()]))
 
             # put ticks on previously ticked checkboxes
             search_data.update({ 'title_any_checked'      : 'true' if 'title_any' in post else '',
@@ -371,18 +372,20 @@ def show_books(request, non_standard_user_id=False):
                        'authors'   : [a.name for a in book.author.all()],
                        } for book in booklist ]
     else:
+        pass
         # If no POST data was sent, then we don't want to list any books, but we want
         # to fill category selection input with all possible categories.
-        if config.get_bool('list_only_existing_categories_in_search'):
-            categories_from_booklist = list(set([c for b in Book.objects.all() for c in b.category.all()]))
-        else:
-            categories_from_booklist = Category.objects.all()
+        # if config.get_bool('list_only_existing_categories_in_search'):
+        #     categories_from_booklist = list(set([c for b in Book.objects.all() for c in b.category.all()]))
+        # else:
+        #     categories_from_booklist = Category.objects.all()
 
     # prepare categories for rendering
     search_categories  = [ {'name' : '-- Any --',  'id' : 0} ]
     if bookcopies is None:
         # we only render categories if we are not searching by shelf mark
-        search_categories += [ {'name' : c.name,  'id' : c.id,  'selected': c.id in selected_categories_ids }  for c in categories_from_booklist ]
+        # search_categories += [ {'name' : c.name,  'id' : c.id,  'selected': c.id in selected_categories_ids }  for c in categories_from_booklist ]
+        search_categories += [ {'name' : c.name,  'id' : c.id,  'selected': c.id in selected_categories_ids }  for c in Category.objects.all() ]
 
     # update search context
     search_data.update({'categories' : search_categories,
