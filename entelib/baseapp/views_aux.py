@@ -131,7 +131,7 @@ def get_users_details_list(first_name, last_name, email, building_id, active_onl
     if building_id:
         building_filter = Q(userprofile__building__id=building_id)
 
-    users = User.objects
+    users = User.objects.select_related('userprofile')
     
     if inactive_only:
         users = users.filter(is_active=False)
