@@ -394,7 +394,7 @@ def sane_year(year):
 class BookCopy(models.Model):
     id = models.AutoField(primary_key=True)
     # shelf_mark = models.PositiveIntegerField()                                # big number for client's internal use
-    shelf_mark = models.CharField(max_length=CFG.shelf_mark_len)
+    shelf_mark = models.CharField(max_length=CFG.shelf_mark_len, unique=True)
     book = models.ForeignKey(Book)
     cost_center = models.ForeignKey(CostCenter)
     location = models.ForeignKey(Location)

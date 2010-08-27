@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+import os
 from baseapp.tests.test_base import Test
 from entelib.baseapp.utils import pprint, today, tomorrow, after_days
 from datetime import date, timedelta
@@ -628,11 +629,11 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
 
     def create_post(self, user, password, dict={}):
         ''' user is User object, password is string '''
+        groups = (list([str(g.id) for g in user.groups.all()]))
         d0 = {
             'username' : user.username,
             'first_name' : user.first_name,
             'last_name' : user.last_name,
-            'groups' : ', '.join(list([g.name for g in user.groups.all()])),
             'current_password' : password,
             'email' : user.email,
             'work_building' : user.userprofile.building_id,
@@ -650,6 +651,8 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
             'password2' : '',
         }
         d0.update(dict)
+        if groups:
+            d0.update({'groups' : groups})
         return d0
 
     # assertions
@@ -762,6 +765,8 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
                 dict = self.create_post(user, passwd, {'work_building' : building_to_change_to_id})
                 
                 response = self.client.post(self.url_admin % user.id, dict, follow=True)
+                pprint("echo {0}".format(response.content))
+                self.assertNotContains(response, 'errorlist')
                 self.assert_(accessed(response))
 
                 fetched_building = Building.objects.get(id=building_to_change_to_id)

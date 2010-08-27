@@ -1108,7 +1108,7 @@ def show_current_rentals(request, all_locations=False):
     rental_list = [
                         { 'id'                : r.id,
                           'user'              : aux.user_full_name(r.reservation.for_whom.id),
-                          'start_date'        : r.start_date.date,
+                          'start_date'        : r.start_date.date(),
                           'end_date'          : r.reservation.end_date,
                           'location'          : r.reservation.book_copy.location,
                           'shelf_mark'        : r.reservation.book_copy.shelf_mark,

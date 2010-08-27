@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-print '---  Running dbfiller  ---'
 
 #
 # TODO:
@@ -369,6 +368,7 @@ def populate_groups():
                 p = perm
             else:
                 p = Permission.objects.get(codename=perm)
+            assert isinstance(p, Permission)
             g.permissions.add(p)
         g.save()
     
@@ -424,6 +424,7 @@ def populate_groups():
 # -- /POPULATE GROUPS --
 
 def main():
+    print '---  Running dbfiller  ---'
     clear_db()
     add_categories()
     add_buildings()

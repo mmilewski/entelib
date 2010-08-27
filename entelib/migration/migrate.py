@@ -3,6 +3,7 @@ from pprint import pprint
 from sqlite3 import dbapi2 as sqlite
 from baseapp.models import *
 from entelib.dbfiller import add_users
+from datetime import datetime, date, timedelta
 
 
 db_path = '/home/brzoska/entelib/entelib/migration/library.sqlite'
@@ -177,6 +178,7 @@ author_mapper_dict = {
     u'Kent Back'      : u'Kent Beck',
     u'P.Walke'        : u'P. Walke',
     u'P. Seidenberg'  : u'P. Seidenberg',
+    u'Etsher Derby'   : u'Esther Derby',
     u'M.P.Althoff'    : u'M. P. Althoff',
     u'Ralph Johanson' : u'Ralph Johnson',
     u'richard Helm'   : u'Richard Helm',
@@ -419,7 +421,7 @@ for k in title_mapper_dict:
 def normalize_title(title):
     title = remove_hash(title)
     assert title in title_mapper_dict, Exception(title)
-    return title_mapper_dict[title]
+    return title_mapper_dict[title].strip()
 
     # this is not executed, its archival
     if title in title_mapper_dict:
@@ -524,16 +526,69 @@ def migrate_copies():
         if maintainer not in location.maintainer.all():
             location.maintainer.add(maintainer)
 
+def migrate_events():
+    events = list(cursor.execute("""SELECT e.id_book, u.login, e.book_date, b.due_date, e.borrow_date, e.due_date 
+                                      FROM events e 
+                                      JOIN users u USING (id_user) 
+                                      JOIN books b ON e.id_book = b.id_book"""
+                                  ).fetchall())
+    es = map(lambda rec: rec[0:2] + tuple(map(lambda d: datetime.fromtimestamp(d/1000.0) if d else None,
+                                              rec[2:]
+                                             )
+                                         ),
+             events)
+    archival, _created = User.objects.get_or_create(username="archival", email="none@none.pl")
+    archival.is_active = False
+    archival.save()
+    profile = archival.userprofile
+    profile.awaits_activation = False
+    profile.save()
+
+    for (shelf_mark, email, reservation_start, reservation_end, rental_start, rental_end) in es:
+        user = User.objects.get(email=email)
+        if not reservation_end:
+            reservation_end = reservation_start + timedelta(30)
+        reservation = Reservation(
+            book_copy = BookCopy.objects.get(shelf_mark=str(shelf_mark)),
+            for_whom = User.objects.get(email=email),
+            start_date = reservation_start,
+            end_date = reservation_end,
+            who_reserved = user,
+            when_reserved = reservation_start,
+            who_cancelled = None,
+            when_cancelled = None,
+            active_since = reservation_start,
+            shipment_requested = False
+            )
+        reservation.save()
+
+        if rental_start:
+            rental = Rental(
+                reservation = reservation,
+                start_date = rental_start,
+                end_date = rental_end if rental_end else None,
+                who_handed_out = archival,
+                who_received = archival if rental_end else None
+                ).save()
+
+
 
 
 
 if __name__ == "__main__":
-    if raw_input(['erase database before migration?']) == 'yes':
+    if raw_input(['migrate?']) == 'yes':
         main(True)
-    else:
-        main(False)
 
 def main(erase=False):
+    from dbfiller import clear_db, add_states, add_phone_types, populate_groups, main
+    '''
+    clear_db()
+    add_states()
+    add_phone_types()
+    populate_groups()
+    '''
+    main()
+
     if erase:
         pprint('erasing users')
         User.objects.filter(id__gt=0).delete()
