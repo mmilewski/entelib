@@ -330,7 +330,7 @@ class Book(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=CFG.book_title_len)
     author = models.ManyToManyField(Author)
-    category = models.ManyToManyField(Category, blank=True)
+    category = models.ManyToManyField(Category, blank=True, null=True)
 
     def __unicode__(self):
         # return u'%s %s' % (self.title, unicode(self.author.all()))
@@ -384,6 +384,7 @@ class CostCenter(models.Model):
 
 
 def sane_year(year):
+    if not year: return
     if year > datetime.date.today().year:
         raise ValidationError(u"C'mon, it couldn't be published in the FUTURE")
     if year < 1900:
@@ -398,8 +399,8 @@ class BookCopy(models.Model):
     cost_center = models.ForeignKey(CostCenter)
     location = models.ForeignKey(Location)
     state = models.ForeignKey(State)
-    publisher = models.ForeignKey(Publisher)
-    year = models.IntegerField(validators=[sane_year])
+    publisher = models.ForeignKey(Publisher, null=True)
+    year = models.IntegerField(blank=True, null=True, validators=[sane_year])
     publication_nr = models.IntegerField(null=True, blank=True)
     toc = models.TextField(blank=True, verbose_name="Table of contents")                   # table of contents
     toc_url = models.CharField(blank=True, max_length=CFG.copy_toc_url_len, verbose_name="Link to table of contents")    # external link to TOC
