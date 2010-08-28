@@ -8,6 +8,7 @@
           <li><a href="/entelib/books/">Books</a>
             <ul>
               {% if perms.baseapp.list_books %}      <li><a href="/entelib/books/">                     Book list             </a></li> {% endif %}
+              {% if can_add_bookrequest %}           <li><a href="/entelib/requestbook/">               Request a book or copy</a></li> {% endif %}
               {% if perms.baseapp.add_book %}        <li><a href="{% url book_add %}">                  Add book              </a></li> 
                 <li class="separator"></li>
               {% endif %}
@@ -50,8 +51,6 @@
               </ul>
           </li>
         {% endif %}
-        
-        {% if can_add_bookrequest %}           <li><a href="/entelib/requestbook/">            Request a book</a></li>    {% endif %}
 
         {% if can_list_reports %}              <li><a href="/entelib/report/">                 Reports</a>           
           <ul>

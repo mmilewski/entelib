@@ -2,7 +2,7 @@
 
 {% block title %}Edit config option{% endblock %}
 
-{% block header %}Edit {%if is_global%}global {%endif%}config option - {{form.option_key}}{% endblock %}
+{% block header %}Edit {%if is_global%}global {%endif%}config option{% endblock %}
 
 {% block content %}
 
@@ -14,15 +14,15 @@
         {% if form.non_field_errors %}
         <tr><td>{{form.non_field_errors}}</td></tr>
         {% endif %}
-        <tr><td><span class="label">Key:</span> {{form.option_key}} </td> </tr>
+        <tr><td class="key"><span class="label">Key:</span> {{form.option_key}} </td> </tr>
         {% if is_global %}
-        <tr><td><span class="label">Description:</span> <br/>{{form.description}} {{form.description.errors}}</td> </tr>
-        <tr><td><label for="id_can_override"><span class="label">Can override:</span></label> {{form.can_override}}</td> </tr>
-        <tr><td><span class="label">Global value:</span> <br/>{{ form.value.errors }} {{ form.value }} </td></tr>
+        <tr><td class="description"><span class="label">Description:</span> <br/>{{form.description}} {{form.description.errors}}</td> </tr>
+        <tr><td class="can_override"><label for="id_can_override"><span class="label">Can override:</span></label> {{form.can_override}}</td> </tr>
+        <tr><td class="global_value"><span class="label">Global value:</span> <br/>{{ form.value.errors }} {{ form.value }} </td></tr>
         {% else %}
-        <tr><td><span class="label">Description:</span> {{option.description|linebreaksbr}} </td> </tr>
-        <tr><td><span class="label">Can override:</span> {{option.can_override}} </td> </tr>
-        <tr><td><span class="label">Value:</span> <br/>{{ form.value.errors }} {{ form.value }} </td></tr>
+        <tr><td class="description"><span class="label">Description:</span> {{option.description|linebreaksbr}} </td> </tr>
+        <tr><td class="can_override"><span class="label">Can override:</span> {{option.can_override}} </td> </tr>
+        <tr><td class="value"><span class="label">Value:</span> <br/>{{ form.value.errors }} {{ form.value }} </td></tr>
         {% endif %}
         <tr> <th></th> <td><input type="submit" value="Save changes"/></td> </tr>
       </tbody>

@@ -126,6 +126,12 @@
     
     {% if books %}
     <!--- BOOK SECTION -->
+        {% if not none_found %}
+          <div class="found_count">
+            <p>Found {{books|length}} book{{books|length|pluralize}}</p>
+          </div>
+        {% endif %}
+
         <div class="found_books itemsWrapper">
             <table class="booklist tablesorter" id="booklist">
             <thead>
@@ -140,7 +146,6 @@
                     <td class="title"><a href='{{ book.url }}'>{{ book.title }}</a></td>
                     <td class="authors">{% if book.authors %}{{ book.authors|join:', '}}{% else %}No authors.{% endif %}</td>
                 {% endfor %}
-                
             </tbody>
             </table>
         </div>
@@ -149,6 +154,12 @@
 
     {% if bookcopies %}
     <!--- BOOK COPIES SECTION -->
+        {% if not none_found %}
+          <div class="found_count">
+            <p>Found {{bookcopies|length}} book cop{{bookcopies|length|pluralize:"y,ies"}}</p>
+          </div>
+        {% endif %}
+
         <div class="found_books itemsWrapper">
             <table class="booklist tablesorter" id="booklist">
             <thead>
@@ -166,10 +177,10 @@
                     {% if user.get_profile.is_librarian %}
                         <td class="shelfmark"><a href="{{ copy.url }}">{{ copy.shelf_mark }}</a></td>
                     {% endif %}
-                    <td class="state">{{ copy.state }}</td>
+                    <td class="state {%if not copy.state.is_available %}unavailable{%endif%}">{{ copy.state }}</td>
                     <td class="title"><a href="{% url book_one copy.book.id %}">{{ copy.title }}</a></td>
                     <td class="authors">{% if copy.authors %}{{ copy.authors|join:', '}}{% else %}No authors.{% endif %}</td>
-                    <td class="location">{{ copy.location }}</td>
+                    <td class="location"><a href="{% url location_one copy.location.id %}">{{ copy.location }}</a></td>
                 {% endfor %}
                 
             </tbody>

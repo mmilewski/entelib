@@ -123,7 +123,10 @@ def edit_config_option(request, option_key, is_global=False, edit_form=forms.Con
 #            print value
             msg = 'Key %s has now value: %s' % (option_key, config[option_key])
             messages.success(request, msg)
-            return HttpResponseRedirect('/entelib/config/')
+            if is_global: 
+                return HttpResponseRedirect(reverse('config_all'))
+            else:
+                return HttpResponseRedirect(reverse('profile_config'))
         else:
             pass
     # display fresh new form
@@ -324,7 +327,7 @@ def show_books(request, non_standard_user_id=False):
                            'state'      : aux.book_copy_status(b),
                            'title'      : b.book.title, 
                            'authors'    : [a.name for a in b.book.author.all()],
-                           'location'   : b.location.building.name + ' - ' + b.location.details,
+                           'location'   : b.location,
                            'url'        : bookcopy_url % b.id,
                            'book'       : b.book,
                            }       for b in booklist]

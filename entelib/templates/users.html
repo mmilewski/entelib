@@ -55,20 +55,31 @@
       <a href="/entelib/users/add/">Add new user</a>
     </div>
     {% endif %}
+
+    {% if not non_found %}
+      <div class="found_count">
+        <p>Found {{rows|length}} user{{rows|length|pluralize}}</p>
+      </div>
+    {% endif %}
 {% endblock before_table %}
 
 
 {% block header_row %}
+  {% if not non_found %}
     {% block header_row_start %}
     {% endblock header_row_start %}
     <th>Username</th>
     <th>First name, last name</th>
     <th>Email</th>
-    {# <th>Is librarian</th>
-    <th>Is admin</th>
-    #}
+
+    {% comment %}
+      <th>Is librarian</th>
+      <th>Is admin</th>
+    {% endcomment %}
+
     {% block header_row_end %}
     {% endblock header_row_end %}
+  {% endif %}
 {% endblock header_row %}
 
 
@@ -81,11 +92,13 @@
             <a href='{% url user_one row.id %}'>{{ row.first_name }} {{ row.last_name }}</a>
         </td> <td>
             <a href='mailto:{{row.email}}'>{{ row.email }}</a>
-        {#</td> <td>
+
+        {% comment %}
+        </td> <td>
             {{ row.userprofile.is_librarian|yesno:_("Yes,No") }}
          </td> <td>
             {{ row.userprofile.is_admin|yesno:_("Yes,No") }}
-        #}
+        {% endcomment %}
         </td> 
         {% block row_end %}
         {% endblock row_end %}

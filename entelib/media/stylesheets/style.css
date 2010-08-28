@@ -266,7 +266,6 @@ div.copy_info .book_shelf_mark {
     font-weight: bold;
     letter-spacing: .1em;
 }
-div.copy_info .unavailable {  color: red;  }
 /* / COPY SHOW */
 
 
@@ -386,13 +385,20 @@ div.config_options_wrapper a.global:hover {
 div.config_options_wrapper a.global span {
     display: none;
 }
+form.edit_option_form td {  padding-bottom: .5em;  }
+form.edit_option_form td.key {  letter-spacing: .1em; font-size:120%; }
 form.edit_option_form td span.label {
     font-weight: bold;
+    letter-spacing: normal;
+
 }
 form.edit_option_form td input#id_value[type="text"] {  /* text input is longer. Checkbox is not. */
     min-width: 25em;
     width: 100%;
 }
+form.edit_option_form td select#id_value {
+    width: auto;
+    }
 /* / CONFIGURATION */
 
 
@@ -462,4 +468,6 @@ table select {  width: 100%;  }
 
 ul.errorlist {  color: red;  }
 input[readonly] { background-color: #eee; }  /* chrome doesn't gray out readonly fields */
+
+.unavailable {  color: red;  }
 /* / MISC */

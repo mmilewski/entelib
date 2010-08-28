@@ -86,12 +86,23 @@ urlpatterns = patterns(
     url(r'^costcenters/(\d+)/edit/$',  view.show_edit_costcenter, name="costcenter_edit"),
     url(r'^costcenters/add/$',         view.show_add_costcenter,  name="costcenter_add"),
 
+    # locations, buildings
+    url(r'^locations/$',        view.show_locations,     name="location_all"),
+    url(r'^locations/(\d+)/$',  view.show_location,      name="location_one"),
+    url(r'^locations/(\d+)/$',  view.show_location,      name="location_edit"),
+    url(r'^locations/add/$',    view.show_add_location,  name="location_add"),
+
+    url(r'^buildings/$',        view.show_buildings,     name="building_all"),
+    url(r'^buildings/(\d+)/$',  view.show_building,      name="building_one"),
+    url(r'^buildings/(\d+)/$',  view.show_building,      name="building_edit"),
+    url(r'^buildings/add/$',    view.show_add_building,  name="building_add"),
+
     # books
     url(r'^books/$',               view.show_books,     name="book_all"),
     url(r'^books/(\d+)/$',         view.show_book,      name="book_one"),
     url(r'^books/(\d+)/edit/$',    view.show_edit_book, name="book_edit"),
     url(r'^books/add/$',           view.show_add_book,  name="book_add"),
-    url(r'^requestbook/$',         view.request_book,   name="request_book"),       # request for book
+    url(r'^requestbook/$',         view.request_book,   name="request_book"),
 
     # book copies
     url(r'^bookcopy/(\d+)/$',             view.show_book_copy,       name="copy_one"),
@@ -102,14 +113,6 @@ urlpatterns = patterns(
     url(r'^bookcopy/(\d+)/user/(\d+)/$',  view.reserve),
     url(r'^bookcopy/(\d+)/reserve/$',     view.reserve),
     # (r'^bookcopy/(\d+)/reserve/up/$', view.show_book_copy),
-
-    # locations, buildings
-    url(r'^locations/$',        view.show_locations,     name="location_all"),
-    url(r'^locations/(\d+)/$',  view.show_location,      name="location_one"),
-    url(r'^locations/add/$',    view.show_add_location,  name="location_add"),
-    url(r'^buildings/$',        view.show_buildings,     name="building_all"),
-    url(r'^buildings/(\d+)/$',  view.show_building,      name="building_one"),
-    url(r'^buildings/add/$',    view.show_add_building,  name="building_add"),
 
     # librarian work
     url(r'^shipment/$', view.show_shipment_requests, name="shipment"),
@@ -126,12 +129,12 @@ urlpatterns = patterns(
     (r'^emaillog/$', view.show_email_log),
 
     # config
-    url(r'^config/$', view.show_config_options, name="config_all"),
-    url(r'^config/(?P<option_key>(\w+))/$', view.edit_config_option, name="config_edit_option"),
-    url(r'^config/(?P<option_key>(\w+)),global/$', view.edit_config_option, {'is_global':True}, name="config_edit_global_option"),
-    url(r'^profile/config/$', view.show_config_options_per_user, name='profile_config'),
-    url(r'^profile/config/(?P<option_key>(\w+))/$', view.edit_config_option, name="profile_config_edit_option"),
-    (r'load_default_config/(?P<do_it>(\d))?/?$', view.load_default_config),
+    url(r'^config/$',                    view.show_config_options,                    name="config_all"),
+    url(r'^config/(\w+)/$',              view.edit_config_option,                     name="config_edit_option"),
+    url(r'^config/(\w+),global/$',       view.edit_config_option, {'is_global':True}, name="config_edit_global_option"),
+    url(r'^profile/config/$',            view.show_config_options_per_user,           name='profile_config'),
+    url(r'^profile/config/(\w+)/$',      view.edit_config_option,                     name="profile_config_edit_option"),
+    url(r'load_default_config/(\d)?/?$', view.load_default_config),
 
     # admin panel urls
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),
