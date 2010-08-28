@@ -40,6 +40,7 @@ def render_response(request, template, context={}):
                      'unique_num' : random.randint(0,9999999999999),
                      'application_ip' : application_ip,
                      'application_url' : 'http://glonull1.mobile.fp.nsn-rdnet.net:%d/' % application_ip,   # TODO: maybe it can be read somehow, if not put it in configuration
+                     'is_dev' : settings.IS_DEV,
                      })
     # as far as we use perms with following convention, we can pass perms to templates easily:
     # if in-code perm's name is list_book, then template gets can_list_books variable

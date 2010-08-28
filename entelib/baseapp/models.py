@@ -12,6 +12,11 @@ import datetime
 
 APPLICATION_NAME = 'baseapp'     # should be read from somewhere, I think
 
+class Feedback(models.Model):
+    when = models.DateTimeField(auto_now_add=True)
+    who = models.CharField(max_length=100)
+    msg = models.TextField()
+    agent = models.TextField()
 
 class EmailLog(models.Model):
     """

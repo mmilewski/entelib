@@ -63,7 +63,7 @@ class ConfigValueTypeHelper(object):
                  error_msg  : 'Expected integer',
                 },
             'bool': 
-                {parse_fun : lambda x: bool(int(x)),
+                {parse_fun : lambda x: x=='True',  # see also definition in get_form_widget_for_type below
                  error_msg : 'Expected boolean',
                 },
             'unicode': 
@@ -87,7 +87,7 @@ class ConfigValueTypeHelper(object):
         widgets = {
             'int'    : forms.IntegerField(required=True),
 #             'bool'   : forms.BooleanField(required=False),
-            'bool'   : forms.ChoiceField(choices=(('1','True'),('0','False')), required=True),
+            'bool'   : forms.ChoiceField(choices=(('True','True'),('False','False')), required=True),
             'unicode': forms.CharField(required=True, widget=forms.Textarea),
             'list_groupnames': forms.CharField(required=True, widget=forms.Textarea),
             }

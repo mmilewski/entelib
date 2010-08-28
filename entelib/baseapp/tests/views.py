@@ -765,7 +765,7 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
                 dict = self.create_post(user, passwd, {'work_building' : building_to_change_to_id})
                 
                 response = self.client.post(self.url_admin % user.id, dict, follow=True)
-                pprint("echo {0}".format(response.content))
+                # pprint("echo {0}".format(response.content))
                 self.assertNotContains(response, 'errorlist')
                 self.assert_(accessed(response))
 

@@ -7,6 +7,7 @@ PROJECT_PATH = dirname(abspath(__file__))
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+IS_DEV = False    # set to False if giving to users. This allows to disable some options (like admin panel or load default config)
 
 # if True checks whether given password matches one in database.
 CHECK_PASSWORD_ON_AUTH = True
@@ -78,11 +79,13 @@ TEMPLATE_LOADERS = (
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.common.CommonMiddleware',           # see DISALLOWED_USER_AGENTS, APPEND_SLASH, PREPEND_WWW 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.transaction.TransactionMiddleware',   # tie request-response to transaction
+    'middleware-FeedbackMiddleware.FeedbackMiddleware',      # feedback handler
 )
 
 ROOT_URLCONF = 'entelib.urls'

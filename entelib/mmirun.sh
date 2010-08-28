@@ -22,7 +22,7 @@ if [ $# -gt 0 ]; then
     if [[ $1 = "smalldb" ]]; then 
         rm database/database.db
         echo "no" | python manage.py syncdb
-        python manage.py loaddata small_db.json
+        python manage.py loaddata small_db.json small_db-configuration.json small_db-groups.json
     fi
     if [[ (($1 = "new" || $2 = "new")) ]]; then
         python dbcreator.py new
