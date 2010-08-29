@@ -40,35 +40,38 @@
             <h1><span>{% block header %}{% endblock %}</span></h1>
           </div>
 
-{% if messages %}
-<div class="messagesWrapper">
-  <ul id="messages">
-    {% for message in messages %}
-      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
-  </ul>
-</div>
-{% endif %}
-
-            {% block menu %}{% endblock %}
-            <div id="rest">
-              {% block rest %}{% endblock %}
+          {% if messages %}
+            <div class="messagesWrapper">
+              <ul id="messages">
+                {% for message in messages %}
+                  <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+              </ul>
             </div>
+          {% endif %}
 
-            <div id='footer'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla mattis massa eget interdum. Nulla
-            facilisi. Pellentesque vel purus at arcu consectetur gravida vitae eu nisl. Quisque id lacus a tellus tempus sollicitudin at
-            quis nisl. Sed fermentum orci id lectus blandit mattis. Integer pharetra arcu vestibulum justo interdum sed tempus ipsum
-            aliquet. Curabitur cursus est ut diam auctor non mattis mi iaculis.</div>
-        </div>
+          {% block menu %}{% endblock %}
 
-        <div class="tmp_log_as">
-          <a href="/_login_user/">Login as user</a>
-          <a href="/_login_lib/">Login as librarian</a>
-          <a href="/_login_admin/">Login as admin</a>
-        </div>
+          <div id="rest">
+            {% block rest %}{% endblock %}
+          </div>
+
+          <div id='footer'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fringilla mattis massa eget interdum. Nulla
+          facilisi. Pellentesque vel purus at arcu consectetur gravida vitae eu nisl. Quisque id lacus a tellus tempus sollicitudin at
+          quis nisl. Sed fermentum orci id lectus blandit mattis. Integer pharetra arcu vestibulum justo interdum sed tempus ipsum
+          aliquet. Curabitur cursus est ut diam auctor non mattis mi iaculis.</div>
+        </div> <!-- /pageWrapper -->
+
+        {% if is_dev %}
+          <div class="tmp_log_as">
+            <a href="/_login_user/">Login as user</a>
+            <a href="/_login_lib/">Login as librarian</a>
+            <a href="/_login_admin/">Login as admin</a>
+          </div>
+        {% endif %}
 
         <center>
-        <div id="feedback" style="width: 100%; height: 50%; z-index: 9999; background-color: #aaa; padding:1em; color: white; overflow:hidden;">
+        <div id="feedback" style="width: 98%; height: 50%; z-index: 9999; background-color: #aaa; padding:1em; color: white; overflow:scroll;">
           <h2>Feedback</h2>
           <form method="POST" action=".">
             <textarea name="feedback_msg" cols="80" rows="10">Message here: </textarea>
