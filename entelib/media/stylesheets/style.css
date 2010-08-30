@@ -141,10 +141,10 @@ form.registration_form table.basic_fields input {
 
 /* FORMS */
 div.form_bookWrapper #id_title,
-div.form_bookWrapper #ac_authors { width: 35em; }  /* books/one.html */
+div.form_bookWrapper #ac_authors { width: 35em; }           /* books/one.html */
 div.form_bookWrapper table { margin: 0 auto; }
 
-form.book_search .first {     /* books.html */
+form.book_search .first {                                   /* books.html */
     padding-right: 1em;
     text-align: left;
     /* border-right: 1px solid black; */
@@ -159,13 +159,13 @@ form.book_search input#author {
     min-width: 25em;    width: 25em;
 }
 
-form.copy_search select#location {    /* bookcopies.html */
+form.copy_search select#location {                          /* bookcopies.html */
     width: 30em;
     min-width: 30em;
 }
 form.copy_search table {  margin: 0 auto; }
 
-form.edit_profile .first {    /* profile.html */
+form.edit_profile .first {                                  /* profile.html */
     text-align: left;
     vertical-align: top;
     padding-right: 3em;
@@ -177,22 +177,22 @@ form.edit_profile .second input {
     min-width: 15em;    width: 15em;
 }
 
-form.book_request_form .basic_fields {  /* book_request.html */
+form.book_request_form .basic_fields {                      /* book_request.html */
     text-align: left;
 }
 
 div.user_search input#first_name,
 div.user_search input#last_name,
-div.user_search input#email {   /* users.html */
+div.user_search input#email {                               /* users.html */
     width: 30em;
     min-width: 30em;
 }
 
-form.forgotten_password_form input#id_email {      /* registration/forgotten_password.html */
+form.forgotten_password_form input#id_email {               /* registration/forgotten_password.html */
     width: 25em; min-width: 25em;
 }
 
-.reportItems th {     /* reports/....html */
+.reportItems th {                                           /* reports/....html */
     background: #eee url('/media/images/sort-bg.gif') left top repeat;
 }
 .reportItems th input {
@@ -424,12 +424,13 @@ div.emails_wrapper table.emails th {
 /* / JQUERY */
 
 
-/* AUTHORS */
+/* AUTHORS, BUILDINGS, COSTCENTERS, PUBLISHERS, CATEGORIES */
 div.item_info span.label {  font-weight: bold;  }
 div.form_itemWrapper .propositions {  padding-left: 2em;  }
 div.form_itemWrapper .propositions ul {  margin-left: 1em;  }
 div.form_itemWrapper .propositions ul li {  margin-bottom: .3em;  }
-div.form_itemWrapper input#id_name {  width: 30em;  min-width: 30em;  }
+div.form_itemWrapper input#id_name    {  width: 30em;  min-width: 30em;  }
+div.form_itemWrapper input#id_remarks {  width: 30em;  min-width: 30em;  }
 div.itemsWrapper td.options {
     padding:0;
 }

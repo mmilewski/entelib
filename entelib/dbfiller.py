@@ -397,7 +397,7 @@ def populate_groups():
                         'add_costcenter', 'change_costcenter',
                         ]
     readd_group('Readers',    perms=readers_perms)
-    readd_group('Librarians', perms=librarians_perms)
+    readd_group('Librarians', perms=readers_perms + librarians_perms)
     readd_group('Admins',     perms=admins_perms, direct_add=True)
     
     

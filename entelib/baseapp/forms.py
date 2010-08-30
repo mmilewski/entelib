@@ -668,6 +668,8 @@ class LocationForm(ModelForm):
         fields = ('building', 'details', 'remarks', 'maintainer')
 
     groups = Group.objects.filter(Q(name='Librarians'))
+
+    building = forms.ModelChoiceField(Building.objects.all().order_by('name'))
     maintainer = forms.ModelMultipleChoiceField(User.objects.filter(groups__in=groups).order_by('username'), required=False)
 
 
@@ -703,13 +705,27 @@ class BookCopyForm(ModelForm):
         # self.fields['book'].widget.attrs['disabled'] = True
 
 
-def generic_clean_name(form_instance, regexp):
+def regexp_match(expr):
+    """ Returns unary function which will test its argument with given regular expression."""
     import re
+    return lambda name: re.compile(expr).match(name)
+    
+def generic_clean_name(form_instance, f, field_name='name'):
+    """
+    Checks if name field is valid. 
+    Args:
+        form_instance -- instance of ModelForm which has field_name field. If not, then
+                         'Field is required' will be displayed
+        f -- validator, unary function which should return True if its argument is valid
+             and False otherwise.
+        field_name -- this function is dedicated to check validity if 'name' field. With this
+                      argument it can be changed.
+    """
     self = form_instance
-    if ('name' not in self.cleaned_data) or (len(self.cleaned_data['name'].strip()) < 1):
-        raise forms.ValidationError('Name is required')
-    name = self.cleaned_data['name']
-    if not re.compile(regexp).match(name):
+    if (field_name not in self.cleaned_data) or (len(self.cleaned_data[field_name].strip()) < 1):
+        raise forms.ValidationError('Field is required')
+    name = self.cleaned_data[field_name]
+    if not f(name):
         raise forms.ValidationError('Field contains forbidden characters')
     return name
 
@@ -720,7 +736,7 @@ class BuildingForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(BuildingForm, self).__init__(*args, **kwargs)
     def clean_name(self):
-        return generic_clean_name(self, '^[a-zA-z0-9 \-_]+$')
+        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-_]+$'))
 
 class AuthorForm(ModelForm):
     class Meta:
@@ -728,7 +744,8 @@ class AuthorForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(AuthorForm, self).__init__(*args, **kwargs)
     def clean_name(self):
-        return generic_clean_name(self, '^[a-zA-z0-9 \-_]+$')
+        f = lambda name: name.isalnum() or regexp_match('^[a-zA-z0-9 \-_\']+$')(name)
+        return generic_clean_name(self, f)
 
 class CategoryForm(ModelForm):
     class Meta:
@@ -736,7 +753,7 @@ class CategoryForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(CategoryForm, self).__init__(*args, **kwargs)
     def clean_name(self):
-        return generic_clean_name(self, '^[a-zA-z0-9 \-_]+$')
+        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-_]+$'))
 
 class PublisherForm(ModelForm):
     class Meta:
@@ -744,7 +761,7 @@ class PublisherForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(PublisherForm, self).__init__(*args, **kwargs)
     def clean_name(self):
-        return generic_clean_name(self, '^[a-zA-z0-9 \-_]+$')
+        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-_]+$'))
 
 class CostCenterForm(ModelForm):
     class Meta:
@@ -752,5 +769,5 @@ class CostCenterForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(CostCenterForm, self).__init__(*args, **kwargs)
     def clean_name(self):
-        return generic_clean_name(self, u'^[a-zA-z0-9 \-_]+$')
+        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-_]+$'))
 

@@ -20,6 +20,7 @@
     <div class="building_info item_info">
       <ul class="details">
         <li><span class="label">Name:</span> {{building.name}}</li>
+        <li><span class="label">Remarks:</span> {{building.remarks|default:"-"}}</li>
       </ul>
     </div>
     {% endif %}
@@ -46,9 +47,11 @@
                           {{ field }}
                           {{ field.errors }}
                         </td>
-                        <td style="vertical-align:bottom;">
-                          <input type="submit" name="btn_propositions" value="Check">
-                        </td>
+                        {% if 'name' in field.label.lower %}
+                          <td style="vertical-align:bottom;">
+                            <input type="submit" name="btn_propositions" value="Check">
+                          </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
                 {% if propositions %}

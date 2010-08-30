@@ -6,36 +6,9 @@ from entelib.baseapp.utils import pprint, today, tomorrow, after_days
 from datetime import date, timedelta
 from entelib.baseapp.config import Config
 from entelib.baseapp.models import Reservation, Rental, User, UserProfile, Book, BookCopy, BookRequest, Configuration, Phone, Building
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseNotFound
+from test_utils import choice, accessed
 
-#def today():
-#    return date(2010, 7, 20)
-
-def accessed(response):
-    '''
-    Use self.assert_(accessed(response)) to check if page wasn't redirected to login,
-    because lack of perms or sth.
-
-    Returns:
-        True - page rendered properly
-        False - request redirected to login page
-    '''
-    if response.status_code == 200:
-        return True
-    if isinstance(response, HttpResponseRedirect):
-        return '/entelib/login/' not in response['Location']
-    rc = response.redirect_chain
-    if not rc:
-        return True
-    return '/entelib/login/' not in rc[-1][0]
-    
-def choice(collection):
-    ''' simplified pseudo-choice ensuring repeatable results '''
-    lst = list(collection)
-    length = len(lst)
-    seed = 117
-    index = (seed % length) ** 3 % length
-    return lst[index]
 
 class TestWithSmallDB(Test):
     '''
@@ -43,6 +16,7 @@ class TestWithSmallDB(Test):
     By inheriting from Test, it inherits from django.test.TestCase and from baseapp.tests.PageLogger
     '''
     fixtures = Test.fixtures
+
 
 class LoadDefaultConfigTest(TestWithSmallDB):
     pass
@@ -73,7 +47,7 @@ class ListConfigOptionsTest(TestWithSmallDB):
 
 class EditLocalConfigOptionTest(TestWithSmallDB):
     def setUp(self):
-        self.url = '/entelib/config/%s/'
+        self.url = '/entelib/profile/config/%s/'
         self.overridable_key = 'display_tips'
         self.unoverridable_key = 'default_go_back_link_name'
         self.log_user()
@@ -96,7 +70,7 @@ class EditLocalConfigOptionTest(TestWithSmallDB):
             if not c.can_override:
                 continue
             response = self.client.post(self.url % c.key, {'value' : c.value})
-            self.assertRedirects(response, '/entelib/config/')
+            self.assert_(accessed(response))
             self.assertEquals(c.value, Configuration.objects.get(key=c.key).value)
 
     def test_is_local(self):
@@ -959,6 +933,7 @@ class ReserveTest(TestWithSmallDB):
         self.log_lib()
         url = self.url_copy % 3  # permanently unavailable copy
         response = self.client.get(url)
+        self.assert_(accessed(response))
         self.assertContains(response, "<td><input type='submit' name='rent_button' value='Rent'  disabled  ></td>")
 
     

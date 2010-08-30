@@ -239,11 +239,12 @@ def register(request, action, registration_form=forms.RegistrationForm, extra_co
                 form = registration_form(data=request.POST, files=request.FILES)
                 if form.is_valid():
                     new_user = form.save()
+                    new_user.save()
                     new_user.is_active = True
                     new_user.save()
                     profile = new_user.userprofile
-                    userprofile.awaits_activation = False
-                    userprofile.save()
+                    profile.awaits_activation = False
+                    profile.save()
                     messages.success(request, 'User registered and activated.')
                     return HttpResponseRedirect('/entelib/users/%d/' % new_user.id)
             # display form
@@ -654,7 +655,9 @@ def show_users(request):
 
         # searching for users
         if 'search' in post:
-            if request_from_my_building:
+            if not request.user.userprofile.building:
+                request_building_id = 0
+            elif request_from_my_building:
                 request_building_id = request.user.userprofile.building.id
 
         # inactive users are listed iff current user has permission to change them, e.g. activate

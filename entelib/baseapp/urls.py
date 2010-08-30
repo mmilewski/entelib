@@ -92,10 +92,10 @@ urlpatterns = patterns(
     url(r'^locations/(\d+)/$',  view.show_location,      name="location_edit"),
     url(r'^locations/add/$',    view.show_add_location,  name="location_add"),
 
-    url(r'^buildings/$',        view.show_buildings,     name="building_all"),
-    url(r'^buildings/(\d+)/$',  view.show_building,      name="building_one"),
-    url(r'^buildings/(\d+)/$',  view.show_building,      name="building_edit"),
-    url(r'^buildings/add/$',    view.show_add_building,  name="building_add"),
+    url(r'^buildings/$',             view.show_buildings,     name="building_all"),
+    url(r'^buildings/(\d+)/$',       view.show_building,      name="building_one"),
+    url(r'^buildings/(\d+)/edit/$',  view.show_edit_building, name="building_edit"),
+    url(r'^buildings/add/$',         view.show_add_building,  name="building_add"),
 
     # books
     url(r'^books/$',               view.show_books,     name="book_all"),

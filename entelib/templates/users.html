@@ -32,8 +32,10 @@
                         </select>
                     </td>
                     <td>
-                        <input type='checkbox' name='from_my_building' value='checked' tabindex='5' {% if from_my_building %} checked='checked' {% endif %} >
-                        From my building 
+                      {% if user.userprofile.building %}
+                        <input type="checkbox" id="from_my_building" name="from_my_building" value="checked" tabindex="5" {% if from_my_building %} checked="checked" {% endif %} >
+                        <label for="from_my_building">From my building</label>
+                      {% endif %}
                     </td>
                 </tr><tr>
                     <!-- <td></td> -->

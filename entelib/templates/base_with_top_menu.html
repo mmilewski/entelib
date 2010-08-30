@@ -88,17 +88,18 @@
                     </li>
                 </ul>
             </li>         
-        
         {% endif %}
 
 
         
-        {% if user.is_staff %}                 <li><a href="/entelib/config/">                 Global configuration</a></li>     {% endif %}
+        {% if user.userprofile.is_admin %}       <li><a href="/entelib/config/">                 Global configuration</a></li>        {% endif %}
+        
         {% if is_dev %}
-          {% if can_access_admin_panel %}        <li><a href="/entelib/admin/">                  Admin panel</a></li>              {% endif %}
-          {% if can_load_default_config %}       <li><a href="/entelib/load_default_config/">Load default config</a></li>          {% endif %}
+          {% if can_access_admin_panel %}        <li><a href="/entelib/admin/">                  Admin panel</a></li>                 {% endif %}
+          {% if can_load_default_config %}       <li><a href="/entelib/load_default_config/">    Load default config</a></li>         {% endif %}
         {% endif %}
-        {% if can_list_emaillog %}             <li><a href="/entelib/emaillog/">Email logs</a></li>                              {% endif %}
+        
+        {% if can_list_emaillog %}               <li><a href="/entelib/emaillog/">Email logs</a></li>                                 {% endif %}
       </ul>
 
 

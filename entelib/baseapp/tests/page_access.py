@@ -25,7 +25,7 @@ class PageAccessTest(Test):
         self.assertEqual(302, self.get_status_code('/entelib/login'))   # redirects to login/
 
     def test_admin_panel_page(self):
-        ''' Tests few admin panel's urls. '''
+        """ Tests few admin panel's urls. """
         self.failUnlessEqual(200, self.get_status_code('/entelib/admin/'))
         self.failUnlessEqual(302, self.get_status_code('/entelib/admin'))
         self.failUnlessEqual(200, self.get_status_code('/entelib/admin/doc/'))
@@ -56,8 +56,70 @@ class PageAccessTest(Test):
         self.log_user()
         self.failUnlessEqual(404, self.get_status_code(url))  # now we see there no such book
 
+
+    def test_various_urls_accessed(self):
+        self.log_admin()
+        def page_was_displayed(url):
+            from baseapp.tests.views import accessed
+            response = self.client.get(url)
+            self.assert_(accessed(response))
+
+        page_was_displayed('/entelib/books/')
+        page_was_displayed('/entelib/books/add/')
+        page_was_displayed('/entelib/books/1/edit/')
+        
+        page_was_displayed('/entelib/categories/')
+        page_was_displayed('/entelib/categories/add/')
+        page_was_displayed('/entelib/categories/1/edit/')
+
+        page_was_displayed('/entelib/authors/')
+        page_was_displayed('/entelib/authors/add/')
+        page_was_displayed('/entelib/authors/1/edit/')
+        
+        page_was_displayed('/entelib/publishers/')
+        page_was_displayed('/entelib/publishers/add/')
+        page_was_displayed('/entelib/publishers/1/edit/')
+        
+        page_was_displayed('/entelib/costcenters/')
+        page_was_displayed('/entelib/costcenters/add/')
+        page_was_displayed('/entelib/costcenters/1/edit/')
+        
+        page_was_displayed('/entelib/locations/')
+        page_was_displayed('/entelib/locations/add/')
+        
+        page_was_displayed('/entelib/buildings/')
+        page_was_displayed('/entelib/buildings/add/')
+        page_was_displayed('/entelib/buildings/1/edit/')
+        
+        page_was_displayed('/entelib/users/')
+        page_was_displayed('/entelib/users/1/')
+        page_was_displayed('/entelib/users/1/reservations/')
+        page_was_displayed('/entelib/users/1/books/1/')
+        page_was_displayed('/entelib/users/1/bookcopy/1/')
+        page_was_displayed('/entelib/users/1/reservations/cancel-all/')
+        page_was_displayed('/entelib/users/1/rentals/')
+        page_was_displayed('/entelib/profile/')
+        page_was_displayed('/entelib/profile/reservations/')
+        page_was_displayed('/entelib/profile/')
+        page_was_displayed('/entelib/profile/reservations/cancel-all/')
+        page_was_displayed('/entelib/profile/rentals/')
+        page_was_displayed('/entelib/locations/')
+        page_was_displayed('/entelib/locations/1/')
+        page_was_displayed('/entelib/books/')
+        page_was_displayed('/entelib/books/1/')
+        page_was_displayed('/entelib/books/1/edit/')
+        page_was_displayed('/entelib/requestbook/')
+        page_was_displayed('/entelib/bookcopy/1/')
+        page_was_displayed('/entelib/bookcopy/1/edit/')
+        page_was_displayed('/entelib/bookcopy/1/reserve/')
+        page_was_displayed('/entelib/report/')
+        page_was_displayed('/entelib/emaillog/')
+        page_was_displayed('/entelib/config/')
+        page_was_displayed('/entelib/config/display_tips/')
+
     def test_login_urls_redirected_if_no_login(self):
         ''' Tests if you can see something without logging in '''
+        self.logout()
         for url, redirect_url in non_login_redirect_urls:
             response = self.client.get(url, follow=True)
 
@@ -117,6 +179,38 @@ non_login_redirect_urls = [
     ('/entelib/logout/',                                _login_url + '?next=/entelib/'),
     ('/entelib/admin',                                  '/entelib/admin/'),
     ]
+
+def add_non_login_redirect_url(url):
+    non_login_redirect_urls.append(  (url, _login_url+'?next='+url)  )
+
+add_non_login_redirect_url('/entelib/books/')
+add_non_login_redirect_url('/entelib/books/add/')
+add_non_login_redirect_url('/entelib/books/1/edit/')
+
+add_non_login_redirect_url('/entelib/categories/')
+add_non_login_redirect_url('/entelib/categories/add/')
+# add_non_login_redirect_url('/entelib/categories/1/edit/')
+
+add_non_login_redirect_url('/entelib/authors/')
+add_non_login_redirect_url('/entelib/authors/add/')
+# add_non_login_redirect_url('/entelib/authors/1/edit/')
+
+add_non_login_redirect_url('/entelib/publishers/')
+add_non_login_redirect_url('/entelib/publishers/add/')
+# add_non_login_redirect_url('/entelib/publishers/1/edit/')
+
+add_non_login_redirect_url('/entelib/costcenters/')
+add_non_login_redirect_url('/entelib/costcenters/add/')
+# add_non_login_redirect_url('/entelib/costcenters/1/edit/')
+
+add_non_login_redirect_url('/entelib/locations/')
+add_non_login_redirect_url('/entelib/locations/add/')
+# add_non_login_redirect_url('/entelib/locations/1/edit/')
+
+add_non_login_redirect_url('/entelib/buildings/')
+add_non_login_redirect_url('/entelib/buildings/add/')
+# add_non_login_redirect_url('/entelib/buildings/1/edit/')
+
 
 non_login_urls = [
     '/quickhack',

@@ -215,7 +215,8 @@ class AutocompleteHelper(object):
         """
         names = self.string
         names = names.replace("u'", '').replace('u"', '')    # naive method of parsing. How to do it better?
-        names = names.replace('"', '').replace("'", '')
+        names = names.replace('"', '')
+#         names = names..replace("'", '')                    # single quote may be usefull in names
         names = names.replace('[', '').replace("]", '')
         list_of_names = names.split(sep)
         list_of_names = [name.strip() for name in list_of_names if len(name.strip())]
