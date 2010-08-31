@@ -21,11 +21,17 @@ class MyUserAdmin(UserAdmin):
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     search_fields = ('username', 'first_name', 'last_name', 'email',)
-    list_display = ('username', 'first_name', 'last_name', 'email', 'profile', 'is_active', 'is_superuser', 'is_staff',)
-    list_filter = ('is_staff', 'is_superuser', 'is_active',)
+    list_display = ('username', 'first_name', 'last_name', 'email', 'last_login', 'ever_logged', 'profile', 'is_active', 'is_superuser', 'is_staff',)
+    list_filter =  tuple() #('is_staff', 'is_superuser', 'is_active')
     actions = ['activate_users', 'deactivate_users',]
-    ordering = ('is_active', 'username',)
+    ordering = ('is_active', 'username', 'last_login', )
 
+    def last_login(self,s):
+        return s.last_login.date()
+
+    def ever_logged(self,s):
+        return s.last_login != s.date_joined
+    
     def profile(self, s):
         profile_url = '/entelib/admin/baseapp/userprofile/%d/' % s.id
         return '<a href="%s">%s</a>' % (profile_url, 'View profile')
@@ -39,6 +45,11 @@ class MyUserAdmin(UserAdmin):
         see: http://docs.djangoproject.com/en/dev/ref/contrib/admin/actions/
         '''
         rows_updated = queryset.update(is_active=True)
+        for q in queryset:
+            p = q.get_profile()
+            p.awaits_activation = False
+            p.save()
+            q.save()
         message_bit = "1 account was" if rows_updated == 1 else ("%s accounts were" % rows_updated)
         self.message_user(request, "%s successfully activated." % message_bit)
     activate_users.short_description = "Activate selected accounts"

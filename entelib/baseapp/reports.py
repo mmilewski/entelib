@@ -4,6 +4,7 @@ from views_aux import get_book_details, book_copy_status
 from entelib.baseapp.models import Reservation, Rental, BookCopy, Book, User
 from datetime import date, datetime
 from baseapp.utils import pprint, order_asc_by_key, order_desc_by_key
+import baseapp.utils as utils
 from django.http import HttpResponse
 import csv
 from baseapp.views_aux import book_copies_status
@@ -108,7 +109,7 @@ def get_report_data(report_type, from_date, to_date, order_by=[]):
     order_by = list(order_by)
     order_by = order_by[:1] if order_by else []         # only one name can be used to order data 
     
-    # ob stands for order by
+    # NOTE: `ob` stands from order by
     ob_rename_dict = {'title'       : order_asc_by_key('title'),
                       '-title'      : order_desc_by_key('title'),
                       'location'    : order_asc_by_key('location_str'),
@@ -144,14 +145,22 @@ def get_report_data(report_type, from_date, to_date, order_by=[]):
         book_infos = []
         copies = BookCopy.objects.select_related('id', 'state', 'book__title', 'location', 'location__building', 'shelf_mark')
         last_rentals = {}
+        from datetime import timedelta, datetime
+        status_day = utils.str_to_date(from_date, utils.today())
+        status_day_start = datetime(status_day.year, status_day.month, status_day.day, 0, 0, 0)
+        status_day_end = datetime(status_day.year, status_day.month, status_day.day, 23, 59, 59)
         
-        Q_start_date_filter =  Q(start_date__contains='')      # Q_all
-        if from_date:
-            Q_start_date_filter = Q(start_date__gte=from_date)
-        Q_end_date_filter = Q(end_date__isnull=True)
-        if to_date:
-            Q_end_date_filter = Q(end_date__lte=to_date) | Q(end_date__isnull=True)
-
+#         Q_start_date_filter =  Q(start_date__contains='')      # Q_all
+#         if from_date:
+#             Q_start_date_filter = Q(start_date__gte=from_date)
+#         Q_end_date_filter = Q(end_date__isnull=True)
+#         if to_date:
+#             Q_end_date_filter = Q(end_date__lte=to_date) | Q(end_date__isnull=True)
+#         rentals = Rental.objects.select_related('reservation', 'reservation__book_copy__id') \
+#                                 .filter(Q_start_date_filter) \
+#                                 .filter(Q_end_date_filter)
+        Q_start_date_filter = Q(start_date__lte=status_day_end)
+        Q_end_date_filter = (Q(end_date__isnull=True) | Q(end_date__gte=status_day_start))
         rentals = Rental.objects.select_related('reservation', 'reservation__book_copy__id') \
                                 .filter(Q_start_date_filter) \
                                 .filter(Q_end_date_filter)

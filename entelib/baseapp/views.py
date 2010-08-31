@@ -802,11 +802,20 @@ def show_reports(request, name=''):
         post = request.POST
         from_date = date(2000, 1, 1)
         to_date = date(2500, 1, 1)
+        day_date = utils.today()
         if 'from' in post:
             from_date = utils.str_to_date(post['from'], from_date)
         if 'to' in post:
             to_date = utils.str_to_date(post['to'], to_date)
-        search_data = {'from': unicode(from_date), 'to': unicode(to_date)}
+        if 'day' in post:
+            day_date = utils.str_to_date(post['day'], day_date)
+        if report_name in ['status', 'lost_books']:   # status requires only one date
+            from_date = day_date
+        search_data = {
+            'from' : unicode(from_date),
+            'to'   : unicode(to_date),
+            'day'  : unicode(day_date),
+            }
         context['search'] = search_data
         
         if request.method == 'POST':
@@ -837,7 +846,6 @@ def show_reports(request, name=''):
                 context['report'] = report_data['report']
                 context['ordering'] = report_data['ordering']
                 return render_response(request, template_for_report[report_name], context)
-                
         else:
             order_by = []
             if 'ordering' in post:
