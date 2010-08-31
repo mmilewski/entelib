@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import re
 from pprint import pprint
 from sqlite3 import dbapi2 as sqlite
@@ -61,7 +63,7 @@ def migrate_users():
     # adding users to new db
     users = cursor.execute('SELECT * FROM users').fetchall()
     # normalized_users = [u[1:4] for u in users]
-    admins = Group.objects.get(name='Librarians') #TODO: spytac czy to o to chodzi
+    admins = Group.objects.get(name='Librarians')
     readers = Group.objects.get(name='Readers')
     for u in users:
         new_user = User.objects.create_user(username=u[3], email=u[3], password=u[2]+'74')
@@ -71,17 +73,16 @@ def migrate_users():
             new_user.groups.add(admins)
         new_user.groups.add(readers)
         new_user.is_active = False
+        p = new_user.userprofile
         if u[1][-1] == 'a':
-            new_user.shoe_size = 37
+            p.shoe_size=37
         else:
-            new_user.show_size = 46
+            p.shoe_size=37
+        p.awaits_activation = False
+        p.save()
         if not u[6]:
             new_user.is_active = True
         new_user.save()
-        if u[6]:
-            p = new_user.userprofile
-            p.awaits_activation = False
-            p.save()
     maru = User.objects.create_user(username='maru', email='brzoza@jabster.pl', password='lala')
     maru.is_superuser = True
     maru.is_staff = True
@@ -583,10 +584,16 @@ def migrate_events():
 
 if __name__ == "__main__":
     if raw_input(['migrate?']) == 'yes':
-        main(True)
+        main()
 
-def main(erase=False):
+def main():
     from dbfiller import clear_db, add_states, add_phone_types, populate_groups, main
+    import pickle
+    file = open('passwords', 'w')
+    email_hash_list = User.objects.values_list('email', 'password')
+    pickle.dump(email_hash_list, file)
+    file.close()
+
     '''
     clear_db()
     add_states()
@@ -595,31 +602,21 @@ def main(erase=False):
     '''
     main()
 
-    if erase:
-        pprint('erasing users')
-        User.objects.filter(id__gt=0).delete()
-
-        pprint('erasing user profiles')
-        UserProfile.objects.filter(user__id__gt=0).delete()
-
-        pprint('erasing buldings')
-        Building.objects.all().delete()
-
-        pprint('erasing locations')
-        Location.objects.all().delete()
-
-        pprint('erasing copies')
-        BookCopy.objects.all().delete()
-
-        pprint('erasing authors')
-        Author.objects.all().delete()
-
-        pprint('erasing books')
-        Book.objects.all().delete()
-    
-    pprint ('erasing copies')
+    pprint('erasing copies')
     BookCopy.objects.all().delete()
 
+    pprint('erasing locations')
+    Location.objects.all().delete()
+
+    pprint('erasing buldings')
+    Building.objects.all().delete()
+
+    pprint('erasing authors')
+    Author.objects.all().delete()
+
+    pprint('erasing books')
+    Book.objects.all().delete()
+    
     pprint('migrating users')
     migrate_users()
 
@@ -635,6 +632,14 @@ def main(erase=False):
     pprint('migrating copies')
     migrate_copies()
 
-    if erase:
-        pprint('restoring four users')
-        add_users()
+    pprint('restoring four users')
+    add_users()
+
+
+    file = open('passwords', 'r')
+    email_hash_list = pickle.load(file)
+    for email, password in email_hash_list:
+        u = User.objects.get(email=email)
+        u.password=password
+        u.save()
+    file.close()

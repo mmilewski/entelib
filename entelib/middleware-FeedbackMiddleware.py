@@ -10,6 +10,8 @@ class FeedbackMiddleware:
         if (request.method == 'POST') and ('btn_feedback_commit' in request.POST):
             post = request.POST
             source = request.path
+            if source.startswith('//') :
+                source = source[1:]
             who = post['feedback_user']
             msg = source + '\n' + post['feedback_msg']
             meta = request.META
