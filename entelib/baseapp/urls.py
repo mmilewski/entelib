@@ -65,7 +65,7 @@ urlpatterns = patterns(
     url(r'^profile/rentals/new/$',              view.my_new_reservation),
     url(r'^profile/rentals/archive/$',          view.show_my_rental_archive),
 
-    # authors, categories, publishers, cost centers
+    # authors, categories, publishers, cost centers, states
     url(r'^authors/$',             view.show_authors,     name="author_all"),
     url(r'^authors/(\d+)/$',       view.show_author,      name="author_one"),
     url(r'^authors/(\d+)/edit/$',  view.show_edit_author, name="author_edit"),
@@ -85,6 +85,11 @@ urlpatterns = patterns(
     url(r'^costcenters/(\d+)/$',       view.show_costcenter,      name="costcenter_one"),
     url(r'^costcenters/(\d+)/edit/$',  view.show_edit_costcenter, name="costcenter_edit"),
     url(r'^costcenters/add/$',         view.show_add_costcenter,  name="costcenter_add"),
+
+    url(r'^states/$',             view.show_states,     name="state_all"),
+    url(r'^states/(\d+)/$',       view.show_state,      name="state_one"),
+    url(r'^states/(\d+)/edit/$',  view.show_edit_state, name="state_edit"),
+    url(r'^states/add/$',         view.show_add_state,  name="state_add"),
 
     # locations, buildings
     url(r'^locations/$',        view.show_locations,     name="location_all"),

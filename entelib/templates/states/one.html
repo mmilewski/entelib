@@ -1,0 +1,90 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block title %}State's details{% endblock %}
+
+{% block header %}State's details{% endblock %}
+
+{% block content %}
+
+<div class="state_one">
+  <div class="inner_menu">
+    <ul>
+      {%if is_displaying and perms.baseapp.change_state%}<li><a href="{% url state_edit state.id %}">Edit this state</a> </li>{% endif %}
+      <li><a href="{% url state_all %}">Show all states</a> </li>
+      {%if is_displaying and perms.baseapp.add_state%}<li><a href="{% url state_add %}">Add another state</a> </li>{% endif %}
+      {%if is_updating%}<li><a href="{% url state_one state.id %}">Show this state</a></li>{% endif %}
+    </ul>
+  </div>
+
+    {% if not is_adding %}
+    <div class="state_info item_info">
+      <ul class="details">
+        <li><span class="label">Name:</span> {{state.name}}</li>
+        <li><span class="label">Is visible:</span> {{state.is_visible}}</li>
+        <li><span class="label">Is available:</span> {{state.is_available}}</li>
+        <li><span class="label">Description:</span> {{state.description|default:"-"}}</li>
+      </ul>
+    </div>
+    {% endif %}
+
+
+    {% if perms.baseapp.add_state and form %}
+      {% if display_tips %}
+        <div class="tip" >
+          <p>When you add or update an state, you can add duplicate by mistake. On list below you will find states'
+            names which closely match to your input. If you find your input on the list, this means you tried to insert
+            a duplicate.
+          </p>
+        </div>
+      {% endif %}
+    <div class="form_stateWrapper form_itemWrapper">
+      <center>
+        <form method="POST" action="." name="Fstate">
+            {{ form.non_field_errors }}
+            <table>
+                {% for field in form %}
+                    <tr>
+                        <td>{{ field.label_tag }}:
+                          <br />
+                          {{ field }}
+                          {{ field.errors }}
+                        </td>
+                        {% if 'name' in field.label.lower %}
+                          <td style="vertical-align:bottom;">
+                            <input type="submit" name="btn_propositions" value="Check">
+                          </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                {% if propositions %}
+                    <tr>
+                      <td>
+                        <div class="propositions">
+                          <h3>List of closest matching states</h3>
+                          <ul>
+                            {{ propositions|unordered_list }}
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <td></td>
+                    <td>
+                    {% if propositions %}
+                      {% if is_adding %}  <input type="submit" name="btn_add"    value="Not on the list, add new one">    {%endif%}
+                      {% if is_updating %}<input type="submit" name="btn_update" value="Update state"> {%endif%}
+                    {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <script type="text/javascript"> 
+            document.Fstate.id_name.focus();
+        </script>
+      </center>
+    </div>
+    {% endif %}
+
+</div>    
+{% endblock %}

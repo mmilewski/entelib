@@ -800,8 +800,8 @@ def show_reports(request, name=''):
     context = {}
     if report_name:
         post = request.POST
-        from_date = date(2000, 1, 1)
-        to_date = date(2500, 1, 1)
+        to_date = utils.today()
+        from_date = utils.after_days(-30, since=to_date)
         day_date = utils.today()
         if 'from' in post:
             from_date = utils.str_to_date(post['from'], from_date)
@@ -1315,3 +1315,16 @@ def show_add_costcenter(request, edit_form=forms.CostCenterForm):
 @permission_required('baseapp.change_costcenter')
 def show_edit_costcenter(request, costcenter_id, edit_form=forms.CostCenterForm):
     return generic_edit_item(request, 'costcenter', 'costcenters', costcenter_id, edit_form, CostCenter)
+
+@permission_required('baseapp.list_states')
+def show_states(request):
+    return generic_items(request, 'state', 'states', State.objects.all())
+@permission_required('baseapp.view_state')
+def show_state(request, state_id):
+    return generic_item(request, 'state', 'states', state_id, State)
+@permission_required('baseapp.add_state')
+def show_add_state(request, edit_form=forms.StateForm):
+    return generic_add_item(request, 'state', 'states', edit_form, State)
+@permission_required('baseapp.change_state')
+def show_edit_state(request, state_id, edit_form=forms.StateForm):
+    return generic_edit_item(request, 'state', 'states', state_id, edit_form, State)

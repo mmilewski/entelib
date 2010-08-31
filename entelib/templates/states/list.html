@@ -1,0 +1,38 @@
+{% extends 'base_with_listing.html' %}
+
+{% block title %}All states{% endblock %}
+
+{% block header %}All states{% endblock %}
+
+{% block order %} [[1,0]] {% endblock %}
+{% block itemsWrapper %}states_list itemsWrapper{% endblock %}
+
+    {% block header_row %}
+      {% if perms.baseapp.list_states %}
+          <th></th>
+          <th>Name</th>
+          <th>Is available</th>
+          <th>Is visible</th>
+          {% if perms.baseapp.change_state %}<th>Options</th>{% endif %}
+      {% else %}
+          <th>Name</th>
+      {% endif %}
+    {% endblock %}
+
+    {% block item_row %}
+      {% if perms.baseapp.list_states %}
+          <td class="options">
+            <a href="{% url state_one row.id %}">Show details</a>
+          </td>
+          <td class="name"><a href="{% url state_one row.id %}">{{ row.name }}</a></td>
+          <td class="available">{{row.is_available}}</td>
+          <td class="visible">{{row.is_visible}}</td>
+          {% if perms.baseapp.change_state %}
+            <td class="options">
+              <a class="edit" href="{% url state_edit row.id %}">Edit state</a>
+            </td>
+          {% endif %}
+      {% else %}
+          <td class="name">{{ row.name }}</td>
+      {% endif %}
+    {% endblock %}

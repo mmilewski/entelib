@@ -103,7 +103,7 @@ div.itemsWrapper table th {
     padding: .4em .5em;
     border: 1px solid black;
 }
-div.itemsWrapper tr:hover {  background-color: #ff8400;  }
+div.itemsWrapper tbody tr:hover {  background-color: #ff8400;  }
 /* / ITEMS WRAPPER */
 
 
@@ -431,6 +431,7 @@ div.form_itemWrapper .propositions ul {  margin-left: 1em;  }
 div.form_itemWrapper .propositions ul li {  margin-bottom: .3em;  }
 div.form_itemWrapper input#id_name    {  width: 30em;  min-width: 30em;  }
 div.form_itemWrapper input#id_remarks {  width: 30em;  min-width: 30em;  }
+div.form_itemWrapper input#id_description {  width: 100%;  }
 div.itemsWrapper td.options {
     padding:0;
 }

@@ -291,6 +291,10 @@ class State(models.Model):
 
     class Meta:
         unique_together = (('name',),)
+        permissions = (
+            ("list_states", "Can list states"),
+            ("view_state", "Can see state's details"),
+            )
 
 
 class Publisher(models.Model):

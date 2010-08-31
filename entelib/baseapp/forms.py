@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth.models import Group, User
 from baseapp.models import Book, BookRequest, Building, PhoneType, Phone,\
-    Location, BookCopy, Category, Author, Publisher, CostCenter
+    Location, BookCopy, Category, Author, Publisher, CostCenter, State
 # from baseapp.models import CustomUser
 from config import Config
 from baseapp.utils import pprint
@@ -768,6 +768,14 @@ class CostCenterForm(ModelForm):
         model = CostCenter
     def __init__(self, *args, **kwargs):
         super(CostCenterForm, self).__init__(*args, **kwargs)
+    def clean_name(self):
+        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-_]+$'))
+
+class StateForm(ModelForm):
+    class Meta:
+        model = State
+    def __init__(self, *args, **kwargs):
+        super(StateForm, self).__init__(*args, **kwargs)
     def clean_name(self):
         return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-_]+$'))
 
