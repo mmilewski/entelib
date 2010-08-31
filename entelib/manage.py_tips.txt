@@ -13,33 +13,10 @@ b) dump selected models
 How to fix small_db fixture?
 ==================================================
 
- Method 1
-----------
-From app dir (= where manage.py is):
-./utils/fix-permissions.sh
-
-
- Method 2
-----------
-# This task has few steps. It is possible to be done automatically, but can be difficult to write script for that.
-# 1) drop groups & perms
+# Run shell plus:
 python manage.py shell_plus
-# then in shell:
-Group.objects.all().delete()
-Permission.objects.all().delete()
-# close shell
 
-# 2) repopulate perms
-python manage.py syncdb 
-
-
-# 3) repopulate groups (and users - they were deleted because of CASCADE)
-python manage.py shell_plus
-# copy-past from dbfiller.py  PUPULATE GROUPS section (near line 350)
-# 'filling configuration' can be omitted
-
-
-# 4) dump group-permission binding and paste it to small_db.json.
-# Also delete old groups data from small_db.json (rather obvious)
-python manage.py dumpdata --indent 4 auth.Group
-
+# in opened shell type:
+# some trace information will be displyed. If you don't want it use main(quiet=True)
+from utils.fix_perms import main
+main(quiet=False)

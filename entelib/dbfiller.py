@@ -347,13 +347,14 @@ def add_users():
 
 # -- POPULATE GROUPS --
 def populate_groups():
+    from django.contrib.auth.models import Permission, Group
     # add few groups
     def readd_group(group_name, perms=[], direct_add=False):
-        '''
+        """
         Add permission from perms to group_name group.
         If group doesn't exist, new one is created.
         It direct_add is True, then perms is assumed to be Permission's instance. Otherwise it should be a string.
-        '''
+        """
         g = None
         try:
             # delete group if exist
@@ -364,7 +365,7 @@ def populate_groups():
         g = Group(name=group_name)
         g.save()
         for perm in perms:
-            if direct_add:
+            if direct_add or isinstance(perm, Permission):
                 p = perm
             else:
                 p = Permission.objects.get(codename=perm)
@@ -373,32 +374,10 @@ def populate_groups():
         g.save()
     
     print "Adding app specific groups"
-    from django.contrib.auth.models import Permission
-    from django.db.models import Q
-    admins_perms     = Permission.objects.filter(~Q(codename__icontains='delete'))     # superadmin can delete, admin does not
-    readers_perms    = ['list_books', 'view_own_profile', 'add_reservation', 'change_own_reservation', 'add_bookrequest',
-                        'list_config_options', 'edit_option',
-                        'list_locations', 'view_location',
-                        'view_category', 'list_categories',
-                        'view_author', 'list_authors',
-                        'view_publisher',  'list_publishers',
-                        'view_costcenter', 
-                        'list_buildings', 'view_building',
-                        ]
-    librarians_perms = ['list_users', 'list_reports',
-                        'list_costcenters',
-                        'list_authors', 'list_publishers', 'list_categories',
-                        'add_rental', 'change_rental', 'change_reservation', 
-                        'add_book', 'change_book',
-                        'add_bookcopy', 'change_bookcopy',
-                        'add_author', 'change_author',
-                        'add_category', 'change_category',
-                        'add_publisher', 'change_publisher',
-                        'add_costcenter', 'change_costcenter',
-                        ]
-    readd_group('Readers',    perms=readers_perms)
-    readd_group('Librarians', perms=readers_perms + librarians_perms)
-    readd_group('Admins',     perms=admins_perms, direct_add=True)
+    from dbfiller_perms import readers_perms, admins_perms, librarians_perms
+    readd_group('Readers',    perms=readers_perms, direct_add=True)
+    readd_group('Librarians', perms=readers_perms, direct_add=True)
+    readd_group('Admins',     perms=admins_perms,  direct_add=True)
     
     
     # fill configuration
