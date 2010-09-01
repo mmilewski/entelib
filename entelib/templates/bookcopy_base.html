@@ -33,7 +33,7 @@
               </li>
             {%endif%}
             <li class="book_publisher"><span class="label">Publishing</span>: {{ copy.publication_nr }},
-              {% if perms.baseapp.view_publisher %}
+              {% if perms.baseapp.view_publisher and copy.publisher %}
                   <a href="{% url publisher_one copy.publisher.id %}">{{ copy.publisher }}</a>
               {% else %}
                   {{ copy.publisher }}
