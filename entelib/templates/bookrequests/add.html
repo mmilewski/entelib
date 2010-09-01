@@ -62,18 +62,4 @@
 
 {% go_back_link %}
 
-{% if requested_items and perms.baseapp.list_reports %}
-<h3 id="requested_items">Already requested items</h3>
-<div class="requested_wrapper">
-    <ul>
-        {% for item in requested_items %}
-        <li>
-            <dt>{{item.book|default_if_none:'-'}}, {{item.who}}, {{item.when|date:"d.m.Y H:i"}}</dt>
-            <dd style="margin-bottom:1em;">{{item.info}}</dd>
-        </li>
-        {% endfor %}
-    </ul>
-</div>
-{% endif %}
-
 {% endblock %}

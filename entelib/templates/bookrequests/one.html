@@ -1,0 +1,88 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block title %}Bookrequest's details{% endblock %}
+
+{% block header %}Bookrequest's details{% endblock %}
+
+{% block content %}
+
+<div class="bookrequest_one">
+  <div class="inner_menu">
+    <ul>
+      {%if is_displaying and perms.baseapp.change_bookrequest%}<li><a href="{% url bookrequest_edit bookrequest.id %}">Edit this bookrequest</a> </li>{% endif %}
+      <li><a href="{% url bookrequest_all %}">Show all bookrequests</a> </li>
+      {%if is_displaying and perms.baseapp.add_bookrequest%}<li><a href="{% url bookrequest_add %}">Add another bookrequest</a> </li>{% endif %}
+      {%if is_updating%}<li><a href="{% url bookrequest_one bookrequest.id %}">Show this bookrequest</a></li>{% endif %}
+    </ul>
+  </div>
+
+    {% if not is_adding %}
+    <div class="bookrequest_info item_info">
+      <h2>{% if bookrequest.book %}Book copy request{%else%}Book request{%endif%}</h2>
+      <ul class="details">
+        {% if bookrequest.book %}
+          <li><span class="label">Related book:</span> {{bookrequest.book}}</li>
+        {% endif %}
+        <li><span class="label">When:</span> {{bookrequest.when|date:"d.m.Y H:i"}}</li>
+        <li><span class="label">Who:</span>  {{bookrequest.who.get_full_name}}</li>
+        <li><span class="label">Info:</span> {{bookrequest.info|linebreaks}}</li>
+      </ul>
+    </div>
+    {% endif %}
+
+
+    {% if perms.baseapp.add_bookrequest and form %}
+      {% if display_tips %}
+        <div class="tip" >
+          <p>When you add or update an bookrequest, you can add duplicate by mistake. On list below you will find bookrequests'
+            names which closely match to your input. If you find your input on the list, this means you tried to insert
+            a duplicate.
+          </p>
+        </div>
+      {% endif %}
+    <div class="form_bookrequestWrapper form_itemWrapper">
+      <center>
+        <form method="POST" action="." name="Fbookrequest">
+            {{ form.non_field_errors }}
+            <table>
+                {% for field in form %}
+                    <tr>
+                        <td>{{ field.label_tag }}:
+                          <br />
+                          {{ field }}
+                          {{ field.errors }}
+                        </td>
+                        <td style="vertical-align:bottom;">
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% if propositions %}
+                    <tr>
+                      <td>
+                        <div class="propositions">
+                          <h3>List of closest matching bookrequests</h3>
+                          <ul>
+                            {{ propositions|unordered_list }}
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <td></td>
+                    <td>
+                      {% if is_adding %}  <input type="submit" name="btn_add"    value="Not on the list, add new one">    {%endif%}
+                      {% if is_updating %}<input type="submit" name="btn_update" value="Update bookrequest"> {%endif%}
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <script type="text/javascript"> 
+            document.Fbookrequest.id_name.focus();
+        </script>
+      </center>
+    </div>
+    {% endif %}
+
+</div>    
+{% endblock %}

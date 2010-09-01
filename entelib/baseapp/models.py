@@ -18,6 +18,10 @@ class Feedback(models.Model):
     msg = models.TextField()
     agent = models.TextField()
 
+    def __unicode__(self):
+        return "%s" % self.msg
+
+
 class EmailLog(models.Model):
     """
     Contains information about sent emails.
@@ -370,6 +374,7 @@ class BookRequest(models.Model):
     class Meta:
         permissions = (
             ("list_bookrequests", "Can list book requests"),
+            ("view_bookrequest", "Can view one book request"),
             )
 
     def __unicode__(self):

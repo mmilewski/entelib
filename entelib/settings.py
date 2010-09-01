@@ -7,7 +7,7 @@ PROJECT_PATH = dirname(abspath(__file__))
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-IS_DEV = False    # set to False if giving to users. This allows to disable some options (like admin panel or load default config)
+IS_DEV = not False    # set to False if giving to users. This allows to disable some options (like admin panel or load default config)
 
 # if True checks whether given password matches one in database.
 CHECK_PASSWORD_ON_AUTH = True

@@ -153,35 +153,6 @@ def show_email_log(request):
     return render_response(request, template, context)
 
 
-@permission_required('baseapp.add_bookrequest')
-def request_book(request, request_form=forms.BookRequestForm):
-    """
-    Handles requesting for book by any user.
-    """
-    user = request.user
-    template = 'book_request.html'
-    context = {}
-    config = Config(user)
-    initial_data = {
-        'info' : config.get_str('book_request_info_template'),
-        }
-    # redisplay form
-    if request.method == 'POST':
-        form = request_form(user=user, data=request.POST)
-        if form.is_valid():
-            form.save()
-            context['show_confirmation_msg'] = True
-            return render_response(request, template, context)
-    # display fresh new form
-    else:
-        form = request_form(user=user, initial=initial_data)
-
-    context['form_content'] = form
-    context['books'] = Book.objects.all()
-    context['requested_items'] = BookRequest.objects.all()
-    return render_response(request, template, context)
-
-
 def show_forgot_password(request):
     from django.core.validators import email_re
     logger = utils.get_logger('view.forgot_password')
@@ -198,7 +169,7 @@ def show_forgot_password(request):
                 context['errors'].append('Enter a valid e-mail address.')
             else:
                 # valid email, but whether user with such exist?
-                users = list(User.objects.filter(email=email)[:1])
+                users = list(User.objects.filter(email=email))
                 if len(users) > 1:
                     logger.error('%s users have email %s' % (len(users), email))
                 if not users:
@@ -1328,3 +1299,43 @@ def show_add_state(request, edit_form=forms.StateForm):
 @permission_required('baseapp.change_state')
 def show_edit_state(request, state_id, edit_form=forms.StateForm):
     return generic_edit_item(request, 'state', 'states', state_id, edit_form, State)
+
+@permission_required('baseapp.list_bookrequests')
+def show_bookrequests(request):
+    return generic_items(request, 'bookrequest', 'bookrequests', BookRequest.objects.all())
+@permission_required('baseapp.view_bookrequest')
+def show_bookrequest(request, bookrequest_id):
+    return generic_item(request, 'bookrequest', 'bookrequests', bookrequest_id, BookRequest)
+# @permission_required('baseapp.add_bookrequest')
+# def show_add_bookrequest(request, edit_form=forms.BookRequestForm):
+#     return generic_add_item(request, 'bookrequest', 'bookrequests', edit_form, BookRequest)
+@permission_required('baseapp.change_bookrequest')
+def show_edit_bookrequest(request, bookrequest_id, edit_form=forms.BookRequestForm):
+    return generic_edit_item(request, 'bookrequest', 'bookrequests', bookrequest_id, edit_form, BookRequest)
+@permission_required('baseapp.add_bookrequest')
+def show_add_bookrequest(request, request_form=forms.BookRequestAddForm):
+    """
+    Handles requesting for book by any user.
+    """
+    user = request.user
+    template = 'bookrequests/add.html'
+    context = {}
+    config = Config(user)
+    initial_data = {
+        'info' : config.get_str('book_request_info_template'),
+        }
+    # redisplay form
+    if request.method == 'POST':
+        form = request_form(user=user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            context['show_confirmation_msg'] = True
+            return render_response(request, template, context)
+    # display fresh new form
+    else:
+        form = request_form(user=user, initial=initial_data)
+    context['form_content'] = form
+    context['books'] = Book.objects.all()
+    context['requested_items'] = BookRequest.objects.all()
+    return render_response(request, template, context)
+

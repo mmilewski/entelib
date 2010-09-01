@@ -91,67 +91,6 @@ class ConfigOptionEditForm(forms.Form):
             config[key] = self.cleaned_data['value']
 
 
-class BookRequestForm(forms.Form):
-    """
-    Form for requesting book. Users can add their propositions of books,
-    they would like to have in the library.
-
-    see:  http://code.google.com/p/django-registration/source/browse/trunk/registration/forms.py
-    """
-    def _books_choice_list():
-        na = (0, '-- not applicable --')
-        return [na] + [(b.id,b.title) for b in Book.objects.all().order_by('title')]
-
-    book = forms.ChoiceField(choices=_books_choice_list(), label="Book")
-    info = forms.CharField(widget=forms.Textarea(attrs={'cols': 90, 'rows': 16}),
-                           label=(u'Information about book you request'),
-                           required=True,
-                           )
-
-
-    def __init__(self, user, *args, **kwargs):
-        self.user = user
-        super(BookRequestForm, self).__init__(*args, **kwargs)
-
-    def clean_info(self):
-        if not 'info' in self.cleaned_data:
-            raise forms.ValidationError(u'Give any informations about book.')
-        return self.cleaned_data['info']
-
-    def clean_book(self):
-        # field doesn't exist at all
-        if not 'book' in self.cleaned_data:
-            raise forms.ValidationError(u"Form data corrupted. Book field wasn't found.")
-        # id==0 is a special case - but it's correct
-        book_id = (int)(self.cleaned_data['book'])
-        if book_id == 0:
-            return self.cleaned_data['book']
-        # check if one tries to corrupt db.
-        try:
-            Book.objects.get(id=book_id)
-        except Book.DoesNotExist:
-            raise forms.ValidationError(u"Corrupted book's id")
-        return self.cleaned_data['book']
-
-    def clean(self):
-        config = Config()
-        min_info_len = config.get_int('book_request_info_min_len')
-        assert isinstance(min_info_len, int)
-        if 'info' in self.cleaned_data:
-            info_len = len(self.cleaned_data['info'])
-            if info_len < min_info_len:
-                raise forms.ValidationError(u'Your request is too short. Should be at least %d characters long, but was %d.' % (min_info_len, info_len))
-            return self.cleaned_data
-        raise forms.ValidationError(u"Your request doesn't contain any information. It should be at least %d characters long." % (min_info_len,))
-
-    def save(self):
-        info = self.cleaned_data['info']
-        book_id = int(self.cleaned_data['book']) if self.cleaned_data['book'] != '0' else None
-        book = Book.objects.get(pk=book_id) if book_id else None
-        req = BookRequest(who=self.user, info=info, book=book)
-        req.save()
-
-
 class ProfileEditChoiceList:
     @staticmethod
     def buildings():
@@ -778,4 +717,70 @@ class StateForm(ModelForm):
         super(StateForm, self).__init__(*args, **kwargs)
     def clean_name(self):
         return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-_]+$'))
+
+class BookRequestForm(ModelForm):
+    class Meta:
+        model = BookRequest
+    def __init__(self, *args, **kwargs):
+        super(BookRequestForm, self).__init__(*args, **kwargs)
+
+class BookRequestAddForm(forms.Form):
+    """
+    Form for requesting book. Users can add their propositions of books,
+    they would like to have in the library.
+
+    see:  http://code.google.com/p/django-registration/source/browse/trunk/registration/forms.py
+    """
+    def _books_choice_list():
+        na = (0, '-- not applicable --')
+        return [na] + [(b.id,b.title) for b in Book.objects.all().order_by('title')]
+
+    book = forms.ChoiceField(choices=_books_choice_list(), label="Book")
+    info = forms.CharField(widget=forms.Textarea(attrs={'cols': 90, 'rows': 16}),
+                           label=(u'Information about book you request'),
+                           required=True,
+                           )
+
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super(BookRequestAddForm, self).__init__(*args, **kwargs)
+
+    def clean_info(self):
+        if not 'info' in self.cleaned_data:
+            raise forms.ValidationError(u'Give any informations about book.')
+        return self.cleaned_data['info']
+
+    def clean_book(self):
+        # field doesn't exist at all
+        if not 'book' in self.cleaned_data:
+            raise forms.ValidationError(u"Form data corrupted. Book field wasn't found.")
+        # id==0 is a special case - but it's correct
+        book_id = (int)(self.cleaned_data['book'])
+        if book_id == 0:
+            return self.cleaned_data['book']
+        # check if one tries to corrupt db.
+        try:
+            Book.objects.get(id=book_id)
+        except Book.DoesNotExist:
+            raise forms.ValidationError(u"Corrupted book's id")
+        return self.cleaned_data['book']
+
+    def clean(self):
+        config = Config()
+        min_info_len = config.get_int('book_request_info_min_len')
+        assert isinstance(min_info_len, int)
+        if 'info' in self.cleaned_data:
+            info_len = len(self.cleaned_data['info'])
+            if info_len < min_info_len:
+                raise forms.ValidationError(u'Your request is too short. Should be at least %d characters long, but was %d.' % (min_info_len, info_len))
+            return self.cleaned_data
+        raise forms.ValidationError(u"Your request doesn't contain any information. It should be at least %d characters long." % (min_info_len,))
+
+    def save(self):
+        info = self.cleaned_data['info']
+        book_id = int(self.cleaned_data['book']) if self.cleaned_data['book'] != '0' else None
+        book = Book.objects.get(pk=book_id) if book_id else None
+        req = BookRequest(who=self.user, info=info, book=book)
+        req.save()
 
