@@ -1,15 +1,5 @@
 [
     {
-        "pk": 1, 
-        "model": "baseapp.userconfiguration", 
-        "fields": {
-            "option": "display_tips", 
-            "value": "true", 
-            "user": 3
-        }
-    },
-
-    {
         "pk": "user_after_registration_groups", 
         "model": "baseapp.configuration", 
         "fields": {
@@ -185,7 +175,7 @@
         "fields": {
             "can_override": true, 
             "type": "bool", 
-            "description": "True iff time bar will be displayed.", 
+            "description": "True iff time bar is displayed.", 
             "value": "true"
         }
     }, 
@@ -220,6 +210,16 @@
         }
     }, 
     {
+        "pk": "application_url", 
+        "model": "baseapp.configuration", 
+        "fields": {
+            "can_override": false, 
+            "type": "unicode", 
+            "description": "URL under which app is running.", 
+            "value": "\"http://glonull1.mobile.fp.nsn-rdnet.net:8080\""
+        }
+    }, 
+    {
         "pk": "is_cost_center_visible_to_anyone", 
         "model": "baseapp.configuration", 
         "fields": {
@@ -248,8 +248,7 @@
             "description": "True iff user see only editable options.", 
             "value": "true"
         }
-    },
-    
+    }, 
     {
         "pk": "default_go_back_link_name", 
         "model": "baseapp.configuration", 
@@ -257,7 +256,7 @@
             "can_override": false, 
             "type": "unicode", 
             "description": "Name of link displayed when filtering books/copies/...", 
-            "value": "\"Go back\""
+            "value": "\"Back\""
         }
     }, 
     {

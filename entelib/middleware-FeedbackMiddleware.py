@@ -3,7 +3,7 @@ from django.db import connection
 from django.template import Template, Context
 from django.http import HttpResponseRedirect
 from django.contrib import messages
-from baseapp.models import Feedback
+from entelib.baseapp.models import Feedback
 
 class FeedbackMiddleware:
     def process_request(self, request):

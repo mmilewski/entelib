@@ -71,7 +71,7 @@ def fill_config():
     _svd(config, t_int,  False, 'tb_max_days_to_display_weeks',              40,        "Time bar. Max number of days in date range, for which scale unit will be one week (or one day, see tb_max_days_to_display_days).")
 
     # global
-    _svd(config, t_str,  False, 'application_url', 'http://glonull1.mobile.fp.nsn-rdnet.net:8080',
+    _svd(config, t_unicode,  False, 'application_url', 'http://glonull1.mobile.fp.nsn-rdnet.net:8080',
                                                                                         "URL under which app is running.")
 
     # misc

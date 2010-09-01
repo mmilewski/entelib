@@ -9,6 +9,26 @@ b) dump selected models
 ./manage.py dumpdata --indent 4 baseapp.UserConfiguration baseapp.Configuration
 
 
+I added new key to configuration. How do I update test fixtures?
+==================================================
+# This task takes few steps:
+# 1) Add this key to dbconfigfiller.py (for future use)
+
+# 2) Fill database to add this value. You can also do it by hand in admin panel or by hand via shell (hard for newbie)
+# Keep in mind, that funning fill_config will DROP all values for config, which may not be what you want.
+./shell.sh
+from dbconfigfiller import fill_config
+fill_config()
+# terminate shell
+import sys; sys.exit()
+
+# 3) After new key is in db, you dump config tables' content to fixture
+./manage.py dumpdata --indent 4 \
+               baseapp.Configuration \
+               baseapp.UserConfiguration \
+               baseapp.ConfigurationValueType \
+               > baseapp/fixtures/small_db-configuration.json
+
 
 How to fix small_db fixture?
 ==================================================
@@ -20,3 +40,6 @@ python manage.py shell_plus
 # some trace information will be displyed. If you don't want it use main(quiet=True)
 from utils.fix_perms import main
 main(quiet=False)
+
+# terminate shell
+import sys; sys.exit()
