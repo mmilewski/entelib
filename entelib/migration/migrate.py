@@ -1,5 +1,15 @@
 #!/usr/bin/env python
 
+from os.path import abspath, dirname, join, exists
+import sys
+libs_path = join(dirname(abspath(__file__)),'../..','libs')
+django_path = join(libs_path,'Django-1.2.1')
+imaging_path = join(libs_path,'Imaging-1.1.7')
+sys.path.insert(0, imaging_path)
+sys.path.insert(0, django_path)
+from django.contrib.auth.models import *
+from baseapp.models import *
+
 import re
 from pprint import pprint
 from sqlite3 import dbapi2 as sqlite
@@ -8,7 +18,7 @@ from entelib.dbfiller import add_users
 from datetime import datetime, date, timedelta
 
 
-db_path = '/home/brzoska/entelib/entelib/migration/library.sqlite'
+db_path = 'migration/library.sqlite'
 connection = sqlite.connect(db_path)
 cursor = connection.cursor()
 
@@ -63,14 +73,15 @@ def migrate_users():
     # adding users to new db
     users = cursor.execute('SELECT * FROM users').fetchall()
     # normalized_users = [u[1:4] for u in users]
-    admins = Group.objects.get(name='Librarians')
+    librarians = Group.objects.get(name='Librarians')
+    admins      = Group.objects.get(name='Admins')
     readers = Group.objects.get(name='Readers')
     for u in users:
         new_user = User.objects.create_user(username=u[3], email=u[3], password=u[2]+'74')
         new_user.first_name = u[1]
         new_user.last_name = u[2]
         if u[5] == 1:
-            new_user.groups.add(admins)
+            new_user.groups.add(librarians)
         new_user.groups.add(readers)
         new_user.is_active = False
         p = new_user.userprofile
@@ -82,6 +93,8 @@ def migrate_users():
         p.save()
         if not u[6]:
             new_user.is_active = True
+        if new_user.email in ['krystian.chwalisz@nsn.com', 'rafal.gorski@nsn.com']:
+            new_user.groups.add(admins)
         new_user.save()
     maru = User.objects.create_user(username='maru', email='brzoza@jabster.pl', password='lala')
     maru.is_superuser = True
@@ -578,28 +591,14 @@ def migrate_events():
                 who_received = archival if rental_end else None
                 ).save()
 
-
-
-
-
 if __name__ == "__main__":
     if raw_input(['migrate?']) == 'yes':
         main()
 
 def main():
     from dbfiller import clear_db, add_states, add_phone_types, populate_groups, main
-    import pickle
-    file = open('passwords', 'w')
-    email_hash_list = User.objects.values_list('email', 'password')
-    pickle.dump(email_hash_list, file)
-    file.close()
+    import savepasswords
 
-    '''
-    clear_db()
-    add_states()
-    add_phone_types()
-    populate_groups()
-    '''
     main()
 
     pprint('erasing copies')
@@ -632,14 +631,7 @@ def main():
     pprint('migrating copies')
     migrate_copies()
 
-    pprint('restoring four users')
-    add_users()
-
-
-    file = open('passwords', 'r')
-    email_hash_list = pickle.load(file)
-    for email, password in email_hash_list:
-        u = User.objects.get(email=email)
-        u.password=password
-        u.save()
-    file.close()
+    pprint('migrating events')
+    migrate_events()
+    
+    import loadpasswords
