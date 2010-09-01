@@ -111,7 +111,7 @@ def get_admins():
     return admins
 
 
-logger_names = ['view.forgot_password', 'config', 'config.option', ]
+logger_names = ['view.forgot_password', 'config', 'config.option', 'view.show_book_copy', ]
 
 def get_logger(name):
     if name not in logger_names:

@@ -39,11 +39,11 @@
         </form>
     </td>
     <td>
-        <b>{{ row.shelf_mark }}</b>
+        <b><a href="{% url copy_one row.reservation.book_copy.id %}">{{ row.reservation.book_copy.shelf_mark }}</a></b>
     </td> <td>
         {% firstof row.rental_impossible "Ready" %}
     </td> <td>
-        {{ row.title }}
+        <a href="{% url book_one row.reservation.book_copy.book.id %}">{{ row.title }}</a>
     </td> <td>
         {{ row.authors|join:', ' }}
     </td> <td>
@@ -51,7 +51,7 @@
     </td> <td>
         {{ row.to_date }}
     </td> <td>
-        {{ row.location }}
+        <a href="{% url location_one row.reservation.book_copy.location.id %}">{{ row.reservation.book_copy.location }}</a>
     </td>
     {% if can_cancel %}
         <td>

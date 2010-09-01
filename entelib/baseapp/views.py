@@ -356,7 +356,7 @@ def show_books(request, non_standard_user_id=False):
         #     categories_from_booklist = Category.objects.all()
 
     # prepare categories for rendering
-    search_categories  = [ {'name' : '-- Any --',  'id' : 0} ]
+    search_categories  = [ {'name' : '-- Any category --',  'id' : 0} ]
     if bookcopies is None:
         # we only render categories if we are not searching by shelf mark
         # search_categories += [ {'name' : c.name,  'id' : c.id,  'selected': c.id in selected_categories_ids }  for c in categories_from_booklist ]
@@ -493,11 +493,33 @@ def show_book_copy(request, bookcopy_id):
     context = {
         'copy' : book_desc,
     }
+
+    if request.method == 'POST':
+        post = request.POST
+        if 'return' in post:
+            aux.return_rental(request.user, post['return'])
+            messages.info(request, 'Copy successfully returned')
+            
     
     tb_processor = TimeBarRequestProcessor(request, None, config)  # default date range
     tb_context = tb_processor.get_context(book_copy)
     context.update(tb_context)
     
+    if not request.user.has_perm('baseapp.list_users'):
+        return HttpResponseRedirect(reverse('reserve', args=(bookcopy_id,)))
+
+    rentals = Rental.objects.filter(reservation__book_copy__id=bookcopy_id, end_date=None)
+    # assert rentals.count <= 1:
+    if rentals.count() > 1:
+        utils.get_logger('view.show_book_copy').error('''There are {0} active rentals on book copy with shelf_mark {1}.
+                                                         Should be no more than one.'''.format(rental.count(),
+                                                                                               book_copy.shelf_mark)
+                                                     )
+    if rentals and \
+       request.user.has_perm('baseapp.change_rental') and \
+       request.user in rentals[0].reservation.book_copy.location.maintainer.all():
+            context.update({'rental' : rentals[0]})
+
     return render_response(request, 'bookcopy.html', context)
 
 
@@ -1074,14 +1096,15 @@ def show_add_location(request, edit_form=forms.LocationForm):
 @permission_required('auth.change_user')
 def activate_user(request, user_id):
     user = get_object_or_404(User, id=user_id)
+    context = {'activated_user' : user}
     if not user.is_active:
         # print 'user not active!'
         # print user.id
         aux.activate_user(user)
         mail.user_activated(user)
-        return render_response(request, 'registration/user_activated.html')
+        return render_response(request, 'registration/user_activated.html', context)
     else:
-        return render_response(request, 'registration/user_already_active.html')
+        return render_response(request, 'registration/user_already_active.html', context)
 
 
 @permission_required('baseapp.add_rental')

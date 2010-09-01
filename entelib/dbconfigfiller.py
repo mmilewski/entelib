@@ -70,6 +70,10 @@ def fill_config():
     _svd(config, t_int,  False, 'tb_max_days_to_display_days',               10,        "Time bar. Max number of days in date range, for which scale unit will be one day.")
     _svd(config, t_int,  False, 'tb_max_days_to_display_weeks',              40,        "Time bar. Max number of days in date range, for which scale unit will be one week (or one day, see tb_max_days_to_display_days).")
 
+    # global
+    _svd(config, t_str,  False, 'application_url', 'http://glonull1.mobile.fp.nsn-rdnet.net:8080',
+                                                                                        "URL under which app is running.")
+
     # misc
     _svd(config, t_bool, False, 'is_cost_center_visible_to_anyone',       False,        "True iff copy's cost center info is visible to anyone (= no perms required)")
     _svd(config, t_bool, True , 'display_tips',                            True,        "True iff tips are visible")

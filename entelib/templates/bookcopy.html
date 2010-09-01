@@ -16,3 +16,19 @@
 {% block go_up %}
     <div class="goUpWrapper"><a href=up/>Up</a></div>
 {% endblock %}
+
+{% if user.userprofile.is_librarian %}
+    {% block rent_return %}
+        <form method='post' action='.'>
+            {% if rental %}
+                <input type='hidden' name='return' value='{{ rental.id }}'>
+                <input type='submit' name='return_button' value='Return'>
+            {% endif %}
+            {# the following is never user for now. If someone wanted to implement renting from here - here you go #}
+            {% if reservation %}
+                <input type='hidden' name='rent' value='{{ reservation.id }}'>
+                <input type='submit' name='rent_button' value='Rent'>
+            {% endif %}
+        </form>
+    {% endblock rent_return %}
+{% endif %}

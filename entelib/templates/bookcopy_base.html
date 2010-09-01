@@ -21,7 +21,7 @@
                     No authors.
                 {% endif %}
             </li>
-            <li class="book_shelf_mark"><span class="label">ID:</span> {{ copy.shelf_mark }}</li>            
+            <li class="book_shelf_mark"><span class="label">ID:</span> {{ copy.shelf_mark }} {% block rent_return %}{% endblock rent_return %}</li>            
             {% if can_display_costcenter %}
               <li class="costcenter">
                 <span class="label">Cost Center</span>:

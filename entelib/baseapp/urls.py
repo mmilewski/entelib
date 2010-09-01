@@ -45,7 +45,7 @@ urlpatterns = patterns(
     (r'^users/(\d+)/bookcopy/(\d+)/$', view.reserve_for_user),
     (r'^users/(\d+)/bookcopy/(\d+)/reserve/$', get_redirect_function_to_url('../')),
     (r'^users/(\d+)/bookcopy/(\d+)/up/$', view.user_book_copy_up_link),
-    (r'^users/(\d+)/reservations/cancel-all/$', view.cancel_all_user_reservations),
+    url(r'^users/(\d+)/reservations/cancel-all/$', view.cancel_all_user_reservations, name='cancel_all'),
     # (r'^users/(\d+)/rent-book/(\d+)/$', view.show_user_reservation),
     # (r'^users/(\d+)/rent-book/$', view.user_list_books),
     (r'^users/(\d+)/rentals/$', view.show_user_rentals),
@@ -120,8 +120,8 @@ urlpatterns = patterns(
     url(r'^bookcopy/add,(\d+)/$',         view.show_add_bookcopy,    name="copy_add"),
     url(r'^bookcopy/(\d+)/up/$',          view.book_copy_up_link),
     url(r'^bookcopy/\d+/user/$',          view.find_user_to_rent_him),
-    url(r'^bookcopy/(\d+)/user/(\d+)/$',  view.reserve),
-    url(r'^bookcopy/(\d+)/reserve/$',     view.reserve),
+    url(r'^bookcopy/(\d+)/user/(\d+)/$',  view.reserve,              name="reserve_for_user"),
+    url(r'^bookcopy/(\d+)/reserve/$',     view.reserve,              name="reserve"),
     # (r'^bookcopy/(\d+)/reserve/up/$', view.show_book_copy),
 
     # librarian work

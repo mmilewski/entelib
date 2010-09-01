@@ -124,7 +124,9 @@ def user_registered(user):
     '''
     tpl_for_user = 'email/registered'
     tpl_for_admin = 'email/activate'
-    ctx = Context({'user' : user})
+    ctx = Context({'user'            : user,
+                   'application_url' : Config(user=user).get_str('application_url'),
+                 })
     reader = _make_recipient_from_user(user)
     default_email([reader], tpl_for_user, ctx)
     default_email(map(_make_recipient_from_user, get_admins()), tpl_for_admin, ctx)

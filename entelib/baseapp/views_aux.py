@@ -39,7 +39,7 @@ def render_response(request, template, context={}):
                      'display_only_editable_config_options' : config.get_bool('display_only_editable_config_options'),
                      'unique_num' : random.randint(0,9999999999999),
                      'application_ip' : application_ip,
-                     'application_url' : 'http://glonull1.mobile.fp.nsn-rdnet.net:%d/' % application_ip,   # TODO: maybe it can be read somehow, if not put it in configuration
+                     'application_url' : Config(request.user).get_str('application_url'),
                      'is_dev' : settings.IS_DEV,
                      })
     # as far as we use perms with following convention, we can pass perms to templates easily:
@@ -620,6 +620,7 @@ def show_user_reservations(request, user_id=False):
                           'can_rent' : request.user.has_perm('baseapp.add_rental') and \
                                        request.user in r.book_copy.location.maintainer.all(),
                           'shipment_requested' : r.shipment_requested,
+                          'reservation' : r,
                          } for r in user_reservations]
     context.update({'rows' : reservation_list})
 
@@ -674,6 +675,8 @@ def cancel_reservation(reservation, user):
     if reservation.for_whom != user and not user.has_perm("baseapp.change_reservation") or\
      user == reservation.for_whom and not user.has_perm("baseapp.change_own_reservation"):
             raise PermissionDenied
+    if reservation.rental_set.count() > 0:
+        raise PermissionDenied('The reservation has already been purchased!')
 
     reservation.who_cancelled = user
     reservation.when_cancelled = now()
@@ -733,10 +736,8 @@ def user_full_name(user_id, first_name_first=False):
 
 def when_copy_reserved(book_copy):
     '''
-    Marcin:
     This is Adi's function. It is used with the timebar.
     Im not touching it for we are going to work with the time bar, and this may come useless anyway.
-    mbr
     '''
     config = Config()
 
@@ -803,26 +804,26 @@ def internal_post_send_possible(reservation):
 
 
 def show_reservations(request, shipment_requested=False, only_rentable=True, all_locations=False):
-    context = {}
-    locations = request.user.location_set.all()  # locations maintained by user
-    reservations = Reservation.objects.filter(Q_reservation_active)
-    if shipment_requested:
-        reservations = reservations.filter(shipment_requested=True)
-    if not all_locations:
-        reservations = reservations.filter(book_copy__location__in=locations)
-    if only_rentable:
-        reservations = [r for r in reservations.filter(start_date__lte=today()) if is_reservation_rentable(r)]
     if request.method == 'POST':
         post = request.POST
         reservation = get_object_or_404(Reservation, id=post['reservation_id'])
         if 'rent' in post:
             user = reservation.for_whom
             rent(reservation, request.user)
-            context.update({'message' : 'Rented %s (%s) to %s.' % \
-                (reservation.book_copy.book.title, reservation.book_copy.shelf_mark, user_full_name(reservation.for_whom))})
+            messages.info(request, 'Rented %s (%s) to %s.' % \
+                (reservation.book_copy.book.title, reservation.book_copy.shelf_mark, user_full_name(reservation.for_whom)))
         if 'cancel' in post:
             cancel_reservation(reservation, request.user)
-            context.update({'message' : 'Cancelled.'})
+            messages.info(request, 'Cancelled.')
+    context = {}
+    locations = request.user.location_set.all()  # locations maintained by user
+    reservations = Reservation.objects.filter(Q_reservation_active)
+    if shipment_requested:
+        reservations = reservations.filter(shipment_requested=True).select_related()
+    if not all_locations:
+        reservations = reservations.filter(book_copy__location__in=locations)
+    if only_rentable:
+        reservations = [r for r in reservations.filter(start_date__lte=today()) if is_reservation_rentable(r)]
 
     reservation_list = [
                         { 'id'                : r.id,
