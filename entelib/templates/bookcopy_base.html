@@ -22,8 +22,24 @@
                 {% endif %}
             </li>
             <li class="book_shelf_mark"><span class="label">ID:</span> {{ copy.shelf_mark }}</li>            
-            {% if can_display_costcenter %}<li class="costcenter"><span class="label">Cost Center</span>: {{ copy.cost_center }}</li>{%endif%}
-            <li class="book_publisher"><span class="label">Publishing</span>: {{ copy.publication_nr }}, {{ copy.publisher }} {{ copy.year }}</li>
+            {% if can_display_costcenter %}
+              <li class="costcenter">
+                <span class="label">Cost Center</span>:
+                {% if perms.baseapp.view_costcenter %}
+                  <a href="{% url costcenter_one copy.cost_center.id %}">{{ copy.cost_center }}</a>
+                {% else %}
+                  {{ copy.cost_center }}
+                {% endif %}
+              </li>
+            {%endif%}
+            <li class="book_publisher"><span class="label">Publishing</span>: {{ copy.publication_nr }},
+              {% if perms.baseapp.view_publisher %}
+                  <a href="{% url publisher_one copy.publisher.id %}">{{ copy.publisher }}</a>
+              {% else %}
+                  {{ copy.publisher }}
+              {% endif %}
+              {{ copy.year }}
+            </li>
             <!-- <li class="desc_url"><a href='{{ copy.desc_url }}'>See external description</a></li> -->
             <li class="book_location"><span class="label">Location</span>:
                 {% if copy.location_url and perms.baseapp.view_location %}

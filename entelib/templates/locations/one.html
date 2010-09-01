@@ -18,7 +18,13 @@
     <div class="location_info">
       <ul class="details">
         <li><span class="label">Full name:</span> {{loc.building}}: {{loc.details}}</li>
-        <li><span class="label">Building:</span> {{loc.building}}</li>
+        <li><span class="label">Building:</span>
+          {% if perms.baseapp.view_building %}
+            <a href="{% url building_one loc.building.id %}">{{loc.building}}</a>
+          {% else %}
+            {{loc.building}}
+          {% endif %}
+        </li>
         <li><span class="label">Maintainers:</span> 
           <ul class="maintainers">
             {% for mt in loc.maintainer.all %}

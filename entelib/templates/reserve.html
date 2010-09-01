@@ -17,13 +17,15 @@
         <p class='positive_message'>
             {{ reserved.msg }}.
         </p>
-
+<!--
+        {% if perms.baseapp.view_others_profile %}
         <div class="inner_menu">
           <ul>
             <li><a href={% url user_one reader_id %}>Go to profile</a></li>
           </ul>
         </div>
-
+        {% endif %}
+-->
         {% if reserved.reservation %}
             {% cancel_or_request_form %}
         {% endif %}
