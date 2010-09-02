@@ -422,7 +422,7 @@ class BookCopy(models.Model):
     cost_center = models.ForeignKey(CostCenter)
     location = models.ForeignKey(Location)
     state = models.ForeignKey(State)
-    publisher = models.ForeignKey(Publisher, null=True)
+    publisher = models.ForeignKey(Publisher, null=True, blank=True)
     year = models.IntegerField(blank=True, null=True, validators=[sane_year])
     publication_nr = models.IntegerField(null=True, blank=True)
     toc = models.TextField(blank=True, verbose_name="Table of contents")                   # table of contents

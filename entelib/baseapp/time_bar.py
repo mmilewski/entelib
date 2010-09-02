@@ -527,7 +527,7 @@ def get_time_bar_code_for_copy(config, book_copy, from_date, to_date):
     segments = []
     for r in reservations:
         seg = Segment(r.start_date, r.end_date)
-        seg.who_reserved = r.who_reserved
+        seg.who_reserved = r.for_whom
         segments.append(seg)
     # NOTE: if one would like to add some extra informations to segments, it can be done above.
     #       This is why segment is an object and not a tuple.
@@ -565,7 +565,7 @@ def get_time_bar_code_for_copy(config, book_copy, from_date, to_date):
     scale = tb.get_html_of_scale(result_segments) if result_segments else ''
     if len(result_segments) > 100000:
         html = scale + html + scale
-    elif len(result_segments) == 1:
+    elif len(result_segments) > 0:
         html = scale + html
     return html
     

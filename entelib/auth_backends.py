@@ -11,7 +11,10 @@ from django.contrib.auth.models import User
 class CustomUserModelBackend(ModelBackend):
     def authenticate(self, username=None, password=None):
         try:
-            user = User.objects.get(username=username)
+            try:
+                user = User.objects.get(email__iexact=username)
+            except User.DoesNotExist:
+                user = User.objects.get(username__iexact=username)
             if user.check_password(password) or not settings.CHECK_PASSWORD_ON_AUTH:
                  return user
             return None     # None means auth failed

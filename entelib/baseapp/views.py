@@ -179,7 +179,7 @@ def show_forgot_password(request):
                     handler = aux.ForgotPasswordHandler(user)
                     handler.reset_password(user)
                     new_password = handler.new_password
-                    messages.info(request, 'Done: ' + str(new_password))
+                    messages.info(request, 'New password was sent to this email.')
         else:
             context['errors'].append('This field is required.')
     else:
@@ -293,7 +293,7 @@ def show_books(request, non_standard_user_id=False):
         if 'id' in post and post['id'] != '':
             shelf_mark = post['id']
             search_data.update({'id' : shelf_mark})
-            booklist = BookCopy.objects.select_related('book').filter(shelf_mark__startswith=shelf_mark).select_related('author', 'category') # TODO last select_related seems unnecessary. Delete it.
+            booklist = BookCopy.objects.select_related('book').filter(shelf_mark__startswith=shelf_mark).select_related('author', 'category').order_by('book__title')
             bookcopies = [{'id'         : b.id,
                            'shelf_mark' : b.shelf_mark, 
                            'state'      : aux.book_copy_status(b),
@@ -342,6 +342,8 @@ def show_books(request, non_standard_user_id=False):
                                  })
 
             # prepare each book (add url, list of authors) for rendering
+            if booklist:
+                booklist = booklist.order_by('title')
             books = [{ 'title'     : book.title,
                        'url'       : book_url % book.id,
                        'authors'   : [a.name for a in book.author.all()],
@@ -368,7 +370,6 @@ def show_books(request, non_standard_user_id=False):
                         })
 
     for_whom = aux.user_full_name(non_standard_user_id)
-
     context = {
         'for_whom' : for_whom,
         'books' : books,
@@ -725,6 +726,7 @@ def _do_edit_user_profile(request, edited_user, redirect_on_success_url='/enteli
     # prepare context and render site
     context = profile_edit_form.build_default_context_for_user(edited_user)
     context['form_content'] = form
+    context['reader'] = edited_user
     return render_response(request, 'profile.html', context)
 
 

@@ -7,10 +7,19 @@
 {% block content %}
 
 <script language="javascript" type="text/javascript">
+  var drop_pl_chars = function(s) {
+      return s.replace('ę','e').replace('ó','o').replace('ą','a')
+              .replace('ś','s').replace('ł','l').replace('ż','z')
+              .replace('ź','z').replace('ć','c').replace('ń','n')
+              .replace('Ę','E').replace('Ó','O').replace('Ą','A')
+              .replace('Ś','S').replace('Ł','L').replace('Ż','Z')
+              .replace('Ź','Z').replace('Ć','C').replace('Ń','N');
+  }
+  
   $(document).ready(function() {
       var fill_autofields = function() {
-          $('#id_email').val( $('#id_first_name').val() + '.' + $('#id_last_name').val() + '@nsn.com');
-          $('#id_yourusername').val( ($('#id_first_name').val() + $('#id_last_name').val()) );
+          $('#id_email').val( drop_pl_chars(drop_pl_chars(drop_pl_chars($('#id_first_name').val() + '.' + $('#id_last_name').val() + '@nsn.com'))));
+//          $('#id_yourusername').val( ($('#id_first_name').val() + $('#id_last_name').val()) );
       }
       $('#id_first_name').keyup(fill_autofields);
       $('#id_last_name').keyup(fill_autofields);
@@ -33,14 +42,14 @@
   <form class="registration_form" action="." method="POST" name="Fregister">
     <table class="basic_fields">
       <tbody>
-        <tr><th>Your username:</th><td><input id="id_yourusername" type="text" value="" readonly="readonly"/></td></tr>
+{#        <tr><th>Your username:</th><td><input id="id_yourusername" type="text" value="" readonly="readonly"/></td></tr>  #}
         {{ form_content }}
         <tr><th></th><td><input type="submit" value="Register me"/></td></tr>
       </tbody>
     </table>
   </form>
   <script type="text/javascript">
-      document.Fregister.first_name.focus();
+      document.Fregister.username.focus();
   </script>
 </div>
 

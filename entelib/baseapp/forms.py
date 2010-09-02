@@ -519,13 +519,13 @@ class RegistrationForm(forms.Form):
     Subclasses should feel free to add any additional validation they need, but should
     either preserve the base ``save()``
     """
-    # username = forms.RegexField(regex=r'^\w+$',
-    #                             min_length=3,
-    #                             max_length=30,
-    #                             widget=forms.TextInput(attrs=attrs_dict),
-    #                             label=(u'Username'),
-    #                             help_text=r'Can contain only alphanumeric values or underscores. Length should be at least 3.'
-    #                             )
+    username = forms.RegexField(regex=r'^[\w_\-\.]+$',
+                                min_length=3,
+                                max_length=60,
+                                widget=forms.TextInput(attrs=attrs_dict),
+                                label=(u'Username'),
+#                                 help_text=r'Can contain only alphanumeric values or underscores. Length should be at least 3.'
+                                )
     first_name = forms.CharField(max_length=30,
                                  widget=forms.TextInput(attrs=attrs_dict),
                                  label=(u'First name')
@@ -541,21 +541,24 @@ class RegistrationForm(forms.Form):
     password2 = forms.CharField(widget=forms.PasswordInput(attrs=attrs_dict, render_value=False),
                                 label=(u'Password (again)'))
 
+    def __init__(self, *args, **kwargs):
+        super(RegistrationForm, self).__init__(*args, **kwargs)
 
     def clean_username(self):
         """
         Validate that the username is alphanumeric and is not already in use.
         """
-        if ('first_name' not in self.cleaned_data) or ('last_name' not in self.cleaned_data):
-            raise forms.ValidationError(u'First and last name must be given')
-        username = self.cleaned_data['first_name'] + self.cleaned_data['last_name']
+#         if ('first_name' not in self.cleaned_data) or ('last_name' not in self.cleaned_data):
+#             raise forms.ValidationError(u'First and last name must be given')
+#         username = self.cleaned_data['first_name'] + self.cleaned_data['last_name']
+        username = self.cleaned_data['username'] if 'username' in self.cleaned_data else ''
         try:
             user = User.objects.get(username__iexact=username)
         except User.DoesNotExist:
             self.cleaned_data['username'] = username
             return username
         else:
-            raise forms.ValidationError(u'%s is already registered. Please contact administrator.' % username)
+            raise forms.ValidationError(u'%s username is already taken' % username)
 
 
     def clean(self):

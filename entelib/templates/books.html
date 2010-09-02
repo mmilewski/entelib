@@ -113,19 +113,19 @@
       {% endif %}
     </div>
 
-    <!-- TABLESORTER init -->
-    <script type="text/javascript">
-        $(document).ready(function()  { $("#booklist").tablesorter( {
-            sortList: [[1,0]],
-            textExtraction: function(node) { var value = $(node.innerHTML).text();
-                                             return value; //childNodes[0].childNodes[0].innerHTML; 
-            }
-        } ); } );
-    </script>
-    <!-- / TABLESORTER init -->
-    
     {% if books %}
     <!--- BOOK SECTION -->
+        <!-- TABLESORTER init -->
+        <script type="text/javascript">
+            $(document).ready(function()  { $("#booklist").tablesorter( {
+                sortList: [[0,0]],
+                textExtraction: function(node) { var value = $(node.innerHTML).text();
+                                                 return value; //childNodes[0].childNodes[0].innerHTML; 
+                }
+            } ); } );
+        </script>
+        <!-- / TABLESORTER init -->
+    
         {% if not none_found %}
           <div class="found_count">
             <p>Found {{books|length}} book{{books|length|pluralize}}</p>
@@ -154,6 +154,16 @@
 
     {% if bookcopies %}
     <!--- BOOK COPIES SECTION -->
+        <!-- TABLESORTER init -->
+        <script type="text/javascript">
+            $(document).ready(function()  { $("#booklist").tablesorter( {
+                sortList: [[2,0]],
+                textExtraction: function(node) { var value = $(node.innerHTML).text();
+                                                 return value; //childNodes[0].childNodes[0].innerHTML; 
+                }
+            } ); } );
+        </script>
+        <!-- / TABLESORTER init -->
         {% if not none_found %}
           <div class="found_count">
             <p>Found {{bookcopies|length}} book cop{{bookcopies|length|pluralize:"y,ies"}}</p>
