@@ -30,7 +30,7 @@ class EmailLog(models.Model):
     receiver = models.CharField(max_length=CFG.emaillog_receiver_len)
     sent_date = models.DateTimeField(auto_now_add=True, blank=False, null=False)
     subject = models.CharField(max_length=CFG.emaillog_subject_len)
-    body = models.CharField(max_length=CFG.emaillog_body_len)
+    body = models.TextField()
 
     def __unicode__(self):
         sent_date = self.sent_date.strftime('%d.%m.%Y %H:%M')

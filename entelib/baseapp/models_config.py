@@ -9,7 +9,7 @@ Settings for baseapp models. Constants and so on.
 emaillog_sender_len = 100             # sender's email (or name and email like: Adny Aloy <andyal@mail.com> )
 emaillog_receiver_len = 100           # receiver's email
 emaillog_subject_len = 100            # subject of email
-emaillog_body_len = 500               # content of email
+# emaillog_body_len = 500               # content of email
 
 configuration_key_len = 60
 configuration_value_len = 256
