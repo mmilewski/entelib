@@ -1,0 +1,6 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block title %}User activated{% endblock %}
+
+{% block header %} User activated{% endblock %}
+{% block content %} <p class="message"> {{activated_user.first_name}} {{activated_user.last_name}} activated. </p> {% endblock %}
