@@ -13,10 +13,7 @@ class CustomUserModelBackend(ModelBackend):
         try:
             user = User.objects.get(username=username)
             if user.check_password(password) or not settings.CHECK_PASSWORD_ON_AUTH:
-                return user
-#             user = User.objects.get(email=username)
-#             if user.check_password(password) or not settings.CHECK_PASSWORD_ON_AUTH:
-#                 return user
+                 return user
             return None     # None means auth failed
         except User.DoesNotExist:
             pprint("User %s doesn't exist" % username)
