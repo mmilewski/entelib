@@ -289,7 +289,8 @@ def show_books(request, non_standard_user_id=False):
     books = []
     shelf_mark = None
     booklist = []
-
+    show_books = False
+    
     # if POST is sent we need to take care of some things
     if request.method == 'POST':
         post = request.POST
@@ -309,6 +310,7 @@ def show_books(request, non_standard_user_id=False):
                            }       for b in booklist]
 
         else:
+            show_books = True
             search_title = post['title'].split()
             search_author = post['author'].split()
             selected_categories_ids = map(int, request.POST.getlist('category'))
@@ -349,7 +351,7 @@ def show_books(request, non_standard_user_id=False):
         if config.get_bool('list_all_books_as_default'):
             booklist = Book.objects.select_related().all()
     # prepare each book (add url, list of authors) for rendering
-    if booklist:
+    if booklist and show_books:
         booklist = booklist.order_by('title')
         books = [{ 'title'     : book.title,
                    'url'       : book_url % book.id,
