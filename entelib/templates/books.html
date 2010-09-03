@@ -16,23 +16,23 @@
                         Librarian only usage: you type into ID field a substring of specific book copy shelf mark (ID) (and press Enter or click Search)
                         <ul>
                             <li>You are shown all copies with IDs containing that substring.</li>
-                            <li>All other field are ignored.</li>
+                            <li>All other fields are ignored.</li>
                         </ul>
                     </li>
         {% endif %}
         <li>
-            Normal usage:
+            Typical usage:
             <ul>
-                <li>Do any/all/none of: typing into Title, Author fields, selecting category/ies</li>
+                <li>Do any/all/none of: typing into Title, Author fields, selecting category/ies. Keywords should be separated with spaces.</li>
                 <li>Press Search/Enter</li>
                 <li>You are shown all titles (not copies) filtered by all fields you typed into</li>
                 <li>Selecting checkbox next to search field will cause searching for any of typed/selected keywords.</li>
                 <li>Otherwise (by default) only books containing <strong>all</strong> search words are found</li>
-                <li>Regexp is not supported for now</li>
+                <li>Regexp search is not supported for now</li>
             </ul>
         </li>
         <li><p>If you use Firefox or Opera you can click and drag to multiselect locations. In Chrome you can use CTRL+click. In IE both ways works.</p></li>
-        <li><p>In categories, selecting "Any" has effect iff nothing else is selected. If "Any" and sth else is selected, then "Any" would be automatically deselected.</p></li>
+        <li><p>In categories, selecting "Any category" has effect iff nothing else is selected. If "Any" and sth else is selected, then "Any" would be automatically deselected.</p></li>
       </ol>
     </div>
     {%endif%}

@@ -223,7 +223,10 @@ def register(request, action, registration_form=forms.RegistrationForm, extra_co
                 form = registration_form()
 
             # prepare response
-            result_context = { 'form_content' : form }
+            result_context = {
+                'form_content' : form,
+                'is_adding_active_user' : True,
+                }
             result_context.update(extra_context)
             return render_response(request, tpl_registration_form, result_context)
         else:

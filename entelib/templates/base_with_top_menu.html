@@ -93,11 +93,9 @@
             <li>
                 <a href="/entelib/users/">User list</a>
                 <ul>
-                    {% if perms.auth.add_user %}<li><a href="/entelib/users/add/">Add user</a></li> {% endif %}
-                    <li><a href="/entelib/users/">Show user list</a></li>
-                    <li>
-                        <a href="/entelib/users/activate/">Users awaiting activation</a>
-                    </li>
+                    {% if perms.auth.add_user %}     <li><a href="/entelib/users/add/">Add user</a></li> {% endif %}
+                    {% if perms.baseapp.list_users %}<li><a href="/entelib/users/">Show user list</a></li> {% endif %}
+                    {% if perms.auth.change_user %}  <li><a href="/entelib/users/activate/">Users awaiting activation</a></li> {% endif %}
                 </ul>
             </li>         
         {% endif %}

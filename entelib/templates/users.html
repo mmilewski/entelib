@@ -8,6 +8,7 @@
 
 {% block before_table %}
     <div class="user_search">
+      <center>
         <form action='.' method='post' name="Fusers">
             <table>
                 <tr>
@@ -50,6 +51,7 @@
         <script type="text/javascript">
             document.Fusers.last_name.focus();
         </script>
+      </center>
     </div>
 
     {% if perms.auth.add_user %}

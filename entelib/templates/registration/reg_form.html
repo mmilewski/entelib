@@ -2,10 +2,9 @@
 
 {% block title %}New user registration{% endblock %}
 
-{% block header %}Registration form{% endblock %}
+{% block header %}{%if not is_adding_active_user%}Registration form{%else%}Adding active user{%endif%}{% endblock %}
 
 {% block content %}
-
 <script language="javascript" type="text/javascript">
   var drop_pl_chars = function(s) {
       return s.replace('ę','e').replace('ó','o').replace('ą','a')
@@ -27,16 +26,14 @@
   });
 </script>
 
-{% if display_tips %}
-<div class="tip">
-  <p>
-    Here is a registration form. Fill it in to register.
-  </p>
-  <p>
-    Attention! After registration <em>you will have to wait</em> until admin turns your account active.
-  </p>
-</div>
-{% endif %}
+
+  {% if not is_adding_active_user %}
+    <div class="tip">
+      <p>Here is a registration form. Fill it in to register. You will be able to log in using username or email.</p>
+      <p>Attention! After registration <em>you will have to wait</em> until admin turns your account active.</p>
+    </div>
+  {% endif %}
+
 
 <div class="formWrapper">
   <form class="registration_form" action="." method="POST" name="Fregister">
