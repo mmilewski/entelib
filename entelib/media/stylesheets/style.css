@@ -103,7 +103,8 @@ div.itemsWrapper table th {
     padding: .4em .5em;
     border: 1px solid black;
 }
-div.itemsWrapper tbody tr:hover {  background-color: #ff8400;  }
+div.itemsWrapper tbody tr:hover {  background-color: #ddd;  }
+div.itemsWrapper tbody tr td {  text-align: left; padding-left: 1em;  }
 /* / ITEMS WRAPPER */
 
 
@@ -432,12 +433,10 @@ div.form_itemWrapper .propositions ul li {  margin-bottom: .3em;  }
 div.form_itemWrapper input#id_name    {  width: 30em;  min-width: 30em;  }
 div.form_itemWrapper input#id_remarks {  width: 30em;  min-width: 30em;  }
 div.form_itemWrapper input#id_description {  width: 100%;  }
-div.itemsWrapper td.options {
-    padding:0;
-}
 div.itemsWrapper .options a.edit {
     background: url('/media/images/edit-small.gif') center left no-repeat;
     /* padding: 0 0 .3em 20px; */
+    padding-left: 20px;
     display: block;
     width: auto;
     /* margin: .5em 0; */
