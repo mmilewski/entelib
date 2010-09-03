@@ -72,7 +72,7 @@
                     <td>{{ book.shelf_mark }}</td>
                     <td>{{ book.status }}</td>
                     {% if book.not_rented_yet %}
-                        <td colspan='3'>Not rented yet</td>
+                        <td colspan='3'>- never -</td>
                     {% else %}
                         <td>{{ book.for_whom }}</td>
                         <td>{{ book.when }}</td>

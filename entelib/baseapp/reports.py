@@ -187,7 +187,7 @@ def get_report_data(report_type, from_date, to_date, order_by=[]):
             copy_status = statuses[kopy.id]
             not_rented_yet = copy_status['copy'].id not in last_rentals
             if not_rented_yet:
-                for_whom = when = by_whom = 'Not rented yet'
+                for_whom = when = by_whom = '- never -'
             else:
                 last_rental = last_rentals[copy_status['copy'].id]
                 (for_whom, when, by_whom) = (last_rental['for_whom'], last_rental['when'].date(), last_rental['by_whom'])            
