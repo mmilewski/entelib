@@ -110,6 +110,8 @@
         {% endif %}
         
         {% if can_list_emaillog %}               <li><a href="/entelib/emaillog/">Email logs</a></li>                                 {% endif %}
+
+        {% if user.userprofile.is_librarian %} <li> <a href='{% url howto %}'>Howto</a></li> {% endif %}
       </ul>
 
 
@@ -141,14 +143,14 @@
 {% block rest %}
     <div id='content'>
             <div class="goThereWrapper">
-                {% block go_up %} 
-                    <div class="goUpWrapper">
-                        <a href="../">Up</a>
-                    </div>
-                {% endblock %} 
                 {% block go_back %} 
                     <div class="goBackWrapper">
                       <a href="javascript:history.go(-1)">Back</a>
+                    </div>
+                {% endblock %} 
+                {% block go_up %} 
+                    <div class="goUpWrapper">
+                        <a href="../">Up</a>
                     </div>
                 {% endblock %} 
             </div>

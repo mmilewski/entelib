@@ -155,6 +155,8 @@ urlpatterns = patterns(
     (r'^admin/', include(admin.site.urls)),
     (r'^admin$', get_redirect_function_to_url('/entelib/admin/')),
 
+    url(r'howto/', view.howto, name='howto'),
+
     # default matcher
     (r'^$', view.default),
 )

@@ -1386,3 +1386,6 @@ def show_add_bookrequest(request, book_id=0, request_form=forms.BookRequestAddFo
     context.update(extra_context)
     return render_response(request, template, context)
 
+
+def howto(request):
+    return render_response(request, 'howto.html')

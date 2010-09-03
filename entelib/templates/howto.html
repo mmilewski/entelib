@@ -1,0 +1,36 @@
+{% extends "base_with_top_menu.html" %}
+
+{% block title %} Howto {% endblock title %} 
+
+{% block header %} Howto {% endblock header %} 
+
+{% block content %}
+<div class="tip">
+    <ul>
+    What do you want to do?
+        {% comment %}
+        Rent a book:
+            From menu select Books. 
+            Type something you want to find. 
+                Basically short substring of title should be enough.
+                As for now (September 2010) books don't have assigned categories, so searching by categories is pointless.
+                You can leave all field as they are to list all books.
+            Press "enter" or click "search".
+            Click on title you are interested in.
+            All books with that title will be listed and availability of them will be shown.
+            Click one of them on ID field on the left or "reserve" in actions field.
+        {% endcomment %}
+        <li>
+    Rent a book to someone who reserved it and came for it:<br/>
+    Go to Work->Current reservations. If ones reservation is correct and book can be rented to one, one's reservation will be listed there.
+    Or go to User list, find one, go to one's profile, and select Reservations. One reservations will be listed, you can click rent on active ones.
+        </li><li>
+    Check if someone requested shipment via internal post:<br/>
+    Go to Work-> Shipment requests. You will get a list of books you are asked to send via internal post. Click "Rent" for each book you are sending.
+        </li>
+
+
+
+    </ul>
+</div>
+{% endblock content %}
