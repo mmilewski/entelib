@@ -4,11 +4,12 @@
 
     <div id='menu'>
       <ul>
+        {% if perms.baseapp.add_reservation %}     <li><a href="/entelib/profile/reservations/new/">    Rent a book           </a></li> {% endif %}
         {% if can_list_books %}
           <li><a href="/entelib/books/">Books</a>
             <ul>
-              {% if can_add_bookrequest %}            <li><a href="{% url bookrequest_add %}">           Request a book or copy</a></li> {% endif %}
-              {% if perms.baseapp.list_bookrequests %}<li><a href="{% url bookrequest_all %}">           List book requests    </a></li> 
+              {% if can_add_bookrequest %}            <li><a href="{% url bookrequest_add %}">          Request a book or copy</a></li> {% endif %}
+              {% if perms.baseapp.list_bookrequests %}<li><a href="{% url bookrequest_all %}">          Book request list     </a></li> 
                 <li class="separator"></li>
               {% endif %}
               {% if perms.baseapp.list_books %}      <li><a href="/entelib/books/">                     Book list             </a></li> {% endif %}
@@ -27,18 +28,17 @@
               {% if perms.baseapp.add_publisher %}      <li><a href="{% url publisher_add %}">          Add publisher         </a></li>
                 <li class="separator"></li>
               {% endif %}
-              {% if perms.baseapp.list_costcenters %}    <li><a href="/entelib/costcenters/">           Costcenter list        </a></li> {% endif %}
-              {% if perms.baseapp.add_costcenter %}      <li><a href="{% url costcenter_add %}">        Add costcenter         </a></li>
+              {% if perms.baseapp.list_costcenters %}    <li><a href="/entelib/costcenters/">           Costcenter list       </a></li> {% endif %}
+              {% if perms.baseapp.add_costcenter %}      <li><a href="{% url costcenter_add %}">        Add costcenter        </a></li>
                 <li class="separator"></li>
               {% endif %}
-              {% if perms.baseapp.list_states %}    <li><a href="/entelib/states/">                     State list             </a></li> {% endif %}
-              {% if perms.baseapp.add_state %}      <li><a href="{% url state_add %}">                  Add state              </a></li>
+              {% if perms.baseapp.list_states %}    <li><a href="/entelib/states/">                     State list            </a></li> {% endif %}
+              {% if perms.baseapp.add_state %}      <li><a href="{% url state_add %}">                  Add state             </a></li>
                 <li class="separator"></li>
               {% endif %}
             </ul>
           </li>
         {% endif %}
-        {% if perms.baseapp.add_reservation %}     <li><a href="/entelib/profile/reservations/new/">    Rent something        </a></li> {% endif %}
                                                                                                                               
         {% if can_view_own_profile %}              <li><a href="/entelib/profile/">                     My profile            </a>      
           <ul>                                                                                                                
@@ -86,11 +86,12 @@
           </li>              
         {% endif %}
 
-        
-        {% if can_list_users %}                
+
+        {% if can_list_users %}
             <li>
                 <a href="/entelib/users/">User list</a>
                 <ul>
+                    {% if perms.auth.add_user %}<li><a href="/entelib/users/add/">Add user</a></li> {% endif %}
                     <li><a href="/entelib/users/">Show user list</a></li>
                     <li>
                         <a href="/entelib/users/activate/">Users awaiting activation</a>

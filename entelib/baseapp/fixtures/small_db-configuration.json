@@ -173,7 +173,7 @@
         "pk": "enable_time_bar", 
         "model": "baseapp.configuration", 
         "fields": {
-            "can_override": true, 
+            "can_override": false, 
             "type": "bool", 
             "description": "True iff time bar is displayed.", 
             "value": "true"

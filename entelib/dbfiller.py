@@ -376,7 +376,7 @@ def populate_groups():
     print "Adding app specific groups"
     from dbfiller_perms import readers_perms, admins_perms, librarians_perms
     readd_group('Readers',    perms=readers_perms, direct_add=True)
-    readd_group('Librarians', perms=readers_perms, direct_add=True)
+    readd_group('Librarians', perms=librarians_perms, direct_add=True)
     readd_group('Admins',     perms=admins_perms,  direct_add=True)
     
     

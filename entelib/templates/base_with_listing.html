@@ -20,6 +20,7 @@
         });
     </script>
 
+  {% if rows|length %}
     <div class="{%block itemsWrapper%}itemsWrapper{%endblock%}">
       <center>
         <table class="items tablesorter" id="sortable_table">
@@ -41,5 +42,6 @@
         </table>
       </center>
     </div>
+  {% endif %}
     {% block after_table %} {% endblock %}
 {% endblock %}

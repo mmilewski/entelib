@@ -735,10 +735,10 @@ def user_full_name(user_id, first_name_first=False):
 
 
 def when_copy_reserved(book_copy):
-    '''
+    """
     This is Adi's function. It is used with the timebar.
     Im not touching it for we are going to work with the time bar, and this may come useless anyway.
-    '''
+    """
     config = Config()
 
     last_date = today() + timedelta(config.get_int('when_reserved_period'))
@@ -796,7 +796,7 @@ def can_edit_global_config(user):
     Args:
         user -- instance of User
     '''
-    return user.is_staff
+    return user.userprofile.is_admin()
 
 
 def internal_post_send_possible(reservation):

@@ -519,7 +519,7 @@ class RegistrationForm(forms.Form):
     Subclasses should feel free to add any additional validation they need, but should
     either preserve the base ``save()``
     """
-    username = forms.RegexField(regex=r'^[\w_\-\.]+$',
+    username = forms.RegexField(regex=r'^[@\w_\-\.]+$',
                                 min_length=3,
                                 max_length=60,
                                 widget=forms.TextInput(attrs=attrs_dict),
@@ -678,7 +678,7 @@ class BuildingForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(BuildingForm, self).__init__(*args, **kwargs)
     def clean_name(self):
-        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-_]+$'))
+        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-\._]+$'))
 
 class AuthorForm(ModelForm):
     class Meta:
@@ -686,7 +686,7 @@ class AuthorForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(AuthorForm, self).__init__(*args, **kwargs)
     def clean_name(self):
-        f = lambda name: name.isalnum() or regexp_match('^[a-zA-z0-9 \-_\']+$')(name)
+        f = lambda name: name.isalnum() or regexp_match('^[a-zA-z0-9 \-_\.\']+$')(name)
         return generic_clean_name(self, f)
 
 class CategoryForm(ModelForm):
@@ -695,7 +695,7 @@ class CategoryForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(CategoryForm, self).__init__(*args, **kwargs)
     def clean_name(self):
-        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-_]+$'))
+        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-\._]+$'))
 
 class PublisherForm(ModelForm):
     class Meta:
@@ -703,7 +703,7 @@ class PublisherForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(PublisherForm, self).__init__(*args, **kwargs)
     def clean_name(self):
-        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-_]+$'))
+        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-\._]+$'))
 
 class CostCenterForm(ModelForm):
     class Meta:
@@ -711,7 +711,7 @@ class CostCenterForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(CostCenterForm, self).__init__(*args, **kwargs)
     def clean_name(self):
-        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-_]+$'))
+        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-\._]+$'))
 
 class StateForm(ModelForm):
     class Meta:
@@ -719,11 +719,12 @@ class StateForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(StateForm, self).__init__(*args, **kwargs)
     def clean_name(self):
-        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-_]+$'))
+        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-\._]+$'))
 
 class BookRequestForm(ModelForm):
     class Meta:
         model = BookRequest
+        exclude = ('who',)
     def __init__(self, *args, **kwargs):
         super(BookRequestForm, self).__init__(*args, **kwargs)
 

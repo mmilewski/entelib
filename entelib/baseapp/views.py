@@ -179,7 +179,7 @@ def show_forgot_password(request):
                     handler = aux.ForgotPasswordHandler(user)
                     handler.reset_password(user)
                     new_password = handler.new_password
-                    messages.info(request, 'New password was sent to this email.')
+                    messages.info(request, 'New password was sent to this email')
         else:
             context['errors'].append('This field is required.')
     else:
@@ -1327,7 +1327,7 @@ def show_edit_state(request, state_id, edit_form=forms.StateForm):
 
 @permission_required('baseapp.list_bookrequests')
 def show_bookrequests(request):
-    return generic_items(request, 'bookrequest', 'bookrequests', BookRequest.objects.all())
+    return generic_items(request, 'bookrequest', 'bookrequests', BookRequest.objects.filter(done=False))
 @permission_required('baseapp.view_bookrequest')
 def show_bookrequest(request, bookrequest_id):
     return generic_item(request, 'bookrequest', 'bookrequests', bookrequest_id, BookRequest)

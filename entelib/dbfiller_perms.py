@@ -8,11 +8,12 @@ admins_perms     = Permission.objects.filter(~Q(codename__icontains='delete'))  
 readers_perms    = ['list_books', 'view_own_profile', 'add_reservation', 'change_own_reservation', 'add_bookrequest',
                     'list_config_options', 'edit_option',
                     'list_locations', 'view_location',
-                    'view_category', 'list_categories',
-                    'view_author', 'list_authors',
-                    'view_publisher',  'list_publishers',
+
+                    'view_category',   # 'list_categories',
+                    'view_author',     # 'list_authors',
+                    'view_publisher',  # 'list_publishers',
                     'view_costcenter', 
-                    'list_buildings', 'view_building',
+                    'view_building',   # 'list_buildings',
                     ]
 readers_perms = [ Permission.objects.get(codename=pname) for pname in readers_perms ]
 
@@ -26,6 +27,13 @@ librarians_perms = ['list_users', 'list_reports',
                     'add_category', 'change_category',
                     'add_publisher', 'change_publisher',
                     'add_costcenter', 'change_costcenter',
+                    
+                    'view_bookrequest', 'list_bookrequests',  'change_bookrequest', 
+                    'view_category',   'list_categories',
+                    'view_author',     'list_authors',
+                    'view_publisher',  'list_publishers',
+                    'view_costcenter', 
+                    'view_building',   'list_buildings',
                     ]
 librarians_perms = [ Permission.objects.get(codename=pname) for pname in librarians_perms ]
 librarians_perms = librarians_perms + readers_perms

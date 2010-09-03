@@ -12,6 +12,7 @@
           {% if perms.baseapp.view_bookrequest %}
             <th></th>
           {% endif %}
+          <th>When</th>
           <th>Who</th>
           <th>Book</th>
           <th>Info</th>
@@ -25,7 +26,10 @@
               <a href="{% url bookrequest_one row.id %}">Show details</a>
             </td>
           {% endif %}
-          
+
+          <td class="when"> 
+            {{ row.when|date:"Y-m-d H:i"}}
+          </td>          
           <td class="who">
             {{ row.who.get_full_name }}
           </td>
@@ -37,5 +41,11 @@
           <td class="info">
             {{ row.info }}
           </td>
+      {% endif %}
+    {% endblock %}
+
+    {% block after_table %}
+      {% if rows|length < 1 %}
+        <p><b>Nothing found</b></p>
       {% endif %}
     {% endblock %}

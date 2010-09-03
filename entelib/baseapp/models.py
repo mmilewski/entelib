@@ -370,6 +370,8 @@ class BookRequest(models.Model):
     when = models.DateTimeField(auto_now_add=True, blank=False, null=False)
     book = models.ForeignKey(Book, blank=True, null=True)
     info = models.TextField()
+    done = models.BooleanField(default=False)
+    remarks = models.TextField(null=True, blank=True)
 
     class Meta:
         permissions = (

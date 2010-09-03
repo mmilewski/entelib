@@ -23,9 +23,10 @@
         {% if bookrequest.book %}
           <li><span class="label">Related book:</span> {{bookrequest.book}}</li>
         {% endif %}
-        <li><span class="label">When:</span> {{bookrequest.when|date:"d.m.Y H:i"}}</li>
+        <li><span class="label">When:</span> {{bookrequest.when|date:"Y-m-d H:i"}}</li>
         <li><span class="label">Who:</span>  {{bookrequest.who.get_full_name}}</li>
-        <li><span class="label">Info:</span> {{bookrequest.info|linebreaks}}</li>
+        <li><span class="label">Info:</span> {{bookrequest.info|default:"-"|linebreaks}}</li>
+        <li><span class="label">Remarks:</span> {{bookrequest.remarks|default:"-"|linebreaks}}</li>
       </ul>
     </div>
     {% endif %}

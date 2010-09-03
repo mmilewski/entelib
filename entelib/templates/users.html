@@ -58,13 +58,12 @@
     </div>
     {% endif %}
 
-    {% if not non_found %}
+    {% if rows|length %}
       <div class="found_count">
         <p>Found {{rows|length}} user{{rows|length|pluralize}}</p>
       </div>
     {% endif %}
 {% endblock before_table %}
-
 
 {% block header_row %}
   {% if not non_found %}

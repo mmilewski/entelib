@@ -11,7 +11,11 @@
 {% if show_confirmation_msg %}
     <div class="msg_wrapper">
       <div class="confirmation_msg">
-        Thank you for your request. You can see <a href="/entelib/admin/baseapp/bookrequest/">all requests here</a>.
+        <p>Thank you for your request.
+        {% if perms.baseapp.list_bookrequests %}
+          You can see <a href="{% url bookrequest_all %}">all requests here</a>.
+        {% endif %}
+        </p>
       </div>
     </div>
 {% endif %}

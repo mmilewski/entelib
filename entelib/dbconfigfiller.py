@@ -55,7 +55,7 @@ def fill_config():
 
     # book request
     _svd(config, t_int, False, 'book_request_info_min_len',                  10,                       "Minimal length of book request information")
-    _svd(config, t_unicode, False, 'book_request_info_template', u'Title:\n\n\nAuthors:\n\n\nPublication:\n\n\nUrl:\n\n',   "Template which is displayed to help in filling request book form")
+    _svd(config, t_unicode, False, 'book_request_info_template', u'Title:\n\n\nAuthors:\n\n\nSuggested location:\n\n\nAdditional info:\n\n',   "Template which is displayed to help in filling request book form")
 
     # searching
     _svd(config, t_int,  True , 'copies_location_select_size',                5,        "Number of location elements to display in select list when filtering copies of a book")
@@ -65,7 +65,7 @@ def fill_config():
     _svd(config, t_int,  False, 'when_reserved_period',                      90,        "When listing book copies, it says for how many days forward user will be shown when a copy is reserved.")
 
     # time bar
-    _svd(config, t_bool, True , 'enable_time_bar',                         True,        "True iff time bar is displayed.")
+    _svd(config, t_bool, False, 'enable_time_bar',                         True,        "True iff time bar is displayed.")
     _svd(config, t_int,  False, 'tb_max_days_in_date_range',                365,        "Time bar. Max number of days date range can describe. If wider then the range will be shortened.")
     _svd(config, t_int,  False, 'tb_max_days_to_display_days',               10,        "Time bar. Max number of days in date range, for which scale unit will be one day.")
     _svd(config, t_int,  False, 'tb_max_days_to_display_weeks',              40,        "Time bar. Max number of days in date range, for which scale unit will be one week (or one day, see tb_max_days_to_display_days).")
