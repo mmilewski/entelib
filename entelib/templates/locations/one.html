@@ -28,7 +28,12 @@
         <li><span class="label">Maintainers:</span> 
           <ul class="maintainers">
             {% for mt in loc.maintainer.all %}
-            <li><a href="{% url user_one mt.id %}">{{ mt }}</a>
+            <li>
+              {% if perms.baseapp.view_others_profile %}
+                <a href="{% url user_one mt.id %}">{{ mt }}</a>
+              {% else %}
+                {{ mt }}
+              {% endif %}
               <ul class="phones">
                 <li class="phone">
                     <a class="email" href="mailto:{{ mt.email }}">E-mail: {{ mt.email }}</a>
@@ -55,7 +60,11 @@
     <!-- EDIT LOCATION -->    
     {% if perms.baseapp.change_location %}
     <div class="form_locationWrapper">
-        <h2 id="edit_location">Edit location</h2>
+        {% if is_updating %}
+          <h2 id="edit_location">Edit location</h2>
+        {% else %}  
+          <h2 id="add_location">Add location</h2>
+        {% endif %}
 
         {% if display_tips %}
         <div class="tip">

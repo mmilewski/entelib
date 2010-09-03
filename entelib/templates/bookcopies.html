@@ -141,12 +141,12 @@
                     <tr class="copy_details">
                         <td class="shelfmark"><a href='../../bookcopy/{{ item.id }}/'>{{ item.shelf_mark }}</a></td>
                         <td class="state"><span title="{{item.state.description|default:"No description"}}">{{ item.state }}</span> {% if not item.is_available %}<span class="unavailable" title="Unavailable, sorry"><br/>(unavailable)</span>{%endif%}</td>
-                        <td class="publisher">{{ item.publisher }}</td>
-                        <td class="year">{{ item.year }}</td>
+                        <td class="publisher">{{ item.publisher|default:"-" }}</td>
+                        <td class="year">{{ item.year|default:"-" }}</td>
                         {% if perms.baseapp.view_location %}
                         <td class="location"><a href="{%url location_one item.location.id %}" title="{{item.maintainers}}">{{ item.location }}</a></td>
                         {% else %}
-                        <td class="location">{{ item.location }}</td>
+                        <td class="location">{{ item.location|default:"-" }}</td>
                         {% endif %}
                         <td class="actions">
                             <ul class="actions">

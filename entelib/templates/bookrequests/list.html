@@ -31,6 +31,7 @@
         {% if displays_all %}
           <li><a href="{% url bookrequest_active %}">Show only active requests</a></li>
         {% endif %}
+        {%if perms.baseapp.add_bookrequest%}<li><a href="{% url bookrequest_add %}">Add another bookrequest</a> </li>{% endif %}
       </ul>
     </div>
     {% endblock %}

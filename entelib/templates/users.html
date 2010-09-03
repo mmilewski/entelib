@@ -18,13 +18,16 @@
                     <td>First name: </td>
                     <td><input type='text' tabindex='2' id="first_name" name='first_name' value='{{ search.first_name }}'></td>
                 </tr><tr>
+                    <td>Username: </td>
+                    <td><input type='text' tabindex='3' id="username" name='username' value='{{ search.username }}'></td>
+                </tr><tr>
                     <td>Email: </td>
-                    <td><input type='text' tabindex='3' id="email" name='email' value='{{ search.email }}'></td>
+                    <td><input type='text' tabindex='4' id="email" name='email' value='{{ search.email }}'></td>
                 </tr><tr>
                 </tr><tr>
                     <td>Building:</td>
                     <td>
-                        <select name="building" tabindex='4' >
+                        <select name="building" tabindex='5' >
                             {% for building in buildings %}
                                 <option value={{ building.id }} {% if building.selected %} selected='selected' {% endif %} >
                                     {{ building.name }}
@@ -34,7 +37,7 @@
                     </td>
                     <td>
                       {% if user.userprofile.building %}
-                        <input type="checkbox" id="from_my_building" name="from_my_building" value="checked" tabindex="5" {% if from_my_building %} checked="checked" {% endif %} >
+                        <input type="checkbox" id="from_my_building" name="from_my_building" value="checked" tabindex="6" {% if from_my_building %} checked="checked" {% endif %} >
                         <label for="from_my_building">From my building</label>
                       {% endif %}
                     </td>
@@ -42,7 +45,7 @@
                     <!-- <td></td> -->
                     <td> </td>
                     <td>
-                        <input type='submit'  name='search' value='Search' tabindex='5' accesskey="s" >
+                        <input type='submit'  name='search' value='Search' tabindex='7' accesskey="s" >
                     </td>
                 </tr>
             </table>

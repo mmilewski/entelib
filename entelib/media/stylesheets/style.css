@@ -184,6 +184,7 @@ form.book_request_form .basic_fields {                      /* book_request.html
 
 div.user_search input#first_name,
 div.user_search input#last_name,
+div.user_search input#username,
 div.user_search input#email {                               /* users.html */
     width: 30em;
     min-width: 30em;

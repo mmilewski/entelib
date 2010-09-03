@@ -119,7 +119,7 @@ def filter_query(class_name, Q_none, constraints):
                 result = result.filter(Q_fun(keyword))
     return result.distinct()
 
-def get_users_details_list(first_name, last_name, email, building_id, active_only=False, inactive_only=False, awaiting_activation_only=False):
+def get_users_details_list(first_name, last_name, username, email, building_id, active_only=False, inactive_only=False, awaiting_activation_only=False):
     '''
     Args:
         building_id is an int,
@@ -150,6 +150,7 @@ def get_users_details_list(first_name, last_name, email, building_id, active_onl
                          'id'         : u.id, 
                          }      for u in users.filter(first_name__icontains=first_name)
                                               .filter(last_name__icontains=last_name)
+                                              .filter(username__icontains=username)
                                               .filter(email__icontains=email)
                                               .filter(building_filter)
             ]

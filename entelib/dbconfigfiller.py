@@ -64,6 +64,7 @@ def fill_config():
     _svd(config, t_bool, True , 'list_only_existing_categories_in_search', True,        "True iff in booklist (book search, not book copy search) only those categories will be listed, that exist a book (in database) with such category.")
     _svd(config, t_bool, True , 'cut_categories_list_to_found_books',     False,        "True iff in booklist (book search, not book copy search) only those categories will be listed, that exist a book (in results) with such category.")
     _svd(config, t_int,  False, 'when_reserved_period',                      90,        "When listing book copies, it says for how many days forward user will be shown when a copy is reserved.")
+    _svd(config, t_bool, True, 'list_all_books_as_default',                  False,     "If true then in searching all books will be listed as default")
 
     # time bar
     _svd(config, t_bool, False, 'enable_time_bar',                         True,        "True iff time bar is displayed.")

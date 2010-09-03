@@ -13,7 +13,7 @@
       <div class="confirmation_msg">
         <p>Thank you for your request.
         {% if perms.baseapp.list_bookrequests %}
-          You can see <a href="{% url bookrequest_all %}">all requests here</a>.
+          You can see <a href="{% url bookrequest_active %}">all requests here</a>.
         {% endif %}
         </p>
       </div>

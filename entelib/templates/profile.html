@@ -3,6 +3,7 @@
 {% block edit_form %}
 
 {% if perms.auth.change_user or user_id == user.id %}
+<p>This user is {%if reader.is_active%}active{%else%}inactive{%endif%}</p>
 
 	<div class="profile_editWrapper">
 	  <h2 id="edit">Edit profile</h2>

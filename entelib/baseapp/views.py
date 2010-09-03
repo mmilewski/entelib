@@ -288,6 +288,7 @@ def show_books(request, non_standard_user_id=False):
     bookcopies = None                   # if one doesn't type into shelf mark field we are not interested in bookcopies at all
     books = []
     shelf_mark = None
+    booklist = []
 
     # if POST is sent we need to take care of some things
     if request.method == 'POST':
@@ -344,22 +345,17 @@ def show_books(request, non_standard_user_id=False):
                                  'category_any_checked'   : 'true' if 'category_any' in post else '',
                                  })
 
-            # prepare each book (add url, list of authors) for rendering
-            if booklist:
-                booklist = booklist.order_by('title')
-            books = [{ 'title'     : book.title,
-                       'url'       : book_url % book.id,
-                       'authors'   : [a.name for a in book.author.all()],
-                       } for book in booklist ]
     else:
-        pass
-        # If no POST data was sent, then we don't want to list any books, but we want
-        # to fill category selection input with all possible categories.
-        # if config.get_bool('list_only_existing_categories_in_search'):
-        #     categories_from_booklist = list(set([c for b in Book.objects.all() for c in b.category.all()]))
-        # else:
-        #     categories_from_booklist = Category.objects.all()
-
+        if config.get_bool('list_all_books_as_default'):
+            booklist = Book.objects.select_related().all()
+    # prepare each book (add url, list of authors) for rendering
+    if booklist:
+        booklist = booklist.order_by('title')
+        books = [{ 'title'     : book.title,
+                   'url'       : book_url % book.id,
+                   'authors'   : [a.name for a in book.author.all()],
+                   } for book in booklist ]
+        
     # prepare categories for rendering
     search_categories  = [ {'name' : '-- Any category --',  'id' : 0} ]
     if bookcopies is None:
@@ -645,6 +641,7 @@ def show_users(request):
         post = request.POST
         request_first_name       = post['first_name'].strip() if 'first_name' in post else ''
         request_last_name        = post['last_name'].strip() if 'last_name' in post else ''
+        request_username         = post['username'].strip() if 'username' in post else ''
         request_email            = post['email'].strip() if 'email' in post else ''
         request_from_my_building = 'from_my_building' in post
         request_building_id      = int(post['building'])
@@ -661,7 +658,8 @@ def show_users(request):
         show_only_active_users = not request.user.has_perm('auth.change_user')
 
         user_list = aux.get_users_details_list(request_first_name,
-                                               request_last_name, 
+                                               request_last_name,
+                                               request_username,
                                                request_email, 
                                                request_building_id, 
                                                active_only=show_only_active_users)
