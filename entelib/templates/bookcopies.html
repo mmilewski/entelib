@@ -41,6 +41,21 @@
     </div>
     {% endif %}
 
+    
+    <div class="inner_menu">
+      <ul>
+        {% if perms.baseapp.change_bookcopy %}
+          <li><a href="{% url book_edit book.id %}" title="Edit this book">Edit this book</a></li>
+        {% endif %}
+        {% if perms.baseapp.add_bookcopy %}
+          <li><a href="{% url copy_add book.id %}" class="add_bookcopy">Add another copy</a></li>
+        {% endif %}
+        {% if perms.baseapp.add_bookrequest %}
+          <li><a href="{% url bookrequest_add_copy book.id %}" class="request_copy">Request another copy</a></li>
+        {% endif %}
+    </div>
+
+
     {% if search.locations %}
     <div class="search">
         <h3 id="search">Search</h3>
@@ -79,14 +94,6 @@
         {% endif %}
     </div>
     
-    <div class="bookcopy_actions">
-      {% if perms.baseapp.add_bookcopy %}
-      <p>
-        <a href="{% url copy_add book.id %}" class="add_bookcopy">Add another copy</a>
-      </p>
-      {% endif %}
-    </div>
-
     {% comment %}
     If no argument is specified, then default one will be loaded - which is set in Config.
     Try typing:

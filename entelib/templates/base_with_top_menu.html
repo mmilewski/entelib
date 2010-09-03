@@ -9,7 +9,7 @@
           <li><a href="/entelib/books/">Books</a>
             <ul>
               {% if can_add_bookrequest %}            <li><a href="{% url bookrequest_add %}">          Request a book or copy</a></li> {% endif %}
-              {% if perms.baseapp.list_bookrequests %}<li><a href="{% url bookrequest_all %}">          Book request list     </a></li> 
+              {% if perms.baseapp.list_bookrequests %}<li><a href="{% url bookrequest_active %}">       Book request list     </a></li> 
                 <li class="separator"></li>
               {% endif %}
               {% if perms.baseapp.list_books %}      <li><a href="/entelib/books/">                     Book list             </a></li> {% endif %}

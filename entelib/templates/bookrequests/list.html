@@ -1,11 +1,39 @@
 {% extends 'base_with_listing.html' %}
 
-{% block title %}All bookrequests{% endblock %}
 
-{% block header %}All bookrequests{% endblock %}
+{% block title %}
+  {% if displays_only_active %}
+    Active bookrequests
+  {% else %}
+    All bookrequests
+  {% endif %}
+{% endblock %}
+  
+{% block header %}
+  {% if displays_only_active %}
+    Active bookrequests
+  {% else %}
+    All bookrequests
+  {% endif %}
+{% endblock %}
 
-{% block order %} [[1,0]] {% endblock %}
+
+
+{% block order %} [[1,1]] {% endblock %}
 {% block itemsWrapper %}bookrequests_list itemsWrapper{% endblock %}
+
+    {% block before_table %}
+    <div class="inner_menu">
+      <ul>
+        {% if displays_only_active %}
+          <li><a href="{% url bookrequest_all %}">Show also archival requests</a></li>
+        {% endif %}
+        {% if displays_all %}
+          <li><a href="{% url bookrequest_active %}">Show only active requests</a></li>
+        {% endif %}
+      </ul>
+    </div>
+    {% endblock %}
 
     {% block header_row %}
       {% if perms.baseapp.list_bookrequests %}
@@ -16,6 +44,9 @@
           <th>Who</th>
           <th>Book</th>
           <th>Info</th>
+          {% if displays_all %}
+            <th>Is done</th>
+          {% endif %}
       {% endif %}
     {% endblock %}
 
@@ -41,6 +72,12 @@
           <td class="info">
             {{ row.info }}
           </td>
+
+          {% if displays_all %}
+            <td class="done_status">
+              {{ row.done|yesno:_("Yes,No") }}
+            </td>
+          {% endif %}
       {% endif %}
     {% endblock %}
 

@@ -1153,7 +1153,7 @@ def show_current_rentals(request, all_locations=False):
                         } for r in rentals ]
     context.update({ 'rows' : rental_list })
     return render_response(request, 'current_rentals.html', context)
-    
+
 
 @permission_required('auth.change_user')
 def activate_many_users(request, all_inactive=False):
@@ -1177,15 +1177,16 @@ def activate_many_users(request, all_inactive=False):
     return render_response(request, 'users_awaiting_activation.html', context)
 
 
-def generic_items(request, name_single, name_plural, query):
+def generic_items(request, name_single, name_plural, query, extra_context={}):
     context = {
         'rows'         : query,
         'name_single'  : name_single,
         'name_plural'  : name_plural,
         }
+    context.update(extra_context)
     return render_response(request, '%s/list.html' % name_plural, context)
     
-def generic_item(request, name_single, name_plural, item_id, model_name):
+def generic_item(request, name_single, name_plural, item_id, model_name, extra_context={}):
     item = get_object_or_404(model_name, id=item_id)
     context = {
         'item'           : item,
@@ -1194,9 +1195,10 @@ def generic_item(request, name_single, name_plural, item_id, model_name):
         'name_single'    : name_single,
         'name_plural'    : name_plural,
         }
+    context.update(extra_context)
     return render_response(request, '%s/one.html' % name_plural, context)
 
-def generic_add_item(request, name_single, name_plural, edit_form, model_name, field_name='name'):
+def generic_add_item(request, name_single, name_plural, edit_form, model_name, field_name='name', extra_context={}):
     context = {}
     if request.method == 'POST':
         post = request.POST
@@ -1218,9 +1220,10 @@ def generic_add_item(request, name_single, name_plural, edit_form, model_name, f
         'name_single'  : name_single,
         'name_plural'  : name_plural,
         })
+    context.update(extra_context)
     return render_response(request, '%s/one.html' % name_plural, context)
 
-def generic_edit_item(request, name_single, name_plural, item_id, edit_form, model_name, field_name='name'):
+def generic_edit_item(request, name_single, name_plural, item_id, edit_form, model_name, field_name='name', extra_context={}):
     item = get_object_or_404(model_name, id=item_id)
     context = {}
     if request.method == 'POST':
@@ -1245,6 +1248,7 @@ def generic_edit_item(request, name_single, name_plural, item_id, edit_form, mod
         'name_single'  : name_single,
         'name_plural'  : name_plural,
         })
+    context.update(extra_context)
     return render_response(request, '%s/one.html' % name_plural, context)
 
 @permission_required('baseapp.list_authors')
@@ -1326,8 +1330,11 @@ def show_edit_state(request, state_id, edit_form=forms.StateForm):
     return generic_edit_item(request, 'state', 'states', state_id, edit_form, State)
 
 @permission_required('baseapp.list_bookrequests')
+def show_bookrequests_active(request):
+    return generic_items(request, 'bookrequest', 'bookrequests', BookRequest.objects.filter(done=False).order_by('-when'), extra_context={'displays_only_active':True})
+@permission_required('baseapp.list_bookrequests')
 def show_bookrequests(request):
-    return generic_items(request, 'bookrequest', 'bookrequests', BookRequest.objects.filter(done=False))
+    return generic_items(request, 'bookrequest', 'bookrequests', BookRequest.objects.all().order_by('-when'), extra_context={'displays_all':True})
 @permission_required('baseapp.view_bookrequest')
 def show_bookrequest(request, bookrequest_id):
     return generic_item(request, 'bookrequest', 'bookrequests', bookrequest_id, BookRequest)
@@ -1338,16 +1345,27 @@ def show_bookrequest(request, bookrequest_id):
 def show_edit_bookrequest(request, bookrequest_id, edit_form=forms.BookRequestForm):
     return generic_edit_item(request, 'bookrequest', 'bookrequests', bookrequest_id, edit_form, BookRequest)
 @permission_required('baseapp.add_bookrequest')
-def show_add_bookrequest(request, request_form=forms.BookRequestAddForm):
+def show_add_bookrequest(request, book_id=0, request_form=forms.BookRequestAddForm, extra_context={}):
     """
     Handles requesting for book by any user.
+
+    Args:
+        book_id -- if leq 0, then request for book supposed. Otherwise - for book with given id, which should be highlighted.
     """
+    book_id = int(book_id)
     user = request.user
     template = 'bookrequests/add.html'
     context = {}
     config = Config(user)
+    
+    if book_id > 0:
+        info_template = config.get_str('book_request_copyinfo_template')
+    else:
+        info_template = config.get_str('book_request_bookinfo_template')
+        
     initial_data = {
-        'info' : config.get_str('book_request_info_template'),
+        'info' : info_template,
+        'book' : book_id,
         }
     # redisplay form
     if request.method == 'POST':
@@ -1362,5 +1380,6 @@ def show_add_bookrequest(request, request_form=forms.BookRequestAddForm):
     context['form_content'] = form
     context['books'] = Book.objects.all()
     context['requested_items'] = BookRequest.objects.all()
+    context.update(extra_context)
     return render_response(request, template, context)
 

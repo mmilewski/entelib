@@ -109,10 +109,13 @@ urlpatterns = patterns(
     url(r'^books/add/$',             view.show_add_book,       name="book_add"),
 
     # book requests
-    url(r'^bookrequests/$',             view.show_bookrequests,      name="bookrequest_all"),
-    url(r'^bookrequests/(\d+)/$',       view.show_bookrequest,       name="bookrequest_one"),
-    url(r'^bookrequests/(\d+)/edit/$',  view.show_edit_bookrequest,  name="bookrequest_edit"),
-    url(r'^bookrequests/add/$',         view.show_add_bookrequest,   name="bookrequest_add"),
+    url(r'^bookrequests/$',              view.show_bookrequests_active,  name="bookrequest_active"),
+    url(r'^bookrequests/alsoarchival/$', view.show_bookrequests,         name="bookrequest_all"),
+    url(r'^bookrequests/(\d+)/$',        view.show_bookrequest,          name="bookrequest_one"),
+    url(r'^bookrequests/(\d+)/edit/$',   view.show_edit_bookrequest,     name="bookrequest_edit"),
+    url(r'^bookrequests/add/$',          view.show_add_bookrequest,      name="bookrequest_add"),
+    url(r'^bookrequests/add/$',          view.show_add_bookrequest,      name="bookrequest_add_book"),
+    url(r'^bookrequests/add,(\d+)/$',    view.show_add_bookrequest,      name="bookrequest_add_copy"),
 
     # book copies
     url(r'^bookcopy/(\d+)/$',             view.show_book_copy,       name="copy_one"),

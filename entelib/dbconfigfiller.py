@@ -55,7 +55,8 @@ def fill_config():
 
     # book request
     _svd(config, t_int, False, 'book_request_info_min_len',                  10,                       "Minimal length of book request information")
-    _svd(config, t_unicode, False, 'book_request_info_template', u'Title:\n\n\nAuthors:\n\n\nSuggested location:\n\n\nAdditional info:\n\n',   "Template which is displayed to help in filling request book form")
+    _svd(config, t_unicode, False, 'book_request_bookinfo_template', u'Title:\n\n\nAuthors:\n\n\nNumber of copies:\n\n\nSuggested locations:\n\n\nAdditional info:\n\n',   "Template which is displayed to help in filling request book form")
+    _svd(config, t_unicode, False, 'book_request_copyinfo_template', u'Number of copies:\n\n\nSuggested locations:\n\n\nAdditional info:\n\n',   "Template which is displayed to help in filling request book form")
 
     # searching
     _svd(config, t_int,  True , 'copies_location_select_size',                5,        "Number of location elements to display in select list when filtering copies of a book")
