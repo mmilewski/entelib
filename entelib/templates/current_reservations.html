@@ -11,14 +11,15 @@
             <p>Here you can see reservations on books in locations maintained by you.</p>
           {% endif %}
           {% if shipments %}
-            <p> Use this view to mark books you are sending via internal post. </p>
+            <p> Use this view to mark books you are sending via internal post. When you do send them, click "Rent" to mark you have done so.</p>
           {% endif %}
           {% if not show_all %}
-            <p> Only reservations that can be pursued right away are listed. </p>
+            <p> Only reservations that can be pursued are listed so you can borrow the books right away. </p>
           {% endif %}
           {% if show_all %}
-            <p> All active reservations are listed here, though no all of them can be pursued immediately </p>
+            <p> All active reservations are listed here, though no all of them can be pursued immediately (there is inactive Rent button next to those that can't be persued now)</p>
           {% endif %}
+          <p> If you now specific reservation to be incorrect you can cancel it.</p>
         </div>
     {% endif %}
 {% endblock before_table %}

@@ -293,7 +293,7 @@ def show_books(request, non_standard_user_id=False):
         if 'id' in post and post['id'] != '':
             shelf_mark = post['id']
             search_data.update({'id' : shelf_mark})
-            booklist = BookCopy.objects.select_related('book').filter(shelf_mark__startswith=shelf_mark).select_related('author', 'category').order_by('book__title')
+            booklist = BookCopy.objects.select_related('book').filter(shelf_mark__icontains=shelf_mark).select_related('author', 'category').order_by('book__title')
             bookcopies = [{'id'         : b.id,
                            'shelf_mark' : b.shelf_mark, 
                            'state'      : aux.book_copy_status(b),

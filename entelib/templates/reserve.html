@@ -28,6 +28,18 @@
 -->
         {% if reserved.reservation %}
             {% cancel_or_request_form %}
+
+            {% if display_tips %}
+                <div class="tip">
+                    <ul>
+                        <li>
+                            If you clicked reserve by mistake you can cancel your reservation by clicking Cancel
+                        </li><li>
+                            By clicking "Send me" you request shipment with internal post. You don't need to send any emails to librarians, they will be notified of your request (and maybe someone will even really mail it to you:)
+                        </li>
+                    </ul>
+                </div>
+            {% endif %}
         {% endif %}
         {% comment %}
         --------{{reserved.copy_id}}--------

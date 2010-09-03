@@ -4,7 +4,6 @@
 
     <div id='menu'>
       <ul>
-        {% if perms.baseapp.add_reservation %}     <li><a href="/entelib/profile/reservations/new/">    Rent a book           </a></li> {% endif %}
         {% if can_list_books %}
           <li><a href="/entelib/books/">Books</a>
             <ul>
@@ -12,7 +11,8 @@
               {% if perms.baseapp.list_bookrequests %}<li><a href="{% url bookrequest_active %}">       Book request list     </a></li> 
                 <li class="separator"></li>
               {% endif %}
-              {% if perms.baseapp.list_books %}      <li><a href="/entelib/books/">                     Book list             </a></li> {% endif %}
+              {# following row is link to book listing - too many of those #}
+              {# {% if perms.baseapp.list_books %}      <li><a href="/entelib/books/">                     Book list             </a></li> {% endif %} #}
               {% if perms.baseapp.add_book %}        <li><a href="{% url book_add %}">                  Add book              </a></li> 
                 <li class="separator"></li>
               {% endif %}
@@ -39,6 +39,8 @@
             </ul>
           </li>
         {% endif %}
+        {# following row is link to book listing - too many of those #}
+        {# {% if perms.baseapp.add_reservation %}     <li><a href="/entelib/profile/reservations/new/">    Rent something        </a></li> {% endif %} #}
                                                                                                                               
         {% if can_view_own_profile %}              <li><a href="/entelib/profile/">                     My profile            </a>      
           <ul>                                                                                                                
@@ -52,7 +54,7 @@
 
         {% if user.get_profile.is_librarian %}    
           <li>
-            Work
+            <a href="/entelib/shipment">Work</a>
               <ul>
                 {% if user.get_profile.is_librarian %}    <li><a href="/entelib/shipment">              Shipment requests     </a></li> {% endif %}
                 {% if user.get_profile.is_librarian %}    <li><a href="/entelib/current_reservations/"> Current reservations  </a></li> {% endif %}

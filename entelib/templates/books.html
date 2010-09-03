@@ -12,26 +12,25 @@
     <div class="tip">
       <ol>
         {% if user.get_profile.is_librarian %}
-            <li><p>Two ways of using this view:
-                <ol>
                     <li>
-                        You type into ID field a prefix of specific book copy shelf mark:
+                        Librarian only usage: you type into ID field a substring of specific book copy shelf mark (ID) (and press Enter or click Search)
                         <ul>
-                            <li>You are shown all copies with IDs starting with that prefix.</li>
-                            <li>All other field are ignored</li>
+                            <li>You are shown all copies with IDs containing that substring.</li>
+                            <li>All other field are ignored.</li>
                         </ul>
                     </li>
-                    <li>
-                        You don't type into ID field:
-                        <ul>
-                            <li>You are shown all titles (not copies) filtered by all fields you typed into.</li>
-                            <li>You don't need to type anything. Simply clicking Search button will list all books</li>
-                            <li>Selecting checkbox next to search field will cause filtering on that field behave like there is an <i>or</i> between search words. Unselecting it inserts an <i>and</i>.</li>
-                            <li>Regexp is not supported.</li>
-                        </ul>
-                </ol>
-            </li>
         {% endif %}
+        <li>
+            Normal usage:
+            <ul>
+                <li>Do any/all/none of: typing into Title, Author fields, selecting category/ies</li>
+                <li>Press Search/Enter</li>
+                <li>You are shown all titles (not copies) filtered by all fields you typed into</li>
+                <li>Selecting checkbox next to search field will cause searching for any of typed/selected keywords.</li>
+                <li>Otherwise (by default) only books containing <strong>all</strong> search words are found</li>
+                <li>Regexp is not supported for now</li>
+            </ul>
+        </li>
         <li><p>If you use Firefox or Opera you can click and drag to multiselect locations. In Chrome you can use CTRL+click. In IE both ways works.</p></li>
         <li><p>In categories, selecting "Any" has effect iff nothing else is selected. If "Any" and sth else is selected, then "Any" would be automatically deselected.</p></li>
       </ol>
