@@ -90,9 +90,9 @@
         {% block row_start %}
         {% endblock row_start %}
         <td>
-            <a href="{{row.id}}/">{{ row.username }}</a>
+            <a href="{% url user_one row.id %}">{{ row.username }}</a>
         </td> <td>
-            <a href="{{row.id}}/">{{ row.first_name }} {{ row.last_name }}</a>
+            <a href="{% url user_one row.id %}">{{ row.first_name }} {{ row.last_name }}</a>
         </td> <td>
             <a href='mailto:{{row.email}}'>{{ row.email }}</a>
 

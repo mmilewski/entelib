@@ -611,7 +611,7 @@ def show_user_reservations(request, user_id=False):
                           # 'url' : unicode(r.id) + u'/',
                           'book_copy_id' : r.book_copy.id,
                           'shelf_mark' : r.book_copy.shelf_mark,
-                          'rental_impossible' : '' if is_reservation_rentable(r) and r.book_copy.location.maintainer.count() > 0 else 'available for ' + str(reservation_status(r)) + ' days',
+                          'rental_impossible' : '' if is_reservation_rentable(r) and r.book_copy.location.maintainer.count() > 0 else reservation_status(r),
                           'title' : r.book_copy.book.title,
                           'authors' : [a.name for a in r.book_copy.book.author.all()],
                           'from_date' : r.start_date,

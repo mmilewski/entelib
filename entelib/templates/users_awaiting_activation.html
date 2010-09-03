@@ -12,6 +12,7 @@
 
 
 {% block header_row_end %}
+    <th> Registered </th>
     <th> </th>
 {% endblock header_row_end %}
 
@@ -28,6 +29,9 @@
 
 
 {% block row_end %}
+    <td>
+        {{ row.date_joined|date:"Y-m-d" }}
+    </td>
     <td>
             <input type='submit' name='refuse' value='Reject'>
         </form>

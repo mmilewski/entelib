@@ -1163,13 +1163,12 @@ def activate_many_users(request, all_inactive=False):
     if request.method == 'POST':
         post = request.POST
         user = get_object_or_404(User, id=post['user_id'])
-        profile = user.userprofile
-        profile.awaits_activation = False
         if 'activate' in post:
-            profile.save()
-            user.is_active = True
-            user.save()
+            aux.activate_user(user)
+            message.info(request, 'User activated')
         elif 'refuse' in post:
+            profile = user.userprofile
+            profile.awaits_activation = False
             profile.save()
             
     users = User.objects.filter(is_active=False)
