@@ -93,13 +93,15 @@
         {% endif %}
         </ul>
       </div>
+
       <!-- TIME BAR -->
       {% if display_time_bar %}
       <div class="time_barWrapper">
         {% include "time_bar/controls.html" %}
+        {% include "time_bar/symbology.html" %}
         {% include "time_bar/standalone_copy_code.html" %}
       </div>
-      {% endif %}
+        {% endif %}
     </div>
     <!--  TOC  -->
     {% if copy.toc or copy.toc_url %}

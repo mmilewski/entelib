@@ -34,14 +34,15 @@ class ConfigValueTypeHelper(object):
              ...
             }
         parse_fun is mandatory
-        error_msg is optional
+        error_msg is optional. If not given, message from parse_fun will be used.
         '''
         def parse_list_of_groupnames(names):
-            '''
-            Returns list of group names.
+            """
+            Returns list of group names. If any of names doesn't name a group, ValueError will be raised.
+            Exception will be raised only for first 'fake' name.
             Args:
                 names -- list of group names as string.
-            '''
+            """
             from django.contrib.auth.models import Group
             names = names.replace("u'", '').replace('u"', '')    # naive method of parsing. How to do it better?
             names = names.replace('"', '').replace("'", '')

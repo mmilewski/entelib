@@ -37,7 +37,7 @@
     {% if display_tips %}
     <div class="tip">
       <p>1. If you use Firefox or Opera you can click and drag to multiselect locations. In Chrome you can use CTRL+click</p>
-      <p>2. Selecting "Any" has effect only iff nothing else is selected. If "Any" and sth else is selected, then "Any" would be deselected</p>
+      <p>2. Selecting "Any" has effect if and only if nothing else is selected. If "Any" and sth else is selected, then "Any" would be deselected</p>
     </div>
     {% endif %}
 
@@ -109,6 +109,7 @@
             <!-- TIME BAR controls -->
             {% if display_time_bar %}
             {% include "time_bar/controls.html" %}
+            {% include "time_bar/symbology.html" %}
             {% endif %}
 
             <!-- LIST OF COPIES -->

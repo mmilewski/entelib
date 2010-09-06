@@ -348,6 +348,7 @@ def show_books(request, non_standard_user_id=False):
                                  })
 
     else:
+        show_books = True
         if config.get_bool('list_all_books_as_default'):
             booklist = Book.objects.select_related().all()
     # prepare each book (add url, list of authors) for rendering
@@ -1371,19 +1372,23 @@ def show_add_bookrequest(request, book_id=0, request_form=forms.BookRequestAddFo
         book_id -- if leq 0, then request for book supposed. Otherwise - for book with given id, which should be highlighted.
     """
     book_id = int(book_id)
+    requesting_copy = book_id > 0
     user = request.user
     template = 'bookrequests/add.html'
     context = {}
     config = Config(user)
-    
-    if book_id > 0:
+    book = None               # related book if requesting a copy, None otherwise
+
+    if requesting_copy:
+        book = get_object_or_404(Book, id=book_id)
+        context['related_book'] = book
         info_template = config.get_str('book_request_copyinfo_template')
     else:
         info_template = config.get_str('book_request_bookinfo_template')
-        
+
     initial_data = {
-        'info' : info_template,
-        'book' : book_id,
+        'info'         : info_template,
+        'book'         : book_id,
         }
     # redisplay form
     if request.method == 'POST':
@@ -1395,9 +1400,13 @@ def show_add_bookrequest(request, book_id=0, request_form=forms.BookRequestAddFo
     # display fresh new form
     else:
         form = request_form(user=user, initial=initial_data)
-    context['form_content'] = form
-    context['books'] = Book.objects.all()
-    context['requested_items'] = BookRequest.objects.all()
+    context.update( {
+            'form_content'    : form,
+            'books'           : list(Book.objects.all()),
+            'requested_items' : list(BookRequest.objects.all()),
+            'requesting_copy' : requesting_copy,
+            'requesting_book' : not requesting_copy,
+            })
     context.update(extra_context)
     return render_response(request, template, context)
 

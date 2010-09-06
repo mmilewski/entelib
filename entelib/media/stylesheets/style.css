@@ -351,7 +351,7 @@ div.config_options_wrapper div.option {
 }
 div.config_options_wrapper div.option:hover {
     background: #ffcf00;
-    font-size: 115%;
+    /* font-size: 115%; */
     z-index: 1000;
 }
 div.config_options_wrapper dt.key {

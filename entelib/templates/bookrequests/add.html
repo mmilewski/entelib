@@ -24,8 +24,9 @@
     {% if display_tips %}
         <div class="usage_info tip">
             <p>Do you need a book not present in library? Or... all copies of book you need are reserved? Here you can make such suggestion.</p>
-            <p>If you want to <em>request a book</em> set book field to 'not applicable'.</p>
-            <p>If you want to <em>request a new copy of existing book</em> find appropriate book on a drop-down list and give short information why another copy should be bought.</p>
+            <p>If you want to <em>request another copy of existing book</em> use <a href="{% url book_all %}">book searching</a> to find it
+              first. Then click <em>Request another copy</em>.
+            </p>
         </div>
     {% endif %}
     
@@ -38,14 +39,17 @@
           <center>
             <table class="basic_fields">
             <tbody>
+              {% if requesting_copy %}
                 <tr>
-                    <td>  {{form_content.book.label}}:
-                      <br/>{{form_content.book}}
-                      <br/>{{form_content.book.errors}}
+                    <td>   {{form_content.book.label}}:
+                      {{ related_book.title }}
+                      <!-- <br/>{{form_content.book}} -->
+                      <!-- <br/>{{form_content.book.errors}} -->
                     </td>
                 </tr>
+              {% endif %}
                 <tr>
-                    <td>  {{form_content.info.label}}:
+                    <td>   {{form_content.info.label}}:
                       <br/>{{form_content.info}}
                       <br/>{{form_content.info.errors}}   </td>
                 </tr>

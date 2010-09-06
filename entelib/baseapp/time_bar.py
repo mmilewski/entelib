@@ -24,11 +24,15 @@ def timedelta_as_int(delta):
 
 class Segment(object):
     
-    def __init__(self, start, end, z=0, is_available=False):
+    def __init__(self, start, end, z=0, is_available=False, overdue=False):
         self.start = start
         self.end = end
         self.z = z                         # z-plane
         self.is_available = is_available   # as default Segment instance is unavailable (not rentable or sth)
+        self.who_reserved = None
+        self.overdued = overdue            # True iff rental overdued
+        self.overdue_time = None           # timedelta - length of overdue. Usable only if self.overdued == True
+        self.from_flattened_group = False  # True iff segments belongs to flattened bar (= summary bar - this small on top)
     
     @classmethod
     def from_tuple(cls, tuple):
@@ -51,15 +55,34 @@ class Segment(object):
     def __unicode__(self):
         avail_flag = 'T' if self.is_available else 'F'
         return u'Segment(%s, %s, %s, %s)' % (self.start, self.end, self.z, avail_flag)
+
+    def get_caption(self):
+        if self.from_flattened_group:
+            return 'available' if self.is_available else 'unavailable'
+        
+        if self.is_available:
+            return 'free'
+        elif self.overdued:
+            days = self.overdue_time.days
+            if days > 1:
+                return 'overdue for %s days' % days
+            else:
+                return 'overdue for 1 day'
+        elif self.rental:
+            return 'rented'
+        else:
+            return 'reserved'
     
     def get_html_str(self):
         """ 
         Returns string for displaying in html. __unicode__ is not used, because 
         it returns the simplest representation of Segment -- very useful in test.
         """
-        rentable_caption = 'rentable' if self.is_available else 'not rentable'
-        if hasattr(self, 'who_reserved'):
-            who = aux.user_full_name(self.who_reserved, True)
+        rentable_caption = self.get_caption()
+        if self.from_flattened_group:
+            return u'Summary bar. (%s, %s) %s' % (self.start, self.end, rentable_caption)
+        if hasattr(self, 'who_reserved') and self.who_reserved:
+            who = self.who_reserved.email
             return u'(%s, %s) %s. Who: %s' % (self.start, self.end, rentable_caption, who)
         else:
             return u'(%s, %s) %s' % (self.start, self.end, rentable_caption)
@@ -227,6 +250,7 @@ class TimeBar(object):
             if should_add:
                 new_seg = Segment(old_seg.end + self.one, segments[i+1].start - self.one , old_seg.z)
                 new_seg.is_available = True
+                assert not new_seg.who_reserved
                 modified_segs.append(new_seg)
         modified_segs.append(segments[-1])
         return modified_segs
@@ -260,11 +284,42 @@ class TimeBar(object):
         # sort each group (lex sort)
         if sort:
             for group in segments_by_depth:
-                cmp_by_start = lambda a,b: 0 if a.start == b.start else ( -1 if a.start < b.start else 1 ) 
+                cmp_by_start = lambda a,b: 0 if a.start == b.start else ( -1 if a.start < b.start else 1 )
                 group.sort(cmp=cmp_by_start)
         return segments_by_depth
-    
-    
+
+
+    def get_flattened_group(self, groups):
+        segments = [Segment(s.start,s.end, is_available=False) for group in groups for s in group if not s.is_available]
+        if not segments:
+            return []
+        segments.sort(cmp=lambda a,b: 0 if a.start==b.start else (-1 if a.start<b.start else 1))
+        noncolliding_segments = [segments[0]]
+        laststart, lastend = noncolliding_segments[0].start, noncolliding_segments[0].end
+        changed = True
+        last_result = []
+        while changed:
+            changed = False
+            for s in segments:
+                if laststart <= s.start <= lastend < s.end:
+                    noncolliding_segments.pop()
+                    noncolliding_segments.append(Segment(laststart, s.end, is_available=False))
+                    changed = True
+                elif lastend < s.start:
+                    noncolliding_segments.append(Segment(s.start, s.end, is_available=False))
+                    laststart, lastend = s.start, s.end
+                    changed = True
+            noncolliding_segments.sort(cmp=lambda a,b: 0 if a.start==b.start else (-1 if a.start<b.start else 1))
+            if last_result == noncolliding_segments:
+                break
+            else:
+                last_result = noncolliding_segments
+            segments = noncolliding_segments
+            laststart, lastend = segments[0].start, segments[0].end
+            noncolliding_segments = [segments[0]]
+        return noncolliding_segments
+
+
     def start_with_value(self, segments, start_value):
         """ 
         Adds segment at the begging of group (list of segments). May return shallow copy. 
@@ -292,10 +347,8 @@ class TimeBar(object):
         # what about first element? Needs inserting or shrinking?        
         if result:
             if result[0].start > start_value:      #      |-------|------
-                new_seg = copy(result[0])          #   ^
-                new_seg.end = result[0].start - self.one
-                new_seg.start = start_value
-                new_seg.is_available = True
+                                                   #   ^
+                new_seg = Segment(start_value, result[0].start - self.one, result[0].z, is_available=True)
                 result.insert(0, new_seg)
             elif result[0].start < start_value:    #    |---------|------
                 result[0].start = start_value      #        ^
@@ -438,6 +491,23 @@ class TimeBar(object):
                 return cur_gcd
         return cur_gcd
         
+    def get_cssclass_for_segment(self, s):
+        if s.from_flattened_group:
+            return 'seg_flattened_a' if s.is_available else 'seg_flattened_u'
+        
+        rented    = 'seg_rented'
+        reserved  = 'seg_reserved'
+        overdued  = 'seg_overdued'
+        available = 'seg_available'
+
+        if s.is_available:
+            return available
+        elif s.overdued:
+            return overdued
+        elif s.rental:
+            return rented
+        else:
+            return reserved
         
     def get_html_for_segments(self, grouped_segments):
         """
@@ -456,13 +526,13 @@ class TimeBar(object):
         # all groups should have the same width. Otherwise there would be no vertical alignment.
         group_width = self.get_width_of_group(grouped_segments[0])
         assert group_width > 0
-        
+                
         html = u'' 
         for group in grouped_segments:
             html += '<div class="group">'
             segs_total_width = 0
             for segment in group:
-                seg_color_class = ['red_segment', 'green_segment'][int(segment.is_available)]       # False ~~> 0, True ~~> 1
+                seg_color_class = self.get_cssclass_for_segment(segment)
                 seg_width = timedelta_as_int(segment.end - segment.start) + 1
                 segs_total_width += seg_width
                 seg_width_pc = (100.0 * seg_width) / group_width                                    # pc = percentage
@@ -473,7 +543,7 @@ class TimeBar(object):
                     html += seg_title
                 html += '</div>  '
             html += '</div>'
-#            html += '<div class="group"><br></div>'                   # spacer
+            # html += '<div class="group"><br></div>'                   # in-group spacer
         return html
 
 
@@ -520,14 +590,22 @@ def get_time_bar_code_for_copy(config, book_copy, from_date, to_date):
     
     reservations = Reservation.objects.filter(book_copy=book_copy) \
                                       .filter(when_cancelled=None) \
-                                      .filter(Q(rental=None)|Q(rental__end_date=None)) \
                                       .filter(Q_start_inside_range | Q_end_inside_range | Q_covers_whole_range) \
                                       .order_by('start_date')
+                                      # .filter(Q(rental=None)|Q(rental__end_date=None)) \
 
     segments = []
     for r in reservations:
         seg = Segment(r.start_date, r.end_date)
         seg.who_reserved = r.for_whom
+        rentals = list(r.rental_set.all())
+        seg.rental = rentals[0] if rentals else None
+        seg.overdued = False
+        if seg.rental:
+            end = seg.rental.end_date.date() if seg.rental.end_date else datetime.datetime.now().date()
+            seg.overdued = r.end_date < end
+            seg.overdue_time = end - r.end_date
+            seg.end = end
         segments.append(seg)
     # NOTE: if one would like to add some extra informations to segments, it can be done above.
     #       This is why segment is an object and not a tuple.
@@ -538,7 +616,7 @@ def get_time_bar_code_for_copy(config, book_copy, from_date, to_date):
     grouped_segs = tb.split_segments_by_depth(result_segments)                # and collect them in groups
     
     # set number of colliding groups. Cut surplus. 
-    max_colliding_groups = 5 
+    max_colliding_groups = 10
     grouped_segs = grouped_segs[:max_colliding_groups]
     
     # "correct" each group, which means add "green segments" in between, cut/enlarge start and end dates properly
@@ -557,7 +635,20 @@ def get_time_bar_code_for_copy(config, book_copy, from_date, to_date):
     if not result_segments:
         group = [Segment(from_date, to_date, is_available=True)]
         result_segments.append(group)
-    
+
+    # create group which is a flattened version of time bar
+    if len(result_segments) > 1:
+        flattened_group = tb.get_flattened_group(result_segments)
+        filled_group = tb.add_segment_between_each_two(flattened_group)
+        if filled_group:
+            filled_group = tb.start_with_value(filled_group, date_range[0])
+        if filled_group:
+            filled_group = tb.end_with_value(filled_group, date_range[1])
+        flattened_group = filled_group
+        for segment in flattened_group:
+            segment.from_flattened_group = True
+        result_segments.insert(0, flattened_group)
+
     # generate html
     html = tb.get_html_for_segments(result_segments)
 
