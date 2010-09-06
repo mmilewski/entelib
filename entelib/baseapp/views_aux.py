@@ -486,6 +486,7 @@ def show_user_rentals(request, user_id=False):
     context = { 'first_name' : user.first_name,
                 'last_name' : user.last_name,
                 'email' : user.email,
+                'reader' : user,
                 }
 
     # Return button clicked for a rental:
@@ -542,6 +543,7 @@ def show_user_rental_archive(request, user_id=False):
 
     context = { 'rows' : rent_list,
                 'for_whom' : user.first_name + ' ' + user.last_name if user_id else None,
+                'reader' : user,
               }
     return render_response(request, 'rental_archive.html', context)
 
@@ -566,9 +568,10 @@ def show_user_reservations(request, user_id=False):
         user = get_object_or_404(User, id=user_id)
 
     # prepare some data
-    context = { 'first_name'     : user.first_name,
-                'last_name'      : user.last_name,
-                'email'          : user.email,
+    context = { 'first_name'     : user.first_name, #
+                'last_name'      : user.last_name, #
+                'email'          : user.email, #
+                'reader'         : user,
                 'cancel_all_url' : 'cancel-all/',
                 'can_cancel'     : (request.user == user and user.has_perm('baseapp.change_own_reservation'))\
                                    or\
@@ -666,6 +669,7 @@ def show_user_reservation_archive(request, user_id=None):
             })
     context = {'rows' : reservation_list,
                'for_whom' : user.first_name + ' ' + user.last_name if user_id else None,
+               'reader' : user,
                }
 
     return render_response(request, 'reservation_archive.html', context)

@@ -2,7 +2,7 @@
 
 {% block title %}All rentals{% endblock %}
 
-{% block header %} {% if for_whom %} {{ for_whom }} {% else %}Rental archive{% endif %} {% endblock %}
+{% block header %} {% if reader %} {{ reader.first_name }} {{ reader.last_name }} {% else %}Rental archive{% endif %} {% endblock %}
 
 {% block order %} [[1,0]] {% endblock %}
 {% block itemsWrapper %}rsv_archive itemsWrapper{% endblock %}

@@ -57,7 +57,18 @@
                             {{ field }}
                         {% endif %}
                         {{ field.errors }} </td>
-                        <td></td>
+                        <td>
+                            <div class='book_actions'>
+                                {% if field.label == 'Author' %}
+                                    <a href='{% url author_add %}' class='add_author' target='_blank'>New author</a>
+                            <a href='javascript:location.reload()' class='refresh'>Refresh</a>
+                                {% endif %}
+                                {% if field.label == 'Category' %}
+                                    <a href='{% url category_add %}' class='add_category' target='_blank'>New category</a>
+                            <a href='javascript:location.reload()' class='refresh'>Refresh</a>
+                                {% endif %}
+                            </div>
+                        </td>
                     </tr>
                 {% endfor %}
                 <tr>

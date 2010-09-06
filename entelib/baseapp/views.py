@@ -1256,12 +1256,15 @@ def generic_edit_item(request, name_single, name_plural, item_id, edit_form, mod
 @permission_required('baseapp.list_authors')
 def show_authors(request):
     return generic_items(request, 'author', 'authors', Author.objects.all())
+
 @permission_required('baseapp.view_author')
 def show_author(request, author_id):
     return generic_item(request, 'author', 'authors', author_id, Author)
+
 @permission_required('baseapp.add_author')
 def show_add_author(request, edit_form=forms.AuthorForm):
     return generic_add_item(request, 'author', 'authors', edit_form, Author)
+
 @permission_required('baseapp.change_author')
 def show_edit_author(request, author_id, edit_form=forms.AuthorForm):
     return generic_edit_item(request, 'author', 'authors', author_id, edit_form, Author)
@@ -1269,12 +1272,15 @@ def show_edit_author(request, author_id, edit_form=forms.AuthorForm):
 @permission_required('baseapp.list_categories')
 def show_categories(request):
     return generic_items(request, 'category', 'categories', Category.objects.all())
+
 @permission_required('baseapp.view_category')
 def show_category(request, category_id):
     return generic_item(request, 'category', 'categories', category_id, Category)
+
 @permission_required('baseapp.add_category')
 def show_add_category(request, edit_form=forms.CategoryForm):
     return generic_add_item(request, 'category', 'categories', edit_form, Category)
+
 @permission_required('baseapp.change_category')
 def show_edit_category(request, category_id, edit_form=forms.CategoryForm):
     return generic_edit_item(request, 'category', 'categories', category_id, edit_form, Category)
@@ -1282,12 +1288,15 @@ def show_edit_category(request, category_id, edit_form=forms.CategoryForm):
 @permission_required('baseapp.list_buildings')
 def show_buildings(request):
     return generic_items(request, 'building', 'buildings', Building.objects.all())
+
 @permission_required('baseapp.view_building')
 def show_building(request, building_id):
     return generic_item(request, 'building', 'buildings', building_id, Building)
+
 @permission_required('baseapp.add_building')
 def show_add_building(request, edit_form=forms.BuildingForm):
     return generic_add_item(request, 'building', 'buildings', edit_form, Building)
+
 @permission_required('baseapp.change_building')
 def show_edit_building(request, building_id, edit_form=forms.BuildingForm):
     return generic_edit_item(request, 'building', 'buildings', building_id, edit_form, Building)
@@ -1321,12 +1330,15 @@ def show_edit_costcenter(request, costcenter_id, edit_form=forms.CostCenterForm)
 @permission_required('baseapp.list_states')
 def show_states(request):
     return generic_items(request, 'state', 'states', State.objects.all())
+
 @permission_required('baseapp.view_state')
 def show_state(request, state_id):
     return generic_item(request, 'state', 'states', state_id, State)
+
 @permission_required('baseapp.add_state')
 def show_add_state(request, edit_form=forms.StateForm):
     return generic_add_item(request, 'state', 'states', edit_form, State)
+
 @permission_required('baseapp.change_state')
 def show_edit_state(request, state_id, edit_form=forms.StateForm):
     return generic_edit_item(request, 'state', 'states', state_id, edit_form, State)
@@ -1334,18 +1346,22 @@ def show_edit_state(request, state_id, edit_form=forms.StateForm):
 @permission_required('baseapp.list_bookrequests')
 def show_bookrequests_active(request):
     return generic_items(request, 'bookrequest', 'bookrequests', BookRequest.objects.filter(done=False).order_by('-when'), extra_context={'displays_only_active':True})
+
 @permission_required('baseapp.list_bookrequests')
 def show_bookrequests(request):
     return generic_items(request, 'bookrequest', 'bookrequests', BookRequest.objects.all().order_by('-when'), extra_context={'displays_all':True})
+
 @permission_required('baseapp.view_bookrequest')
 def show_bookrequest(request, bookrequest_id):
     return generic_item(request, 'bookrequest', 'bookrequests', bookrequest_id, BookRequest)
 # @permission_required('baseapp.add_bookrequest')
 # def show_add_bookrequest(request, edit_form=forms.BookRequestForm):
 #     return generic_add_item(request, 'bookrequest', 'bookrequests', edit_form, BookRequest)
+
 @permission_required('baseapp.change_bookrequest')
 def show_edit_bookrequest(request, bookrequest_id, edit_form=forms.BookRequestForm):
     return generic_edit_item(request, 'bookrequest', 'bookrequests', bookrequest_id, edit_form, BookRequest)
+
 @permission_required('baseapp.add_bookrequest')
 def show_add_bookrequest(request, book_id=0, request_form=forms.BookRequestAddForm, extra_context={}):
     """

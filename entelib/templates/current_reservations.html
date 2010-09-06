@@ -43,7 +43,7 @@
         <input type='hidden' name='reservation_id' value='{{ row.id }}' />
         <td>
             <input type='submit' name='rent' value=
-                {% if shipments %} 'Send' {% else %} 'Rent' {% endif %}
+                {% if shipments %} "I'm sending" {% else %} 'Rent' {% endif %}
                 {% if not row.rental_possible %} disabled {% endif %} >
         </td><td>
             {{ row.shelf_mark }}

@@ -2,7 +2,7 @@
 
 {% block title %}User rentals{% endblock %}
 
-{% block header %}User rentals{% endblock %}
+{% block header %}{% if reader %} {{ reader.first_name }} {{ reader.last_name }} {% else %}User rentals{% endif %}{% endblock %}
 
 {% block befor_table %}
     <b>
