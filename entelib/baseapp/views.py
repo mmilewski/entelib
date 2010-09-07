@@ -350,7 +350,7 @@ def show_books(request, non_standard_user_id=False):
     else:
         show_books = True
         if config.get_bool('list_all_books_as_default'):
-            booklist = Book.objects.select_related().all()
+            booklist = Book.objects.select_related()
     # prepare each book (add url, list of authors) for rendering
     if booklist and show_books:
         booklist = booklist.order_by('title')
@@ -1166,7 +1166,7 @@ def activate_many_users(request, all_inactive=False):
         user = get_object_or_404(User, id=post['user_id'])
         if 'activate' in post:
             aux.activate_user(user)
-            message.info(request, 'User activated')
+            messages.info(request, 'User activated')
         elif 'refuse' in post:
             profile = user.userprofile
             profile.awaits_activation = False
