@@ -19,8 +19,9 @@ div.group div.seg_reserved  {  background: #ccc url('/media/images/tb_stripes.gi
 div.group div.seg_rented    {  background: #ff8400 url('/media/images/tb_tildes.gif') center left repeat-x !important;  }
 div.group div.seg_overdued  {  background: #8010a2 url('/media/images/tb_circles.gif') center left repeat-x !important;  }
 div.group div.seg_available {  background-color: #eee;  }
-div.group div.seg_flattened_u {  background-color: #777;  height: 1.4em !important;  }
-div.group div.seg_flattened_a {  background-color: #eee;  height: 1.4em !important;  }
+div.group div.seg_flattened_u {  background-color: #777;  height: 2.4em !important;  }
+div.group div.seg_flattened_a {  background-color: #eee;  height: 2.4em !important;  }
+div.group div.seg_summary,
 div.group div.seg_flattened_u,
 div.group div.seg_flattened_a,
 div.group div.seg_reserved,
@@ -30,17 +31,18 @@ div.group div.seg_available {
     display: block;
     float: left;
     font-size: 85%;
-    height: 2.4em;
+    height: 1.4em;
     border-bottom: 1px solid black;
     overflow: hidden;
 }
 
-div.symbology {  margin-left: 1em;  height:4em;  }
+div.symbology {  margin-left: 1em;  }
 div.symbology div.group div.box {
     margin: .6em;
     padding: .1em .5em;
     border: 1px solid black;
     font-size: 100% !important;
+    height: 1.2em !important;
     width: 3em;
 }
 div.symbology div.group div.name {
@@ -49,7 +51,7 @@ div.symbology div.group div.name {
     vertical-align: middle;
     padding: 0;
     margin-left: 1.5em;
-    margin-top: 1.3em;
+    margin-top: .7em;
     margin-right: -.4em;
 }
 
