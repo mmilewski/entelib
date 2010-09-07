@@ -21,6 +21,9 @@ def accessed(response):
         return login_infix not in response['Location']
     if isinstance(response, HttpResponseRedirect):
         return login_infix not in response['Location']
+
+    if not hasattr(response, 'redirect_chain'):
+        return True
     rc = response.redirect_chain
     if not rc:
         return True
@@ -38,7 +41,7 @@ def choice(collection):
 
 def form_errors_happened(html):
     ''' Checks if html contains form errors. '''
-    return re.compile('<form.*error.*</form>', re.I).match(html)
+    return re.compile('.*<form.*error.*</form>.*', re.S).match(html)
 
 def no_form_errors_happened(html):
     return not form_errors_happened(html)

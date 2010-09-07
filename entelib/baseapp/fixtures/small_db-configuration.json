@@ -110,20 +110,30 @@
         }
     }, 
     {
-        "pk": "book_request_info_template", 
+        "pk": "book_request_bookinfo_template", 
         "model": "baseapp.configuration", 
         "fields": {
             "can_override": false, 
             "type": "unicode", 
             "description": "Template which is displayed to help in filling request book form", 
-            "value": "\"Title:\\n\\n\\nAuthors:\\n\\n\\nPublication:\\n\\n\\nUrl:\\n\\n\""
+            "value": "\"Title:\\n\\n\\nAuthors:\\n\\n\\nNumber of copies:\\n\\n\\nSuggested locations:\\n\\n\\nAdditional info:\\n\\n\""
+        }
+    }, 
+    {
+        "pk": "book_request_copyinfo_template", 
+        "model": "baseapp.configuration", 
+        "fields": {
+            "can_override": false, 
+            "type": "unicode", 
+            "description": "Template which is displayed to help in filling request book form", 
+            "value": "\"Number of copies:\\n\\n\\nSuggested locations:\\n\\n\\nAdditional info:\\n\\n\""
         }
     }, 
     {
         "pk": "copies_location_select_size", 
         "model": "baseapp.configuration", 
         "fields": {
-            "can_override": true, 
+            "can_override": false, 
             "type": "int", 
             "description": "Number of location elements to display in select list when filtering copies of a book", 
             "value": "5"
@@ -133,7 +143,7 @@
         "pk": "categories_select_size", 
         "model": "baseapp.configuration", 
         "fields": {
-            "can_override": true, 
+            "can_override": false, 
             "type": "int", 
             "description": "Number of categories displayed in select list while filtering books", 
             "value": "6"
@@ -167,6 +177,16 @@
             "type": "int", 
             "description": "When listing book copies, it says for how many days forward user will be shown when a copy is reserved.", 
             "value": "90"
+        }
+    }, 
+    {
+        "pk": "list_all_books_as_default", 
+        "model": "baseapp.configuration", 
+        "fields": {
+            "can_override": true, 
+            "type": "bool", 
+            "description": "If true then in searching all books will be listed as default", 
+            "value": "true"
         }
     }, 
     {
@@ -257,6 +277,15 @@
             "type": "unicode", 
             "description": "Name of link displayed when filtering books/copies/...", 
             "value": "\"Back\""
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "baseapp.userconfiguration", 
+        "fields": {
+            "option": "list_all_books_as_default", 
+            "value": "true", 
+            "user": 1
         }
     }, 
     {

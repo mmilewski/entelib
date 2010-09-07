@@ -34,6 +34,7 @@ class RegisterFreshNewUserTest(TestWithSmallDB):
         first_name, last_name = 'Nowy', 'User12374hov21fiu3'
         data = { 'first_name' : first_name,
                  'last_name'  : last_name,
+                 'username'   : 'nowyuser',
                  'email'      : email,
                  'password1'  : 'superpassword',
                  'password2'  : 'superpassword',
@@ -84,10 +85,11 @@ class AddNewUserTest(TestWithSmallDB):
 
     def test_new_user_registered(self):
         self.log_admin()
-        email = 'jes.tem-n_owy@domain.com'
-        first_name, last_name = 'Nowy', 'User12374hov21fiu3'
+        email = 'jes.temowy@nsn.com'
+        first_name, last_name = 'Jan', 'Nowak'
         data = { 'first_name' : first_name,
                  'last_name'  : last_name,
+                 'username'   : 'janeknowak',
                  'email'      : email,
                  'password1'  : 'superpassword',
                  'password2'  : 'superpassword',

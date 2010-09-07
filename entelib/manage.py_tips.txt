@@ -43,3 +43,6 @@ main(quiet=False)
 
 # terminate shell
 import sys; sys.exit()
+
+# write new version to fixture
+./manage.py dumpdata --indent 4 auth.Group > baseapp/fixtures/small_db-groups.json

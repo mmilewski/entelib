@@ -8,6 +8,7 @@ from entelib.baseapp.config import Config
 from entelib.baseapp.models import Reservation, Rental, User, UserProfile, Book, BookCopy, BookRequest, Configuration, Phone, Building
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 from test_utils import choice, accessed
+import test_utils as utils
 
 
 class TestWithSmallDB(Test):
@@ -129,7 +130,7 @@ class ShowEmailLogTest(TestWithSmallDB):
 
 class RequestBookTest(TestWithSmallDB):
     def setUp(self):
-        self.url = '/entelib/requestbook/'
+        self.url = '/entelib/bookrequests/add/'
         self.log_admin()
     
     def test_one_exists(self):
@@ -146,9 +147,12 @@ class RequestBookTest(TestWithSmallDB):
 
         after = self.get_state(BookRequest)
 
+        self.assert_(utils.accessed(response))
+        self.assert_(utils.no_form_errors_happened(response.content))
+        
         self.assertEqual(200, response.status_code)                                     # response ok
         self.assertEquals(len(before['BookRequest']) + 1, len(after['BookRequest']))    # exactly one came in
-        self.assertTemplateUsed(response, 'book_request.html')                          # correct template
+        self.assertTemplateUsed(response, 'bookrequests/add.html')                      # correct template
         self.assertContains(response, 'Thank you')                                      # request made: thanks
         last_added_book_request = BookRequest.objects.latest(field_name='id')           # our request is last
         self.assertEqual(book_id, last_added_book_request.book.id)                      # it's for the book we wanted
@@ -230,9 +234,13 @@ class ShowBooksTest(TestWithSmallDB):
     def test_get(self):
         ''' Test GET method. There should be no books listed '''
         response = self.client.get(self.url)
+        self.assert_(utils.accessed(response))
         self.assertEqual(200, response.status_code)
         self.assertNotContains(response, 'Sorry')
-        self.assertNotContains(response, 'Lem')
+        # # it's unknown if authors are listed -- depends on config option
+        # self.assertContains(response, 'Lem')
+        # self.assertContains(response, 'Mickiewicz')
+        # self.assertContains(response, 'Sienkiewicz')
 
     def test_empty_fields(self):
         response = self.client.post(self.url, {'action' : 'Search', 'author' : '', 'title' : '', 'category' : '0'})
@@ -1289,7 +1297,10 @@ class CancelAllMyReserevationsTest(TestWithSmallDB):
         self.assert_nothing_happens(self.url)
 
         # page displayed correctly
-        self.assertEquals([], self.response.redirect_chain)
+        # self.assertEquals([], self.response.redirect_chain)
+        response = self.response
+        self.assert_(utils.accessed(response))
+        self.assert_(utils.no_form_errors_happened(response.content))
         self.assertEquals(200, self.response.status_code)
         self.assertContains(self.response, 'Reservations cancelled')
         self.assertTemplateUsed(self.response, 'reservations_cancelled.html')

@@ -108,7 +108,8 @@ class PageAccessTest(Test):
         page_was_displayed('/entelib/books/')
         page_was_displayed('/entelib/books/1/')
         page_was_displayed('/entelib/books/1/edit/')
-        page_was_displayed('/entelib/requestbook/')
+        page_was_displayed('/entelib/bookrequests/')
+        page_was_displayed('/entelib/bookrequests/add/')
         page_was_displayed('/entelib/bookcopy/1/')
         page_was_displayed('/entelib/bookcopy/1/edit/')
         page_was_displayed('/entelib/bookcopy/1/reserve/')
@@ -165,7 +166,8 @@ non_login_redirect_urls = [
     ('/entelib/books',                                  _login_url + '?next=/entelib/books/'),
     ('/entelib/books/1/',                               _login_url + '?next=/entelib/books/1/'),
     ('/entelib/books/1/edit/',                          _login_url + '?next=/entelib/books/1/edit/'),
-    ('/entelib/requestbook/',                           _login_url + '?next=/entelib/requestbook/'),
+    ('/entelib/bookrequests/',                          _login_url + '?next=/entelib/bookrequests/'),
+    ('/entelib/bookrequests/add/',                      _login_url + '?next=/entelib/bookrequests/add/'),
     ('/entelib/bookcopy/1/',                            _login_url + '?next=/entelib/bookcopy/1/'),
     ('/entelib/bookcopy/1/edit/',                       _login_url + '?next=/entelib/bookcopy/1/edit/'),
     ('/entelib/bookcopy/1/reserve/',                    _login_url + '?next=/entelib/bookcopy/1/reserve/'),
@@ -213,7 +215,6 @@ add_non_login_redirect_url('/entelib/buildings/add/')
 
 
 non_login_urls = [
-    '/quickhack',
     '/entelib/login/',
     '/entelib/register/newuser/',
     '/entelib/register/action/',
