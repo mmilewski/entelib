@@ -169,7 +169,7 @@ def show_forgot_password(request):
                 context['errors'].append('Enter a valid e-mail address.')
             else:
                 # valid email, but whether user with such exist?
-                users = list(User.objects.filter(email=email))
+                users = list(User.objects.filter(email__iexact=email))
                 if len(users) > 1:
                     logger.error('%s users have email %s' % (len(users), email))
                 if not users:
