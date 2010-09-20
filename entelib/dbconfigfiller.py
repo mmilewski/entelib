@@ -41,9 +41,9 @@ def fill_config():
     _svd(config, t_list_groupnames, False, 'user_after_registration_groups', ['Readers'],      "User joins these groups right after he is registered")
 
     # emails
-    _svd(config, t_bool, False, 'send_emails',                            False,                           "True iff app will send emails.")
+    _svd(config, t_bool, False, 'send_emails',                             True,                           "True iff app will send emails.")
     _svd(config, t_bool, False, 'log_send_emails',                         True,                           "True iff send emails will be stored in db. Logging doesn't care about send_emails value")
-    _svd(config, t_unicode, False, 'default_email_sender',  u'NSN library <no-reply@library.nsn.wroc.pl>', "From what address user receives emails")
+    _svd(config, t_unicode, False, 'default_email_sender',  u'NSN library <dcwroclaw.nwslibrary@nsn.com>', "From what address user receives emails")
     _svd(config, t_unicode, False, 'default_email_subject', u'NSN library notification',                   "With what subjects user receives emails")
 
     # reservation/rental
