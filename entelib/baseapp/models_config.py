@@ -34,7 +34,7 @@ publisher_name_len = 50
 
 author_name_len = 50
 
-book_title_len = 50
+book_title_len = 150
 
 copy_toc_url_len = 256                # url to table of contents
 copy_desc_url_len = 256               # url to site with description

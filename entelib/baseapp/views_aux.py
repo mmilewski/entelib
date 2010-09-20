@@ -473,7 +473,7 @@ def return_rental(librarian, rental_id):
         librarian receives book from rental
 
     Args:
-        librarian - accepts returnal
+        librarian - User instance: accepts returnal
         rental_id - id of rental being ended
     '''
     returned_rental = get_object_or_404(Rental, id=rental_id)
