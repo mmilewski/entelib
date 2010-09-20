@@ -4,7 +4,7 @@ from copy import copy
 from datetime import date, timedelta
 from fractions import gcd
 from baseapp.utils import pprint, str_to_date, create_days_between, week_for_day,\
-    month_for_day
+    month_for_day, today
 import views_aux as aux
 from baseapp.models import Reservation, BookCopy
 from django.db.models.query_utils import Q
@@ -602,7 +602,7 @@ def get_time_bar_code_for_copy(config, book_copy, from_date, to_date):
         seg.rental = rentals[0] if rentals else None
         seg.overdued = False
         if seg.rental:
-            end = seg.rental.end_date.date() if seg.rental.end_date else datetime.datetime.now().date()
+            end = seg.rental.end_date.date() if seg.rental.end_date else seg.rental.reservation.end_date if r.end_date > today() else today()
             seg.overdued = r.end_date < end
             seg.overdue_time = end - r.end_date
             seg.end = end
