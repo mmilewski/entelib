@@ -448,6 +448,7 @@ div.itemsWrapper .options a.edit {
 
 /* MISC */
 div.add_new_user a,           /* 'add user' link */
+a.add_new_publisher,           /* 'add user' link */
 div.book_actions a.add_book,  /* 'add book' link */
 div.book_actions a.add_author,  /* 'add author' link */
 div.book_actions a.add_category,  /* 'add category' link */

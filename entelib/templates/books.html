@@ -186,7 +186,7 @@
                     {% if user.get_profile.is_librarian %}
                         <td class="shelfmark"><a href="{{ copy.url }}">{{ copy.shelf_mark }}</a></td>
                     {% endif %}
-                    <td class="state {%if not copy.state.is_available %}unavailable{%endif%}">{{ copy.state }}</td>
+                    <td class="state {%if not copy.state.is_available %}unavailable{%endif%}">{{ copy.state|safe }}</td>
                     <td class="title"><a href="{% url book_one copy.book.id %}">{{ copy.title }}</a></td>
                     <td class="authors">{% if copy.authors %}{{ copy.authors|join:', '}}{% else %}No authors.{% endif %}</td>
                     <td class="location"><a href="{% url location_one copy.location.id %}">{{ copy.location }}</a></td>

@@ -89,7 +89,7 @@
         {% if 'Unavailable' in copy.state %}
           <li class="book_state"><span class="label">State</span>: <span class="unavailable">{{ copy.state }}</span></li>
         {% else %}
-          <li class="book_state"><span class="label">State</span>: {{ copy.state }}</li>
+          <li class="book_state"><span class="label">State</span>: {{ copy.state|safe }}</li>
         {% endif %}
         </ul>
       </div>

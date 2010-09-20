@@ -44,8 +44,12 @@
             <li><a href='reservations/new/'>Rent something</a></li>
             <li><a href='reservations/'>Reservations</a> </li>
             <li><a href='rentals/'>Rentals</a></li>
-            {% if perms.auth.change_user and not reader.is_active %}
-                <li><a href='{% url activate_user user_id %}'>Activate this user</a></li>
+            {% if perms.auth.change_user %} 
+                {% if not reader.is_active %}
+                    <li><a href='{% url activate_user user_id %}'>Activate this user</a></li>
+                {% else %}
+                    <li><a href='{% url deactivate_user user_id %}'>Deactivate this user</a></li>
+                {% endif %}
             {% endif %}
             {% if user.id == user_id %}
                 <li><a href='config/'>Configuration</a></li>

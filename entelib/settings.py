@@ -140,4 +140,5 @@ AUTHENTICATION_BACKENDS = (
     'entelib.auth_backends.CustomUserModelBackend',
 )
 
+FORCE_SCRIPT_NAME = ''
 AUTH_PROFILE_MODULE = 'baseapp.UserProfile'

@@ -4,11 +4,11 @@
 
 {% block header %}{% if for_whom %} {{ for_whom }} {% else %} Book reservation {% endif %} {% endblock %}
 
-{% comment %}
 {% block go_up %}
-    <a href=up/>Go up</a><br />
+    <div class="goUpWrapper">
+        <a href="up/">Up</a>
+    </div>
 {% endblock %}
-{% endcomment %}
 
 {% block form %}
     <h3 id="rr">Reserve/Rent</h3>

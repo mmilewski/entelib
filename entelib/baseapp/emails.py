@@ -143,6 +143,19 @@ def user_activated(user):
     ctx = Context({'user' : user})
     recipient = _make_recipient_from_user(user)
     default_email([recipient], tpl, ctx)
+
+
+def user_deactivated(user, banner):
+    '''
+    Desc:
+        Send notification to deactivated user
+    Arg:
+        user is User object
+    '''
+    tpl = 'email/deactivated'
+    ctx = Context({'user' : user, 'banner' : banner})
+    recipient = _make_recipient_from_user(user)
+    default_email([recipient], tpl, ctx)
     
 
 def password_reset(user, new_password):

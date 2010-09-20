@@ -1106,11 +1106,18 @@ def activate_user(request, user_id):
     if not user.is_active:
         # print 'user not active!'
         # print user.id
-        aux.activate_user(user)
-        mail.user_activated(user)
+        aux.activate_user(request.user, user)
         return render_response(request, 'registration/user_activated.html', context)
     else:
         return render_response(request, 'registration/user_already_active.html', context)
+
+
+@permission_required('auth.change_user')
+def deactivate_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    context = {'deactivated_user' : user}
+    aux.deactivate_user(request.user, user)
+    return render_response(request, 'registration/user_deactivated.html', context)
 
 
 @permission_required('baseapp.add_rental')
@@ -1165,7 +1172,7 @@ def activate_many_users(request, all_inactive=False):
         post = request.POST
         user = get_object_or_404(User, id=post['user_id'])
         if 'activate' in post:
-            aux.activate_user(user)
+            aux.activate_user(request.user, user)
             messages.info(request, 'User activated')
         elif 'refuse' in post:
             profile = user.userprofile

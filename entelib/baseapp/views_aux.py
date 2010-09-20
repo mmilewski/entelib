@@ -254,13 +254,16 @@ def reservation_status(reservation):
     # book unavailable:
     if reservation.book_copy.state.is_available == False:
         return 'Copy not available (' + reservation.book_copy.state.name + ').'
+    # too early
+    if reservation.start_date > today():
+        return 'Reservation is not yet active'
     # reservation cannot be purchased for there are some reservation before this one starts
     if reservation.start_date > today() and all.filter(start_date__lt=reservation.start_date).count() > 0:
         return 'There are reservations before this one starts.'
     # some older reservation is active
     if all.filter(id__lt=reservation.id).filter(start_date__lte=today()).filter(Q_reservation_active).count() > 0:
-        # WARNING: this might need modification if additional conditions are added to definition of active reservation
-        return 'Reservation filed'
+        # WARNING/NOTE: this might need modification if additional conditions are added to definition of active reservation
+        return 'Reservation in queue'
     max_allowed = config.get_int('rental_duration')
     try:
         max_possible = (min([r.start_date for r in all.filter(id__lt=reservation.id).filter(start_date__gt=today())]) - today()).days
@@ -389,9 +392,13 @@ def book_copies_status(copies):
     for rental in rentals:
         copy_id = rental.reservation.book_copy.id 
         if not result[copy_id]['status']:
-            result[copy_id]['status'] = BookCopyStatus(available=False, explanation=u'Rented')
+            user = rental.reservation.for_whom
+            result[copy_id]['status'] = BookCopyStatus(available=False,
+                    explanation=u'Rented until {0} by {1}'.format(
+                                        rental.reservation.end_date.isoformat(),
+                                                    u'<a href="mailto:{0}">{0}</a>'.format(user.email)))
     
-    # find reserved copies, that can already to be rented
+    # find reserved copies, that can already be rented
     reservations = get_reservations_for_copies(copies_ids)
     for reservation in reservations:
         copy_id = reservation.book_copy.id
@@ -427,7 +434,7 @@ def book_copies_status(copies):
 def rent(reservation, librarian):
     '''
     Desc:
-        Librarian rents book indicated by reservation.
+        Librarian rents book indicated by reservation. Return value says when it is supposed to be returned
     '''
     if not librarian.has_perm('baseapp.add_rental'):
         raise PermissionDenied
@@ -435,9 +442,14 @@ def rent(reservation, librarian):
         raise PermissionDenied('One can only rent from location one maintains')
     if not is_reservation_rentable(reservation):
         raise PermissionDenied('Reservation not rentable.')
+    max_end_date = date.today() + timedelta(reservation_status(reservation)-1) # return one day before it's reserved
+    if max_end_date < reservation.end_date:
+        reservation.end_date = max_end_date
+        reservation.save()
     rental = Rental(reservation=reservation, who_handed_out=librarian, start_date=datetime.now())
     rental.save()
     mail.made_rental(rental)
+    return reservation.end_date
     
 
 def return_rental(librarian, rental_id):
@@ -587,8 +599,9 @@ def show_user_reservations(request, user_id=False):
             except Reservation.DoesNotExist:
                 return render_not_found(request, item_name='Reservation')
             # rent him reserved book
-            rent(reservation, request.user)
-            context.update({'message' : 'Successfully rented until ' + str(reservation.end_date)})
+            until_when = rent(reservation, request.user)
+            context.update({'message' : 'Successfully rented until ' + until_when})
+            messages.info(request, 'Successfully rented until ' + until_when.isoformat())
 
         # if user is wants to cancel reservation:
         elif 'cancel' in post:
@@ -814,9 +827,9 @@ def show_reservations(request, shipment_requested=False, only_rentable=True, all
         reservation = get_object_or_404(Reservation, id=post['reservation_id'])
         if 'rent' in post:
             user = reservation.for_whom
-            rent(reservation, request.user)
-            messages.info(request, 'Rented %s (%s) to %s.' % \
-                (reservation.book_copy.book.title, reservation.book_copy.shelf_mark, user_full_name(reservation.for_whom)))
+            until = rent(reservation, request.user)
+            messages.info(request, 'Rented %s (%s) to %s until %s.' % \
+                (reservation.book_copy.book.title, reservation.book_copy.shelf_mark, user_full_name(reservation.for_whom), until.isoformat()))
         if 'cancel' in post:
             cancel_reservation(reservation, request.user)
             messages.info(request, 'Cancelled.')
@@ -853,12 +866,33 @@ def show_reservations(request, shipment_requested=False, only_rentable=True, all
     return render_response(request, 'current_reservations.html', context)
 
 @transaction.commit_on_success
-def activate_user(user):
+def activate_user(admin, user):
+    '''
+    Activate user and notify him.
+    '''
+    if not admin.has_perm('auth.change_user'):
+        raise PermissionDenied('You are not allowed to activate/deactivate users. Perm is "auth.change_user"')
     profile = user.userprofile
     profile.awaits_activation = False
     profile.save()
     user.is_active = True
     user.save()
+    mail.user_activated(user)
+
+
+@transaction.commit_on_success
+def deactivate_user(admin, user):
+    '''
+    Deactivate user and notify him.
+    '''
+    if not admin.has_perm('auth.change_user'):
+        raise PermissionDenied('You are not allowed to activate/deactivate users. Perm is "auth.change_user"')
+    profile = user.userprofile
+    profile.awaits_activation = False
+    profile.save()
+    user.is_active = False
+    user.save()
+    mail.user_deactivated(user, admin)
 
 
 class ForgotPasswordHandler(object):
