@@ -354,10 +354,12 @@ def show_books(request, non_standard_user_id=False):
     # prepare each book (add url, list of authors) for rendering
     if booklist and show_books:
         booklist = booklist.order_by('title')
-        books = [{ 'title'     : book.title,
-                   'url'       : book_url % book.id,
-                   'authors'   : [a.name for a in book.author.all()],
+        books = [{ 'book'      : book,
                    } for book in booklist ]
+        show_availability = Config(request.user).get_bool('show_nr_of_available_copies')
+        if show_availability:
+            for book in books:
+                book.update({'nr_of_available_copies' : aux.nr_of_available_copies(book['book'])})
         
     # prepare categories for rendering
     search_categories  = [ {'name' : '-- Any category --',  'id' : 0} ]
@@ -375,6 +377,7 @@ def show_books(request, non_standard_user_id=False):
     context = {
         'for_whom' : for_whom,
         'books' : books,
+        'show_availability' : show_availability,
         'bookcopies' : bookcopies,
         'search' : search_data,
         'can_add_book' : request.user.has_perm('baseapp.add_book'),

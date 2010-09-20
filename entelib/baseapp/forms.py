@@ -621,7 +621,7 @@ class BookForm(ModelForm):
         fields = ('title', 'category', 'author')
 
     author = forms.CharField(widget=forms.Textarea)
-    category = forms.ModelMultipleChoiceField(Category.objects.all().order_by('name'))
+    category = forms.ModelMultipleChoiceField(Category.objects.all().order_by('name'), required=False)
 
     def clean_author(self):
         names_str = self.cleaned_data['author']

@@ -431,6 +431,21 @@ def book_copies_status(copies):
     return result
 
 
+def nr_of_available_copies(book):
+    '''
+    Arg: Book object.
+    Return: nr of available copies of a book.
+
+    WARNING: this is SLOW for it needs to touch every sigle copy and reservation
+    '''
+    copies = book_copies_status(book.bookcopy_set.all())
+    counter = 0
+    for id in copies:
+        if copies[id]['status'].is_available():
+            counter += 1
+    return counter
+
+
 def rent(reservation, librarian):
     '''
     Desc:

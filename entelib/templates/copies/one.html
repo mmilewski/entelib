@@ -44,8 +44,8 @@
                         </td>
                         <td> 
                             {% if field.label == 'Publisher' %}
-                                <a href='{% url author_add %}' class='add_new_publisher' target='_blank'>New publisher</a>
-                                <a href='javascript:location.reload(True)' class='refresh'>Refresh</a>
+                                <a href='{% url publisher_add %}' class='add_new_publisher' target='_blank'>New publisher</a>
+                                <a href='javascript:location.reload()' class='refresh'>Refresh</a>
                             {% endif %}
                         </td>
                         <td>{{ field.errors }}</td>
