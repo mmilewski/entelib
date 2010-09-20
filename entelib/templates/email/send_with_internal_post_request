@@ -1,5 +1,4 @@
-Some guy is asking to send him some book. 
+{{ reservation.for_whom.first_name }} {{ reservation.for_whom.last_name }} ({% firstof reservation.for_whom.userprofile.building "Unknown location" %}) is asking to send him {{ reservation.book_copy.book.title }} (ID {{ reservation.book_copy.shelf_mark }}).
 
-Do that at http://glonull1.mobile.fp.nsn-rdnet.net:8080/entelib/users/{{ user_id }}/reservations/.
+When you do that mark it at {{ application_url }}{% url shipment %}
 
-To see complete list of requested shipments from your locations to http://glonull1.mobile.fp.nsn-rdnet.net:8080/entelib/shipment/.

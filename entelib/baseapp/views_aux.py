@@ -446,6 +446,12 @@ def nr_of_available_copies(book):
     return counter
 
 
+def request_shipment(reservation):
+    reservation.shipment_requested = True
+    reservation.save()
+    mail.shipment_requested(reservation)
+
+
 def rent(reservation, librarian):
     '''
     Desc:

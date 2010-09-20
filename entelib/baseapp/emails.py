@@ -174,4 +174,16 @@ def password_reset(user, new_password):
     default_email([recipient], tpl, context)
 
 
+def shipment_requested(reservation):
+    '''
+    Desc:
+        Notify user and librarian that user has requested shipment of book_copy
 
+    Args:
+        User object, BookCopy object
+    '''
+    recipients = map(_make_recipient_from_user, list(reservation.book_copy.location.maintainer.all()))
+    tpl = 'email/send_with_internal_post_request'
+    ctx = Context({'reservation' : reservation, 
+                   'application_url' : Config().get_str('application_url') })
+    default_email(recipients, tpl, ctx)

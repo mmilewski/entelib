@@ -997,8 +997,8 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
                 reserved.update({'error' : 'Reservation cancelled'})
             if 'send_button' in post:
                 reservation = get_object_or_404(Reservation, id=int(post['reservation_to_send_or_cancel']))
-                reservation.shipment_requested = True
-                reservation.save()
+                aux.request_shipment(reservation)
+                messages.info(request, 'Send-request has been set')
                 reserved.update({'msg' : 'Send-request has been set'})
             
     book_desc = aux.get_book_details(book_copy)
