@@ -283,6 +283,7 @@ def show_books(request, non_standard_user_id=False):
     book_url = u'%d/'    # where you go after clicking "search" button
     bookcopy_url = u'../bookcopy/%d/'    # where you go after clicking "search" button with shelf mark field (ID) filled
     config = Config(request.user)
+    show_availability = config.get_bool('show_nr_of_available_copies')
     search_data = {}                    # data of searching context
     selected_categories_ids = []        # ids of selected categories -- needed to reselect them on site reload
     bookcopies = None                   # if one doesn't type into shelf mark field we are not interested in bookcopies at all
@@ -356,7 +357,6 @@ def show_books(request, non_standard_user_id=False):
         booklist = booklist.order_by('title')
         books = [{ 'book'      : book,
                    } for book in booklist ]
-        show_availability = Config(request.user).get_bool('show_nr_of_available_copies')
         if show_availability:
             for book in books:
                 book.update({'nr_of_available_copies' : aux.nr_of_available_copies(book['book'])})
