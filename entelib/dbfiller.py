@@ -5,7 +5,7 @@
 #  - rentals generating
 #  - reservations generating
 
-
+from sys import exit
 from random import randint, choice, shuffle
 from datetime import datetime, timedelta
 from baseapp.models import *
@@ -36,6 +36,7 @@ def clear_db():
     Author.objects.all().delete()
     BookCopy.objects.all().delete()
     Book.objects.all().delete()
+    Book.objects.all()
     Phone.objects.all().delete()
     PhoneType.objects.all().delete()
     CostCenter.objects.all().delete()
@@ -281,14 +282,14 @@ def add_phone_types():
 def add_superuser():
     user = User.objects.create_user('superadmin', 'master-over-masters@super.net', 'superadmin')
     user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Superadmino', u'Superdomino', True, False
-    ph = Phone(type=PhoneType.objects.get(id=1), value="432-765-098")
+    ph = Phone(type=PhoneType.objects.all()[0], value="432-765-098")
     ph.save()
     profile = user.get_profile()
     profile.phone.add(ph)
-    ph = Phone(type=PhoneType.objects.get(id=2), value="superadmino.superdominko")
+    ph = Phone(type=PhoneType.objects.all()[1], value="superadmino.superdominko")
     ph.save()
     profile.phone.add(ph)
-    profile.building = Building.objects.get(pk=1)
+    profile.building = Building.objects.all()[0]
     profile.save()
     user.save()
 
@@ -296,14 +297,14 @@ def add_superuser():
 def add_admin():
     user = User.objects.create_user('admin', 'domin@bosses.net', 'admin')
     user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Admino', u'Domino', True, False
-    ph = Phone(type=PhoneType.objects.get(id=1), value="333-444-555")
+    ph = Phone(type=PhoneType.objects.all()[0], value="333-444-555")
     ph.save()
     profile = user.get_profile()
     profile.phone.add(ph)
-    ph = Phone(type=PhoneType.objects.get(id=2), value="admino.dominko")
+    ph = Phone(type=PhoneType.objects.all()[0], value="admino.dominko")
     ph.save()
     profile.phone.add(ph)
-    profile.building = Building.objects.get(pk=1)
+    #profile.building = Building.objects.all()[0]
     profile.save()
     user.save()
 
@@ -313,8 +314,8 @@ def add_librarian():
     user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Librariano', u'Śmietano', False, False
     user.save()
     profile = user.get_profile()
-    myphones = [Phone(type=PhoneType.objects.get(id=1), value="200-300-400"),
-                Phone(type=PhoneType.objects.get(id=2), value="smietana12"),
+    myphones = [Phone(type=PhoneType.objects.all()[0], value="200-300-400"),
+                Phone(type=PhoneType.objects.all()[0], value="smietana12"),
                 ]
     for p in myphones:
         p.save()
@@ -327,11 +328,11 @@ def add_librarian():
 def add_everyday_user():
     user = User.objects.create_user('user', 'grzegorz.brz@smigamy.com', 'user')
     user.first_name, user.last_name, user.is_staff, user.is_superuser = u'Grzegorz', u'Brzęczyszczykiewicz', False, False
-    ph = Phone(type=PhoneType.objects.get(id=2), value="grzesiu.brzeczy")
+    ph = Phone(type=PhoneType.objects.all()[0], value="grzesiu.brzeczy")
     ph.save()
     profile = user.get_profile()
     profile.phone.add(ph)
-    profile.building = Building.objects.get(pk=2)
+    profile.building = Building.objects.all()[1]
     profile.save()
     user.save()
 
@@ -353,7 +354,7 @@ def populate_groups():
         """
         Add permission from perms to group_name group.
         If group doesn't exist, new one is created.
-        It direct_add is True, then perms is assumed to be Permission's instance. Otherwise it should be a string.
+        If direct_add is True, then perms is assumed to be Permission's instance. Otherwise it should be a string.
         """
         g = None
         try:
