@@ -101,7 +101,7 @@ def made_reservation(reservation):
 def reservation_active(reservation):
     '''
     Desc:
-        Called if new reservation has become rentable - notifies reader.
+        Called if a reservation has become rentable - notifies reader.
     Arg:
         reservation -- Reservation's instance.
     '''
@@ -111,6 +111,42 @@ def reservation_active(reservation):
             'book'       : reservation.book_copy.book,
             'reservation': reservation,
             'deadline'   : date.today() + timedelta(Config().get_int('reservation_rush'))
+            })
+    recipient = _make_recipient_from_user(reservation.for_whom)
+    default_email([recipient], tpl, ctx)
+
+
+def reservation_expired(reservation):
+    '''
+    Desc:
+        Called if a reservation has expired - notifies reader.
+    Arg:
+        reservation -- Reservation's instance.
+    '''
+    tpl = 'email/reservation_expired'
+    ctx = Context({
+            'reader'     : reservation.for_whom,
+            'book'       : reservation.book_copy.book,
+            'reservation': reservation,
+            })
+    recipient = _make_recipient_from_user(reservation.for_whom)
+    default_email([recipient], tpl, ctx)
+
+
+def overdued(rental):
+    '''
+    Desc:
+        Called if a rental has expired - notifies reader.
+    Arg:
+        rental -- Rental's instance.
+    '''
+    reservation = rental.reservation
+    tpl = 'email/overdued'
+    ctx = Context({
+            'reader'     : reservation.for_whom,
+            'book'       : reservation.book_copy.book,
+            'rental'     : rental,
+            'deadline'   : rental.reservation.end_date,
             })
     recipient = _make_recipient_from_user(reservation.for_whom)
     default_email([recipient], tpl, ctx)
@@ -131,6 +167,26 @@ def made_rental(rental):
             })
     recipient = _make_recipient_from_user(rental.reservation.for_whom)
     default_email([recipient], tpl, ctx)
+
+
+def returnal_date_coming(rental):
+    '''
+    Desc:
+        Called if a rental is ending - notifies reader.
+    Arg:
+        rental -- Rental's instance.
+    '''
+    reservation = rental.reservation
+    tpl = 'email/returnal_date_coming'
+    ctx = Context({
+            'reader'     : reservation.for_whom,
+            'book'       : reservation.book_copy.book,
+            'rental'     : rental,
+            'deadline'   : rental.reservation.end_date,
+            })
+    recipient = _make_recipient_from_user(reservation.for_whom)
+    default_email([recipient], tpl, ctx)
+    
 
 
 def _make_recipient_from_user(user_instance):

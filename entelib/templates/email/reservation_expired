@@ -1,0 +1,5 @@
+Welcome!
+
+Please be informed, that your reservation on {{ book.title }} has expired.
+
+Library staff.

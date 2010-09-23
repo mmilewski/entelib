@@ -456,7 +456,7 @@ def confirm_reservation(reservation):
     '''
     Check if reservation can be immediately rented and send appropriate email.
     '''
-    preceding_reservations = Reservation.objects.filter(Q_reservation_active, id__lt=reservation.id)
+    preceding_reservations = Reservation.objects.filter(Q_reservation_active, book_copy=reservation.book_copy, id__lt=reservation.id)
     if not preceding_reservations:
         mail.reservation_active(reservation)
     else:
@@ -597,7 +597,7 @@ def mark_available(book_copy):
     Desc:
         If there is an active reservation awaiting for this copy, let it know.
     '''
-    reservations = Reservation.objects.filter(Q_reservation_active).filter(start_date__lte=date.today)
+    reservations = Reservation.objects.filter(Q_reservation_active, book_copy=book_copy).filter(start_date__lte=date.today)
     if reservations.count() > 0:  # TODO: this probably can be done more effectively
         first_reservation = reservations[0]
         first_reservation.active_since = today()

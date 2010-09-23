@@ -1,8 +1,6 @@
 Welcome!
 
-You have reserved {{ title }} {% if authors %}by {{authors|join:", "}}{% endif %}. You can rent it until {{ deadline }}. 
-
-Please come and rent.
+You have reserved {{ reservation.title }} {% if reservation.authors %}by {{reservation.authors|join:", "}}{% endif %}. Your reserevation is not ready to rent yet, though. You'll be notified when it is.
 
 Please do not reply for this email.
 

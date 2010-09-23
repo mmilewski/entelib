@@ -1,0 +1,9 @@
+Welcome!
+
+We are sorry to inform that you have overdued your rental on {{ book.title }}.
+
+You should have returned it by {{ deadline }}.
+
+Please return the book to library.
+
+Library staff.

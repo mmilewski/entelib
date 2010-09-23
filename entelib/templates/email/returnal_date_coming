@@ -1,0 +1,5 @@
+Welcome!
+
+Please be informed that due date for {{ book.title }} is coming. Please return it before {{ deadline }}.
+
+Library staff.
