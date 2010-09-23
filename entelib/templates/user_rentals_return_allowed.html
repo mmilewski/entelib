@@ -4,10 +4,14 @@
 
 {% block return %}
     <th>
-        <form action='.' method='post'>
-           <input type='hidden' name='returned' value='{{ row.id }}'>
-           <input type='submit' name='action' value='Return'>
-        </form>
+        {% if row.returnable %}
+            <form action='.' method='post'>
+               <input type='hidden' name='returned' value='{{ row.id }}'>
+               <input type='submit' name='action' value='Return'>
+            </form>
+        {% else %}
+            {{ row.rental.reservation.book_copy.location }}
+        {% endif %}
     </th>
 {% endblock %}
 {% block return_header %}
