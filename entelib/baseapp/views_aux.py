@@ -632,7 +632,7 @@ def show_user_reservations(request, user_id=False):
                 return render_not_found(request, item_name='Reservation')
             # rent him reserved book
             until_when = rent(reservation, request.user)
-            context.update({'message' : 'Successfully rented until ' + until_when})
+            context.update({'message' : 'Successfully rented until ' + until_when.isoformat()})
             messages.info(request, 'Successfully rented until ' + until_when.isoformat())
 
         # if user is wants to cancel reservation:
