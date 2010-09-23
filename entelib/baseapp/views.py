@@ -21,7 +21,7 @@ from baseapp.reports import get_report_data, generate_csv
 from baseapp.utils import pprint
 import baseapp.utils as utils
 from baseapp.time_bar import get_time_bar_code_for_copy, TimeBarRequestProcessor
-from baseapp.views_aux import render_forbidden, render_response, filter_query, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, get_locations_for_book, Q_reservation_active, cancel_reservation
+from baseapp.views_aux import render_forbidden, render_response, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, get_locations_for_book, Q_reservation_active, cancel_reservation, filter_query
 import baseapp.views_aux as aux
 import baseapp.emails as mail
 import settings
@@ -314,7 +314,7 @@ def show_books(request, non_standard_user_id=False):
             show_books = True
             search_title = post['title'].split()
             search_author = post['author'].split()
-            selected_categories_ids = map(int, request.POST.getlist('category'))
+            selected_categories_ids = map(int, post.getlist('category'))
             search_data.update({'title'  : post['title'], 
                                 'author' : post['author'],
                                 })  # categories and checkboxes will be added later
@@ -324,7 +324,7 @@ def show_books(request, non_standard_user_id=False):
                   (search_title, 'title_any' in post, lambda x: Q(title__icontains=x)),
                   (search_author, 'author_any' in post, lambda x: Q(author__name__icontains=x)),
                 ]
-            )
+            ).select_related('category','author')
 
             # filter with Category
             if selected_categories_ids and (0 not in selected_categories_ids):  # at least one 'real' category selected
@@ -655,7 +655,7 @@ def show_users(request):
 
         # searching for users
         if 'search' in post:
-            if not request.user.userprofile.building:
+            if not request.user.userprofile or not request.user.userprofile.building:
                 request_building_id = 0
             elif request_from_my_building:
                 request_building_id = request.user.userprofile.building.id
@@ -1145,7 +1145,7 @@ def show_current_rentals(request, all_locations=False):
     locations = request.user.location_set.all()  # locations maintained by user
     rentals = Rental.objects.filter(end_date=None).select_related()
     if not all_locations:
-        reservations = rentals.filter(reservation__book_copy__location__in=locations)
+        rentals = rentals.filter(reservation__book_copy__location__in=locations)
 
     if request.method == 'POST':
         post = request.POST
