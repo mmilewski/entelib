@@ -5,62 +5,80 @@
     <div id='menu'>
       <ul>
         {% if can_list_books %}
-          <li><a href="/entelib/books/">Books</a>
-            <ul>
-              {% if can_add_bookrequest %}            <li><a href="{% url bookrequest_add %}">          Request a book        </a></li> {% endif %}
-              {% if perms.baseapp.list_bookrequests %}<li><a href="{% url bookrequest_active %}">       Book request list     </a></li> 
-                <li class="separator"></li>
-              {% endif %}
-              {# following row is link to book listing - too many of those #}
-              {# {% if perms.baseapp.list_books %}      <li><a href="/entelib/books/">                  Book list             </a></li> {% endif %} #}
-              {% if perms.baseapp.add_book %}        <li><a href="{% url book_add %}">                  Add book              </a></li> 
-                <li class="separator"></li>
-              {% endif %}
-              {% if perms.baseapp.list_authors %}    <li><a href="/entelib/authors/">                   Author list           </a></li> {% endif %}
-              {% if perms.baseapp.add_author %}      <li><a href="{% url author_add %}">                Add author            </a></li>
-                <li class="separator"></li>
-              {% endif %}
-              {% if perms.baseapp.list_categories %}   <li><a href="/entelib/categories/">              Category list         </a></li> {% endif %}
-              {% if perms.baseapp.add_category %}      <li><a href="{% url category_add %}">            Add category          </a></li>
-                <li class="separator"></li>
-              {% endif %}
-              {% if perms.baseapp.list_publishers %}    <li><a href="/entelib/publishers/">             Publisher list        </a></li> {% endif %}
-              {% if perms.baseapp.add_publisher %}      <li><a href="{% url publisher_add %}">          Add publisher         </a></li>
-                <li class="separator"></li>
-              {% endif %}
-              {% if perms.baseapp.list_costcenters %}    <li><a href="/entelib/costcenters/">           Costcenter list       </a></li> {% endif %}
-              {% if perms.baseapp.add_costcenter %}      <li><a href="{% url costcenter_add %}">        Add costcenter        </a></li>
-                <li class="separator"></li>
-              {% endif %}
-              {% if perms.baseapp.list_states %}    <li><a href="/entelib/states/">                     State list            </a></li> {% endif %}
-              {% if perms.baseapp.add_state %}      <li><a href="{% url state_add %}">                  Add state             </a></li>
-                <li class="separator"></li>
-              {% endif %}
-            </ul>
-          </li>
+            <li><a href="/entelib/books/">Books</a>
+                {% if perms.baseapp.list_users %}
+                    <ul>
+                        <li><a href="/entelib/books/">Find a book</a></li>
+                        <li class="separator"></li>
+                        {% if can_add_bookrequest %}            <li><a href="{% url bookrequest_add %}">          Request a book        </a></li> {% endif %}
+                        {% if perms.baseapp.list_bookrequests %}
+                            <li><a href="{% url bookrequest_active %}">       Book request list     </a></li> 
+                        {% endif %}
+                        {% if perms.baseapp.add_book %}        <li><a href="{% url book_add %}">                  Add a book              </a></li> 
+                          <li class="separator"></li>
+                        {% endif %}
+                        {% comment %} The following seems to obstruct librarians
+                            {% if perms.baseapp.list_authors %}    <li><a href="/entelib/authors/">                   Author list           </a></li> {% endif %}
+                            {% if perms.baseapp.add_author %}      <li><a href="{% url author_add %}">                Add author            </a></li>
+                              <li class="separator"></li>
+                            {% endif %}
+                            {% if perms.baseapp.list_categories %}   <li><a href="/entelib/categories/">              Category list         </a></li> {% endif %}
+                            {% if perms.baseapp.add_category %}      <li><a href="{% url category_add %}">            Add category          </a></li>
+                              <li class="separator"></li>
+                            {% endif %}
+                            {% if perms.baseapp.list_publishers %}    <li><a href="/entelib/publishers/">             Publisher list        </a></li> {% endif %}
+                            {% if perms.baseapp.add_publisher %}      <li><a href="{% url publisher_add %}">          Add publisher         </a></li>
+                              <li class="separator"></li>
+                            {% endif %}
+                            {% if perms.baseapp.list_costcenters %}    <li><a href="/entelib/costcenters/">           Costcenter list       </a></li> {% endif %}
+                            {% if perms.baseapp.add_costcenter %}      <li><a href="{% url costcenter_add %}">        Add costcenter        </a></li>
+                              <li class="separator"></li>
+                            {% endif %}
+                            {% if perms.baseapp.list_states %}    <li><a href="/entelib/states/">                     State list            </a></li> {% endif %}
+                            {% if perms.baseapp.add_state %}      <li><a href="{% url state_add %}">                  Add state             </a></li>
+                              <li class="separator"></li>
+                            {% endif %}
+                        {% endcomment %}
+                    </ul>
+                {% endif %}
+            </li>
         {% endif %}
-        {# following row is link to book listing - too many of those #}
-        {# {% if perms.baseapp.add_reservation %}     <li><a href="/entelib/profile/reservations/new/">    Rent something        </a></li> {% endif %} #}
+        {% if not perms.baseapp.list_users and can_add_bookrequest %}  
+            <li><a href="{% url bookrequest_add %}">Request a book</a></li> 
+        {% endif %}
                                                                                                                               
-        {% if can_view_own_profile %}              <li><a href="/entelib/profile/">                     My profile            </a>      
-          <ul>                                                                                                                
-            {% if can_view_own_profile %}          <li><a href="/entelib/profile/">                     Show my profile       </a>      {% endif %}
-            {% if can_view_own_profile %}          <li><a href="/entelib/profile/rentals/">             My rentals            </a></li> {% endif %}
-            {% if can_view_own_profile %}          <li><a href="/entelib/profile/reservations/">        My reservations       </a></li> {% endif %}
-            {% if can_view_own_profile %}          <li><a href="/entelib/profile/config/">              Configuration         </a></li> {% endif %}
-          </ul>
+        {% if can_view_own_profile %}   <li><a href="/entelib/profile/"> My profile  </a>      
+          {% if can_list_users %}
+              <ul>                                                                                                                
+                  <li><a href="/entelib/profile/">                     Show my profile       </a>
+                  <li><a href="/entelib/profile/rentals/">             My rentals            </a></li>
+                  <li><a href="/entelib/profile/reservations/">        My reservations       </a></li>
+                  <li><a href="/entelib/profile/config/">              Configuration         </a></li>
+              </ul>
+          {% endif %}
+        {% endif %}
         </li>
+        {% if not can_list_users %}
+              <li><a href="/entelib/profile/rentals/">             My rentals            </a></li>
+              <li><a href="/entelib/profile/reservations/">        My reservations       </a></li>
+              <li><a href="/entelib/profile/config/">              Configuration         </a></li>
         {% endif %}
 
         {% if user.get_profile.is_librarian %}    
-          <li>
-            <a href="/entelib/shipment">Work</a>
-              <ul>
-                {% if user.get_profile.is_librarian %}    <li><a href="/entelib/shipment">              Shipment requests     </a></li> {% endif %}
-                {% if user.get_profile.is_librarian %}    <li><a href="/entelib/current_reservations/"> Current reservations  </a></li> {% endif %}
-                {% if user.get_profile.is_librarian %}    <li><a href="/entelib/current_rentals/">      Current rentals       </a></li> {% endif %}
-              </ul>
-          </li>
+            {% comment %}
+            This is drop down menu for librarian. Currently we use solid menu.
+              <li>
+                <a href="/entelib/shipment">Work</a>
+                  <ul>
+                        <li><a href="/entelib/shipment">              Shipment requests     </a></li>
+                        <li><a href="/entelib/current_reservations/"> Current reservations  </a></li>
+                        <li><a href="/entelib/current_rentals/">      Current rentals       </a></li>
+                  </ul>
+              </li>
+            {% endcomment %}
+            <li><a href="/entelib/shipment">              Shipment requests     </a></li>
+            <li><a href="/entelib/current_reservations/"> Current reservations  </a></li>
+            <li><a href="/entelib/current_rentals/">      Current rentals       </a></li>
         {% endif %}
 
         {% if can_list_reports %}              <li><a href="/entelib/report/">                 Reports</a>           
@@ -75,7 +93,8 @@
         {% endif %}
 
 
-        {% if can_list_locations %}
+        {# {% if can_list_locations %} #}
+        {% if user.userprofile.is_admin %}
           <li><a href="/entelib/locations/">Locations</a>
             <ul>
               {% if perms.baseapp.list_locations %}  <li><a href="{% url location_all %}">              Location list         </a></li> {% endif %}
@@ -92,11 +111,13 @@
         {% if can_list_users %}
             <li>
                 <a href="/entelib/users/">User list</a>
-                <ul>
-                    {% if perms.baseapp.list_users %}<li><a href="/entelib/users/">Show user list</a></li> {% endif %}
-                    {% if perms.auth.add_user %}     <li><a href="/entelib/users/add/">Add user</a></li> {% endif %}
-                    {% if perms.auth.change_user %}  <li><a href="/entelib/users/activate/">Users awaiting activation</a></li> {% endif %}
-                </ul>
+                {% if perms.auth.change_user or perms.auth.add_user %}
+                    <ul>
+                        {% if perms.baseapp.list_users %}<li><a href="/entelib/users/">Show user list</a></li> {% endif %}
+                        {% if perms.auth.add_user %}     <li><a href="/entelib/users/add/">Add user</a></li> {% endif %}
+                        {% if perms.auth.change_user %}  <li><a href="/entelib/users/activate/">Users awaiting activation</a></li> {% endif %}
+                    </ul>
+                {% endif %}
             </li>         
         {% endif %}
 
