@@ -539,8 +539,9 @@ def show_user_rentals(request, user_id=False):
        request.method == 'POST' and\
        'returned' in post:
         try:
-            return_rental(librarian=request.user, rental_id=post['returned'])
+            until_when = return_rental(librarian=request.user, rental_id=post['returned'])
             context['message'] = 'Successfully returned'
+            messages.info(request, 'Successfully rented until ' + until_when.isoformat())
         except Rental.DoesNotExist:
             return render_not_found(request, item_name='Rental')
         except PermissionDenied:  # this might happen if user doesn't have 'change_rental' permission
@@ -551,10 +552,12 @@ def show_user_rentals(request, user_id=False):
     # and put them in a dict:
     rent_list = [ {'id' : r.id,
                    'shelf_mark' : r.reservation.book_copy.shelf_mark,
-                   'title' : r.reservation.book_copy.book.title,
-                   'authors' : [a.name for a in r.reservation.book_copy.book.author.all()],
-                   'from_date' : r.start_date.date(),
-                   'to_date' : r.reservation.end_date,
+                   'title'      : r.reservation.book_copy.book.title,
+                   'authors'    : [a.name for a in r.reservation.book_copy.book.author.all()],
+                   'from_date'  : r.start_date.date(),
+                   'to_date'    : r.reservation.end_date,
+                   'returnable' : request.user in r.reservation.book_copy.location.maintainer.all(),
+                   'rental'     : r,
                   }
                   for r in user_rentals ]
 
