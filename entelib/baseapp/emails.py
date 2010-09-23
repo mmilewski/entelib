@@ -65,8 +65,9 @@ def send_request_to_send_with_internal_post(reservation):
     default_email(recipients, template, context, subject='Internal-post-send request')
 
 
+''' TODO: delete it
 def notify_book_copy_available(reservation):
-    tpl = 'rental_possible'
+    tpl = 'email/rental_possible'
     ctx = Context({
             'title'     : reservation.book_copy.book.title,
             'authors'   : [a.name for a in reservation.book_copy.book.author.all()],
@@ -74,6 +75,7 @@ def notify_book_copy_available(reservation):
             })
     recipient = _make_recipient_from_user(reservation.for_whom)
     default_email([recipient], tpl, ctx)
+'''
 
 
 def made_reservation(reservation):
@@ -83,11 +85,32 @@ def made_reservation(reservation):
     Arg:
         reservation -- just added Reservation's instance.
     '''
-    tpl = 'made_reservation'
+    tpl = 'email/made_reservation'
     ctx = Context({
-            'title'    : reservation.book_copy.book.title,
-            'authors'  : [a.name for a in reservation.book_copy.book.author.all()],
-            'deadline' : date.today() + timedelta(Config().get_int('reservation_rush'))
+            'reader'      : reservation.for_whom,
+            'book'        : reservation.book_copy.book,
+            'reservation' : reservation,
+            # 'title'     : reservation.book_copy.book.title,
+            # 'authors'   : [a.name for a in reservation.book_copy.book.author.all()],
+            # 'deadline'  : date.today() + timedelta(Config().get_int('reservation_rush'))
+            })
+    recipient = _make_recipient_from_user(reservation.for_whom)
+    default_email([recipient], tpl, ctx)
+
+
+def reservation_active(reservation):
+    '''
+    Desc:
+        Called if new reservation has become rentable - notifies reader.
+    Arg:
+        reservation -- Reservation's instance.
+    '''
+    tpl = 'email/reservation_active'
+    ctx = Context({
+            'reader'     : reservation.for_whom,
+            'book'       : reservation.book_copy.book,
+            'reservation': reservation,
+            'deadline'   : date.today() + timedelta(Config().get_int('reservation_rush'))
             })
     recipient = _make_recipient_from_user(reservation.for_whom)
     default_email([recipient], tpl, ctx)
@@ -100,11 +123,11 @@ def made_rental(rental):
     Arg:
         rental -- just added Rental's instance.
     '''
-    tpl = 'made_rental'
+    tpl = 'email/made_rental'
     ctx = Context({
-            'title'    : rental.reservation.book_copy.book.title,
-            'authors'  : [a.name for a in rental.reservation.book_copy.book.author.all()],
-            'deadline' : 'TODO: what should I put here?'
+            'reader'   : rental.reservation.for_whom,
+            'book'     : rental.reservation.book_copy.book,
+            'deadline' : rental.reservation.end_date,
             })
     recipient = _make_recipient_from_user(rental.reservation.for_whom)
     default_email([recipient], tpl, ctx)

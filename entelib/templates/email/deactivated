@@ -1,0 +1,4 @@
+Dear {{ user.first_name }} {{ user.last_name }}, your account has been deactivated, you cannot use NSN library application. If you think this should not take place please contact {{ banner.email }}.
+
+With regards,
+Library Staff

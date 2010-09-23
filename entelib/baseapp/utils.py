@@ -3,7 +3,7 @@
 from pprint import pprint   # pretty printer
 import logging
 import datetime
-from baseapp.models import User
+from django.contrib.auth.models import User
 
 
 def str_to_date(str, default=None):

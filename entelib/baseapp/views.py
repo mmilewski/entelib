@@ -21,7 +21,7 @@ from baseapp.reports import get_report_data, generate_csv
 from baseapp.utils import pprint
 import baseapp.utils as utils
 from baseapp.time_bar import get_time_bar_code_for_copy, TimeBarRequestProcessor
-from baseapp.views_aux import render_forbidden, render_response,     filter_query, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, get_locations_for_book, Q_reservation_active, cancel_reservation, when_copy_reserved
+from baseapp.views_aux import render_forbidden, render_response, filter_query, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, get_locations_for_book, Q_reservation_active, cancel_reservation
 import baseapp.views_aux as aux
 import baseapp.emails as mail
 import settings
@@ -448,7 +448,7 @@ def show_book(request, book_id, non_standard_user_id=False):
             'year'          : elem.year,
             'is_available'  : elem.state.is_available,
             'is_reservable' : is_copy_reservable,    # it allows reserving in template - true if user is allowed to reserve
-            'when_reserved' : when_copy_reserved(elem),
+            # 'when_reserved' : when_copy_reserved(elem), TODO: delete this line
             'tb_code'       : tb_copies.get(elem.id),
             })
     # dict for book
@@ -942,7 +942,7 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
                 reserved.update({'error' : str(e)})
             else:
                 r.save()
-                mail.made_reservation(r)
+                aux.confirm_reservation(r)
 
                 reserved.update({'ok' : 'ok'})
                 reserved.update({'msg' : config.get_str('message_book_reserved') % (r.start_date.isoformat(), r.end_date.isoformat())})
@@ -950,6 +950,7 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
                 reserved.update({'to' : r.end_date.isoformat()})
                 reserved.update({'reservation' : r.id})
                 reserved.update({'send_possible' : aux.internal_post_send_possible(r)})
+                messages.info(request, 'Reservation successfull')
         # renting action requested
         elif 'rent_button' in post:
             if not request.user.has_perm('baseapp.add_rental'):
@@ -977,10 +978,13 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
                 r.save()
 
                 # reservation done, rent:
-                rental = Rental(reservation=r, start_date=date.today(), who_handed_out=request.user)
-                rental.save()
-                mail.made_rental(rental)  # notifications
+                # don't rent like this:
+                #  rental = Rental(reservation=r, start_date=date.today(), who_handed_out=request.user)
+                #  rental.save()
+                #  mail.made_rental(rental)  # notifications
+                aux.rent(r, request.user)
                 reserved.update({'msg' : config.get_str('message_book_rented') % r.end_date.isoformat()})
+                messages.info(request, config.get_str('message_book_rented') % r.end_date.isoformat())
             except ValueError:
                 reserved.update({'error' : 'error - possibly incorrect date format'})
             except EntelibWarning, w:

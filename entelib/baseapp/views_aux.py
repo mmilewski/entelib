@@ -452,6 +452,17 @@ def request_shipment(reservation):
     mail.shipment_requested(reservation)
 
 
+def confirm_reservation(reservation):
+    '''
+    Check if reservation can be immediately rented and send appropriate email.
+    '''
+    preceding_reservations = Reservation.objects.filter(Q_reservation_active, id__lt=reservation.id)
+    if not preceding_reservations:
+        mail.reservation_active(reservation)
+    else:
+        mail.made_reservation(reservation)
+
+
 def rent(reservation, librarian):
     '''
     Desc:
@@ -591,7 +602,7 @@ def mark_available(book_copy):
         first_reservation = reservations[0]
         first_reservation.active_since = today()
         first_reservation.save()
-        mail.notify_book_copy_available(first_reservation)
+        mail.reservation_active(first_reservation)
 
 
 def show_user_reservations(request, user_id=False):
@@ -773,6 +784,7 @@ def user_full_name(user_id, first_name_first=False):
         return  u.last_name + ', ' + u.first_name  # default
 
 
+'''
 def when_copy_reserved(book_copy):
     """
     This is Adi's function. It is used with the timebar.
@@ -826,6 +838,7 @@ def when_copy_reserved(book_copy):
 
     result_list = [{'from' : a, 'to' : b} for (a,b) in new_list]
     return result_list
+'''
 
 
 def can_edit_global_config(user):

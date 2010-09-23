@@ -1,0 +1,12 @@
+{% extends 'base_with_top_menu.html' %}
+
+{% block title %}User deactivated{% endblock %}
+
+{% block header %} User deactivated{% endblock %}
+{% block content %} 
+    <p class="message"> 
+        {{deactivated_user.first_name}} {{deactivated_user.last_name}} deactivated.  <br />
+        <a href="{% url activate_user deactivated_user.id %}">Reactivate him.</a>
+    </p>
+{% endblock %}
+
