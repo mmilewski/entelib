@@ -151,9 +151,11 @@ form.book_search .first {                                   /* books.html */
     /* border-right: 1px solid black; */
     min-width: 40em;    width: 40em;
 }
+/*
 table.book_details tr.book_category select {
     min-width: 15em;    width: 15em;
 }
+*/
 form.book_search input#id,
 form.book_search input#title,
 form.book_search input#author {

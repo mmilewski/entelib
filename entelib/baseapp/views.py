@@ -280,13 +280,15 @@ def show_books(request, non_standard_user_id=False):
         In that case non_standard_user_id is most likely different than request.user
     """
     # data for the template
-    book_url = u'%d/'    # where you go after clicking "search" button
-    bookcopy_url = u'../bookcopy/%d/'    # where you go after clicking "search" button with shelf mark field (ID) filled
+    # book_url = u'%d/'    # where you go after clicking "search" button
+    # bookcopy_url = u'../bookcopy/%d/'    # where you go after clicking "search" button with shelf mark field (ID) filled
     config = Config(request.user)
     show_availability = config.get_bool('show_nr_of_available_copies')
     search_data = {}                    # data of searching context
     selected_categories_ids = []        # ids of selected categories -- needed to reselect them on site reload
-    bookcopies = None                   # if one doesn't type into shelf mark field we are not interested in bookcopies at all
+    selected_location_ids = []
+    selected_cc_ids = []
+    bookcopies = []                     # if one doesn't type into shelf mark field we are not interested in bookcopies at all
     books = []
     shelf_mark = None
     booklist = []
@@ -295,26 +297,19 @@ def show_books(request, non_standard_user_id=False):
     # if POST is sent we need to take care of some things
     if request.method == 'POST':
         post = request.POST
+        selected_location_ids = map(int, post.getlist('location'))
+        selected_cc_ids = map(int, post.getlist('cost_center'))
+        selected_categories_ids = map(int, post.getlist('category'))
         # case 1: searching by shelf mark. Other fields are ignored
         if 'id' in post and post['id'] != '':
             shelf_mark = post['id']
             search_data.update({'id' : shelf_mark})
-            booklist = BookCopy.objects.select_related('book').filter(shelf_mark__icontains=shelf_mark).select_related('author', 'category').order_by('book__title')
-            bookcopies = [{'id'         : b.id,
-                           'shelf_mark' : b.shelf_mark, 
-                           'state'      : aux.book_copy_status(b),
-                           'title'      : b.book.title, 
-                           'authors'    : [a.name for a in b.book.author.all()],
-                           'location'   : b.location,
-                           'url'        : bookcopy_url % b.id,
-                           'book'       : b.book,
-                           }       for b in booklist]
-
+            bookcopies = BookCopy.objects.select_related('book').filter(shelf_mark__icontains=shelf_mark).select_related('author', 'category').order_by('book__title')
+        # case 2: searching by anything but shelf mark
         else:
             show_books = True
             search_title = post['title'].split()
             search_author = post['author'].split()
-            selected_categories_ids = map(int, post.getlist('category'))
             search_data.update({'title'  : post['title'], 
                                 'author' : post['author'],
                                 })  # categories and checkboxes will be added later
@@ -324,7 +319,7 @@ def show_books(request, non_standard_user_id=False):
                   (search_title, 'title_any' in post, lambda x: Q(title__icontains=x)),
                   (search_author, 'author_any' in post, lambda x: Q(author__name__icontains=x)),
                 ]
-            ).select_related('category','author')
+            )
 
             # filter with Category
             if selected_categories_ids and (0 not in selected_categories_ids):  # at least one 'real' category selected
@@ -333,6 +328,14 @@ def show_books(request, non_standard_user_id=False):
                 else:
                     for category_id in selected_categories_ids:
                         booklist = booklist.filter(category__id=category_id)
+            # filter with location
+            if selected_location_ids:
+                bookcopies = BookCopy.objects.select_related('book', 'location').filter(location__id__in=selected_location_ids, book__in=booklist)
+            # filter with cost center
+            if selected_cc_ids:
+                bookcopies = BookCopy.objects.select_related('book', 'location').filter(cost_center__id__in=selected_cc_ids, book__in=booklist)
+            if selected_location_ids or selected_cc_ids:
+                booklist = []
 
             # TODO: delete following commented code, remove config options for that
             # if config.get_bool('cut_categories_list_to_found_books'):
@@ -361,16 +364,32 @@ def show_books(request, non_standard_user_id=False):
             for book in books:
                 book.update({'nr_of_available_copies' : aux.nr_of_available_copies(book['book'])})
         
+    bookcopies = [{'id'         : b.id,
+                   'shelf_mark' : b.shelf_mark, 
+                   'state'      : aux.book_copy_status(b),
+                   'title'      : b.book.title, 
+                   'authors'    : [a.name for a in b.book.author.all()],
+                   'location'   : b.location,
+                   # 'url'        : bookcopy_url % b.id,
+                   'book'       : b.book,
+                   }       for b in bookcopies ]
+
     # prepare categories for rendering
     search_categories  = [ {'name' : '-- Any category --',  'id' : 0} ]
-    if bookcopies is None:
-        # we only render categories if we are not searching by shelf mark
-        # search_categories += [ {'name' : c.name,  'id' : c.id,  'selected': c.id in selected_categories_ids }  for c in categories_from_booklist ]
-        search_categories += [ {'name' : c.name,  'id' : c.id,  'selected': c.id in selected_categories_ids }  for c in Category.objects.all() ]
+    # if bookcopies is None:
+    #     # we only render categories if we are not searching by shelf mark
+    #     # search_categories += [ {'name' : c.name,  'id' : c.id,  'selected': c.id in selected_categories_ids }  for c in categories_from_booklist ]
+    search_categories += [ {'name' : c.name,  'id' : c.id,  'selected': c.id in selected_categories_ids }  for c in Category.objects.all() ]
 
+    search_locations = [ {'id' : l.id, 'name' : l, 'selected': l.id in selected_location_ids }  for l in Location.objects.all() ]
+
+    search_cc = [ {'name' : c.name,  'id' : c.id,  'selected': c.id in selected_cc_ids }  for c in CostCenter.objects.all() ]
     # update search context
     search_data.update({'categories' : search_categories,
+                        'locations'  : search_locations,
+                        'ccs'        : search_cc,
                         'categories_select_size' : min(len(search_categories), config.get_int('categories_select_size')),
+                        'copies_location_select_size' : min(len(search_locations), config.get_int('copies_location_select_size')),
                         })
 
     for_whom = aux.user_full_name(non_standard_user_id)

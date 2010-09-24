@@ -65,6 +65,40 @@
                     </tbody>
                     </table>
                 </td>
+                {% if perms.baseapp.list_costcenters %}
+                    <td class="second">
+                        <table class="book_details">
+                        <tbody>
+                            <tr class="book_cc">
+                                <td class="list">
+                                    Cost center: <br> 
+                                    <select name="cost_center" multiple="multiple" size="{{ search.copies_location_select_size }}">
+                                        {% for cc in search.ccs %}
+                                            <option value="{{ cc.id }}" {% if cc.selected %}selected{% endif %}>{{ cc.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                        </table>
+                    </td>
+                {% endif %}
+                <td class="second">
+                    <table class="book_details">
+                    <tbody>
+                        <tr class="book_location">
+                            <td class="list">
+                                Location: <br> 
+                                <select name="location" multiple="multiple" size="{{ search.copies_location_select_size }}">
+                                    {% for location in search.locations %}
+                                        <option value="{{ location.id }}" {% if location.selected %}selected{% endif %}>{{ location.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </td>
                 <td class="second">
                     <table class="book_details">
                     <tbody>
@@ -145,7 +179,7 @@
             <tbody>
                 {% for book in books %}
                 <tr class="book">
-                    <td class="title"><a href='{% url book_one book.book.id%}'>{{ book.book.title }}</a></td>
+                    <td class="title"><a href='{% url book_one book.book.id %}'>{{ book.book.title }}</a></td>
                     {% if show_availability %}
                         <td>{{ book.nr_of_available_copies }}</td>
                     {% endif %}
@@ -189,9 +223,9 @@
             <tbody>
                 {% for copy in bookcopies %}
                 <tr class="book">
-                    {% if user.get_profile.is_librarian %}
-                        <td class="shelfmark"><a href="{{ copy.url }}">{{ copy.shelf_mark }}</a></td>
-                    {% endif %}
+                    {# {% if user.get_profile.is_librarian %} #}
+                    <td class="shelfmark"><a href="{% url copy_one copy.id %}">{{ copy.shelf_mark }}</a></td>
+                    {# {% endif %} #}
                     <td class="state {%if not copy.state.is_available %}unavailable{%endif%}">{{ copy.state|safe }}</td>
                     <td class="title"><a href="{% url book_one copy.book.id %}">{{ copy.title }}</a></td>
                     <td class="authors">{% if copy.authors %}{{ copy.authors|join:', '}}{% else %}No authors.{% endif %}</td>
