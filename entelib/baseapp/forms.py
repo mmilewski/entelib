@@ -639,7 +639,7 @@ class BookForm(ModelForm):
 class BookCopyForm(ModelForm):
     class Meta:
         model = BookCopy
-        # exclude = ('book',)
+        exclude = ('shelf_mark',)
 
     def __init__(self, *args, **kwargs):
         super(BookCopyForm, self).__init__(*args, **kwargs)

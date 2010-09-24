@@ -7,6 +7,7 @@ import models_config as CFG
 from django.db.models import signals
 from django.core.exceptions import ValidationError
 import datetime
+from baseapp.exceptions import NotEnoughIDs
 
 #import settings
 
@@ -418,8 +419,8 @@ def sane_year(year):
 
 class BookCopy(models.Model):
     id = models.AutoField(primary_key=True)
-    # shelf_mark = models.PositiveIntegerField()                                # big number for client's internal use
-    shelf_mark = models.CharField(max_length=CFG.shelf_mark_len, unique=True)
+    shelf_mark = models.PositiveIntegerField(unique=True)                                # big number for client's internal use
+    # shelf_mark = models.CharField(max_length=CFG.shelf_mark_len, unique=True)
     book = models.ForeignKey(Book)
     cost_center = models.ForeignKey(CostCenter)
     location = models.ForeignKey(Location)
@@ -431,6 +432,22 @@ class BookCopy(models.Model):
     toc_url = models.CharField(blank=True, max_length=CFG.copy_toc_url_len, verbose_name="Link to table of contents")    # external link to TOC
     description = models.TextField(blank=True)                                             # description
     description_url = models.CharField(blank=True, max_length=CFG.copy_desc_url_len)       # and/or a link to description
+
+    def save(self):
+        '''
+        When creating a copy we want to assign it a unique shelf_mark automatically
+        '''
+        if not self.shelf_mark:
+            print "no shelf_mark!"
+            copies = self.book.bookcopy_set.all()
+            if copies: # if there are some copies we use their_maximum_shelf_mark + 1
+                max_shelf_mark = max([c.shelf_mark for c in self.book.bookcopy_set.all()])
+                if max_shelf_mark % 1000 == 999: 
+                    raise NotEnoughIDs
+                self.shelf_mark = max_shelf_mark + 1
+            else:      # if the copy is first copy of a book it gets fixed by the book id
+                self.shelf_mark = self.book.id * 1000 + 1
+        super(BookCopy, self).save()
 
     def __unicode__(self):
         return u'%s [%d, copy]' % (self.book.title, self.id, )
@@ -450,7 +467,7 @@ class Reservation(models.Model):
     who_cancelled and when_cancelled fields should be normally NULL.
     If who_cancelled is NULL and when_cancelled is not, it means reservation expired.
 
-    end_date is set when performing rental. It can be max of #TODO field in configuration table.
+    end_date is set when performing rental.
     """
     id = models.AutoField(primary_key=True)
     book_copy = models.ForeignKey(BookCopy)

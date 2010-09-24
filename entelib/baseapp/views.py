@@ -14,7 +14,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from baseapp.config import Config
-from baseapp.exceptions import EntelibWarning
+from baseapp.exceptions import EntelibWarning, NotEnoughIDs
 import baseapp.forms as forms
 from baseapp.models import *
 from baseapp.reports import get_report_data, generate_csv
@@ -620,7 +620,10 @@ def show_add_bookcopy(request, book_id, edit_form=forms.BookCopyForm):
     if request.method == 'POST':
         form = edit_form(data=request.POST, initial=initial_data)
         if form.is_valid():
-            new_copy = form.save()
+            try:
+                new_copy = form.save()
+            except NotEnoughIDs:
+                return render_forbidden(request, 'Too many copies of this book (999!). Please add new book for more copies')
             messages.info(request, 'Book copy successfully added.')
             return HttpResponseRedirect(reverse('copy_one', args=(new_copy.id,)))
     else:
