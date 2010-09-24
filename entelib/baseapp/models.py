@@ -441,7 +441,7 @@ class BookCopy(models.Model):
             copies = self.book.bookcopy_set.all()
             if copies: # if there are some copies we use their_maximum_shelf_mark + 1
                 max_shelf_mark = max([c.shelf_mark for c in self.book.bookcopy_set.all()])
-                if not max_shelf_mark: max_shelf_mark = 1000 * self.book.id + 1
+                if not max_shelf_mark: max_shelf_mark = 1000 * self.book.id
                 if max_shelf_mark % 1000 == 999: 
                     raise NotEnoughIDs
                 self.shelf_mark = max_shelf_mark + 1
