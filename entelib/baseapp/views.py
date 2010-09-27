@@ -513,17 +513,15 @@ def show_book_copy(request, bookcopy_id):
     """
     config = Config(request.user)
     book_copy = get_object_or_404(BookCopy, id=bookcopy_id)
-    book_desc = aux.get_book_details(book_copy)
     
-    context = {
-        'copy' : book_desc,
-    }
+    context = { }
 
     if request.method == 'POST':
         post = request.POST
         if 'return' in post:
             aux.return_rental(request.user, post['return'])
             messages.info(request, 'Copy successfully returned')
+        # TODO: here implement renting given reservation
             
     
     tb_processor = TimeBarRequestProcessor(request, None, config)  # default date range
@@ -544,6 +542,12 @@ def show_book_copy(request, bookcopy_id):
        request.user.has_perm('baseapp.change_rental') and \
        request.user in rentals[0].reservation.book_copy.location.maintainer.all():
             context.update({'rental' : rentals[0]})
+
+    # TODO: here implement adding current reservation to context
+
+    book_desc = aux.get_book_details(book_copy)
+    context.update({
+        'copy' : book_desc, })
 
     return render_response(request, 'bookcopy.html', context)
 

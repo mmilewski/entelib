@@ -6,6 +6,7 @@
         <ul>
             {% if perms.baseapp.add_rental %}        <li><a href='user/'>Reserve/rent for user</a></li>    {% endif %}
             {% if perms.baseapp.add_reservation %}   <li><a href='reserve/'>Reserve for me</a></li>        {% endif %}
+            {% if perms.baseapp.change_bookcopy %}  <li><a href='edit/'>Edit</a></li>        {% endif %}
         </ul>
       </div>
   {% else %}
