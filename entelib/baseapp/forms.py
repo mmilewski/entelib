@@ -223,6 +223,18 @@ class ProfileEditForm(forms.Form):
             raise forms.ValidationError('Too long')
         return value
 
+    def clean_email(self):
+        given_email = self.cleaned_data['email']
+        cleaned_email = given_email
+
+        # is not taken (excluding me)
+        is_taken = 0 < User.objects.filter(email__iexact=given_email) \
+                                   .exclude(id=self.profile_owner.id) \
+                                   .count()
+        if is_taken:
+            raise forms.ValidationError('E-mail already taken')
+        return cleaned_email
+
     def clean_username(self):
         # exit if unchanged
         if self.profile_owner.username == self.cleaned_data['username']:
@@ -559,6 +571,16 @@ class RegistrationForm(forms.Form):
             return username
         else:
             raise forms.ValidationError(u'%s username is already taken' % username)
+
+    def clean_email(self):
+        given_email = self.cleaned_data['email']
+        cleaned_email = given_email
+
+        is_taken = 0 < User.objects.filter(email__iexact=given_email) \
+                                   .count()
+        if is_taken:
+            raise forms.ValidationError('E-mail already taken')
+        return cleaned_email
 
 
     def clean(self):
