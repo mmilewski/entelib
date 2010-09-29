@@ -157,6 +157,7 @@ class UserProfile(models.Model):
     shoe_size = models.PositiveIntegerField(null=True, blank=True)  # :)
     phone = models.ManyToManyField(Phone, null=True, blank=True)
     building = models.ForeignKey('Building', null=True, blank=True)
+    location_remarks = models.CharField(max_length=CFG.location_remarks_len, null=True)
     awaits_activation = models.BooleanField()
 
     class Meta:
@@ -269,7 +270,7 @@ class Location(models.Model):
     building = models.ForeignKey(Building, blank=False, null=False)
     details = models.CharField(max_length=CFG.location_name_len)
     remarks = models.CharField(max_length=CFG.location_remarks_len, blank=True)
-    maintainer = models.ManyToManyField(User, blank=True, null=True, verbose_name='Maintainers')
+    #maintainer = models.ManyToManyField(User, blank=True, null=True, verbose_name='Maintainers')
 
     def __unicode__(self):
         return u'%s: %s' % (self.building.name, self.details)
@@ -396,10 +397,11 @@ class BookRequest(models.Model):
 
 class CostCenter(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=CFG.costcenter_name_len)
+    name = models.CharField(max_length=CFG.costcenter_name_len, unique=True)
+    maintainer = models.ManyToManyField(User, blank=True, null=True, verbose_name='Maintainers')
 
     def __unicode__(self):
-        return u'CC %s' % (self.name, )
+        return self.name
 
     class Meta:
         permissions = (

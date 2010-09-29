@@ -33,7 +33,7 @@
                     Shipment requested
                 {% else %}
                     <input type='hidden' name='send' value='{{ row.id }}'>
-                    <input type='submit' name='action' value='Send me' {% if row.rental_impossible %} disabled='disabled' {% endif %}
+                    <input type='submit' name='action' value='Send me'> {# {% if row.rental_impossible %} disabled='disabled' {% endif %}> #}
                 {% endif %}
             {% endif %} 
         </form>

@@ -57,7 +57,7 @@ def default_email(recipients, template, context, subject=None, sender=None):
     send(subject, msg, sender, recipients)
 
 def send_request_to_send_with_internal_post(reservation):
-    recipients = list(reservation.book_copy.location.maintainer.all())
+    recipients = list(reservation.book_copy.cost_center.maintainer.all())
     template = 'email/send_with_internal_post_request'
     context = Context({'user' : reservation.for_whom,
                'reservation' : reservation,
@@ -261,7 +261,7 @@ def shipment_requested(reservation):
     Args:
         User object, BookCopy object
     '''
-    recipients = map(_make_recipient_from_user, list(reservation.book_copy.location.maintainer.all()))
+    recipients = map(_make_recipient_from_user, list(reservation.book_copy.cost_center.maintainer.all()))
     tpl = 'email/send_with_internal_post_request'
     ctx = Context({'reservation' : reservation, 
                    'application_url' : Config().get_str('application_url') })

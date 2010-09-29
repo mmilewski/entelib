@@ -23,6 +23,7 @@
             {% else %} None defined {% endif %}
           </li>
           <li><span class="label">Building I work in</span>: {{ building|default_if_none:"Not defined" }}  </li>
+          <li><span class="label">Location details</span>: {{ reader.userprofile.location_remarks|default_if_none:"Not defined" }}  </li>
         </ul>
     {% endif %}
     

@@ -461,7 +461,7 @@ def show_book(request, book_id, non_standard_user_id=False):
             # 'reserve_url'   : reserve_url % elem.id,
             'shelf_mark'    : elem.shelf_mark,
             'location'      : elem.location,
-            'maintainers'   : ",".join([ "%s %s"%(f,l) for f,l in elem.location.maintainer.values_list('first_name', 'last_name') ]),
+            'maintainers'   : ",".join([ "%s %s"%(f,l) for f,l in elem.cost_center.maintainer.values_list('first_name', 'last_name') ]),
             'state'         : elem.state,
             'publisher'     : elem.publisher,
             'year'          : elem.year,
@@ -540,7 +540,7 @@ def show_book_copy(request, bookcopy_id):
                                                      )
     if rentals and \
        request.user.has_perm('baseapp.change_rental') and \
-       request.user in rentals[0].reservation.book_copy.location.maintainer.all():
+       request.user in rentals[0].reservation.book_copy.cost_center.maintainer.all():
             context.update({'rental' : rentals[0]})
 
     # TODO: here implement adding current reservation to context
@@ -981,7 +981,7 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
         elif 'rent_button' in post:
             if not request.user.has_perm('baseapp.add_rental'):
                 raise PermissionDenied('User not allowed to rent')
-            if not request.user in book_copy.location.maintainer.all():
+            if not request.user in book_copy.cost_center.maintainer.all():
                 raise PermissionDenied('User not allowed to rent book from this location')
             if not aux.is_book_copy_rentable(book_copy):
                 return aux.render_forbidden(request, 'Book copy not rentable')
@@ -1027,9 +1027,12 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
                 reserved.update({'error' : 'Reservation cancelled'})
             if 'send_button' in post:
                 reservation = get_object_or_404(Reservation, id=int(post['reservation_to_send_or_cancel']))
-                aux.request_shipment(reservation)
-                messages.info(request, 'Send-request has been set')
-                reserved.update({'msg' : 'Send-request has been set'})
+                if aux.request_shipment(reservation):
+                    messages.info(request, 'Send-request has been set')
+                    reserved.update({'msg' : 'Send-request has been set'})
+                else:
+                    messages.info(request, "Send-request couldn't be set. Maybe you didn't set your building in you profile?")
+                    reserved.update({'error' : "Send-request couldn't be set. Maybe you didn't set your building in you profile?"})
             
     book_desc = aux.get_book_details(book_copy)
 
@@ -1044,7 +1047,7 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
         'reserved'        : reserved,
         'for_whom'        : for_whom,
         'can_reserve'     : book_copy.state.is_visible and request.user.has_perm('baseapp.add_reservation'),
-        'rental_possible' : aux.is_book_copy_rentable(book_copy) and request.user in book_copy.location.maintainer.all(),
+        'rental_possible' : aux.is_book_copy_rentable(book_copy) and request.user in book_copy.cost_center.maintainer.all(),
     })
 
     # time bar        
@@ -1085,12 +1088,12 @@ def show_location(request, loc_id, edit_form=forms.LocationForm):
 
     location = get_object_or_404(Location, pk=loc_id)
     if request.method == 'POST':
-        # drop maintainers if checkbox checked
-        if 'no_maintainers' in request.POST:
-            mtrs = request.POST.getlist('maintainer')
-            for i in range(len(mtrs)):
-                mtrs.pop(0)
-        # continue editing
+#        # drop maintainers if checkbox checked
+#        if 'no_maintainers' in request.POST:
+#            mtrs = request.POST.getlist('maintainer')
+#            for i in range(len(mtrs)):
+#                mtrs.pop(0)
+#        # continue editing
         form = edit_form(data=request.POST, instance=location)
         if form.is_valid():
             form.save()

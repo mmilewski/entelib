@@ -447,9 +447,12 @@ def nr_of_available_copies(book):
 
 
 def request_shipment(reservation):
+    if not reservation.for_whom.userprofile.building:
+        return False
     reservation.shipment_requested = True
     reservation.save()
     mail.shipment_requested(reservation)
+    return True
 
 
 def confirm_reservation(reservation):
@@ -470,7 +473,7 @@ def rent(reservation, librarian):
     '''
     if not librarian.has_perm('baseapp.add_rental'):
         raise PermissionDenied
-    if not librarian in reservation.book_copy.location.maintainer.all():
+    if not librarian in reservation.book_copy.cost_center.maintainer.all():
         raise PermissionDenied('One can only rent from location one maintains')
     if not is_reservation_rentable(reservation):
         raise PermissionDenied('Reservation not rentable.')
@@ -498,7 +501,7 @@ def return_rental(librarian, rental_id):
     # not everyone can return book
     if not librarian.has_perm('baseapp.change_rental'):
         raise PermissionDenied
-    if not librarian in returned_rental.reservation.book_copy.location.maintainer.all():
+    if not librarian in returned_rental.reservation.book_copy.cost_center.maintainer.all():
         raise PermissionDenied('One can only rent/return from location one maintains')
 
     # can't return a rental twice
@@ -556,7 +559,7 @@ def show_user_rentals(request, user_id=False):
                    'authors'    : [a.name for a in r.reservation.book_copy.book.author.all()],
                    'from_date'  : r.start_date.date(),
                    'to_date'    : r.reservation.end_date,
-                   'returnable' : request.user in r.reservation.book_copy.location.maintainer.all(),
+                   'returnable' : request.user in r.reservation.book_copy.cost_center.maintainer.all(),
                    'rental'     : r,
                   }
                   for r in user_rentals ]
@@ -652,8 +655,8 @@ def show_user_reservations(request, user_id=False):
                 reservation = Reservation.objects.get(id=post['send'])
             except Reservation.DoesNotExist:
                 return render_not_found(request, item_name='Reservation')
-            reservation.shipment_requested = True
-            reservation.save()
+            if not request_shipment(reservation):
+                messages.info(request, "Send-request couldn't be set. Maybe building is not set is userprofile?")
 
     # find user active reservations
     user_reservations = Reservation.objects.filter(for_whom=user)\
@@ -663,14 +666,14 @@ def show_user_reservations(request, user_id=False):
                           # 'url' : unicode(r.id) + u'/',
                           'book_copy_id' : r.book_copy.id,
                           'shelf_mark' : r.book_copy.shelf_mark,
-                          'rental_impossible' : '' if is_reservation_rentable(r) and r.book_copy.location.maintainer.count() > 0 else reservation_status(r),
+                          'rental_impossible' : '' if is_reservation_rentable(r) and r.book_copy.cost_center.maintainer.count() > 0 else reservation_status(r),
                           'title' : r.book_copy.book.title,
                           'authors' : [a.name for a in r.book_copy.book.author.all()],
                           'from_date' : r.start_date,
                           'to_date' : r.end_date,
                           'location' : unicode(r.book_copy.location),
                           'can_rent' : request.user.has_perm('baseapp.add_rental') and \
-                                       request.user in r.book_copy.location.maintainer.all(),
+                                       request.user in r.book_copy.cost_center.maintainer.all(),
                           'shipment_requested' : r.shipment_requested,
                           'reservation' : r,
                          } for r in user_reservations]
@@ -855,7 +858,7 @@ def can_edit_global_config(user):
 
 
 def internal_post_send_possible(reservation):
-    return 'True' if reservation.book_copy.location.maintainer.count() > 0 else False
+    return 'True' if reservation.book_copy.cost_center.maintainer.count() > 0 else False
 
 
 def show_reservations(request, shipment_requested=False, only_rentable=True, all_locations=False):

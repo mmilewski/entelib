@@ -122,6 +122,7 @@ class ProfileEditForm(forms.Form):
     last_name = forms.CharField(max_length=30, required=False, label=u'Last name')
     email = forms.EmailField(label=(u'E-mail'), required=False)
     work_building = forms.ChoiceField(choices=ProfileEditChoiceList.buildings(), label="Building I work in")
+    location_remarks = forms.CharField(max_length=CFG.location_remarks_len, label=u'My location details')
     groups = forms.CharField(label='helo')
 
     phoneType0 = forms.ChoiceField(choices=ProfileEditChoiceList.phone_types(), label='Phone 0', required=False)
@@ -428,6 +429,14 @@ class ProfileEditForm(forms.Form):
             else:
                 user_profile.building = None
             user_profile.save()
+        if self.cleaned_data['location_remarks']:
+            location_remarks = self.cleaned_data['location_remarks']
+            user_profile = self.profile_owner.get_profile()
+            if location_remarks:
+                user_profile.location_remarks = location_remarks
+            else:
+                user_profile.location_remarks = ''
+            user_profile.save()
 
         # changing username, first name or last name requires permission
         if self.editor.has_perm('baseapp.edit_xname'):
@@ -503,18 +512,23 @@ class ProfileEditForm(forms.Form):
         form_initial.update(phones_initial)
         if user.get_profile().building:
             form_initial['work_building'] = user.get_profile().building.id
+
+        if user.get_profile().location_remarks:
+            form_initial['location_remarks'] = user.get_profile().location_remarks
+            print form_initial['location_remarks']
         
         return form_initial
     
     @staticmethod
     def build_default_context_for_user(user):
         """ Returns default context for specified user."""
-        context = { 'first_name'   : user.first_name,
-                    'last_name'    : user.last_name,
-                    'user_id'      : user.id,
-                    'email'        : user.email,
-                    'building'     : user.get_profile().building,
-                    'phones'       : get_phones_for_user(user),
+        context = { 'first_name'       : user.first_name,
+                    'last_name'        : user.last_name,
+                    'user_id'          : user.id,
+                    'email'            : user.email,
+                    'building'         : user.get_profile().building,
+                    'location_remarks' : user.get_profile().location_remarks,
+                    'phones'           : get_phones_for_user(user),
                     # 'rentals'      : 'rentals/',         # moim zdaniem to jest _bardzo_ zle miejsce na te dane - przenioslem je do szablonu - mbr
                     # 'reservations' : 'reservations/',
                     }
@@ -629,12 +643,12 @@ class RegistrationForm(forms.Form):
 class LocationForm(ModelForm):   
     class Meta:
         model = Location
-        fields = ('building', 'details', 'remarks', 'maintainer')
+        fields = ('building', 'details', 'remarks')
 
     groups = Group.objects.filter(Q(name='Librarians'))
 
     building = forms.ModelChoiceField(Building.objects.all().order_by('name'))
-    maintainer = forms.ModelMultipleChoiceField(User.objects.filter(groups__in=groups).order_by('username'), required=False)
+    # maintainer = forms.ModelMultipleChoiceField(User.objects.filter(groups__in=groups).order_by('username'), required=False)
 
 
 class BookForm(ModelForm):   
