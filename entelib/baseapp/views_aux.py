@@ -874,7 +874,7 @@ def show_reservations(request, shipment_requested=False, only_rentable=True, all
             cancel_reservation(reservation, request.user)
             messages.info(request, 'Cancelled.')
     context = {}
-    locations = request.user.location_set.all()  # locations maintained by user
+    locations = request.user.costcenter_set.all()  # cost centers maintained by user
     reservations = Reservation.objects.filter(Q_reservation_active)
     if shipment_requested:
         reservations = reservations.filter(shipment_requested=True).select_related()

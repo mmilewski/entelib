@@ -22,13 +22,23 @@
                       <!-- <input type="submit" name="btn_sort_num_cancels" value="^" title="Ascending"/> -->
                       <!-- <input type="submit" name="btn_sort_-num_cancels" value="v" title="Descending"/> -->
                     </th>
+                    <th>Number of overdues
+                      <input type="image" name="btn_sort_num_overdues" src="/media/images/sort-desc.gif" height="17" width="17" alt="Ascending" title="Ascending">
+                      <input type="image" name="btn_sort_-num_overdues" src="/media/images/sort-asc.gif" height="17" width="17" alt="Descending" title="Descending">
+                    </th>
+                    <th>Total length of overdues
+                      <input type="image" name="btn_sort_len_overdues" src="/media/images/sort-desc.gif" height="17" width="17" alt="Ascending" title="Ascending">
+                      <input type="image" name="btn_sort_-len_overdues" src="/media/images/sort-asc.gif" height="17" width="17" alt="Descending" title="Descending">
+                    </th>
                 </tr>
               </thead>
               <tbody>
                 {% for user in report %}
                 <tr>
-                    <td>{{ user.name }}</td>
+                    <td><a href="{% url user_one user.id %}">{{ user.name }}</a></td>
                     <td>{{ user.num_of_cancels }}</td>
+                    <td>{{ user.num_of_overdues }}</td>
+                    <td>{{ user.duration_of_overdues }}</td>
                 </tr>
                 {% endfor %}
               </tbody>

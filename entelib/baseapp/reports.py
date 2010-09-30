@@ -110,27 +110,31 @@ def get_report_data(report_type, from_date, to_date, order_by=[]):
     order_by = order_by[:1] if order_by else []         # only one name can be used to order data 
     
     # NOTE: `ob` stands from order by
-    ob_rename_dict = {'title'       : order_asc_by_key('title'),
-                      '-title'      : order_desc_by_key('title'),
-                      'location'    : order_asc_by_key('location_str'),
-                      '-location'   : order_desc_by_key('location_str'),
-                      'shelf_mark'  : order_asc_by_key('shelf_mark'),
-                      '-shelf_mark' : order_desc_by_key('shelf_mark'),
-                      'status'      : order_asc_by_key('status_str'),
-                      '-status'     : order_desc_by_key('status_str'),
-                      'for_whom'    : order_asc_by_key('for_whom'),
-                      '-for_whom'   : order_desc_by_key('for_whom'),
-                      'when'        : order_asc_by_key('when'),
-                      '-when'       : order_desc_by_key('when'),
-                      'librarian'   : order_asc_by_key('by_whom'),
-                      '-librarian'  : order_desc_by_key('by_whom'),
-                      'name'        : order_asc_by_key('name'),
-                      '-name'       : order_desc_by_key('name'),
-                      'num_cancels' : order_asc_by_key('num_of_cancels'),
-                      '-num_cancels': order_desc_by_key('num_of_cancels'),
-                      'num_rentals' : order_asc_by_key('num_of_rentals'),
-                      '-num_rentals': order_desc_by_key('num_of_rentals'),
-                      'num_rsvs'    : order_asc_by_key('num_of_reservations'),
+    ob_rename_dict = {'title'        : order_asc_by_key('title'),
+                      '-title'       : order_desc_by_key('title'),
+                      'location'     : order_asc_by_key('location_str'),
+                      '-location'    : order_desc_by_key('location_str'),
+                      'shelf_mark'   : order_asc_by_key('shelf_mark'),
+                      '-shelf_mark'  : order_desc_by_key('shelf_mark'),
+                      'status'       : order_asc_by_key('status_str'),
+                      '-status'      : order_desc_by_key('status_str'),
+                      'for_whom'     : order_asc_by_key('for_whom'),
+                      '-for_whom'    : order_desc_by_key('for_whom'),
+                      'when'         : order_asc_by_key('when'),
+                      '-when'        : order_desc_by_key('when'),
+                      'librarian'    : order_asc_by_key('by_whom'),
+                      '-librarian'   : order_desc_by_key('by_whom'),
+                      'name'         : order_asc_by_key('name'),
+                      '-name'        : order_desc_by_key('name'),
+                      'num_cancels'  : order_asc_by_key('num_of_cancels'),
+                      '-num_cancels' : order_desc_by_key('num_of_cancels'),
+                      'num_overdues' : order_asc_by_key('num_of_overdues'),
+                      '-num_overdues': order_desc_by_key('num_of_overdues'),
+                      'len_overdues' : order_asc_by_key('duration_of_overdues'),
+                      '-len_overdues': order_desc_by_key('duration_of_overdues'),
+                      'num_rentals'  : order_asc_by_key('num_of_rentals'),
+                      '-num_rentals' : order_desc_by_key('num_of_rentals'),
+                      'num_rsvs'     : order_asc_by_key('num_of_reservations'),
                       '-num_rsvs'   : order_desc_by_key('num_of_reservations'),
                       }
 
@@ -138,7 +142,7 @@ def get_report_data(report_type, from_date, to_date, order_by=[]):
                             'status', '-status', 'for_whom', '-for_whom', 'when', '-when', 'librarian', '-librarian']
     ob_in_often_rented   = ['title', '-title', 'num_rentals', '-num_rentals']
     ob_in_often_reserved = ['title', '-title', 'num_rsvs', '-num_rsvs']
-    ob_in_black_list     = ['name', '-name', 'num_cancels', '-num_cancels']
+    ob_in_black_list     = ['name', '-name', 'num_cancels', '-num_cancels', 'num_overdues', '-num_overdues', 'len_overdues', '-len_overdues']
     ob_in_lost_books     = copy(ob_in_status)
     
     if report_type == u'status':
@@ -304,9 +308,12 @@ def get_report_data(report_type, from_date, to_date, order_by=[]):
 
     elif report_type == u'black_list':
         nums_of_cancels = {}
+        nums_of_overdues = {}
+        duration_of_overdues = {}
         user_infos = []
         users = User.objects.all()
-        reservations = Reservation.objects.filter(who_cancelled__isnull=False)
+        reservations = Reservation.objects.filter(when_cancelled__isnull=False)
+        rentals = [ r for r in Rental.objects.all() if r.end_date and r.reservation.end_date < r.end_date.date() ]
         date_empty = False
 
         if from_date == u'' or to_date == u'':
@@ -321,8 +328,19 @@ def get_report_data(report_type, from_date, to_date, order_by=[]):
                 return {'error': True, 'report': [], 'template': 'reports.html'}
 
         for user in users:
-            if user.id not in nums_of_cancels:
-                nums_of_cancels.update({user.id: 0})
+            nums_of_cancels.update({user.id: 0})
+            nums_of_overdues.update({user.id: 0})
+            duration_of_overdues.update({user.id: 0})
+
+        for rental in rentals:
+            user_id = rental.reservation.for_whom.id
+            if date_empty:
+                nums_of_overdues[user_id] += 1
+                duration_of_overdues[user_id] += (rental.end_date.date() - rental.reservation.end_date).days
+            else:
+                if rental.reservation.start_date >= start_date and rental.reservation.start_date <= end_date:
+                    nums_of_overdues[user_id] += 1
+                    duration_of_overdues[user_id] += (rental.end_date.date() - rental.reservation.end_date).days
 
         for reservation in reservations:
             user_id = reservation.for_whom.id
@@ -333,7 +351,12 @@ def get_report_data(report_type, from_date, to_date, order_by=[]):
                     nums_of_cancels[user_id] += 1
 
         for user in users:
-            user_infos.append({'name': user.first_name + u' ' + user.last_name, 'num_of_cancels': nums_of_cancels[user.id]})
+            user_infos.append({'name': user.last_name + u', ' + user.first_name,
+                               'id'  : user.id,
+                               'num_of_cancels': nums_of_cancels[user.id],
+                               'num_of_overdues' : nums_of_overdues[user.id],
+                               'duration_of_overdues' : duration_of_overdues[user.id],
+                               })
 
         sort_by = list(set(order_by) & set(ob_in_black_list))
         if sort_by:

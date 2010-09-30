@@ -179,7 +179,7 @@
             <tbody>
                 {% for book in books %}
                 <tr class="book">
-                    <td class="title"><a href='{% url book_one book.book.id %}'>{{ book.book.title }}</a></td>
+                    <td class="title"><a href='{{ book.book.id }}'>{{ book.book.title }}</a></td>
                     {% if show_availability %}
                         <td>{{ book.nr_of_available_copies }}</td>
                     {% endif %}
@@ -224,7 +224,7 @@
                 {% for copy in bookcopies %}
                 <tr class="book">
                     {# {% if user.get_profile.is_librarian %} #}
-                    <td class="shelfmark"><a href="{% url copy_one copy.id %}">{{ copy.shelf_mark }}</a></td>
+                    <td class="shelfmark"><a href="../bookcopy/{{ copy.id }}">{{ copy.shelf_mark }}</a></td>
                     {# {% endif %} #}
                     <td class="state {%if not copy.state.is_available %}unavailable{%endif%}">{{ copy.state|safe }}</td>
                     <td class="title"><a href="{% url book_one copy.book.id %}">{{ copy.title }}</a></td>

@@ -1,6 +1,6 @@
 Welcome!
 
-You have reserved {{ reservation.title }} {% if reservation.authors %}by {{reservation.authors|join:", "}}{% endif %}. Your reserevation is not ready to rent yet, though. You'll be notified when it is.
+You have reserved {{ reservation.book.title }} {% if reservation.book.authors %}by {{reservation.book.authors|join:", "}}{% endif %}. Your reserevation is not ready to rent yet, though. You'll be notified when it is.
 
 Please do not reply for this email.
 

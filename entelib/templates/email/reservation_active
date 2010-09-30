@@ -1,8 +1,9 @@
 Welcome!
 
-Your reservation on {{ book.title }} {% if book.authors %}by {{book.authors|join:", "}}{% endif %} is now active! You must rent it until {{ deadline }}. After that, you reservation will automatically be cancelled.
+Your reservation on {{ book.title }} {% if book.authors %}by {{book.authors|join:", "}}{% endif %} is now active! You must rent it until {{ deadline }}. After that, your reservation will automatically be cancelled.
 
-Please come and rent.
+Please come to {% for lib in reservation.book_copy.cost_center.maintainer.all %} {{ lib.first_name }} {{ lib.last_name }} {% endfor %}, {{ reservation.book_copy.location }} and rent. 
+
 
 
 Library staff.

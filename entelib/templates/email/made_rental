@@ -1,6 +1,6 @@
 Welcome!
 
-You have rented {{ title }} {% if authors %}by {{authors|join:", "}}{% endif %}. You can keep it until {{ deadline }}.
+You have rented {{ book.title }} {% if authors %}by {{book.authors|join:", "}}{% endif %}. You can keep it until {{ deadline }}.
 
 Have a nice lecture!
 

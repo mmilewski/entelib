@@ -81,32 +81,6 @@
             <li><a href="/entelib/current_rentals/">      Current rentals       </a></li>
         {% endif %}
 
-        {% if can_list_reports %}              <li><a href="/entelib/report/">                 Reports</a>           
-          <ul>
-            <li><a href="/entelib/report/status/">Library status</a></li>
-            <li><a href="/entelib/report/black_list/">Users black list</a></li>
-            <li><a href="/entelib/report/lost_books/">Unavailable books</a></li>
-            <li><a href="/entelib/report/most_often_rented/">Most often rented books</a></li>
-            <li><a href="/entelib/report/most_often_reserved/">Most often reserved books</a></li>
-          </ul>
-        </li>
-        {% endif %}
-
-
-        {# {% if can_list_locations %} #}
-        {% if user.userprofile.is_admin %}
-          <li><a href="/entelib/locations/">Locations</a>
-            <ul>
-              {% if perms.baseapp.list_locations %}  <li><a href="{% url location_all %}">              Location list         </a></li> {% endif %}
-              {% if perms.baseapp.add_location %}    <li><a href="{% url location_add %}">              Add location          </a></li>
-                <li class="separator"></li>
-              {% endif %}
-              {% if perms.baseapp.list_buildings %}  <li><a href="{% url building_all %}">              Building list         </a></li> {% endif %}
-              {% if perms.baseapp.add_building %}    <li><a href="{% url building_add %}">              Add building          </a></li> {% endif %}
-            </ul>
-          </li>              
-        {% endif %}
-
 
         {% if can_list_users %}
             <li>
@@ -123,6 +97,44 @@
 
 
         
+        {% if can_list_reports %}              <li><a href="/entelib/report/">                 Reports</a>           
+          <ul>
+            <li><a href="/entelib/report/status/">Library status</a></li>
+            <li><a href="/entelib/report/black_list/">Users black list</a></li>
+            <li><a href="/entelib/report/lost_books/">Unavailable books</a></li>
+            <li><a href="/entelib/report/most_often_rented/">Most often rented books</a></li>
+            <li><a href="/entelib/report/most_often_reserved/">Most often reserved books</a></li>
+          </ul>
+        </li>
+        {% endif %}
+
+
+        {# {% if can_list_locations %} #}
+        {% if user.userprofile.is_admin %}
+          <li>Administration
+            <ul>
+              {% if perms.baseapp.list_locations %}  <li><a href="{% url location_all %}">              Location list         </a></li> {% endif %}
+              {% if perms.baseapp.add_location %}    <li><a href="{% url location_add %}">              Add location          </a></li>
+                <li class="separator"></li>
+              {% endif %}
+              {% if perms.baseapp.list_buildings %}  <li><a href="{% url building_all %}">              Building list         </a></li> {% endif %}
+              {% if perms.baseapp.add_building %}    <li><a href="{% url building_add %}">              Add building          </a></li> 
+                <li class="separator"></li>
+              {% endif %}
+              {% if perms.baseapp.list_costcenters %}    <li><a href="/entelib/costcenters/">           Costcenter list       </a></li> {% endif %}
+              {% if perms.baseapp.add_costcenter %}      <li><a href="{% url costcenter_add %}">        Add costcenter        </a></li>
+                <li class="separator"></li>
+              {% endif %}
+              {% if perms.baseapp.list_states %}    <li><a href="/entelib/states/">                     State list            </a></li> {% endif %}
+              {% if perms.baseapp.add_state %}      <li><a href="{% url state_add %}">                  Add state             </a></li>
+                <li class="separator"></li>
+              {% endif %}
+
+            </ul>
+          </li>              
+        {% endif %}
+
+
         {% if user.userprofile.is_admin %}       <li><a href="/entelib/config/">                 Global configuration</a></li>        {% endif %}
         
         {% if is_dev %}
@@ -132,11 +144,12 @@
         
         {% if can_list_emaillog %}               <li><a href="/entelib/emaillog/">Email logs</a></li>                                 {% endif %}
 
-        {% if user.userprofile.is_librarian %} <li> <a href='{% url howto %}'>Howto</a></li> {% endif %}
+        <li> <a href='{% url howto %}'>Howto</a></li> 
       </ul>
 
 
       </ul>
+{% comment %}
 <!--
         <ul>
             {% if can_list_books %}                   <li><a href="/entelib/books/">                  Book list</a></li>         {% endif %}
@@ -157,6 +170,7 @@
             {% if can_list_emaillog %}             <li><a href="/entelib/emaillog/">Email logs</a></li>                       {% endif %}
       </ul>
 -->
+{% endcomment %}
 
     </div>
 {% endblock %}

@@ -1,4 +1,4 @@
-{{ reservation.for_whom.first_name }} {{ reservation.for_whom.last_name }} ({% firstof reservation.for_whom.userprofile.building "Unknown location" %}) is asking to send him {{ reservation.book_copy.book.title }} (ID {{ reservation.book_copy.shelf_mark }}).
+{{ reservation.for_whom.first_name }} {{ reservation.for_whom.last_name }} ({% if reservation.for_whom.userprofile.building %}{{ reservation.for_whom.userprofile.building }}: {{ reservation.for_whom.userprofile.location_remarks }}{% else %}"Unknown location" {% endif %}) is asking to send him {{ reservation.book_copy.book.title }} (ID {{ reservation.book_copy.shelf_mark }}).
 
 When you do that mark it at {{ application_url }}{% url shipment %}
 
