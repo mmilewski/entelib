@@ -10,10 +10,11 @@
     {% block header_row %}
       {% if perms.baseapp.list_costcenters %}
           <th></th>
+          <th>Name</th>
+          {% if perms.baseapp.change_costcenter %}<th>Options</th>{% endif %}
+      {% else %}
+          <th>Name</th>
       {% endif %}
-      <th>Name</th>
-      <th>Maintainers</th>
-      {% if perms.baseapp.change_costcenter %}<th>Options</th>{% endif %}
     {% endblock %}
 
     {% block item_row %}
@@ -22,7 +23,6 @@
             <a href="{% url costcenter_one row.id %}">Show details</a>
           </td>
           <td class="name"><a href="{% url costcenter_one row.id %}">{{ row.name }}</a></td>
-          <td class="mtrs">{{ row.maintainer.all|join:", "|default:"-"}}</td>
           {% if perms.baseapp.change_costcenter %}
             <td class="options">
               <a class="edit" href="{% url costcenter_edit row.id %}">Edit costcenter</a>

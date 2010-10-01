@@ -12,8 +12,8 @@
         <th></th>
         {%endif%}
         <th>Full name</th>
-<!--        <th>Building</th>       -->
-<!--        <th>Maintainers</th>    -->
+<!--        <th>Building</th>  -->
+        <th>Maintainers</th>
         <th>Remarks</th>
     {% endblock %}
 
@@ -24,7 +24,7 @@
         {%else%}
             <td class="details">{{ row.building.name }}: {{ row.details }}</td>
         {%endif%}
-<!--       <td class="building_name">{{ row.building.name }}</td>                  -->
-{# <!--    <td class="mtrs">{{ row.maintainer.all|join:", "|default:"-"}}</td>     -->  #}
+<!--        <td class="building_name">{{ row.building.name }}</td>  -->
+        <td class="mtrs">{{ row.maintainer.all|join:", "|default:"-"}}</td>
         <td class="remarks">{{row.remarks|default:"-"}}</td>
     {% endblock %}

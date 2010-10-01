@@ -25,6 +25,33 @@
             {{loc.building}}
           {% endif %}
         </li>
+        <li><span class="label">Maintainers:</span> 
+          <ul class="maintainers">
+            {% for mt in loc.maintainer.all %}
+            <li>
+              {% if perms.baseapp.view_others_profile %}
+                <a href="{% url user_one mt.id %}">{{ mt }}</a>
+              {% else %}
+                {{ mt }}
+              {% endif %}
+              <ul class="phones">
+                <li class="phone">
+                    <a class="email" href="mailto:{{ mt.email }}">E-mail: {{ mt.email }}</a>
+                </li>
+                {% for p in mt.userprofile.phone.all %}
+                <li class="phone">
+                  {%ifequal p.type.name "Skype" %}   <a class="skype" href="skype:{{p.value}}">{{p.type.name}}: {{p.value}}</a>
+                  {% else %}                         {{p.type.name}}: {{p.value}}
+                  {% endifequal %}
+                </li>
+                {% endfor %}
+              </ul>
+            </li>
+            {% empty %}
+            Remove all maintainers.
+            {% endfor %}
+          </ul>
+        </li>
         <li><span class="label">Remarks:</span> {{loc.remarks}}</li>
       </ul>
     </div>
@@ -39,6 +66,11 @@
           <h2 id="add_location">Add location</h2>
         {% endif %}
 
+        {% if display_tips %}
+        <div class="tip">
+          <p>To remove all maintainers from this location, put tick on "No maintainers".</p>
+        </div>
+        {% endif %}
 
         <form method="POST" action="." name="Flocation">
             {{ form.non_field_errors }}
@@ -47,6 +79,11 @@
                     <tr>
                         <td>{{ field.label_tag }}: <br /> {{ field }}
                           
+                          {%if field.label == 'Maintainer'%}
+                              <br>
+                              <input type="checkbox" id="no_maintainers" name="no_maintainers" />
+                              <label for="no_maintainers" title="No maintainers">No maintainers</label>
+                          {%endif%}
                         </td>
                         <td>
                           {{ field.errors }}
