@@ -45,3 +45,6 @@ for r in Reservation.objects.filter(aux.Q_reservation_active):
         r.save()
         mail.reservation_expired(r)
         
+backup_name = "backup_{0}".format(today().isoformat())
+backup_dir = "../backup/" # this needs to have slash at the end
+os.system("pg_dump | gzip > {0}{1}.gz".format(backup_dir, backup_name))

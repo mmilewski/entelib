@@ -643,12 +643,12 @@ class RegistrationForm(forms.Form):
 class LocationForm(ModelForm):   
     class Meta:
         model = Location
-        fields = ('building', 'details', 'remarks')
+        fields = ('building', 'details', 'remarks', 'maintainer')
 
     groups = Group.objects.filter(Q(name='Librarians'))
 
     building = forms.ModelChoiceField(Building.objects.all().order_by('name'))
-    # maintainer = forms.ModelMultipleChoiceField(User.objects.filter(groups__in=groups).order_by('username'), required=False)
+    maintainer = forms.ModelMultipleChoiceField(User.objects.filter(groups__in=groups).order_by('username'), required=False)
 
 
 class BookForm(ModelForm):   

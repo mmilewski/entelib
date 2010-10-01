@@ -67,16 +67,16 @@
               <tbody>
                 {% for book in report %}
                 <tr>
-                    <td>{{ book.title }}</td>
-                    <td>{{ book.location }}</td>
-                    <td>{{ book.shelf_mark }}</td>
+                    <td><a href="{% url book_one book.copy.book.id %}">{{ book.title }}</a></td>
+                    <td><a href="{% url location_one book.copy.location.id %}">{{ book.location }}</a></td>
+                    <td><a href="{% url copy_one book.copy.id %}">{{ book.shelf_mark }}</a></td>
                     <td>{{ book.status }}</td>
                     {% if book.not_rented_yet %}
                         <td colspan='3'>- never -</td>
                     {% else %}
-                        <td>{{ book.for_whom }}</td>
+                        <td><a href="{% url user_one book.for_whom.id %}">{{ book.for_whom }}</a></td>
                         <td>{{ book.when }}</td>
-                        <td>{{ book.by_whom }}</td>
+                        <td><a href="{% url user_one book.by_whom.id %}">{{ book.by_whom }}</a></td>
                     {% endif %}
                 </tr>
                 {% endfor %}

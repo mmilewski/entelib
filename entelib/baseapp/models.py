@@ -159,6 +159,7 @@ class UserProfile(models.Model):
     building = models.ForeignKey('Building', null=True, blank=True)
     location_remarks = models.CharField(max_length=CFG.location_remarks_len, null=True)
     awaits_activation = models.BooleanField()
+    location_remarks = models.CharField(max_length=CFG.location_remarks_len, null=True)
 
     class Meta:
         permissions = (
@@ -398,7 +399,6 @@ class BookRequest(models.Model):
 class CostCenter(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=CFG.costcenter_name_len, unique=True)
-    maintainer = models.ManyToManyField(User, blank=True, null=True, verbose_name='Maintainers')
 
     def __unicode__(self):
         return self.name

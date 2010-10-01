@@ -25,7 +25,7 @@
               <tbody>
                 {% for book in report %}
                 <tr>
-                    <td>{{ book.title }}</td>
+                    <td><a href="{% url book_one book.id %}">{{ book.title }}</a></td>
                     <td>{{ book.num_of_reservations }}</td>
                 </tr>
                 {% endfor %}

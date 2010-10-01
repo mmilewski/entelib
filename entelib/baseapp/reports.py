@@ -174,16 +174,14 @@ def get_report_data(report_type, from_date, to_date, order_by=[]):
             start_date = rental.start_date
             if book_copy_id not in last_rentals:
                 last_rentals.update({book_copy_id: {'when'    : start_date,
-                                                    'for_whom': rental.reservation.for_whom.first_name + u' ' +
-                                                                rental.reservation.for_whom.last_name,
-                                                    'by_whom' : rental.who_handed_out.first_name + u' ' +
-                                                                rental.who_handed_out.last_name}})
+                                                    'for_whom': rental.reservation.for_whom,
+                                                    'by_whom' : rental.who_handed_out,
+                                                                }})
             elif last_rentals[book_copy_id]['when'] < start_date:
                 last_rentals.update({book_copy_id: {'when'    : start_date,
-                                                    'for_whom': rental.reservation.for_whom.first_name + u' ' +
-                                                                rental.reservation.for_whom.last_name,
-                                                    'by_whom' : rental.who_handed_out.first_name + u' ' +
-                                                                rental.who_handed_out.last_name}})
+                                                    'for_whom': rental.reservation.for_whom,
+                                                    'by_whom' : rental.who_handed_out,
+                                                                }})
 
         book_infos = []
         statuses = book_copies_status(copies)
@@ -198,6 +196,7 @@ def get_report_data(report_type, from_date, to_date, order_by=[]):
             
             book_infos.append({ 'title'         : copy_status['copy'].book.title,
                                 'shelf_mark'    : copy_status['copy'].shelf_mark,
+                                'copy'          : kopy,
                                 'location'      : copy_status['copy'].location,
                                 'location_str'  : unicode(copy_status['copy'].location).lower(),     # field for ordering purpose
                                 'status'        : copy_status['status'],
@@ -249,7 +248,7 @@ def get_report_data(report_type, from_date, to_date, order_by=[]):
                     nums_of_rentals[book_id] += 1
 
         for book in books:
-            book_infos.append({'title': book.title, 'num_of_rentals': nums_of_rentals[book.id]})
+            book_infos.append({'title': book.title, 'num_of_rentals': nums_of_rentals[book.id], 'id' : book.id, })
 
         sort_by = list(set(order_by) & set(ob_in_often_rented))
         if sort_by:
@@ -293,7 +292,7 @@ def get_report_data(report_type, from_date, to_date, order_by=[]):
                     nums_of_reservations[book_id] += 1
 
         for book in books:
-            book_infos.append({'title': book.title, 'num_of_reservations': nums_of_reservations[book.id]})
+            book_infos.append({'title': book.title, 'num_of_reservations': nums_of_reservations[book.id], 'id' : book.id, })
 
         sort_by = list(set(order_by) & set(ob_in_often_reserved))
         if sort_by:
