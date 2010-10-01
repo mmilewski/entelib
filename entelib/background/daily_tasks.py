@@ -47,4 +47,10 @@ for r in Reservation.objects.filter(aux.Q_reservation_active):
         
 backup_name = "backup_{0}".format(today().isoformat())
 backup_dir = "../backup/" # this needs to have slash at the end
-os.system("pg_dump | gzip > {0}{1}.gz".format(backup_dir, backup_name))
+os.system("pg_dump --format=p | gzip > {0}{1}.gz".format(backup_dir, backup_name))
+
+
+# to restore db: first totally clean db, uncompress file:
+# gunzip backup_2010-10-01.gz
+# then, from bash restore database
+# psql -f backup_2010-10-01
