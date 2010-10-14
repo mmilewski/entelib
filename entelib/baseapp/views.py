@@ -1456,3 +1456,6 @@ def show_add_bookrequest(request, book_id=0, request_form=forms.BookRequestAddFo
 
 def howto(request):
     return render_response(request, 'howto.html')
+
+def feedback(request):
+    return render_response(request, 'feedback.html')

@@ -36,4 +36,4 @@ fi
 
 $RUN_VALIDATION
 $RUN_TESTS
-$RUN_SERVER 10.154.4.75:8484 || $RUN_SERVER 10.154.7.179:8484 || $RUN_SERVER 192.168.1.105:8484
+$RUN_SERVER 8484 #if you want your development server to be visible from outside use $RUN_SERVER 1.1.1.1 80  # substituting 1.1.1.1 with your computer ip and 80 with port of your choice
