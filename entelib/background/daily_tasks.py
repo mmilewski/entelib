@@ -41,6 +41,7 @@ for r in Reservation.objects.filter(aux.Q_reservation_active):
         mail.reservation_active(r)
     
     if r.active_since and r.active_since <= after_days(-1*Config().get_int('reservation_rush')):
+        # reservation has been active for 'reservation_rush' days, so it expires
         r.when_cancelled = datetime.now()
         r.save()
         mail.reservation_expired(r)
