@@ -12,17 +12,17 @@ from baseapp.models import *
 from django.contrib.auth.models import Group
 
 # define number of records to create
-locations_count = 8
-buildings_count = 4
-authors_count = 20
-publishers_count = 7
-books_count = 11
-states_count = 3
-copies_count = 51
-cost_centers_count = 2
-rentals_count = 30
-reservations_count = 50
-users_count = 50
+locations_count = 1
+buildings_count = 1
+authors_count = 1
+publishers_count = 1
+books_count = 0
+states_count = 1
+copies_count = 0
+cost_centers_count = 1
+rentals_count = 0
+reservations_count = 0
+users_count = 3
 
 # clear database
 def clear_db():
@@ -286,7 +286,7 @@ def add_superuser():
     ph.save()
     profile = user.get_profile()
     profile.phone.add(ph)
-    ph = Phone(type=PhoneType.objects.all()[1], value="superadmino.superdominko")
+    ph = Phone(type=PhoneType.objects.all()[0], value="superadmino.superdominko")
     ph.save()
     profile.phone.add(ph)
     profile.building = Building.objects.all()[0]
@@ -332,7 +332,7 @@ def add_everyday_user():
     ph.save()
     profile = user.get_profile()
     profile.phone.add(ph)
-    profile.building = Building.objects.all()[1]
+    profile.building = Building.objects.all()[0]
     profile.save()
     user.save()
 

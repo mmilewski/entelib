@@ -17,6 +17,7 @@
                         {% if perms.baseapp.add_book %}        <li><a href="{% url book_add %}">                  Add a book              </a></li> 
                           <li class="separator"></li>
                         {% endif %}
+        		{% if user.get_profile.is_librarian %}   <li><a href="{% url category_add %}">            Add category          </a></li> {% endif %}
                         {% comment %} The following seems to obstruct librarians
                             {% if perms.baseapp.list_authors %}    <li><a href="/entelib/authors/">                   Author list           </a></li> {% endif %}
                             {% if perms.baseapp.add_author %}      <li><a href="{% url author_add %}">                Add author            </a></li>

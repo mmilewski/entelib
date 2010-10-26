@@ -597,7 +597,7 @@ if __name__ == "__main__":
 
 def main():
     from dbfiller import clear_db, add_states, add_phone_types, populate_groups, main
-    import savepasswords
+    #import savepasswords
 
     main()
 
@@ -634,4 +634,4 @@ def main():
     pprint('migrating events')
     migrate_events()
     
-    import loadpasswords
+    #import loadpasswords

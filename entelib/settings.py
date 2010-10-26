@@ -4,10 +4,10 @@ import os
 from os.path import abspath, dirname, join
 PROJECT_PATH = dirname(abspath(__file__))
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
-IS_DEV = not False    # set to False if giving to users. This allows to disable some options (like admin panel or load default config)
+IS_DEV = False    # set to False if giving to users. This allows to disable some options (like admin panel or load default config)
 
 # if True checks whether given password matches one in database.
 CHECK_PASSWORD_ON_AUTH = True
@@ -18,10 +18,10 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = 'sqlite3'    # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+DATABASE_ENGINE = 'postgresql_psycopg2' #, 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
 #DATABASE_NAME = 'database/database.db'      # Or path to database file if using sqlite3.
-DATABASE_NAME = join(PROJECT_PATH,'database/database.db')
-DATABASE_USER = ''             # Not used with sqlite3.
+DATABASE_NAME = 'entelib'
+DATABASE_USER = 'entelib'             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
