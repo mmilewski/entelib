@@ -460,7 +460,7 @@ def confirm_reservation(reservation):
     Check if reservation can be immediately rented and send appropriate email.
     '''
     preceding_reservations = Reservation.objects.filter(Q_reservation_active|Q(rental__isnull=False, rental__end_date__isnull=True), book_copy=reservation.book_copy, id__lt=reservation.id)
-    if not preceding_reservations:
+    if not preceding_reservations and reservation.start_date <= date.today():
         mail.reservation_active(reservation)
     else:
         mail.made_reservation(reservation)
