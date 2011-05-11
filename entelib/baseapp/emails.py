@@ -114,6 +114,8 @@ def reservation_active(reservation):
             })
     recipient = _make_recipient_from_user(reservation.for_whom)
     default_email([recipient], tpl, ctx)
+    if reservation.shipment_requested == True:
+        shipment_requested(reservation)
 
 
 def reservation_expired(reservation):

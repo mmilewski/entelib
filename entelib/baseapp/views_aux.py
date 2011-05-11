@@ -451,7 +451,6 @@ def request_shipment(reservation):
         return False
     reservation.shipment_requested = True
     reservation.save()
-    mail.shipment_requested(reservation)
     return True
 
 
