@@ -49,7 +49,7 @@ urlpatterns = patterns(
     url(r'^users/(\d+)/reservations/cancel-all/$', view.cancel_all_user_reservations, name='cancel_all'),
     # (r'^users/(\d+)/rent-book/(\d+)/$', view.show_user_reservation),
     # (r'^users/(\d+)/rent-book/$', view.user_list_books),
-    (r'^users/(\d+)/rentals/$', view.show_user_rentals),
+    url(r'^users/(\d+)/rentals/$', view.show_user_rentals, name="user_rentals"),
     (r'^users/(\d+)/rentals/new/$', get_redirect_function_to_url('../../books/')),
     (r'^users/(\d+)/rentals/archive/$', view.show_user_rental_archive),
     # (r'^users/(\d+)/rentals/(\d+)/$', view.user_rental),

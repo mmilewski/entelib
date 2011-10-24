@@ -20,6 +20,8 @@
     <th>Authors</th>
     <th>From</th>
     <th>To</th>
+    <th>Prolongation</th>
+
 {% endblock %}
 
 {% block item_row %}
@@ -34,6 +36,24 @@
         {{ row.from_date }}
     </td> <td>
         {{ row.to_date }}
+    </td> <td>
+      <center>
+        {% if row.can_request_prolongation %}
+            <form action="." method="POST">
+               <input type="hidden" name="prolong_rental_id" value="{{ row.id }}">
+               <input type="submit" name="prolong_request" value="Prolongation request">
+            </form>
+        {% endif %}
+        {% if row.can_prolong %}
+            <form action="." method="POST">
+               <input type="hidden" name="prolong_rental_id" value="{{ row.id }}">
+               <input type="submit" name="prolong" value="Prolong ({{ row.prolongation_length }} days)">
+            </form>
+        {% endif %}
+        {% if row.cannot_request_nor_prolong %}
+            <hr width="50%">
+        {% endif %}
+      </center>
     </td>
 {% endblock %}
 

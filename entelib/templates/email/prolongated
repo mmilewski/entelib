@@ -1,0 +1,15 @@
+Hello,
+
+{{ prolongator.get_full_name }} prolongated "{{ book.title }}" (ID: {{ copy.shelf_mark }}) for you.
+
+To see your rentals visit {{ application_url }}{% url my_rentals %}
+
+Rental details:
+~~~~~~~~~~~~~~~
+Start date: {{ start_date }}
+Old end date: {{ old_end_date }}
+New end date: {{ new_end_date }}
+Rental id: {{ rental.id }}
+
+
+Library staff

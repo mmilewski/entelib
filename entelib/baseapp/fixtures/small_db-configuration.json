@@ -1,311 +1,321 @@
 [
     {
-        "pk": "user_after_registration_groups", 
-        "model": "baseapp.configuration", 
+        "pk": "user_after_registration_groups",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "list_groupnames", 
-            "description": "User joins these groups right after he is registered", 
+            "can_override": false,
+            "type": "list_groupnames",
+            "description": "User joins these groups right after he is registered",
             "value": "[\"Readers\"]"
         }
-    }, 
+    },
     {
-        "pk": "send_emails", 
-        "model": "baseapp.configuration", 
+        "pk": "send_emails",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "bool", 
-            "description": "True iff app will send emails.", 
+            "can_override": false,
+            "type": "bool",
+            "description": "True iff app will send emails.",
             "value": "false"
         }
-    }, 
+    },
     {
-        "pk": "log_send_emails", 
-        "model": "baseapp.configuration", 
+        "pk": "log_send_emails",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "bool", 
-            "description": "True iff send emails will be stored in db. Logging doesn't care about send_emails value", 
+            "can_override": false,
+            "type": "bool",
+            "description": "True iff send emails will be stored in db. Logging doesn't care about send_emails value",
             "value": "true"
         }
-    }, 
+    },
     {
-        "pk": "default_email_sender", 
-        "model": "baseapp.configuration", 
+        "pk": "default_email_sender",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "unicode", 
-            "description": "From what address user receives emails", 
+            "can_override": false,
+            "type": "unicode",
+            "description": "From what address user receives emails",
             "value": "\"NSN library <no-reply@library.nsn.wroc.pl>\""
         }
-    }, 
+    },
     {
-        "pk": "default_email_subject", 
-        "model": "baseapp.configuration", 
+        "pk": "default_email_subject",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "unicode", 
-            "description": "With what subjects user receives emails", 
+            "can_override": false,
+            "type": "unicode",
+            "description": "With what subjects user receives emails",
             "value": "\"NSN library notification\""
         }
-    }, 
+    },
     {
-        "pk": "rental_duration", 
-        "model": "baseapp.configuration", 
+        "pk": "rental_duration",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "int", 
-            "description": "For how long you rent a book", 
+            "can_override": false,
+            "type": "int",
+            "description": "For how long you rent a book",
             "value": "30"
         }
-    }, 
+    },
     {
-        "pk": "reservation_duration", 
-        "model": "baseapp.configuration", 
+        "pk": "reservation_duration",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "int", 
-            "description": "For how long you can reserve a book", 
+            "can_override": false,
+            "type": "int",
+            "description": "For how long you can reserve a book",
             "value": "30"
         }
-    }, 
+    },
     {
-        "pk": "reservation_rush", 
-        "model": "baseapp.configuration", 
+        "pk": "reservation_rush",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "int", 
-            "description": "How quick you need to rent reserved book when it becomes available", 
+            "can_override": false,
+            "type": "int",
+            "description": "How quick you need to rent reserved book when it becomes available",
             "value": "4"
         }
-    }, 
+    },
     {
-        "pk": "message_book_reserved", 
-        "model": "baseapp.configuration", 
+        "pk": "message_book_reserved",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "unicode", 
-            "description": "Message to show right after user reserves a book. Has to contain exactly two `%s` which will be filled with reservation start and end date", 
+            "can_override": false,
+            "type": "unicode",
+            "description": "Message to show right after user reserves a book. Has to contain exactly two `%s` which will be filled with reservation start and end date",
             "value": "\"Reservation active since %s till %s\""
         }
-    }, 
+    },
     {
-        "pk": "message_book_rented", 
-        "model": "baseapp.configuration", 
+        "pk": "message_book_rented",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "unicode", 
-            "description": "Message to show right after user rents a book. Has to contain exactly one `%s` which will be filled with rental end date", 
+            "can_override": false,
+            "type": "unicode",
+            "description": "Message to show right after user rents a book. Has to contain exactly one `%s` which will be filled with rental end date",
             "value": "\"Rental made untill %s.\""
         }
-    }, 
+    },
     {
-        "pk": "book_request_info_min_len", 
-        "model": "baseapp.configuration", 
+        "pk": "book_request_info_min_len",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "int", 
-            "description": "Minimal length of book request information", 
+            "can_override": false,
+            "type": "int",
+            "description": "Minimal length of book request information",
             "value": "10"
         }
-    }, 
+    },
     {
-        "pk": "book_request_bookinfo_template", 
-        "model": "baseapp.configuration", 
+        "pk": "book_request_bookinfo_template",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "unicode", 
-            "description": "Template which is displayed to help in filling request book form", 
+            "can_override": false,
+            "type": "unicode",
+            "description": "Template which is displayed to help in filling request book form",
             "value": "\"Title:\\n\\n\\nAuthors:\\n\\n\\nNumber of copies:\\n\\n\\nSuggested locations:\\n\\n\\nAdditional info:\\n\\n\""
         }
-    }, 
+    },
     {
-        "pk": "book_request_copyinfo_template", 
-        "model": "baseapp.configuration", 
+        "pk": "book_request_copyinfo_template",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "unicode", 
-            "description": "Template which is displayed to help in filling request book form", 
+            "can_override": false,
+            "type": "unicode",
+            "description": "Template which is displayed to help in filling request book form",
             "value": "\"Number of copies:\\n\\n\\nSuggested locations:\\n\\n\\nAdditional info:\\n\\n\""
         }
-    }, 
+    },
     {
-        "pk": "copies_location_select_size", 
-        "model": "baseapp.configuration", 
+        "pk": "copies_location_select_size",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "int", 
-            "description": "Number of location elements to display in select list when filtering copies of a book", 
+            "can_override": false,
+            "type": "int",
+            "description": "Number of location elements to display in select list when filtering copies of a book",
             "value": "5"
         }
-    }, 
+    },
     {
-        "pk": "categories_select_size", 
-        "model": "baseapp.configuration", 
+        "pk": "categories_select_size",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "int", 
-            "description": "Number of categories displayed in select list while filtering books", 
+            "can_override": false,
+            "type": "int",
+            "description": "Number of categories displayed in select list while filtering books",
             "value": "6"
         }
-    }, 
+    },
     {
-        "pk": "list_only_existing_categories_in_search", 
-        "model": "baseapp.configuration", 
+        "pk": "list_only_existing_categories_in_search",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": true, 
-            "type": "bool", 
-            "description": "True iff in booklist (book search, not book copy search) only those categories will be listed, that exist a book (in database) with such category.", 
+            "can_override": true,
+            "type": "bool",
+            "description": "True iff in booklist (book search, not book copy search) only those categories will be listed, that exist a book (in database) with such category.",
             "value": "true"
         }
-    }, 
+    },
     {
-        "pk": "cut_categories_list_to_found_books", 
-        "model": "baseapp.configuration", 
+        "pk": "cut_categories_list_to_found_books",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": true, 
-            "type": "bool", 
-            "description": "True iff in booklist (book search, not book copy search) only those categories will be listed, that exist a book (in results) with such category.", 
+            "can_override": true,
+            "type": "bool",
+            "description": "True iff in booklist (book search, not book copy search) only those categories will be listed, that exist a book (in results) with such category.",
             "value": "false"
         }
-    }, 
+    },
     {
-        "pk": "when_reserved_period", 
-        "model": "baseapp.configuration", 
+        "pk": "when_reserved_period",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "int", 
-            "description": "When listing book copies, it says for how many days forward user will be shown when a copy is reserved.", 
+            "can_override": false,
+            "type": "int",
+            "description": "When listing book copies, it says for how many days forward user will be shown when a copy is reserved.",
             "value": "90"
         }
-    }, 
+    },
     {
-        "pk": "list_all_books_as_default", 
-        "model": "baseapp.configuration", 
+        "pk": "list_all_books_as_default",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": true, 
-            "type": "bool", 
-            "description": "If true then in searching all books will be listed as default", 
+            "can_override": true,
+            "type": "bool",
+            "description": "If true then in searching all books will be listed as default",
             "value": "true"
         }
-    }, 
+    },
     {
-        "pk": "enable_time_bar", 
-        "model": "baseapp.configuration", 
+        "pk": "enable_time_bar",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "bool", 
-            "description": "True iff time bar is displayed.", 
+            "can_override": false,
+            "type": "bool",
+            "description": "True iff time bar is displayed.",
             "value": "true"
         }
-    }, 
+    },
     {
-        "pk": "tb_max_days_in_date_range", 
-        "model": "baseapp.configuration", 
+        "pk": "tb_max_days_in_date_range",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "int", 
-            "description": "Time bar. Max number of days date range can describe. If wider then the range will be shortened.", 
+            "can_override": false,
+            "type": "int",
+            "description": "Time bar. Max number of days date range can describe. If wider then the range will be shortened.",
             "value": "365"
         }
-    }, 
+    },
     {
-        "pk": "tb_max_days_to_display_days", 
-        "model": "baseapp.configuration", 
+        "pk": "tb_max_days_to_display_days",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "int", 
-            "description": "Time bar. Max number of days in date range, for which scale unit will be one day.", 
+            "can_override": false,
+            "type": "int",
+            "description": "Time bar. Max number of days in date range, for which scale unit will be one day.",
             "value": "10"
         }
-    }, 
+    },
     {
-        "pk": "tb_max_days_to_display_weeks", 
-        "model": "baseapp.configuration", 
+        "pk": "tb_max_days_to_display_weeks",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "int", 
-            "description": "Time bar. Max number of days in date range, for which scale unit will be one week (or one day, see tb_max_days_to_display_days).", 
+            "can_override": false,
+            "type": "int",
+            "description": "Time bar. Max number of days in date range, for which scale unit will be one week (or one day, see tb_max_days_to_display_days).",
             "value": "40"
         }
-    }, 
+    },
     {
-        "pk": "application_url", 
-        "model": "baseapp.configuration", 
+        "pk": "application_url",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "unicode", 
-            "description": "URL under which app is running.", 
+            "can_override": false,
+            "type": "unicode",
+            "description": "URL under which app is running.",
             "value": "\"http://glonull1.mobile.fp.nsn-rdnet.net:8080\""
         }
-    }, 
+    },
     {
-        "pk": "is_cost_center_visible_to_anyone", 
-        "model": "baseapp.configuration", 
+        "pk": "is_cost_center_visible_to_anyone",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "bool", 
-            "description": "True iff copy's cost center info is visible to anyone (= no perms required)", 
+            "can_override": false,
+            "type": "bool",
+            "description": "True iff copy's cost center info is visible to anyone (= no perms required)",
             "value": "false"
         }
-    }, 
+    },
     {
-        "pk": "display_tips", 
-        "model": "baseapp.configuration", 
+        "pk": "display_tips",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": true, 
-            "type": "bool", 
-            "description": "True iff tips are visible", 
+            "can_override": true,
+            "type": "bool",
+            "description": "True iff tips are visible",
             "value": "true"
         }
-    }, 
+    },
     {
-        "pk": "display_only_editable_config_options", 
-        "model": "baseapp.configuration", 
+        "pk": "display_only_editable_config_options",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "bool", 
-            "description": "True iff user see only editable options.", 
+            "can_override": false,
+            "type": "bool",
+            "description": "True iff user see only editable options.",
             "value": "true"
         }
-    }, 
+    },
     {
-        "pk": "default_go_back_link_name", 
-        "model": "baseapp.configuration", 
+        "pk": "show_nr_of_available_copies",
+        "model": "baseapp.configuration",
         "fields": {
-            "can_override": false, 
-            "type": "unicode", 
-            "description": "Name of link displayed when filtering books/copies/...", 
+            "can_override": true,
+            "type": "bool",
+            "description": "True iff number of copies of book should be displayed",
+            "value": "false"
+        }
+    },
+    {
+        "pk": "default_go_back_link_name",
+        "model": "baseapp.configuration",
+        "fields": {
+            "can_override": false,
+            "type": "unicode",
+            "description": "Name of link displayed when filtering books/copies/...",
             "value": "\"Back\""
         }
-    }, 
+    },
     {
-        "pk": 1, 
-        "model": "baseapp.userconfiguration", 
+        "pk": 1,
+        "model": "baseapp.userconfiguration",
         "fields": {
-            "option": "list_all_books_as_default", 
-            "value": "true", 
+            "option": "list_all_books_as_default",
+            "value": "true",
             "user": 1
         }
-    }, 
+    },
     {
-        "pk": "int", 
-        "model": "baseapp.configurationvaluetype", 
+        "pk": "int",
+        "model": "baseapp.configurationvaluetype",
         "fields": {}
-    }, 
+    },
     {
-        "pk": "bool", 
-        "model": "baseapp.configurationvaluetype", 
+        "pk": "bool",
+        "model": "baseapp.configurationvaluetype",
         "fields": {}
-    }, 
+    },
     {
-        "pk": "unicode", 
-        "model": "baseapp.configurationvaluetype", 
+        "pk": "unicode",
+        "model": "baseapp.configurationvaluetype",
         "fields": {}
-    }, 
+    },
     {
-        "pk": "list_groupnames", 
-        "model": "baseapp.configurationvaluetype", 
+        "pk": "list_groupnames",
+        "model": "baseapp.configurationvaluetype",
         "fields": {}
     }
 ]

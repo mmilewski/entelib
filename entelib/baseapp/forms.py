@@ -738,7 +738,7 @@ class PublisherForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(PublisherForm, self).__init__(*args, **kwargs)
     def clean_name(self):
-        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-\._]+$'))
+        return generic_clean_name(self, regexp_match('^[a-zA-z0-9 \-\._\,]+$'))
 
 class CostCenterForm(ModelForm):
     class Meta:

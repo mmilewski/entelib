@@ -16,6 +16,7 @@ from baseapp.exceptions import *
 import baseapp.emails as mail
 from django.db.models.aggregates import Min
 import random
+import utils
 
 config = Config()
 today = date.today
@@ -513,12 +514,15 @@ def book_copies_status(copies):
         if not result[copy_id]['status']:
             result[copy_id]['status'] = BookCopyStatus(available=False, explanation=u'Reserved')
 
-
-    max_allowed = config.get_int('rental_duration')
+    # finds first (in sense of timeline) reservation for each copy.
     rsvs = Reservation.objects.filter(book_copy__id__in=copies_ids)\
                               .filter(Q_reservation_active)\
                               .values('book_copy__id')\
                               .annotate(min_start_date=Min('start_date'))
+
+    # update statuses for copies unstatused in code above -- copies are rentable, but we don't know for how long, yet.
+    # rsvs contains information about nearest (but in future) reservation.
+    max_allowed = config.get_int('rental_duration')
     for rsv in rsvs:
         copy = rsv['book_copy__id']
         if result[copy]['status']:
@@ -625,6 +629,147 @@ def return_rental(librarian, rental_id):
     mark_available(returned_rental.reservation.book_copy)   # someone might be waiting for that book
 
 
+def max_prolongation_period(rental):
+    '''
+    Desc:
+        Returnes number of days -- for how long book can be prolonged.
+    Args:
+        rental -- instance of Rental.
+    '''
+    assert isinstance(rental, Rental)
+    reservation = rental.reservation
+
+    days_left_to_enable_prolongation = Config().get_int('min_days_left_to_enable_prolongation')
+    days_left_to_rend    = (reservation.end_date - today()).days
+    enabled_prolongation = days_left_to_rend <= days_left_to_enable_prolongation
+    if not enabled_prolongation:
+        return 0
+
+    max_period = Config().get_int('max_prolongation_days')
+    kopy       = reservation.book_copy
+    for rsv in kopy.reservation_set.exclude(for_whom=reservation.for_whom):
+        if rsv.start_date <= reservation.end_date < rsv.end_date:         # someone else reserved -> prolongation impossible
+            return 0
+        if reservation.end_date == rsv.start_date:
+            return 0
+        if rsv.end_date <= reservation.end_date:                          # other rsv finished -> no collision, continue processing
+            continue
+        if reservation.end_date < rsv.start_date:                         # other rsv starts in future -> try to shrink max_period
+            max_period = min(max_period, (rsv.start_date - reservation.end_date).days - 1)
+    return max_period
+
+
+def send_prolongation_request(request, rental_id, requester):
+    '''
+    Desc:
+        Sends prolongation request to librarians.
+    Args:
+        request -- http request - needed for messages
+        rental_id -- uint
+        requester -- instance of User,
+    '''
+    prol_logger = utils.get_logger('prolong')
+    prol_logger.info("prolong_request()....")
+    assert isinstance(rental_id, int)
+    assert isinstance(requester, User)
+    try:
+        r = Rental.objects.get(pk=rental_id, reservation__for_whom=requester.id)
+        max_period = max_prolongation_period(r)
+        prol_logger.info("prolong_request() preconditions valid, ;; rental %d ;; found ." % rental_id)
+        if max_period < 1:
+            prol_logger.error("prolong_request() cannot prolong -- someone else reserved/prolonged or too early.")
+            messages.error(request, "You CANNOT prolong this rental -- probably someone else reserved it or it is too early for prolongation.")
+        else:
+            prol_logger.info("prolong_request() request sent successfully.")
+            mail.request_prolongation(requester=requester, rental=r)
+            messages.info(request, "Request was sent to librarians, please WAIT FOR APPROVAL. Prolongation possible for %d days." % max_period)
+    except Rental.DoesNotExist:
+        messages.error(request, "Rental not found, unable to request for prolong.")
+
+
+def prolong_rental(request, rental_id, requester, prolongator):
+    '''
+    Desc:
+        Prolongs rental if possible.
+    Args:
+        request
+        rental_id
+        requester -- User. Owner of reservation and rental (one who is in possesion of book)
+        prolongator
+    '''
+    prol_logger = utils.get_logger('prolong')
+    prol_logger.info("prolong_rental()....")
+
+    assert isinstance(rental_id, int)
+    assert isinstance(requester, User)
+    assert isinstance(prolongator, User)
+    r = None
+    try:
+        r = Rental.objects.get(pk=rental_id, reservation__for_whom=requester)
+    except Rental.DoesNotExist:
+        messages.error(request, "Rental wasn't found, unable to prolong.")
+        return
+
+    prol_logger.info("prolong_rental() preconditions valid, rental present.")
+
+    days_left_to_enable_prolongation = Config().get_int('min_days_left_to_enable_prolongation')
+    days_left_to_rend    = (r.reservation.end_date - today()).days
+    enabled_prolongation = days_left_to_rend <= days_left_to_enable_prolongation
+    max_period           = max_prolongation_period(r)
+    can_prolong          = enabled_prolongation and max_period > 0 and prolongator.has_perm('baseapp.change_rental')
+
+    prol_logger.info("prolong_rental() "
+                     + ";; rental_id %d "
+                     + ";; days_left_to_enable_prolongation %d "
+                     + ";; days_left_to_rend %d "
+                     + ";; enabled_prolongation %d "
+                     + ";; max_period %d "
+                     + ";; can_prolong %d "
+                     %
+                     r.id,
+                     days_left_to_enable_prolongation,
+                     days_left_to_rend,
+                     enabled_prolongation,
+                     max_period,
+                     can_prolong
+                     )
+
+    if prolongator not in r.reservation.book_copy.location.get_all_maintainers():
+        prol_logger.error("prolong_rental() prolongator not a location maintainer.")
+        messages.error(request, "You cannot prolong this book - it's not from location you maintain.")
+        return
+    if not enabled_prolongation:
+        prol_logger.error("prolong_rental() prolongator not enabled.")
+        messages.error(request, "It is TOO EARLY to prolong this rental: please wait for %d days." % (days_left_to_rend - days_left_to_enable_prolongation))
+        return
+    if max_period <= 0:
+        prol_logger.error("prolong_rental() max_period less then zero.")
+        messages.error(request, "Rental cannot be prolonged - probably someone reserved this book.")
+        return
+    if can_prolong:
+        import datetime as dt
+        old_end_date = r.reservation.end_date
+        new_end_date = r.reservation.end_date + dt.timedelta(max_period)
+        r.reservation.end_date = new_end_date
+        r.reservation.save()
+        prol_logger.info("prolong_rental() prolonged ;; rental_id %d "
+                         + ";; old_end_date %s "
+                         + ";; new_end_date %s "
+                         %
+                         r.id,
+                         str(old_end_date),
+                         str(new_end_date)
+                         )
+
+        mail.prolongated(r, prolongator, extra={'old_end_date': old_end_date,
+                                                'new_end_date': new_end_date,
+                                                    })
+        messages.info(request, "Prolonged for %d days." % max_period)
+    else:
+        prol_logger.error("prolong_rental() you cannot prolong the rental.")
+        messages.error(request, "You cannot prolong the rental.")
+
+
 def show_user_rentals(request, user_id=False):
     '''
     Desc:
@@ -660,19 +805,62 @@ def show_user_rentals(request, user_id=False):
         except PermissionDenied:  # this might happen if user doesn't have 'change_rental' permission
             return render_forbidden
 
+    # logger for prolongation
+    prol_logger = utils.get_logger('prolong')
+
+    # sending prolongation request to librarians
+    if request.method == 'POST' and 'prolong_request' in post:
+        rental_id = int(post['prolong_rental_id'])
+        prol_logger.info("request ;; user %d %s ;; rental_id %d", user.id, user.get_full_name(), rental_id)
+        send_prolongation_request(request, rental_id, user)
+
+    # prolonging rental
+    if request.method == 'POST' and 'prolong' in post and request.user.has_perm('baseapp.change_rental'):
+        rental_id   = int(post['prolong_rental_id'])
+        requester   = user
+        prolongator = request.user
+        prol_logger.info("prolonging ;; prolongator %d %s ;; requester %d %s ;; rental_id %d",
+                         prolongator.id, prolongator.get_full_name(),
+                         requester.id, requester.get_full_name(),
+                         rental_id)
+        prolong_rental(request, rental_id, requester, prolongator)
+
     # find user's rentals
     user_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(end_date__isnull=True)
+
     # and put them in a dict:
-    rent_list = [ {'id' : r.id,
-                   'shelf_mark' : r.reservation.book_copy.shelf_mark,
-                   'title'      : r.reservation.book_copy.book.title,
-                   'authors'    : [a.name for a in r.reservation.book_copy.book.author.all()],
-                   'from_date'  : r.start_date.date(),
-                   'to_date'    : r.reservation.end_date,
-                   'returnable' : request.user in r.reservation.book_copy.location.get_all_maintainers(),
-                   'rental'     : r,
-                  }
-                  for r in user_rentals ]
+    days_left_to_enable_prolongation = Config().get_int('min_days_left_to_enable_prolongation')
+    rent_list = []
+    for r in user_rentals:
+        max_period               = max_prolongation_period(r)
+        days_left_to_rend        = (r.reservation.end_date - today()).days
+        enabled_prolongation     = days_left_to_rend <= days_left_to_enable_prolongation
+        can_request_prolongation = enabled_prolongation and (request.user==r.reservation.for_whom)           # owner of reservation
+        can_prolong              = enabled_prolongation \
+                                    and max_period > 0 \
+                                    and request.user.has_perm('baseapp.change_rental') \
+                                    and (request.user in r.reservation.book_copy.location.get_all_maintainers())
+
+        # msg('enabled_prolongation: %d' % enabled_prolongation)
+        # msg('can_request_prolongation: %d' % can_request_prolongation)
+        # msg('can_prolong: %d' % can_prolong)
+        # msg('days_left_to_enable_prolongation: %d' % days_left_to_enable_prolongation)
+        # msg('max_period: %d' % max_period)
+
+        rent_list.append({
+                'id'                         : r.id,
+                'shelf_mark'                 : r.reservation.book_copy.shelf_mark,
+                'title'                      : r.reservation.book_copy.book.title,
+                'authors'                    : [a.name for a in r.reservation.book_copy.book.author.all()],
+                'from_date'                  : r.start_date.date(),
+                'to_date'                    : r.reservation.end_date,
+                'returnable'                 : request.user in r.reservation.book_copy.location.get_all_maintainers(),
+                'rental'                     : r,
+                'can_request_prolongation'   : can_request_prolongation,
+                'can_prolong'                : can_prolong,
+                'prolongation_length'        : max_period,
+                'cannot_request_nor_prolong' : not (can_request_prolongation or can_prolong),
+                })
 
     # put rentals into context
     context['rows'] = rent_list
@@ -766,7 +954,7 @@ def show_user_reservations(request, user_id=False):
             except Reservation.DoesNotExist:
                 return render_not_found(request, item_name='Reservation')
             if not request_shipment(reservation):
-                messages.info(request, "Send-request couldn't be set. Maybe building is not set is userprofile?")
+                messages.info(request, "Send-request couldn't be set. Maybe building is not set in userprofile?")
 
     # find user active reservations
     user_reservations = Reservation.objects.filter(for_whom=user)\

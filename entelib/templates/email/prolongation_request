@@ -1,0 +1,8 @@
+Hello,
+
+{{ user.get_full_name }} asks to prolong "{{ book.title }}" (ID: {{ copy.shelf_mark }}).
+
+To see his rental visit {{ application_url }}{% url user_rentals user.id %}
+
+
+Library staff

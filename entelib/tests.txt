@@ -39,24 +39,22 @@ baseapp.ShowUserReservationsArchiveTest \
 baseapp.UserBookCopyUpLinkTest \
 baseapp.ShowLocationTest \
 baseapp.ShowLocationsTest \
+baseapp.ShowBooksTest \
+baseapp.FindBookForUserTest \
 
 
 ------------------- FAILING TESTS -------------------
 ./manage.py test --failfast baseapp.ShowEmailLogTest
-./manage.py test --failfast baseapp.ShowBooksTest
 ./manage.py test --failfast baseapp.ShowBookcopyTest
 ./manage.py test --failfast baseapp.DoEditUserProfileTest
-./manage.py test --failfast baseapp.FindBookForUserTest
 ./manage.py test --failfast baseapp.ReserveTest
 ./manage.py test --failfast baseapp.ReserveForUserTest
 ./manage.py test --failfast baseapp.CancelAllMyReserevationsTest
 
 ./manage.py test \
 baseapp.ShowEmailLogTest \
-baseapp.ShowBooksTest \
 baseapp.ShowBookcopyTest \
 baseapp.DoEditUserProfileTest \
-baseapp.FindBookForUserTest \
 baseapp.ReserveTest \
 baseapp.ReserveForUserTest \
 baseapp.CancelAllMyReserevationsTest \

@@ -287,3 +287,45 @@ def shipment_requested(reservation):
     ctx = Context({'reservation' : reservation,
                    'application_url' : Config().get_str('application_url') })
     default_email(recipients, tpl, ctx)
+
+
+def request_prolongation(requester, rental):
+    '''
+    Desc:
+        asdf
+    Args:
+        requester -- instance of User. One, who requests for prolongation.
+        rental -- instance of Rental. Rental to be prolonged.
+    '''
+    tpl = 'email/prolongation_request'
+    kopy = rental.reservation.book_copy
+    recipients = map(_make_recipient_from_user, list(kopy.location.get_all_maintainers()))
+    ctx = Context({ 'book'            : kopy.book,
+                    'copy'            : kopy,
+                    'user'            : requester,
+                    'application_url' : Config().get_str('application_url'),
+                    })
+    default_email(recipients, tpl, ctx)
+
+
+def prolongated(rental, prolongator, extra={}):
+    '''
+    Desc:
+        Sends information to user, that his rental was prolongated.
+    Args:
+        rental -- instance of Rental
+        prolongator -- instance of User.
+    '''
+    tpl = 'email/prolongated'
+    recipients = [ _make_recipient_from_user(rental.reservation.for_whom) ]
+    kopy = rental.reservation.book_copy
+    ctx = Context({ 'book'            : kopy.book,
+                    'copy'            : kopy,
+                    'prolongator'     : prolongator,
+                    'application_url' : Config().get_str('application_url'),
+                    'start_date'      : rental.reservation.start_date,
+                    'old_end_date'    : extra['old_end_date'],
+                    'new_end_date'    : extra['new_end_date'],
+                    'rental'          : rental,
+                    })
+    default_email(recipients, tpl, ctx)

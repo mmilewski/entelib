@@ -18,7 +18,7 @@ except ImportError:
 
 
 class ConfigValueTypeHelper(object):
-    
+
     def __init__(self):
         self.logger = get_logger('config')
         self.supported_types = ['int', 'bool', 'unicode', 'list_groupnames']
@@ -55,26 +55,26 @@ class ConfigValueTypeHelper(object):
                 except Group.DoesNotExist:
                     raise ValueError("Group `%s` wasn't found" % name)
             return list_of_names
-            
+
         parse_fun = 'parse_fun'
         error_msg = 'error_msg'
         parsers = {
-            'int' : 
+            'int' :
                 {parse_fun  : lambda x: int(x),
                  error_msg  : 'Expected integer',
                 },
-            'bool': 
+            'bool':
                 {parse_fun : lambda x: x=='True',  # see also definition in get_form_widget_for_type below
                  error_msg : 'Expected boolean',
                 },
-            'unicode': 
+            'unicode':
                 {parse_fun : lambda x: unicode(x),
                 },
-            'list_groupnames': 
+            'list_groupnames':
                 {parse_fun : parse_list_of_groupnames,
                 },
             }
-        
+
         # cut parsers for unsupported types
         supported_parsers = {}
         for type, parser in parsers.items():
@@ -116,7 +116,7 @@ class ConfigValueTypeHelper(object):
             type = type.name
         if type not in self.supported_types:
             self.logger.error('Type `%s` is not supported. Requested value: `%s`.' % (type, value))
-            return False 
+            return False
         if type == 'int':
             return isinstance(value, int)
         elif type == 'bool':
@@ -154,7 +154,7 @@ class Config(object):
                 global_value -- serialized value defined not per user. Cannot be None.
 
             Extra fields:
-                value -- *deserialized* value associated with key. Value of global_value or user_value, 
+                value -- *deserialized* value associated with key. Value of global_value or user_value,
                          respectively to can_override.
                          If user_value is None, then value == global_value.
             '''
@@ -196,7 +196,7 @@ class Config(object):
         def deserialize(value, type):
             if value is None:
                 return None
-            deser_value = json.loads(value) 
+            deser_value = json.loads(value)
             if not Config.Option.is_value_of_type(deser_value, type):
                 raise ValueError('Invalid value of type `%s`: `%s`' % (type, repr(deser_value)))
             return deser_value
@@ -209,8 +209,8 @@ class Config(object):
 
     def __init__(self, user=None, validators={}):
         '''
-        user is one for whom configuration will be customized. 
-        
+        user is one for whom configuration will be customized.
+
         NOTE:
             User can be None only if you want to register new values in Configuration (NOT 'per user configuration').
             Usages other than that can be unpredictable in effects.
@@ -219,9 +219,9 @@ class Config(object):
         self.set_user(user)
 
     def set_user(self, user):
-        ''' 
+        '''
         Customizes configuration for given user.
-        
+
         If user is None ~~> see __init__ method.
         '''
         self.user = user
@@ -229,7 +229,7 @@ class Config(object):
 
     def _fill_cache(self):
         '''
-        Fills cache with values from db. If user is not set, then cache is empty. 
+        Fills cache with values from db. If user is not set, then cache is empty.
         Cache is empty because one may create global Config instance and user set later.
         '''
         if self.user:
@@ -245,7 +245,7 @@ class Config(object):
         Args:
             truncate_config -- If True, removes all data from all Configuration, ConfigurationValueType
                                AND UserConfiguration models.
-                               If False and truncate_userconfig is True, then user's records from 
+                               If False and truncate_userconfig is True, then user's records from
                                UserConfiguration are removed.
             truncate_userconfig -- If True, UserConfiguration model will be cleared.
                               WARNING: take care of referential actions (like CASCADE...)
@@ -270,10 +270,15 @@ class Config(object):
         Raises:
             Configuration.DoesNotExist, if key is not found.
         '''
+        if key == 'min_days_left_to_enable_prolongation':
+            return 7
+        if key == 'max_prolongation_days':
+            return 30
+
         return self.get_option(key).value
 
-    def get_option(self, key): 
-        ''' 
+    def get_option(self, key):
+        '''
         Returns Config.Option instance associated with key.
 
         Raises:
@@ -282,7 +287,7 @@ class Config(object):
         if key in self._cached_data:
             return self._cached_data[key]
         else:
-            # look for key, if it exists at all 
+            # look for key, if it exists at all
             try:
                 Configuration.objects.get(key=key)
             except Configuration.DoesNotExist, e:
@@ -293,10 +298,10 @@ class Config(object):
             return self._cached_data[key]
 
     def get_all_key_value_options(self):
-        ''' 
-        Returns configuration options as dict[key]=value. 
+        '''
+        Returns configuration options as dict[key]=value.
         If you need more details (like can_override) check out get_all_options method.
-        
+
         self.user must be valid when running this method.
         '''
         result = self.get_all_options()
@@ -311,15 +316,15 @@ class Config(object):
         options = list(Configuration.objects.select_related().all())
         result = {}
         for opt in options:
-            option = Config.Option(key = opt.key, 
-                                   global_value = opt.value, 
-                                   user_value = None, 
-                                   type = opt.type, 
-                                   can_override = opt.can_override, 
+            option = Config.Option(key = opt.key,
+                                   global_value = opt.value,
+                                   user_value = None,
+                                   type = opt.type,
+                                   can_override = opt.can_override,
                                    description = opt.description)
             result[opt.key] = option
         return result
-            
+
     def get_all_options(self):
         '''
         Gets all config options and returns it as a dict of Config.Option records -- { key: option }
@@ -330,7 +335,7 @@ class Config(object):
 
         result = self.get_global_options()
         user_options = UserConfiguration.objects.select_related('option').filter(user=self.user)
-        
+
         for uopt in user_options:
             user_value = None
             if uopt.option.can_override:
@@ -374,7 +379,7 @@ class Config(object):
         '''
         Sets global value for key. Key must exist.
         Global means not per user.
-        
+
         Raises:
             Configuration.DoesNotExist, if key is not found.
         '''
@@ -384,7 +389,7 @@ class Config(object):
         config_option.save()
 
         del self._cached_data[key]
-    
+
     def __setitem__(self, key, value):
         '''
         Sets value of key.
@@ -415,7 +420,7 @@ class Config(object):
             can_override = self.can_override(key, silent=False)
             if self.user and can_override:
                 config_option = Configuration.objects.get(key=key)
-                result, created = UserConfiguration.objects.get_or_create(option=config_option, user=self.user, 
+                result, created = UserConfiguration.objects.get_or_create(option=config_option, user=self.user,
                                                                           defaults={'user': self.user, 'value': value})
                 result.value = value
                 result.save()
@@ -432,10 +437,10 @@ class Config(object):
             return False
 
     def can_override(self, key, silent=True):
-        ''' 
+        '''
         Checks if value of given key can be overriden.
         If returning False, then see note below
-        
+
         May raise Configuration.KeyDoesNotExist.
         If silent is True, then Configuration.KeyDoesNotExist will never be raised. If so, then
         returning False may also mean that key wasn't found.
@@ -464,7 +469,7 @@ class Config(object):
     def get_type(self, key):
         '''
         Returns type of value associated with key.
-        
+
         Args:
             key -- str
         '''
@@ -474,7 +479,7 @@ class Config(object):
             raise Configuration.DoesNotExist(e.args + (key,))
         else:
             return result.type
-        
+
     def set_type(self, key, type):
         '''
         Sets type for value for given key.
@@ -523,7 +528,7 @@ class Config(object):
         return self[key]
     def get_list(self, key):
         return self[key]
-    
+
     def set_str(self, key, value):
         self[key] = value
     def set_int(self, key, value):
@@ -606,4 +611,4 @@ class Config(object):
 #        value = list(value)
 #        self.__setitem__(key, value)   # json.dumps is done in __setitem__
 
-    
+

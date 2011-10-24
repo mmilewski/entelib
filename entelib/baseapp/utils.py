@@ -7,10 +7,10 @@ from django.contrib.auth.models import User
 
 
 def str_to_date(str, default=None):
-    """ 
+    """
     Converts given string into datetime.date object. String should be like '2010-07-25'.
     If conversion fails - returns default.
-    """    
+    """
     try:
         parsed_date = datetime.datetime.strptime(str, "%Y-%m-%d")
     except ValueError:
@@ -22,10 +22,10 @@ def str_to_date(str, default=None):
 
 def today():
     return datetime.date.today()
-    
+
 def tomorrow():
     return today() + datetime.timedelta(1)
-    
+
 def after_days(n, since=None):
     """ Returns date n days after since. If since is not given, today is used."""
     since = since or today()
@@ -34,7 +34,7 @@ def after_days(n, since=None):
 
 def remove_non_ints(items):
     """
-    Filters items selecting those, which can be converted to int. 
+    Filters items selecting those, which can be converted to int.
     Returns list of items converted to int.
 
     Args:
@@ -57,20 +57,20 @@ def remove_non_ints(items):
 
 
 def create_days_between(start, end, include_start=True, include_end=True):
-    """ 
+    """
     Returns list of days between start and end. Ends are included respectively to include_start and include_end.
     If start==end, then start will be included iff at least one of include_* is True.
-    
+
     Args:
         start -- date object.
         end -- date object.
-    
+
     Returns:
         list of Date (or DateTime if start is DateTime) instances.
     """
     if start > end:
         return []
-    
+
     one_day = datetime.timedelta(1)
     result = []
     curr_date = start
@@ -85,8 +85,8 @@ def create_days_between(start, end, include_start=True, include_end=True):
             pass # start or end but corresponding include is False
         curr_date += one_day
     return result
-    
-    
+
+
 def week_for_day(day):
     """ Returns year and number of week for given day."""
     year, week_nr, weekday = day.isocalendar()  #@UnusedVariable
@@ -100,7 +100,7 @@ def month_for_day(day):
 
 def order_asc_by_key(key):
     return lambda a,b: -1 if a[key] < b[key] else ( 1 if a[key] > b[key] else 0)
-    
+
 def order_desc_by_key(key):
     return lambda a,b:  1 if a[key] < b[key] else (-1 if a[key] > b[key] else 0)
 
@@ -111,14 +111,17 @@ def get_admins():
     return admins
 
 
-logger_names = ['view.forgot_password', 'config', 'config.option', 'view.show_book_copy', ]
+logger_names = ['view.forgot_password', 'config', 'config.option', 'view.show_book_copy', 'prolong', ]
 
 def get_logger(name):
     if name not in logger_names:
         propositions = LevenshteinDistance( name, logger_names).most_accurate(2)
         raise ValueError("Logger name wasn't found. Did you mean %s" % ' or '.join(propositions))
     logger = logging.getLogger(name)
-    # logger.addHandler(logging.StreamHandler())
+    # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    # h = logging.StreamHandler()
+    # h.setFormatter(formatter)
+    # logger.addHandler(h)
     return logger
 
 
