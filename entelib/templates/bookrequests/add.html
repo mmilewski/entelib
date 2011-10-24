@@ -29,22 +29,21 @@
             </p>
         </div>
     {% endif %}
-    
+
     <div class="formWrapper">
         <div class="non_field_errors">
             {{ form_content.non_field_errors }}
         </div>
-            
+
         <form class="book_request_form" action="." method="POST" name="Frequest">
           <center>
             <table class="basic_fields">
             <tbody>
               {% if requesting_copy %}
                 <tr>
-                    <td>   {{form_content.book.label}}:
-                      {{ related_book.title }}
-                      <!-- <br/>{{form_content.book}} -->
-                      <!-- <br/>{{form_content.book.errors}} -->
+                    <td>
+                      {{form_content.book.label}}:
+                      <p style="margin-left:3em">{{ related_book.title }}</p>
                     </td>
                 </tr>
               {% endif %}
@@ -53,12 +52,17 @@
                       <br/>{{form_content.info}}
                       <br/>{{form_content.info.errors}}   </td>
                 </tr>
-                <tr> 
+                <tr>
                     <td>  <input type="submit" value="Send request"/>  </td>
                     <td></td>
                 </tr>
             </tbody>
             </table>
+
+            <div style="display:none">
+              <br/>{{form_content.book}}
+              <br/>{{form_content.book.errors}}
+            </div>
           </center>
         </form>
     </div>

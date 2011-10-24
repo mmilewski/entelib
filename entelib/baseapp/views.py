@@ -1441,6 +1441,8 @@ def show_add_bookrequest(request, book_id=0, request_form=forms.BookRequestAddFo
             form.save()
             context['show_confirmation_msg'] = True
             return render_response(request, template, context)
+        else:
+            messages.error(request, 'Invalid form input! If you are unable to correct it, please contact library maintainer or administrator.')
     # display fresh new form
     else:
         form = request_form(user=user, initial=initial_data)

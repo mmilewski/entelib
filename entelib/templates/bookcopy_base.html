@@ -29,23 +29,6 @@
                 {% else %}
                   {{ copy.cost_center }}
                 {% endif %}
-                <ul class="maintainers">
-                  {% for mt in copy.cost_center.get_all_maintainers %}
-                  <li>{{ mt }}
-                    <ul class="phones">
-                      {% for p in mt.userprofile.phone.all %}
-                      <li class="phone">
-                        {%ifequal p.type.name "Skype" %}   <a class="skype" href="skype:{{p.value}}">{{p.type.name}}: {{p.value}}</a>
-                        {% else %}                         {{p.type.name}}: {{p.value}}
-                        {% endifequal %}
-                      </li>
-                      {% endfor %}
-                    </ul>
-                  </li>
-                  {% empty %}
-                  <li>No maintainers defined</li>
-                  {% endfor %}
-                </ul>
               </li>
             <li class="book_publisher"><span class="label">Publishing</span>: {{ copy.publication_nr }},
               {% if perms.baseapp.view_publisher and copy.publisher %}

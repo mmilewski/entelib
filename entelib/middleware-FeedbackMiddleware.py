@@ -4,6 +4,7 @@ from django.template import Template, Context
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from entelib.baseapp.models import Feedback
+from datetime import datetime
 
 class FeedbackMiddleware:
     def process_request(self, request):
@@ -13,7 +14,7 @@ class FeedbackMiddleware:
             if source.startswith('//') :
                 source = source[1:]
             who = post['feedback_user']
-            msg = source + '\n' + post['feedback_msg']
+            msg = source + '\n' + unicode(datetime.today()) + '\n' + post['feedback_msg']
             meta = request.META
             agent = 'unknown'
             if 'HTTP_USER_AGENT' in meta:
