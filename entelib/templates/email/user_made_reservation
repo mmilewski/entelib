@@ -1,6 +1,6 @@
 Welcome!
 
-You have reserved {{ reservation.book_copy.book.title }} {% if reservation.book_copy.book.author.all %}(by {{reservation.book_copy.book.author.all|join:", "}}{% endif %}). Your reservation is not ready to rent yet, though. You'll be notified when it is.
+{{ actor.get_full_name }} reserved (for future rent) {{ reservation.book_copy.book.title }} {% if reservation.book_copy.book.author.all %}(by {{reservation.book_copy.book.author.all|join:", "}}{% endif %}). The reservation is not ready to rent yet. {{ actor.get_full_name }} will be notified when it is.
 
 Reservation details:
 ~~~~~~~~~~~~~~~~~~~~
@@ -10,7 +10,6 @@ Book's shelfmark:   {{ reservation.book_copy.shelf_mark }}
 Reservation starts: {{ reservation.start_date }}
 Reservation ends:   {{ reservation.end_date }}
 Reservation id:     {{ reservation.id }}
-
 
 Please do not reply for this email.
 

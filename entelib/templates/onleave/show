@@ -16,6 +16,7 @@
 {% endif %}
 
 <p>{{ msg }}</p>
+    {% if form.maintains_any_location %}
         <form method="POST" action="." name="Fonleave">
             {{ form.non_field_errors }}
             <table>
@@ -36,5 +37,8 @@
             <input type="submit" value="Submit" />
             <input type="reset" value="Reset" />
         </form>
+    {% else %}
+    <p>Sorry, but you don't maintain any location. Hence, you cannot use "on leave" feature.</p>
+    {% endif %}
 </div>
 {% endblock content %}

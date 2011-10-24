@@ -78,30 +78,47 @@ def notify_book_copy_available(reservation):
 '''
 
 
-def made_reservation(reservation):
+def made_reservation(reservation, inform_maintainers=True):
     '''
     Desc:
-        Called if new reservation was added to db. Sends reservation confirmation.'
+        Called if new reservation (FOR FUTURE RENT) was added to db. Sends reservation confirmation.
+        If reservation can be rented immediately, then reservation_active is called.
     Arg:
         reservation -- just added Reservation's instance.
     '''
     tpl = 'email/made_reservation'
     ctx = Context({
-            'reader'      : reservation.for_whom,
-            'book'        : reservation.book_copy.book,
             'reservation' : reservation,
-            # 'title'     : reservation.book_copy.book.title,
-            # 'authors'   : [a.name for a in reservation.book_copy.book.author.all()],
-            # 'deadline'  : date.today() + timedelta(Config().get_int('reservation_rush'))
             })
     recipient = _make_recipient_from_user(reservation.for_whom)
     default_email([recipient], tpl, ctx)
 
+    if inform_maintainers:
+        # send information about future reservation to book copy's location's maintainers.
+        user_made_reservation(reservation)
 
-def reservation_active(reservation):
+
+def user_made_reservation(reservation):
+    '''
+    Desc:
+        Called when user make FUTURE reservation. Sends email to location's maintainers.
+    Arg:
+        reservation -- Reservation's instance.
+    '''
+    tpl = 'email/user_made_reservation'
+    ctx = Context({
+            'reservation' : reservation,
+            'actor'       : reservation.for_whom,
+            })
+    recipients = map(_make_recipient_from_user, reservation.book_copy.location.get_all_maintainers())
+    default_email(recipients, tpl, ctx)
+
+
+def reservation_active(reservation, inform_maintainers=True):
     '''
     Desc:
         Called if a reservation has become rentable - notifies reader.
+        If reservation can be rented immediately, then made_reservation is called.
     Arg:
         reservation -- Reservation's instance.
     '''

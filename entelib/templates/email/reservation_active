@@ -1,9 +1,17 @@
 Welcome!
 
-Your reservation on {{ book.title }} {% if book.authors %}by {{book.authors|join:", "}}{% endif %} is now active! You must rent it until {{ deadline }}. After that, your reservation will automatically be cancelled.
+Your reservation on {{ book.title }} {% if book.author.all %}by {{book.author.all|join:", "}}{% endif %} is now active! You must rent it until {{ deadline }}. After that, your reservation will automatically be cancelled.
 
 Please come to (or email if in doubt) {% for lib in reservation.book_copy.location.get_all_maintainers %} {{ lib.first_name }} {{ lib.last_name }} {% endfor %}, {{ reservation.book_copy.location }} and rent.
 
+Reservation details:
+~~~~~~~~~~~~~~~~~~~~
+Who reserved:       {{ reservation.for_whom.get_full_name }}
+Book's title:       {{ reservation.book_copy.book.title }}
+Book's shelfmark:   {{ reservation.book_copy.shelf_mark }}
+Reservation starts: {{ reservation.start_date }}
+Reservation ends:   {{ reservation.end_date }}
+Reservation id:     {{ reservation.id }}
 
 
 Library staff.

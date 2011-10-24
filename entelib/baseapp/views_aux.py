@@ -365,6 +365,21 @@ def reservation_status(reservation):
     return min(max_allowed, max_possible)
 
 
+def cancel_reservation(reservation, canceller):
+    '''
+    Desc:
+        Cancels reservation.
+    Arg:
+        reservation - instance of Reservation. Reservation to be cancelled.
+        canceller - instance of User. User who cancels the reservation.
+    '''
+    assert isinstance(reservation, Reservation)
+    assert isinstance(canceller, User)
+    reservation.when_cancelled = now()
+    reservation.who_cancelled = request.user
+    reservation.save()
+
+
 def is_book_copy_rentable(book_copy):
     return book_copy_status(book_copy).is_available()
 

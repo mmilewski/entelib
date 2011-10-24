@@ -833,11 +833,14 @@ class OnLeaveActingPersonForm(forms.Form):
 
     def __init__(self, user, locations = [], *args, **kwargs):
         self.user = user    # user which leaves
+        self.maintains_any_location = True
         super(OnLeaveActingPersonForm, self).__init__(*args, **kwargs)
 
         if len(locations) == 0:
-            self.fields['error'] = forms.ChoiceField(choices=((0,"You don't maintain any library"),),
+            self.fields['error'] = forms.ChoiceField(choices=((0,"You don't maintain any location"),),
                                                      label="Error", required=False)
+            self.maintains_any_location = False
+
         else:
             from baseapp.models import TemporaryLocationMaintainer
             for i,location in enumerate(locations):

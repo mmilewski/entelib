@@ -1022,10 +1022,10 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
                not (request.user.has_perm('baseapp.change_own_reservation') and user == reservation.for_whom):
                 raise PermissionDenied('User not allowed to change or cancel this reservation')
             if 'cancel_button' in post:
-                reservation.when_cancelled = now()
-                reservation.who_cancelled = request.user
-                reservation.save()
+                canceller = request.user
+                aux.cancel_reservation(reservation, canceller)
                 reserved.update({'error' : 'Reservation cancelled'})
+                messages.info(request, 'Reservation cancelled')
             if 'send_button' in post:
                 reservation = get_object_or_404(Reservation, id=int(post['reservation_to_send_or_cancel']))
                 if aux.request_shipment(reservation):
@@ -1036,11 +1036,7 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
                     reserved.update({'error' : "Send-request couldn't be set. Maybe you didn't set your building in you profile?"})
 
     book_desc = aux.get_book_details(book_copy)
-
     for_whom = aux.user_full_name(non_standard_user_id)
-    # if for_whom:
-    #     context.update({'user' : User.objects.get(id=non_standard_user_id)})
-
     context.update({
         'reader_id'       : user.id,
         'copy_id'         : copy_id,
