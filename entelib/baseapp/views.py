@@ -1510,3 +1510,6 @@ def howto(request):
 
 def feedback(request):
     return render_response(request, 'feedback.html')
+
+def changelog(request):
+    return render_response(request, 'changelog.html')

@@ -493,3 +493,7 @@ input[readonly] { background-color: #eee; }  /* chrome doesn't gray out readonly
 div.onleave ul {
     list-style-type: none;
 }
+
+div.changelog li {
+    line-height: 1.7em;
+}

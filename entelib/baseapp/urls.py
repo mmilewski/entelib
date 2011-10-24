@@ -161,6 +161,7 @@ urlpatterns = patterns(
 
     url(r'howto/', view.howto, name='howto'),
     url(r'feedback/', view.feedback, name='feedback'),
+    url(r'changelog/', view.changelog, name='changelog'),
 
     # default matcher
     (r'^$', view.default),
