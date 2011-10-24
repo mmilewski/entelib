@@ -19,7 +19,7 @@
 
     <div class="inner_menu">
       <ul>
-        <li><a href="{% url emaillog_latest 100 %}">Latest 100</a></li>
+        <li><a href="{% url emaillog_latest 200 %}">Latest 200</a></li>
         <li><a href="{% url emaillog_latest 1000 %}">Latest 1000</a></li>
         <li><a href="{% url emaillog_latest 5000 %}">Latest 5000</a></li>
         <li><a href="{% url emaillog_latest 20000 %}">Latest 20000</a></li>
@@ -27,13 +27,77 @@
       </ul>
     </div>
 
+
+
+<style type="text/css">
+.hidden { display:none; }
+</style>
+
+<script type="text/javascript">
+
+var togglingText = "We are sorry to inform that you have overdued your rental on ";
+// var togglingText = "C++";
+
+$(function() {
+    $("#check").click(function() {
+        var toggleClass = 'toggled';
+        if ($(this).hasClass(toggleClass)) {
+          $(this).removeClass(toggleClass);
+          $("table.emails tr").each(function(i) {
+              var tr = this;
+              $(tr).find("td.body").each(function() {
+                  if ($(this).html().indexOf(togglingText)!=-1) {
+                    $(tr).removeClass("hidden");
+                  }
+                });
+            });
+          $("#hiddenElementsCount").html('All shown');
+        }
+        else {
+          $(this).addClass(toggleClass);
+          var hiddenElementsCount = 0;
+          var totalElements = -1;       // one reserved for table header
+          $("table.emails tr").each(function(i) {
+              totalElements++;
+              var tr = this;
+              $(tr).find("td.body").each(function() {
+                  if ($(this).html().indexOf(togglingText)!=-1) {
+                    $(tr).addClass("hidden");
+                    hiddenElementsCount++;
+                  }
+                });
+            });
+          $("#hiddenElementsCount").html(''+hiddenElementsCount + ' of ' + totalElements + ' (' + Math.round(100*hiddenElementsCount/totalElements) + '%)');
+        }
+        return false;
+      });
+  });
+
+$(function() {    $("#check").button();    });
+$(document).ready(function() {
+    $("#check").trigger('click');
+  });
+
+</script>
+
+<div class="overdueToggleButton">
+<input type="checkbox" id="check" /><label for="check">Show/Hide 'We are sorry to inform of overdue on '</label>
+<span id="hiddenElementsCount"></span>
+</div>
+
+
+
+
+
+
+
     <div class="emails_wrapper">
       {% if emails %}
       <table class="emails">
         <tbody>
           <tr><th>Sent date</th> <th>From</th> <th>To</th> <th>Body</th> </tr>
           {% for email in emails %}
-          <tr><td>{{email.sent_date|date:"d.m.Y H:i"}}</td> <td>{{email.sender}}</td> <td>{{email.receiver}}</td> <td>{{email.body|linebreaks}}</td> </tr>
+             <tr><td>{{email.sent_date|date:"d.m.Y H:i"}}</td> <td>{{email.sender}}</td> <td>{{email.receiver}}</td> <td class="body">{{email.body|linebreaks}}</td> </tr>
           {% endfor %}
         </tbody>
       </table>
@@ -41,4 +105,6 @@
       <p>No email logs -- log is empty.</p>
       {% endif %}
     </div>
+
 {% endblock %}
+

@@ -141,7 +141,7 @@ def edit_config_option(request, option_key, is_global=False, edit_form=forms.Con
 
 
 @permission_required('baseapp.list_emaillog')
-def show_email_log(request, latest_count=100, show_all=False):
+def show_email_log(request, latest_count=200, show_all=False):
     """
     Desc:
         Handles listing all sent emails (logged messages, not adresses).

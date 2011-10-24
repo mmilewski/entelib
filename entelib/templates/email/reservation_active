@@ -2,7 +2,7 @@ Welcome!
 
 Your reservation on {{ book.title }} {% if book.author.all %}by {{book.author.all|join:", "}}{% endif %} is now active! You must rent it until {{ deadline }}. After that, your reservation will automatically be cancelled.
 
-Please come to (or email if in doubt) {% for lib in reservation.book_copy.location.get_all_maintainers %} {{ lib.first_name }} {{ lib.last_name }} {% endfor %}, {{ reservation.book_copy.location }} and rent.
+Please come to (or email if in doubt) {% for lib in reservation.book_copy.location.get_all_maintainers %} {{ lib.first_name }} {{ lib.last_name }}, {% endfor %} {{ reservation.book_copy.location }} and rent.
 
 Reservation details:
 ~~~~~~~~~~~~~~~~~~~~

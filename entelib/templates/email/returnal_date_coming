@@ -4,7 +4,7 @@ Please be informed that due date for {{ book.title }} is coming. Please return i
 
 Details
 ~~~~~~~
-Book's location: {{ copy.location }}
+Book's location: {{ location }}
 Location's maintainers: {{ location_maintaners|join:", " }}
 
 
