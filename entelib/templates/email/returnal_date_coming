@@ -1,5 +1,13 @@
 Welcome!
 
-Please be informed that due date for {{ book.title }} is coming. Please return it before {{ deadline }}.
+Please be informed that due date for {{ book.title }} is coming. Please return it before {{ deadline }} ({{ deadline_in_days }} days).
+
+Details
+~~~~~~~
+Book's location: {{ copy.location }}
+Location's maintainers: {{ location_maintaners|join:", " }}
+
+
+Your rentals can be found at {{ application_url }}{% url my_rentals %}
 
 Library staff.

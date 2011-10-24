@@ -17,6 +17,16 @@
     </div>
     {% endif %}
 
+    <div class="inner_menu">
+      <ul>
+        <li><a href="{% url emaillog_latest 100 %}">Latest 100</a></li>
+        <li><a href="{% url emaillog_latest 1000 %}">Latest 1000</a></li>
+        <li><a href="{% url emaillog_latest 5000 %}">Latest 5000</a></li>
+        <li><a href="{% url emaillog_latest 20000 %}">Latest 20000</a></li>
+        <li><a href="{% url emaillog_all %}">All emails</a></li>
+      </ul>
+    </div>
+
     <div class="emails_wrapper">
       {% if emails %}
       <table class="emails">

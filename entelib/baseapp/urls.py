@@ -62,7 +62,7 @@ urlpatterns = patterns(
     url(r'^profile/reservations/archive/$',     view.show_my_reservation_archive),
     url(r'^profile/reservations/new/$',         view.my_new_reservation),
     url(r'^profile/reservations/cancel-all/$',  view.cancel_all_my_reserevations),
-    url(r'^profile/rentals/$',                  view.show_my_rentals),
+    url(r'^profile/rentals/$',                  view.show_my_rentals, name="my_rentals"),
     url(r'^profile/rentals/new/$',              view.my_new_reservation),
     url(r'^profile/rentals/archive/$',          view.show_my_rental_archive),
     url(r'^profile/onleave/$',                  view.onleave),
@@ -143,7 +143,9 @@ urlpatterns = patterns(
     url(r'^report/(?P<name>(status|most_often_rented|most_often_reserved|black_list|lost_books))/$', view.show_reports, name="report_one"),
 
     # email logs
-    (r'^emaillog/$', view.show_email_log),
+    url(r'^emaillog/$',                 get_redirect_function_to_url('/entelib/emaillog/latest,100/'),   name="emaillog"),
+    url(r'^emaillog/all/$',             view.show_email_log, {'show_all':True},                          name="emaillog_all"),
+    url(r'^emaillog/latest,(\d+)/$',    view.show_email_log,                                             name="emaillog_latest"),
 
     # config
     url(r'^config/$',                    view.show_config_options,                    name="config_all"),

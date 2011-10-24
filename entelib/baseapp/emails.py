@@ -172,7 +172,7 @@ def overdued(rental):
 def made_rental(rental):
     '''
     Desc:
-        Called if new rental was added to db. Sends rental confirmation.'
+        Called if new rental was added to db. Sends rental confirmation.
     Arg:
         rental -- just added Rental's instance.
     '''
@@ -189,17 +189,21 @@ def made_rental(rental):
 def returnal_date_coming(rental):
     '''
     Desc:
-        Called if a rental is ending - notifies reader.
+        Called if a rental is ending - notifies reader, that he should return a book.
     Arg:
         rental -- Rental's instance.
     '''
-    reservation = rental.reservation
     tpl = 'email/returnal_date_coming'
+    reservation = rental.reservation
+    from datetime import date
+    maintainers = [u.get_full_name() for u in reservation.book_copy.location.get_all_maintainers()]
     ctx = Context({
-            'reader'     : reservation.for_whom,
-            'book'       : reservation.book_copy.book,
-            'rental'     : rental,
-            'deadline'   : rental.reservation.end_date,
+            'application_url'     : Config().get_str('application_url'),
+            'book'                : reservation.book_copy.book,
+            'location'            : reservation.book_copy.location,
+            'location_maintaners' : maintainers,
+            'deadline'            : rental.reservation.end_date,
+            'deadline_in_days'    : (rental.reservation.end_date - date.today()).days
             })
     recipient = _make_recipient_from_user(reservation.for_whom)
     default_email([recipient], tpl, ctx)

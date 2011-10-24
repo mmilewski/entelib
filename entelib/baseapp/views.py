@@ -141,13 +141,23 @@ def edit_config_option(request, option_key, is_global=False, edit_form=forms.Con
 
 
 @permission_required('baseapp.list_emaillog')
-def show_email_log(request):
+def show_email_log(request, latest_count=100, show_all=False):
     """
-    Handles listing all sent emails (logged messages, not adresses).
+    Desc:
+        Handles listing all sent emails (logged messages, not adresses).
+    Args:
+        latest_count -- number of newest emails to display.
+        show_all -- if True then all emails will be shown. Otherwise, `latest_count` of them.
     """
     template = 'email/list.html'
+    emails = []
+    if show_all:
+        emails = EmailLog.objects.all().order_by('-sent_date')
+    else:
+        emails = EmailLog.objects.all().order_by('-sent_date')[:latest_count]
+
     context = {
-        'emails' : EmailLog.objects.all().order_by('-sent_date'),
+        'emails' : emails,
         }
 
     return render_response(request, template, context)
