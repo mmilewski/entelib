@@ -57,7 +57,7 @@ def default_email(recipients, template, context, subject=None, sender=None):
     send(subject, msg, sender, recipients)
 
 def send_request_to_send_with_internal_post(reservation):
-    recipients = list(reservation.book_copy.location.maintainer.all())
+    recipients = list(reservation.book_copy.location.get_all_maintainers())
     template = 'email/send_with_internal_post_request'
     context = Context({'user' : reservation.for_whom,
                'reservation' : reservation,
@@ -114,8 +114,6 @@ def reservation_active(reservation):
             })
     recipient = _make_recipient_from_user(reservation.for_whom)
     default_email([recipient], tpl, ctx)
-    if reservation.shipment_requested == True:
-        shipment_requested(reservation)
 
 
 def reservation_expired(reservation):
@@ -188,7 +186,7 @@ def returnal_date_coming(rental):
             })
     recipient = _make_recipient_from_user(reservation.for_whom)
     default_email([recipient], tpl, ctx)
-    
+
 
 
 def _make_recipient_from_user(user_instance):
@@ -237,7 +235,7 @@ def user_deactivated(user, banner):
     ctx = Context({'user' : user, 'banner' : banner})
     recipient = _make_recipient_from_user(user)
     default_email([recipient], tpl, ctx)
-    
+
 
 def password_reset(user, new_password):
     """
@@ -245,7 +243,7 @@ def password_reset(user, new_password):
         Send email if user's password was reset. Usually this means usage of 'Forgot my password.
     Args:
         user - instance of User, whose password was reset. E-mail will be sent to him.
-        new_password - new user's password. Not hashed. One will use this to log in. 
+        new_password - new user's password. Not hashed. One will use this to log in.
     """
     tpl = 'email/password_reset'
     context = Context({'new_password': new_password,
@@ -263,8 +261,8 @@ def shipment_requested(reservation):
     Args:
         User object, BookCopy object
     '''
-    recipients = map(_make_recipient_from_user, list(reservation.book_copy.location.maintainer.all()))
+    recipients = map(_make_recipient_from_user, list(reservation.book_copy.location.get_all_maintainers()))
     tpl = 'email/send_with_internal_post_request'
-    ctx = Context({'reservation' : reservation, 
+    ctx = Context({'reservation' : reservation,
                    'application_url' : Config().get_str('application_url') })
     default_email(recipients, tpl, ctx)

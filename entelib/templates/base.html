@@ -6,10 +6,13 @@
         <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/layout.css'>
         <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/menu.css'>
         <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/style.css'>
+        <!--[if lte IE 8]>
+        <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/style-ie.css'>
+        <![endif]-->
         <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/time_bar.css'>
         <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/tablesorter.css'>
         <link rel='Stylesheet' type='text/css' href='{{ MEDIA_URL }}stylesheets/ui-lightness/jquery-ui-1.8.4.custom.css'>
-        
+
         <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.4.2.min.js"></script>
         <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.tablesorter.min.js"></script>
         <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-ui-1.8.4.custom.min.js"></script>
@@ -56,7 +59,7 @@
             {% block rest %}{% endblock %}
           </div>
 
-          <div id='footer'></div>
+          <div id='footer'>Contact person: <a href="mailto:norbert.kosmal@nsn.com?subject=LibraryApp">norbert.kosmal@nsn.com</a></div>
         </div> <!-- /pageWrapper -->
 
         {% if is_dev %}

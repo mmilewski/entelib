@@ -1,0 +1,7 @@
+python manage.py runserver
+python manage.py test baseapp
+
+./manage.py schemamigration baseapp --auto
+./manage.py migrate baseapp
+
+git diff HEAD~1 HEAD  -w

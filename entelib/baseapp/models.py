@@ -59,7 +59,7 @@ class ConfigurationValueType(models.Model):
 class Configuration(models.Model):
     """
     Here all config options are stored as (key, value) pairs.
-    Any option can be customized by user in UserConfiguration model, 
+    Any option can be customized by user in UserConfiguration model,
     but only if can_override is True.
     If user will customize option that has can_override=False, it will has no effect.
     """
@@ -92,7 +92,7 @@ class Configuration(models.Model):
 class UserConfiguration(models.Model):
     """
     Set of options overrided by user. Option is overrided only if can_override is True in Configuration model.
-    This model contains only overrided values, NOT all - so it is a subset 
+    This model contains only overrided values, NOT all - so it is a subset
     of Configuration if only keys are considered.
     If user will customize option that has can_override=False, it will has no effect.
     """
@@ -104,7 +104,7 @@ class UserConfiguration(models.Model):
         verbose_name = 'Configuration per user'
         verbose_name_plural = 'Configurations per user'
         unique_together = (('option', 'user'),)
-    
+
     def __unicode__(self):
         can_override_str = '+' if self.option.can_override else '-'
         return u"[%s] %s => %s" % (can_override_str, self.option.key, self.value)
@@ -168,14 +168,14 @@ class UserProfile(models.Model):
             ('view_others_profile', "Can view other people' profile"),
             ('edit_xname', "Can edit username, first name and last name"),
             ('list_reports', 'Can list reports'),     # FIXME: this shouldn't be here, but I don't know where is the right place for that, since no Report model is defined
-            ('assign_user_to_groups', 'Can assign user to groups'), 
+            ('assign_user_to_groups', 'Can assign user to groups'),
         )
         unique_together = (('user',),)
 
     def __init__(self, *args, **kwargs):
         """
         When new user is created we want him to not to be able to login yet. This is achieved by setting User.is_active to False.
-        But sometimes we deactivate user and set his User.is_active to False as well. So, to avoid confusion, new users' field 
+        But sometimes we deactivate user and set his User.is_active to False as well. So, to avoid confusion, new users' field
         awaits_activation is set to True. Later on, when he gets activated, the field will be set to False, so when he gets deactivated
         he is not regarded the same way as new users - admin won't see him when listing users to activate. This will work best with
         database trigger setting awaits_activation to False when is_active is set to True.
@@ -284,7 +284,36 @@ class Location(models.Model):
             )
         unique_together = (('building', 'details'),)
 
+    def get_all_maintainers(self):
+        '''
+        Desc:
+            Returns real + temporart maintaners. This method should be used when one want to get
+            all maintainers, nevermind if they are real - important is that they have power (permissions).
+        Return:
+            list of User instances - collected maintainers
+        '''
+        maintainers = list(self.maintainer.all())
+        tmp_location = TemporaryLocationMaintainer.objects.filter(location=self)
+        for tl in tmp_location:
+            maintainers += tl.maintainer.all()
+        return list(sorted(set(maintainers)))
 
+
+class TemporaryLocationMaintainer(models.Model):
+    '''
+    This is a bit like a part of Location model. Here are informations about temporary location
+    maintaners added by 'adder'. This is used to handle on-leave feature request, which is
+    "hey, I want to give by librarian permissions to someone else why I am on leave". Adder defines
+    temporary maintainers adding few of them for each location he manages. When he is back, drops
+    them from this model.
+    '''
+    id = models.AutoField(primary_key=True)
+    location = models.ForeignKey(Location, blank=False, null=False)
+    maintainer = models.ManyToManyField(User, blank=False, null=False, verbose_name='Maintainers')  # temporary maintainers
+    adder = models.ForeignKey(User, blank=False, null=False, verbose_name='Adder', related_name='adder')
+
+    def __unicode__(self):
+        return unicode(self.location) + ':: ' + ", ".join([u.last_name for u in self.maintainer.all()])
 
 class State(models.Model):
     id = models.AutoField(primary_key=True)
@@ -417,7 +446,7 @@ def sane_year(year):
         raise ValidationError(u"C'mon, it couldn't be published in the FUTURE")
     if year < 1900:
         raise ValidationError(u"C'mon, it can't be THAT old")
-            
+
 
 class BookCopy(models.Model):
     id = models.AutoField(primary_key=True)
@@ -444,7 +473,7 @@ class BookCopy(models.Model):
             if copies: # if there are some copies we use their_maximum_shelf_mark + 1
                 max_shelf_mark = max([c.shelf_mark for c in self.book.bookcopy_set.all()])
                 if not max_shelf_mark: max_shelf_mark = 1000 * self.book.id
-                if max_shelf_mark % 1000 == 999: 
+                if max_shelf_mark % 1000 == 999:
                     raise NotEnoughIDs
                 self.shelf_mark = max_shelf_mark + 1
             else:      # if the copy is first copy of a book it gets fixed by the book id

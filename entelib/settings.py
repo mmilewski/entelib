@@ -26,7 +26,7 @@ DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
 
-EMAIL_HOST = 'mail.emea.nsn-intra.net'
+EMAIL_HOST = '' #'mail.emea.nsn-intra.net'
 EMAIL_PORT = 25
 
 # Local time zone for this installation. Choices can be found here:
@@ -79,8 +79,8 @@ TEMPLATE_LOADERS = (
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
-    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'django.middleware.common.CommonMiddleware',           # see DISALLOWED_USER_AGENTS, APPEND_SLASH, PREPEND_WWW 
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'django.middleware.common.CommonMiddleware',           # see DISALLOWED_USER_AGENTS, APPEND_SLASH, PREPEND_WWW
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -134,6 +134,7 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'django_extensions',
     'entelib.baseapp',
+    'south',
 )
 
 AUTHENTICATION_BACKENDS = (

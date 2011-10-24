@@ -1,0 +1,73 @@
+------------------- PASSING TESTS -------------------
+
+./manage.py test \
+baseapp.GettingMaintaingersFromLocation \
+baseapp.RegisterFreshNewUserTest \
+baseapp.AddNewUserTest \
+baseapp.RentalsForCopiesTest \
+baseapp.RenderingReportsTest \
+baseapp.ReservationsForCopiesTest \
+baseapp.TimeBarSegmentTest \
+baseapp.TimeBarStartEndWithValueTest \
+baseapp.TimeBarSegmentRelatedMethodsTest \
+baseapp.LoadingProfilePage \
+baseapp.ProfileEditFormTest \
+baseapp.RemoveNotIntsTest \
+baseapp.CreateDatesBetween \
+baseapp.RequestBookTest \
+baseapp.RegisterTest \
+baseapp.LogoutTest \
+baseapp.DefaultTest \
+baseapp.MyNewReservationTest \
+baseapp.ShowBookTest \
+baseapp.AddUserTest \
+baseapp.ShowUserTest \
+baseapp.EditUserProfileTest \
+baseapp.ShowMyRentalsTest \
+baseapp.ShowUserReservationsTest \
+baseapp.ShowMyReservationsTest \
+baseapp.ShowMyReservationsArchiveTest \
+baseapp.ShowReportsTest \
+baseapp.CancelAllUserResevationsTest
+
+
+
+------------------- FAILING TESTS -------------------
+./manage.py test baseapp.ListConfigOptionsTest
+./manage.py test baseapp.EditLocalConfigOptionTest
+./manage.py test baseapp.EditGlobalConfigOptionTest
+./manage.py test baseapp.ShowEmailLogTest
+./manage.py test baseapp.ShowBooksTest
+./manage.py test baseapp.ShowBookcopyTest
+./manage.py test baseapp.ShowUsersTest
+./manage.py test baseapp.DoEditUserProfileTest
+./manage.py test baseapp.ShowUserRentalsTest
+./manage.py test baseapp.ShowUserRentalsArchiveTest
+./manage.py test baseapp.ShowUserReservationsArchiveTest
+./manage.py test baseapp.FindBookForUserTest
+./manage.py test baseapp.ReserveTest
+./manage.py test baseapp.ReserveForUserTest
+./manage.py test baseapp.CancelAllMyReserevationsTest
+./manage.py test baseapp.UserBookCopyUpLinkTest
+./manage.py test baseapp.ShowLocationTest
+./manage.py test baseapp.ShowLocationsTest
+
+./manage.py test \
+baseapp.ListConfigOptionsTest \
+baseapp.EditLocalConfigOptionTest \
+baseapp.EditGlobalConfigOptionTest \
+baseapp.ShowEmailLogTest \
+baseapp.ShowBooksTest \
+baseapp.ShowBookcopyTest \
+baseapp.ShowUsersTest \
+baseapp.DoEditUserProfileTest \
+baseapp.ShowUserRentalsTest \
+baseapp.ShowUserRentalsArchiveTest \
+baseapp.ShowUserReservationsArchiveTest \
+baseapp.FindBookForUserTest \
+baseapp.ReserveTest \
+baseapp.ReserveForUserTest \
+baseapp.CancelAllMyReserevationsTest \
+baseapp.UserBookCopyUpLinkTest \
+baseapp.ShowLocationTest \
+baseapp.ShowLocationsTest

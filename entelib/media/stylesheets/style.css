@@ -5,7 +5,7 @@
 
 div.tmp_log_as a {  text-decoration: none;  border:0;  padding: 1em;  }
 div.tmp_log_as a:hover  {  background-color: #ff8400;  }
-    
+
 .clear {  clear: both;  }
 a { color: black; border-bottom: 1px dotted gray; text-decoration: none; }
 a:hover { text-decoration: underline; border: 0; }
@@ -26,7 +26,7 @@ div.logged_user_info {
 div.collapsedTip {  /*width: 10px; */ height: 10px;  overflow: hidden;  /*position: relative; float:left;  */}
 div.tip,
 div.itip {
-    
+
     font-size: x-small;
     border: 1px solid #ff8400;
     background: #ffcf00 url("/media/images/tip_off.gif") top left no-repeat;
@@ -161,6 +161,7 @@ form.book_search input#title,
 form.book_search input#author {
     min-width: 25em;    width: 25em;
 }
+
 
 form.copy_search select#location {                          /* bookcopies.html */
     width: 30em;
@@ -309,7 +310,7 @@ div.copy_contentWrapper div.edit_copy a {
 }
 div.book_contentWrapper div.edit_book a:hover,
 div.copy_contentWrapper div.edit_copy a:hover {
-    background: url('/media/images/edit_big_hover.png') no-repeat left center;    
+    background: url('/media/images/edit_big_hover.png') no-repeat left center;
 }
 div.book_contentWrapper div.edit_book a span,
 div.copy_contentWrapper div.edit_copy a span {
@@ -487,3 +488,8 @@ input[readonly] { background-color: #eee; }  /* chrome doesn't gray out readonly
 
 .unavailable {  color: red;  }
 /* / MISC */
+
+
+div.onleave ul {
+    list-style-type: none;
+}

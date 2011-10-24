@@ -50,7 +50,7 @@
                 </tr>
             </table>
         </form>
-        
+
         <script type="text/javascript">
             document.Fusers.last_name.focus();
         </script>
@@ -99,20 +99,21 @@
         </td> <td>
             <a href='mailto:{{row.email}}'>{{ row.email }}</a>
 
+
         {% comment %}
         </td> <td>
             {{ row.userprofile.is_librarian|yesno:_("Yes,No") }}
          </td> <td>
             {{ row.userprofile.is_admin|yesno:_("Yes,No") }}
         {% endcomment %}
-        </td> 
+        </td>
         {% block row_end %}
         {% endblock row_end %}
 {% endblock item_row %}
 
 
 {% block after_table %}
-    {% if non_found %} 
+    {% if non_found %}
         <p><b>No users found.</b></p>
     {% else %}
         {% go_back_link %}

@@ -25,6 +25,6 @@
             <td class="details">{{ row.building.name }}: {{ row.details }}</td>
         {%endif%}
 <!--        <td class="building_name">{{ row.building.name }}</td>  -->
-        <td class="mtrs">{{ row.maintainer.all|join:", "|default:"-"}}</td>
+        <td class="mtrs">{{ row.get_all_maintainers|join:", "|default:"-"}}</td>
         <td class="remarks">{{row.remarks|default:"-"}}</td>
     {% endblock %}

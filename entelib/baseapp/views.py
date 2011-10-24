@@ -105,14 +105,14 @@ def edit_config_option(request, option_key, is_global=False, edit_form=forms.Con
 
     option = { 'can_override'  : config.can_override(option_key),
                'description'   : config.get_description(option_key),
-        } 
+        }
     context = {
         'is_global'   : is_global,
         'option'      : option,
         }
     form_initial = {'value'         : config[option_key],
                     'can_override'  : option['can_override'],
-                    'description'   : option['description'], 
+                    'description'   : option['description'],
         }
     # redisplay form
     if request.method == 'POST':
@@ -123,7 +123,7 @@ def edit_config_option(request, option_key, is_global=False, edit_form=forms.Con
 #            print value
             msg = 'Key %s has now value: %s' % (option_key, config[option_key])
             messages.success(request, msg)
-            if is_global: 
+            if is_global:
                 return HttpResponseRedirect(reverse('config_all'))
             else:
                 return HttpResponseRedirect(reverse('profile_config'))
@@ -293,7 +293,7 @@ def show_books(request, non_standard_user_id=False):
     shelf_mark = None
     booklist = []
     show_books = False
-    
+
     # if POST is sent we need to take care of some things
     if request.method == 'POST':
         post = request.POST
@@ -310,7 +310,7 @@ def show_books(request, non_standard_user_id=False):
             show_books = True
             search_title = post['title'].split()
             search_author = post['author'].split()
-            search_data.update({'title'  : post['title'], 
+            search_data.update({'title'  : post['title'],
                                 'author' : post['author'],
                                 })  # categories and checkboxes will be added later
 
@@ -363,11 +363,11 @@ def show_books(request, non_standard_user_id=False):
         if show_availability:
             for book in books:
                 book.update({'nr_of_available_copies' : aux.nr_of_available_copies(book['book'])})
-        
+
     bookcopies = [{'id'         : b.id,
-                   'shelf_mark' : b.shelf_mark, 
+                   'shelf_mark' : b.shelf_mark,
                    'state'      : aux.book_copy_status(b),
-                   'title'      : b.book.title, 
+                   'title'      : b.book.title,
                    'authors'    : [a.name for a in b.book.author.all()],
                    'location'   : b.location,
                    # 'url'        : bookcopy_url % b.id,
@@ -413,7 +413,7 @@ def show_book(request, book_id, non_standard_user_id=False):
     config = Config(request.user)
     book = get_object_or_404(Book,id=book_id)
     context = {}
-    
+
     # if we have a non_standard_user we treat him special
     # url_for_non_standard_users = u'/entelib/users/%d/bookcopy/%s/' % (int(non_standard_user_id), u'%d')
     # show_url = u'/entelib/bookcopy/%d/' if non_standard_user_id == False else url_for_non_standard_users
@@ -445,23 +445,24 @@ def show_book(request, book_id, non_standard_user_id=False):
             if request.POST['available'] == 'available':
                 book_copies = book_copies.filter(state__is_available=True)
     curr_copies = []
-    
+
     # time bar generating
     tb_processor = TimeBarRequestProcessor(request, None, config)  # default date range
     tb_context = tb_processor.get_context()
     tb_copies = tb_processor.get_codes_for_copies(book_copies)
     context.update(tb_context)
-    
+
     is_copy_reservable = request.user.has_perm('baseapp.add_reservation')
     # create list of dicts of book_copies
     for elem in book_copies:
+        maintainers = ", ".join([ "%s %s"%(u.first_name, u.last_name) for u in elem.location.get_all_maintainers() ])
         curr_copies.append({
             'id'            : elem.id,
             # 'url'           : show_url % elem.id,
             # 'reserve_url'   : reserve_url % elem.id,
             'shelf_mark'    : elem.shelf_mark,
             'location'      : elem.location,
-            'maintainers'   : ",".join([ "%s %s"%(f,l) for f,l in elem.location.maintainer.values_list('first_name', 'last_name') ]),
+            'maintainers'   : maintainers,
             'state'         : elem.state,
             'publisher'     : elem.publisher,
             'year'          : elem.year,
@@ -480,7 +481,7 @@ def show_book(request, book_id, non_standard_user_id=False):
         }
     locations_for_book = get_locations_for_book(book.id)
     search_locations = []
-    if locations_for_book: 
+    if locations_for_book:
         search_locations += [{'name' : '-- Any --',
                               'id' : 0,
                               'selected': len(selected_locations)==0 or (len(selected_locations)==1 and selected_locations[0]==0) }]
@@ -513,7 +514,7 @@ def show_book_copy(request, bookcopy_id):
     """
     config = Config(request.user)
     book_copy = get_object_or_404(BookCopy, id=bookcopy_id)
-    
+
     context = { }
 
     if request.method == 'POST':
@@ -522,12 +523,12 @@ def show_book_copy(request, bookcopy_id):
             aux.return_rental(request.user, post['return'])
             messages.info(request, 'Copy successfully returned')
         # TODO: here implement renting given reservation
-            
-    
+
+
     tb_processor = TimeBarRequestProcessor(request, None, config)  # default date range
     tb_context = tb_processor.get_context(book_copy)
     context.update(tb_context)
-    
+
     if not request.user.has_perm('baseapp.list_users'):
         return HttpResponseRedirect(reverse('reserve', args=(bookcopy_id,)))
 
@@ -540,7 +541,7 @@ def show_book_copy(request, bookcopy_id):
                                                      )
     if rentals and \
        request.user.has_perm('baseapp.change_rental') and \
-       request.user in rentals[0].reservation.book_copy.location.maintainer.all():
+       request.user in rentals[0].reservation.book_copy.location.get_all_maintainers():
             context.update({'rental' : rentals[0]})
 
     # TODO: here implement adding current reservation to context
@@ -565,7 +566,7 @@ def user_book_copy_up_link(request, user_id, bookcopy_id):
 
 @permission_required('baseapp.list_users')
 def find_user_to_rent_him(request):
-    return show_users(request) 
+    return show_users(request)
 
 
 @permission_required('baseapp.add_book')
@@ -618,7 +619,7 @@ def show_edit_book(request, book_id, edit_form=forms.BookForm):
 @permission_required('baseapp.add_bookcopy')
 def show_add_bookcopy(request, book_id, edit_form=forms.BookCopyForm):
     book = get_object_or_404(Book, id=book_id)
-    initial_data = { 
+    initial_data = {
         'book' : book.id,
         }
     if request.method == 'POST':
@@ -632,7 +633,7 @@ def show_add_bookcopy(request, book_id, edit_form=forms.BookCopyForm):
             return HttpResponseRedirect(reverse('copy_one', args=(new_copy.id,)))
     else:
         form = edit_form(initial=initial_data)
-    
+
     context = {
         'form'       : form,
         'book'       : book,
@@ -651,7 +652,7 @@ def show_edit_bookcopy(request, copy_id, edit_form=forms.BookCopyForm):
             return HttpResponseRedirect(reverse('copy_one', args=(copy.id,)))
     else:
         form = edit_form(instance=copy)
-    
+
     context = {
         'form'        : form,
         'book'        : copy.book,
@@ -692,8 +693,8 @@ def show_users(request):
         user_list = aux.get_users_details_list(request_first_name,
                                                request_last_name,
                                                request_username,
-                                               request_email, 
-                                               request_building_id, 
+                                               request_email,
+                                               request_building_id,
                                                active_only=show_only_active_users)
 
         # we want search values back in appropriate fields
@@ -708,7 +709,7 @@ def show_users(request):
             building_index = buildings.index(building_pair)
         except Building.DoesNotExist: # ValueError:
             building_index = 0
-            
+
         context['buildings'][building_index].update({'selected' : True})
 
         context.update({
@@ -735,7 +736,7 @@ def show_user(request, user_id, redirect_on_success_url='/entelib/users/%d/', pr
 def _do_edit_user_profile(request, edited_user, redirect_on_success_url='/entelib/users/%d/', profile_edit_form=forms.ProfileEditForm):
     """
     Displays form for editing user's profile.
-    
+
     request.user -- user editing someone's profile (it can be his own profile)
     edited_user -- user, whose profile will be edited.
     """
@@ -765,7 +766,7 @@ def _do_edit_user_profile(request, edited_user, redirect_on_success_url='/enteli
 
 @login_required
 def edit_user_profile(request, redirect_on_success_url=u'/entelib/profile/', profile_edit_form=forms.ProfileEditForm):
-    """ 
+    """
     Displays form for editing user's profile, where user means request.user
     """
     # well, this is the same that user A edits profile of user B, where A==B
@@ -795,7 +796,7 @@ def show_user_reservation_archive(request, user_id):
 @login_required
 def show_my_reservation_archive(request):
     return aux.show_user_reservation_archive(request)
- 
+
 
 @permission_required('baseapp.list_users')
 def show_user_rental_archive(request, user_id):
@@ -845,7 +846,7 @@ def show_reports(request, name=''):
             'day'  : unicode(day_date),
             }
         context['search'] = search_data
-        
+
         if request.method == 'POST':
             if 'btn_show' in post:
                 order_by = []
@@ -868,7 +869,7 @@ def show_reports(request, name=''):
                 order_by = [ k[len(btn_sort_prefix):-2] for k in post.keys() if k.startswith(btn_sort_prefix)]
                 if not order_by:
                     return render_not_found(request, msg='Action not recognized')
-                
+
                 report_data = get_report_data(report_name, unicode(from_date), unicode(to_date), order_by=order_by)
                 context['error'] = report_data['error']
                 context['report'] = report_data['report']
@@ -883,7 +884,7 @@ def show_reports(request, name=''):
             context['error']  = report_data['error']
             context['ordering'] = report_data['ordering']
             return render_response(request, template_for_report[report_name], context)
-    else:       
+    else:
         return render_response(request, 'reports.html', context)
 
 
@@ -960,7 +961,7 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
                                                            .filter(for_whom=user) \
                                                            .filter(Q(end_date__gte  =r.start_date)&Q(end_date__lte  =r.end_date) |  # other reservations ends during requested one
                                                                    Q(start_date__gte=r.start_date)&Q(start_date__lte=r.end_date)    # other reservations starts during requested one
-                                                                  ) 
+                                                                  )
                 if overlapping_user_reservations.count() > 0:
                     raise EntelibWarning('You have overlapping active reservation on the book.')
 
@@ -981,7 +982,7 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
         elif 'rent_button' in post:
             if not request.user.has_perm('baseapp.add_rental'):
                 raise PermissionDenied('User not allowed to rent')
-            if not request.user in book_copy.location.maintainer.all():
+            if not request.user in book_copy.location.get_all_maintainers():
                 raise PermissionDenied('User not allowed to rent book from this location')
             if not aux.is_book_copy_rentable(book_copy):
                 return aux.render_forbidden(request, 'Book copy not rentable')
@@ -1033,7 +1034,7 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
                 else:
                     messages.info(request, "Send-request couldn't be set. Maybe you didn't set your building in you profile?")
                     reserved.update({'error' : "Send-request couldn't be set. Maybe you didn't set your building in you profile?"})
-            
+
     book_desc = aux.get_book_details(book_copy)
 
     for_whom = aux.user_full_name(non_standard_user_id)
@@ -1047,10 +1048,10 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
         'reserved'        : reserved,
         'for_whom'        : for_whom,
         'can_reserve'     : book_copy.state.is_visible and request.user.has_perm('baseapp.add_reservation'),
-        'rental_possible' : aux.is_book_copy_rentable(book_copy) and request.user in book_copy.location.maintainer.all(),
+        'rental_possible' : aux.is_book_copy_rentable(book_copy) and request.user in book_copy.location.get_all_maintainers(),
     })
 
-    # time bar        
+    # time bar
     tb_processor = TimeBarRequestProcessor(request, None, config)  # default date range
     tb_context = tb_processor.get_context(book_copy)
     context.update(tb_context)
@@ -1103,13 +1104,13 @@ def show_location(request, loc_id, edit_form=forms.LocationForm):
             location = get_object_or_404(Location, pk=loc_id)
     else:
         form = edit_form(instance=location)
-    
+
     context = {
         'loc'          : location,
         'form'         : form,
         'is_updating'  : True,
         }
-    
+
     return render_response(request, 'locations/one.html', context)
 
 @permission_required('baseapp.change_location')
@@ -1160,13 +1161,13 @@ def deactivate_user(request, user_id):
 def show_shipment_requests(request):
     return aux.show_reservations(request, shipment_requested=True)
 
-                       
+
 @permission_required('baseapp.add_rental')
 def show_current_reservations(request, show_all=False):
     only_rentable = not show_all
     return aux.show_reservations(request, only_rentable=only_rentable)
 
-                       
+
 @permission_required('baseapp.change_rental')
 def show_current_rentals(request, all_locations=False):
     context = {}
@@ -1214,7 +1215,7 @@ def activate_many_users(request, all_inactive=False):
             profile = user.userprofile
             profile.awaits_activation = False
             profile.save()
-            
+
     users = User.objects.filter(is_active=False)
     if not all_inactive:
         users = users.filter(userprofile__awaits_activation=True)
@@ -1231,7 +1232,7 @@ def generic_items(request, name_single, name_plural, query, extra_context={}):
         }
     context.update(extra_context)
     return render_response(request, '%s/list.html' % name_plural, context)
-    
+
 def generic_item(request, name_single, name_plural, item_id, model_name, extra_context={}):
     item = get_object_or_404(model_name, id=item_id)
     context = {
@@ -1452,6 +1453,54 @@ def show_add_bookrequest(request, book_id=0, request_form=forms.BookRequestAddFo
             })
     context.update(extra_context)
     return render_response(request, template, context)
+
+
+def onleave(request):
+    '''
+    Show & POST for on-leave functionality.
+    '''
+    user = request.user
+    template = 'onleave/show'
+    ctx = {}
+    config = Config(user)
+
+    from forms import OnLeaveActingPersonForm
+    locations_for_user = Location.objects.filter(maintainer=user)
+
+    if request.method == 'POST':
+        form = OnLeaveActingPersonForm(user, data=request.POST, locations=locations_for_user)
+        if form.is_valid():
+            post = request.POST
+
+            # iteration over librarian's locations. AFAIS, librarian has up to 3 locations,
+            # but I give below up to 50... you know, just in case :)
+            for l in range(0,50):
+                loc_id = post['location_%d' % l] if 'location_%d' % l in post else None
+                if loc_id:
+                    new_maintainers = post.getlist('maintainer_%d' % l)
+                    loc = Location.objects.get(pk=loc_id)
+                    tmploc, created = TemporaryLocationMaintainer.objects.get_or_create(location=loc, adder=user)
+                    tmploc.maintainer.clear()
+                    if new_maintainers == []:
+                        tmploc.delete()
+                    for m_id in new_maintainers:
+                        mtr = User.objects.get(pk=m_id)    # new maintainer
+                        from views_aux import add_temporary_maintainer_for_location, CannotManageMaintainers
+                        adder = user
+                        try:
+                            add_temporary_maintainer_for_location(tmploc, mtr, adder)
+                        except CannotManageMaintainers, ex:
+                            return render_forbidden(request, ex)
+                    ctx['msg'] = 'Update successful'
+        else:
+            ctx['msg'] = 'Form is invalid'
+    form = OnLeaveActingPersonForm(user, locations=locations_for_user)
+    ctx['form'] = form
+
+    if 'msg' in ctx:
+        from django.contrib import messages
+        messages.add_message(request, messages.INFO, ctx['msg'])
+    return render_response(request, template, ctx)
 
 
 def howto(request):

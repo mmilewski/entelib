@@ -26,7 +26,7 @@ class ConfigOptionEditForm(forms.Form):
     value        = forms.CharField(required=True, widget=forms.Textarea)
     can_override = forms.BooleanField(required=False)
     description  = forms.CharField(required=False, widget=forms.Textarea, max_length=CFG.configuration_descirption_len)
-        
+
     def __init__(self, user, option_key, config, is_global, *args, **kwargs):
         super(ConfigOptionEditForm, self).__init__(*args, **kwargs)
         self.user = user
@@ -52,7 +52,7 @@ class ConfigOptionEditForm(forms.Form):
         type = config.get_type(self.option_key)
 
         parsers = ConfigValueTypeHelper().get_parsers()
-        
+
         for typename, v in parsers.items():
             if type.name == typename:
                 try:
@@ -96,14 +96,14 @@ class ProfileEditChoiceList:
     def buildings():
         """ Builds list od 2-tuples containing Buildings. """
         choice_list =  [ (0, u'--- not specified ---')]
-        choice_list += [(b.id, b.name)  for b in Building.objects.order_by('name').all()] 
+        choice_list += [(b.id, b.name)  for b in Building.objects.order_by('name').all()]
         return choice_list
 
     @staticmethod
     def phone_types():
         """ Builds list of 2-tuples containing PhoneTypes. """
         return [(pt.id, pt.name) for pt in PhoneType.objects.order_by('name').all()]
-    
+
 class ProfileEditForm(forms.Form):
     """
     Form for editing user profile.
@@ -116,7 +116,7 @@ class ProfileEditForm(forms.Form):
     phone_prefix = 'phone'
     phone_type_prefix = phone_prefix + 'Type'
     phone_value_prefix = phone_prefix + 'Value'
-    
+
     username = forms.CharField(help_text=u'Required. 30 characters or fewer. Letters, numbers and @/./+/-/_ characters', max_length=30, label=u'Username')
     first_name = forms.CharField(max_length=30, required=False, label=u'First name')
     last_name = forms.CharField(max_length=30, required=False, label=u'Last name')
@@ -153,7 +153,7 @@ class ProfileEditForm(forms.Form):
         """
         profile_owner is instance of User, whose profile will be changed.
         editor is instance of User, who will change the profile.
-        
+
         If editor is None, then it is set to profile_owner
         """
         if editor:
@@ -263,19 +263,19 @@ class ProfileEditForm(forms.Form):
     def clean_phone_value(self, key_name):
         data = self.cleaned_data
         return data[key_name].strip() if key_name in data else ''
- 
+
     def clean_phoneType0(self):
         return self.clean_phone_type('phoneType0')
-        
+
     def clean_phoneType1(self):
         return self.clean_phone_type('phoneType1')
-        
+
     def clean_phoneType2(self):
         return self.clean_phone_type('phoneType2')
-        
+
     def clean_phoneType3(self):
         return self.clean_phone_type('phoneType3')
-        
+
     def clean_phoneType4(self):
         return self.clean_phone_type('phoneType4')
 
@@ -310,13 +310,13 @@ class ProfileEditForm(forms.Form):
 
 
     def transform_cleaned_phones_to_list_of_phones(self, cleaned_phones):
-        """ 
-        Transforms cleaned_phones dict to list of pairs: (phone_type, phone_value) -- both of these values 
-        must exists. 
-        
+        """
+        Transforms cleaned_phones dict to list of pairs: (phone_type, phone_value) -- both of these values
+        must exists.
+
         Elements without it's pair will be omitted in result.
-        
-        If element's value after striping is empty, then related key will be omitted in result. 
+
+        If element's value after striping is empty, then related key will be omitted in result.
         """
         phones = []
         for i in range(len(cleaned_phones)):                 # this range is a bit (at most twice) too wide, but it doesn't hurt permormance
@@ -331,14 +331,14 @@ class ProfileEditForm(forms.Form):
     def extract_phones_to_add(self, user_phones, sent_phones):
         """
         Desc:
-            Using sets language: it returns sent_phones\user_phones (where '\' means sets difference) 
+            Using sets language: it returns sent_phones\user_phones (where '\' means sets difference)
             -- these are phones to be added to user's profile.
-    
+
         Args:
             user_phones -- list of Phone instances. Can be obtained from user profile.
             sent_phones -- list of 2-tuples (phone_type_id, phone_value). Can be obtained
                            from self.transform_cleaned_phones_to_list_of_phones()
-        
+
         Return:
             List of 2-tuples: (phone_type_id, phone_value)
         """
@@ -353,21 +353,21 @@ class ProfileEditForm(forms.Form):
     def extract_phones_to_remove(self, user_phones, sent_phones):
         """
         Desc:
-            Returns user_phone\sent_phones, using sets language 
+            Returns user_phone\sent_phones, using sets language
             -- these are phones to be removed from user's profile.
 
         Args:
             user_phones -- list of Phone instances. Can be obtained from user profile.
             sent_phones -- list of 2-tuples (phone_type_id, phone_value). Can be obtained
                            from self.transform_cleaned_phones_to_list_of_phones()
-        
+
         Return:
             List of 2-tuples: (phone_type_id, phone_value)
-        """       
+        """
         phones_to_remove = []
         for user_phone in user_phones:
             phone_tuple = (user_phone.type.id, user_phone.value)
-            if phone_tuple not in sent_phones:        # if phone is not new                
+            if phone_tuple not in sent_phones:        # if phone is not new
                 phones_to_remove.append(phone_tuple)
         return phones_to_remove
 
@@ -375,11 +375,11 @@ class ProfileEditForm(forms.Form):
     def add_phones_to_profile(self, phones_to_add):
         """
         Desc:
-            Adds phones from 2-tuple list to self.profile_owner's profile. 
+            Adds phones from 2-tuple list to self.profile_owner's profile.
             If a phone is already there, it will be duplicated.
-        
+
         Args:
-            phones_to_add -- list of 2-tuples (phone_type_id, phone_value). Can be 
+            phones_to_add -- list of 2-tuples (phone_type_id, phone_value). Can be
                              obtained from self.extract_phones_to_add()
          """
         user_profile = self.profile_owner.get_profile()
@@ -395,9 +395,9 @@ class ProfileEditForm(forms.Form):
         """
         Desc:
             Removes phones from self.profile_owner's profile.
-        
+
         Args:
-            phones_to_remove -- list of 2-tuples (phone_type_id, phone_value). Can be 
+            phones_to_remove -- list of 2-tuples (phone_type_id, phone_value). Can be
                                 obtained from self.extract_phones_to_remove()
          """
         user_profile = self.profile_owner.get_profile()
@@ -451,7 +451,7 @@ class ProfileEditForm(forms.Form):
 
         # update phones
         cleaned_phones   = self.get_cleaned_phones(self.cleaned_data)
-        phones_as_list   = self.transform_cleaned_phones_to_list_of_phones(cleaned_phones)        
+        phones_as_list   = self.transform_cleaned_phones_to_list_of_phones(cleaned_phones)
         user_phones      = self.profile_owner.get_profile().phone.all()
         phones_to_add    = self.extract_phones_to_add(user_phones, phones_as_list)
         phones_to_remove = self.extract_phones_to_remove(user_phones, phones_as_list)
@@ -472,12 +472,12 @@ class ProfileEditForm(forms.Form):
         # removing must go first
         self.remove_phones_from_profile(phones_to_remove)
         self.add_phones_to_profile(phones_to_add)
-        
+
         # uff, save & return
         self.profile_owner.save()
         return self.profile_owner
-        
-        
+
+
     @staticmethod
     def get_initials_for_user(user, editor):
         """
@@ -495,7 +495,7 @@ class ProfileEditForm(forms.Form):
         for i, phone in enumerate(phones):
             phones_initial['phoneType'  + str(i)] = phone[0]    # type id
             phones_initial['phoneValue' + str(i)] = phone[2]    # value
-    
+
         # prepare initial data
         form_initial = { 'first_name'  : user.first_name,
                          'last_name'   : user.last_name,
@@ -515,10 +515,9 @@ class ProfileEditForm(forms.Form):
 
         if user.get_profile().location_remarks:
             form_initial['location_remarks'] = user.get_profile().location_remarks
-            print form_initial['location_remarks']
-        
+
         return form_initial
-    
+
     @staticmethod
     def build_default_context_for_user(user):
         """ Returns default context for specified user."""
@@ -533,8 +532,8 @@ class ProfileEditForm(forms.Form):
                     # 'reservations' : 'reservations/',
                     }
         return context
-                
-                
+
+
 class RegistrationForm(forms.Form):
     """
     Form for registering a new user account.
@@ -640,7 +639,7 @@ class RegistrationForm(forms.Form):
         return user
 
 
-class LocationForm(ModelForm):   
+class LocationForm(ModelForm):
     class Meta:
         model = Location
         fields = ('building', 'details', 'remarks', 'maintainer')
@@ -651,7 +650,7 @@ class LocationForm(ModelForm):
     maintainer = forms.ModelMultipleChoiceField(User.objects.filter(groups__in=groups).order_by('username'), required=False)
 
 
-class BookForm(ModelForm):   
+class BookForm(ModelForm):
     class Meta:
         model = Book
         fields = ('title', 'category', 'author')
@@ -687,10 +686,10 @@ def regexp_match(expr):
     """ Returns unary function which will test its argument with given regular expression."""
     import re
     return lambda name: re.compile(expr).match(name)
-    
+
 def generic_clean_name(form_instance, f, field_name='name'):
     """
-    Checks if name field is valid. 
+    Checks if name field is valid.
     Args:
         form_instance -- instance of ModelForm which has field_name field. If not, then
                          'Field is required' will be displayed
@@ -708,7 +707,7 @@ def generic_clean_name(form_instance, f, field_name='name'):
     return name
 
 
-class BuildingForm(ModelForm):   
+class BuildingForm(ModelForm):
     class Meta:
         model = Building
     def __init__(self, *args, **kwargs):
@@ -823,4 +822,39 @@ class BookRequestAddForm(forms.Form):
         book = Book.objects.get(pk=book_id) if book_id else None
         req = BookRequest(who=self.user, info=info, book=book)
         req.save()
+
+
+class OnLeaveActingPersonForm(forms.Form):
+    @staticmethod
+    def _librarians_choice_list():
+        librarians = User.objects.filter(groups__in=Group.objects.filter(Q(name='Librarians'))).order_by('last_name', 'first_name')
+        return [(u.id, u.last_name + u' ' + u.first_name) for u in librarians]
+
+
+    def __init__(self, user, locations = [], *args, **kwargs):
+        self.user = user    # user which leaves
+        super(OnLeaveActingPersonForm, self).__init__(*args, **kwargs)
+
+        if len(locations) == 0:
+            self.fields['error'] = forms.ChoiceField(choices=((0,"You don't maintain any library"),),
+                                                     label="Error", required=False)
+        else:
+            from baseapp.models import TemporaryLocationMaintainer
+            for i,location in enumerate(locations):
+                self.fields['location_%d' % i] = forms.ChoiceField(choices=[(location.id, location)],
+                                                                   label="",
+                                                                   required=False)
+                ts = TemporaryLocationMaintainer.objects.filter(adder=user,location=location)
+                mtr_initial = [u.id for t in ts for u in t.maintainer.select_related().all()]
+
+                self.fields['maintainer_%d' % i] = forms.MultipleChoiceField(required=False,
+                                                                             choices=OnLeaveActingPersonForm._librarians_choice_list(),
+                                                                             widget=forms.CheckboxSelectMultiple,
+                                                                             label="Acting librarians",
+                                                                             initial=mtr_initial)
+
+    def clean_maintainer(self):
+        if 'maintainter' in self.cleaned_data:
+            return self.cleaned_data['maintainter']
+        return self.cleaned_data
 

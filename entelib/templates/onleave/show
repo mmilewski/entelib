@@ -1,0 +1,40 @@
+{% extends "base_with_top_menu.html" %}
+
+{% block title %} On leave {% endblock title %}
+
+{% block header %} On leave - {{ user.first_name }} {{ user.last_name }} {% endblock header %}
+
+{% block content %}
+<div class="onleave">
+
+{% if display_tips %}
+<div class="tip">
+  <p>
+    Put ticks next to librarians who will be able to do your duties while you are on leave. When you come back from leave, just remove the ticks.
+  </p>
+</div>
+{% endif %}
+
+<p>{{ msg }}</p>
+        <form method="POST" action="." name="Fonleave">
+            {{ form.non_field_errors }}
+            <table>
+                {% for field in form %}
+                    <tr>
+                        <td>{{ field.label_tag }}:
+                          <br />
+                          {{ field }}
+                          {{ field.errors }}
+                        </td>
+
+                        <td style="vertical-align:bottom;">
+                        </td>
+
+                    </tr>
+                {% endfor %}
+            </table>
+            <input type="submit" value="Submit" />
+            <input type="reset" value="Reset" />
+        </form>
+</div>
+{% endblock content %}

@@ -8,7 +8,7 @@ def load_customized_sql(app, created_models, verbosity=2, **kwargs):
     custom_files = [os.path.join(app_dir, "custom.%s.sql" % settings.           DATABASE_ENGINE),
                     os.path.join(app_dir, "custom.sql")]
 
-    for custom_file in custom_files: 
+    for custom_file in custom_files:
         if os.path.exists(custom_file):
             print "Loading customized SQL for %s" % app.__name__
             fp = open(custom_file, 'U')
@@ -22,5 +22,5 @@ def load_customized_sql(app, created_models, verbosity=2, **kwargs):
                 transaction.rollback_unless_managed()
             else:
                 transaction.commit_unless_managed()
-        
+
 signals.post_syncdb.connect(load_customized_sql)

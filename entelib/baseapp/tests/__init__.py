@@ -14,6 +14,7 @@ from baseapp.tests.reports import *
 from baseapp.tests.time_bar import *
 from baseapp.tests.utils import *
 from baseapp.tests.registration import *
+from baseapp.tests.temporary_maintainer import *
 
 if PEP8_TEST_ENABLED:
     from baseapp.tests.pep8_test import *

@@ -13,7 +13,7 @@ import test_utils as utils
 
 class TestWithSmallDB(Test):
     '''
-    A class to test views. It uses a fixture of a small but complete database dump. 
+    A class to test views. It uses a fixture of a small but complete database dump.
     By inheriting from Test, it inherits from django.test.TestCase and from baseapp.tests.PageLogger
     '''
     fixtures = Test.fixtures
@@ -30,7 +30,7 @@ class ListConfigOptionsTest(TestWithSmallDB):
     def test_displayed_overridable(self):
         self.log_user()
         response = self.client.get(self.url)
-        
+
         self.assertContains(response, 'List of configurable options')
         for c in Configuration.objects.filter(can_override=True):
             self.assertContains(response, c.key, msg_prefix='%s not found' % c.key)
@@ -38,7 +38,7 @@ class ListConfigOptionsTest(TestWithSmallDB):
     def test_all_displayed(self):
         self.log_admin()
         response = self.client.get(self.url)
-        
+
         self.assertContains(response, 'List of configurable options')
         options = list(Configuration.objects.all())
         for c in options:
@@ -91,11 +91,11 @@ class EditGlobalConfigOptionTest(TestWithSmallDB):
         self.assertTrue(response.context['is_global'])
 
     def test_unoverridable_global_dispalyed(self):
-        # admin can global edit option  
+        # admin can global edit option
         self.log_admin()
         response = self.client.get(self.url % self.unoverridable_key)
         self.assertEqual(200, response.status_code)
-        
+
     def test_user_cannot_override_global(self):
         self.log_user()
         response = self.client.get(self.url % self.overridable_key)
@@ -132,7 +132,7 @@ class RequestBookTest(TestWithSmallDB):
     def setUp(self):
         self.url = '/entelib/bookrequests/add/'
         self.log_admin()
-    
+
     def test_one_exists(self):
         all_book_requests = BookRequest.objects.all()
         self.assertEqual(1, all_book_requests.count())
@@ -149,7 +149,7 @@ class RequestBookTest(TestWithSmallDB):
 
         self.assert_(utils.accessed(response))
         self.assert_(utils.no_form_errors_happened(response.content))
-        
+
         self.assertEqual(200, response.status_code)                                     # response ok
         self.assertEquals(len(before['BookRequest']) + 1, len(after['BookRequest']))    # exactly one came in
         self.assertTemplateUsed(response, 'bookrequests/add.html')                      # correct template
@@ -299,7 +299,7 @@ class ShowBookTest(TestWithSmallDB):
         self.log_user()
         self.response1 = self.client.get('/entelib/books/1/')
         self.response2 = self.client.get('/entelib/books/2/')
-        
+
     def test_authors_properly_displayed(self):
         self.assertContains(self.response1, 'Adam Mickiewicz')
         self.assertContains(self.response1, 'Heniu Sienkiewicz')
@@ -385,11 +385,11 @@ class ShowBookcopyTest(TestWithSmallDB):
         copies = (BookCopy.objects.all())
         copy = choice(copies)  # pseudo-random choice from copies
         self.assert_specific_copy_display_correct(copy)
-        
+
     def test_all_copies_display(self):
         for copy in BookCopy.objects.all():
             self.assert_specific_copy_display_correct(copy)
-        
+
     # mmi: picture's div is now (since r322) displayed iff picture is defined for book copy.
     # def test_diffrent_users_get_the_same_page(self):
     #     import re
@@ -463,7 +463,7 @@ class ShowUsersTest(TestWithSmallDB):
         self.assertContains(response, 'Librariano', count=1)    # in 'welcome Librariano'. He is logged in
         self.assertNotContains(response, 'Grzegorz')
         self.assertNotContains(response, 'No users found')
-        
+
     def test_admins_found_by_name(self):
         self.log_lib()
         response = self.client.post(self.url, {'search' : 'Search', 'first_name' : 'admino', 'building' : '0'})
@@ -500,7 +500,7 @@ class ShowUsersTest(TestWithSmallDB):
         self.assertContains(response, 'Admino Domino', count=1)
         self.assertContains(response, 'Librariano', count=2)      # one in results + one in 'Welcome Librariano' (he is logged in)
         self.assertContains(response, 'Grzegorz', count=1)
-        
+
     def test_none_found(self):
         self.log_lib()
         response = self.client.post(self.url, {'search' : 'Search', 'first_name' : 'urban', 'building' : '0' })
@@ -579,13 +579,13 @@ class EditUserProfileTest(TestWithSmallDB):
     def assert_display_some_important_details(self, url, user):
         response = self.client.get(url)
 
-        self.assertContains(response, user.first_name) 
-        self.assertContains(response, user.last_name) 
-        self.assertContains(response, user.username) 
-        self.assertContains(response, user.email) 
+        self.assertContains(response, user.first_name)
+        self.assertContains(response, user.last_name)
+        self.assertContains(response, user.username)
+        self.assertContains(response, user.email)
         for phone in user.userprofile.phone.all():
-            self.assertContains(response, phone.type.name) 
-            self.assertContains(response, phone.value) 
+            self.assertContains(response, phone.type.name)
+            self.assertContains(response, phone.value)
 
     def test_user_profiles_displayed(self):
         self.log_user()
@@ -619,6 +619,7 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
             'current_password' : password,
             'email' : user.email,
             'work_building' : user.userprofile.building_id,
+            'location_remarks' : 'none',
             'phoneType0'  : '2',
             'phoneValue0' : '1',
             'phoneType1'  : '2',
@@ -640,13 +641,13 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
     # assertions
 
     def assert_can_change_own_field(self, user, password, field, value):
-        ''' user is User object, password is string 
+        ''' user is User object, password is string
             this works only for field of User class - not UserProfile class '''
         # new_value = 'new_value'  # could be passed as argument
         new_value = value
-        
+
         before = self.get_state(User, UserProfile)
-        
+
         self.client.login(username=user.username, password=password)
         dict = self.create_post(user, password, {field : new_value})
 
@@ -665,28 +666,28 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
         new_email = 'some.diffrent.address@other.server.com'
         self.client.login(username=user.username, password=password)
         dict = self.create_post(user, password, {field : value})
-        
+
         before = self.get_state(User, UserProfile, Phone)
 
         response = self.client.post(self.url_admin % other_user_id, {'current_password' : password, 'email' : new_email})
 
         after = self.get_state(User, UserProfile, Phone)
-        
+
         self.assertStatesEqual(before, after)
         self.assertEquals(302, response.status_code)
 
     def assert_can_change_someone_elses_field(self, user, password, field_name, post_variable_name, new_value, affected_user):
-        ''' 
+        '''
         field_name           - a string nameing a field
         new_value            - a string - field's value
         user, affected_user  - objects of User class
-        
+
         '''
 
         url = self.url_admin % affected_user.id
         self.client.login(username=user.username, password=password)
         dict = self.create_post(affected_user, password, {field_name : new_value})
-        
+
         response = self.client.post(url, dict)
 
         try:  # this takes care of fetching a value from field in either User object or UserProfile object.
@@ -714,14 +715,14 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
         new_password = u'brandnewpasswd'
 
         dict = self.create_post(user, 'user', {'password1' : new_password, 'password2' : new_password, })
-        
+
         response = self.client.post(self.url, dict, follow=True)
 
         self.assertContains(response, 'updated')
 
         self.logout()
         self.client.login(username='user', password=new_password)
-        
+
         response = self.client.get('/entelib/', follow=True)
         self.assertContains(response, 'Welcome')         # login with new password succeeded
         self.assertEquals(200, response.status_code)
@@ -741,13 +742,13 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
     def test_admin_can_change_someone_elses_building(self):
         admin = User.objects.get(username='admin')
         passwd = 'admin'
-        
+
         for building_to_change_to_id in ['1', '2']:
             for user in User.objects.all():  # exclude(username='admin'):
                 dict = self.create_post(user, passwd, {'work_building' : building_to_change_to_id})
-                
+
                 response = self.client.post(self.url_admin % user.id, dict, follow=True)
-                # pprint("echo {0}".format(response.content))
+
                 self.assertNotContains(response, 'errorlist')
                 self.assert_(accessed(response))
 
@@ -766,20 +767,20 @@ class DoEditUserProfileTest(EditUserProfileTest):  # for view show_user
 
             for phone_nr in xrange(0,5):
                 for user in User.objects.all():  # exclude(username='admin'):
-                    dict = self.create_post(user, passwd, 
+                    dict = self.create_post(user, passwd,
                         {'phoneType%d'  % phone_nr : new_phone_type,
                          'phoneValue%d' % phone_nr : new_phone_value,
                         })
-                    
+
                     response = self.client.post(self.url_admin % user.id, dict, follow=True)
                     self.assert_(accessed(response))
-                    
+
                     fetched_value = User.objects.get(id=user.id).userprofile.phone.all()[phone_nr].value
                     self.assert_(new_phone_value in [p.value for p in User.objects.get(id=user.id).userprofile.phone.all()])
 
                     self.assertContains(response, new_phone_value)
                     self.assertContains(response, 'updated')  # not very universal
-            
+
 
 class ShowUserRentalsTest(TestWithSmallDB):
     def setUp(self):
@@ -855,8 +856,8 @@ class ShowUserReservationsArchiveTest(TestWithSmallDB):
             for reservation in Reservation.objects.filter(for_whom=user):
                 self.assertContains(response, reservation.book_copy.shelf_mark, msg_prefix='User: %d, Reservation: %d' % (user.id, reservation.id))
                 self.assertContains(response, reservation.start_date)
-         
-        
+
+
 class ShowMyReservationsTest(TestWithSmallDB):
     def setUp(self):
         self.url = '/entelib/profile/reservations/'
@@ -868,7 +869,7 @@ class ShowMyReservationsTest(TestWithSmallDB):
         for reservation in Reservation.objects.filter(for_whom=user, rental=None, when_cancelled=None):
             self.assertContains(response, reservation.book_copy.shelf_mark)
 
-        
+
 class ShowMyReservationsArchiveTest(TestWithSmallDB):
     def setUp(self):
         self.url = '/entelib/profile/reservations/'
@@ -897,17 +898,17 @@ class FindBookForUserTest(ShowBooksTest, ShowBookTest):
 
     def test_all_book_ids_displayed(self):  # most likely in links
         books = [b for b in Book.objects.all()]  # which books we expect
-        
+
     def test_finding_for_all_users(self):
         # retrieve all test method names, except for the current - so we don't go to an infinite loop
-        tests = [met for met in dir(self) if met.startswith('test_') and met != 'test_finding_for_all_users']  
+        tests = [met for met in dir(self) if met.startswith('test_') and met != 'test_finding_for_all_users']
 
         # user 1 is tested with all inherited methods' calls, so we retrieve other users' ids
         users_ids = [u.id for u in User.objects.all() if u.id is not 1]
 
         self.url_book_base = '/entelib/users/%d/books/'
         self.log_lib()
-        
+
         # for every user
         for user_id in users_ids:
             # run all tests
@@ -944,7 +945,7 @@ class ReserveTest(TestWithSmallDB):
         self.assert_(accessed(response))
         self.assertContains(response, "<td><input type='submit' name='rent_button' value='Rent'  disabled  ></td>")
 
-    
+
     # assertions for rentals and reservations
 
     def assert_rental_made(self, book_copy_id, from_=today().isoformat(), to=today().isoformat()):
@@ -957,17 +958,17 @@ class ReserveTest(TestWithSmallDB):
 
         # request
         response = self.client.post(url, {'rent_button' : 'Rent', 'from' : from_, 'to' : to, })
-        
+
         # response code was 200
         self.assertEquals(200, response.status_code)
         # and rental was successfull
         self.assertContains(response, 'Rental made')
-        
+
         # there is one more rental now
         rentals_after = list(Rental.objects.all())
         nr_of_rentals_after = len(rentals_after)
         self.assertEquals(nr_of_rentals_before + 1, nr_of_rentals_after)
-        
+
         # nothing changed in rentals except there is one more now
         last_rental = Rental.objects.latest(field_name='id')
         self.assertEquals((rentals_before + [last_rental]).sort(), [r for r in Rental.objects.all()].sort())  # old set + newest == newset
@@ -975,15 +976,15 @@ class ReserveTest(TestWithSmallDB):
 
         # last rental is for the copy we just rented
         self.assertEquals(book_copy_id, last_rental.reservation.book_copy.id)
-        
+
         # last reservation is for the copy we just rented
         book_copy_id = BookCopy.objects.get(id=book_copy_id).id
-        self.assertEquals(book_copy_id, Reservation.objects.latest(field_name='id').book_copy.id)         
+        self.assertEquals(book_copy_id, Reservation.objects.latest(field_name='id').book_copy.id)
 
         # last reservation is from today
         last_reservation = Reservation.objects.latest('id')
         self.assertEquals(today(), last_reservation.start_date)
-        
+
         # last rental starts today
         self.assertEquals(last_rental.start_date.date(), today())
 
@@ -1018,12 +1019,12 @@ class ReserveTest(TestWithSmallDB):
 
         # request
         response = self.client.post(url, {'reserve_button' : 'Reserve', 'from' : from_, 'to' : to, })
-        
+
         # response code was 200
         self.assertEquals(200, response.status_code)
         # and rental was successfull
         self.assertContains(response, 'Reservation active')
-        
+
         # nothing changed in rentals
         rentals_after = list(Rental.objects.all())
         self.assertEquals([r for r in rentals_before], [r for r in Rental.objects.all()])
@@ -1032,7 +1033,7 @@ class ReserveTest(TestWithSmallDB):
         last_reservation = Reservation.objects.latest('id')
 
         # last reservation is for the copy we just rented
-        self.assertEquals(copy_id, last_reservation.book_copy.id)         
+        self.assertEquals(copy_id, last_reservation.book_copy.id)
 
         # last reservation is from today or later
         self.assert_(last_reservation.start_date >= today())
@@ -1050,7 +1051,7 @@ class ReserveTest(TestWithSmallDB):
         else:
             max_time = timedelta(Config().get_int('rental_duration'))
             self.assertEquals(last_reservation.start_date + max_time, last_reservation.end_date)
-            
+
 
         # nothing changed in reservations except there is one more now
         last_reservation = Reservation.objects.latest(field_name='id')
@@ -1078,7 +1079,7 @@ class ReserveTest(TestWithSmallDB):
         # test status code
         self.assertEquals(status_code, response.status_code)
 
-    
+
     # unit tests
 
     def test_annonymous_cant_reserve(self):
@@ -1166,60 +1167,60 @@ class ReserveTest(TestWithSmallDB):
         book_copy_id = 4
         self.assert_rental_not_made(book_copy_id, from_=today().isoformat(), to='')
         # ok: default max rental time, from ignored
-        
+
     def test_max_time(self):
         self.log_lib()
         book_copy_id = 5
         self.assert_rental_made(book_copy_id, to=after_days(2))
-        
+
     def test_one_day(self):
         self.log_lib()
         book_copy_id = 5
         self.assert_rental_made(book_copy_id, to=(today() + timedelta(1)).isoformat())
         # ok: rental for one day
-        
+
     def test_cant_rent_until_yesterday(self):
         self.log_lib()
         book_copy_id = 4
         self.assert_rental_not_made(book_copy_id, to=(today() - timedelta(1)).isoformat())
         # no: can't rent until yesterday
-        
+
     def test_rent_for_max_time(self):
         self.log_lib()
         book_copy_id = 5
         self.assert_rental_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration'))).isoformat())
         # ok: max rental duration
-        
+
     def test_one_day_too_long(self):
         self.log_lib()
         book_copy_id = 4
         self.assert_rental_not_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration') + 1)).isoformat())
         # no: too long
-        
+
     def test_one_day_less_than_max(self):
         self.log_lib()
         book_copy_id = 5
         self.assert_rental_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration') - 1)).isoformat())
         # ok: one day less than max, from ignored
-        
+
     def test_one_day_less_than_max_from_today(self):
         self.log_lib()
         book_copy_id = 5
         self.assert_rental_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration') - 1)).isoformat(), from_=today())
         # ok: one day less than max, from ignored
-        
+
     def test_one_day_less_than_max_from_yesterday(self):
         self.log_lib()
         book_copy_id = 5
         self.assert_rental_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration') - 1)).isoformat(), from_=today() - timedelta(1))
         # ok: one day less than max, from ignored
-        
+
     def test_one_day_less_than_max_from_tomorrow(self):
         self.log_lib()
         book_copy_id = 5
         self.assert_rental_made(book_copy_id, to=(today() + timedelta(Config().get_int('rental_duration') - 1)).isoformat(), from_=today() + timedelta(1))
         # ok: one day less than max, from ignored
-        
+
     def test_one_day_too_long_from_tomorrow(self):
         self.log_lib()
         book_copy_id = 4
@@ -1259,7 +1260,7 @@ class ReserveForUserTest(ShowBookcopyTest, ReserveTest):
 #        users = [u.id for u in User.objects.all() if u.id is not 1]
 #        self.url_base = '/entelib/users/%d/bookcopy/%s/'
 #        self.log_lib()
-#        
+#
 #        # for every copy
 #        for user in users:
 #            # run all tests
@@ -1331,16 +1332,16 @@ class UserBookCopyUpLinkTest(TestWithSmallDB):
 
                 book = BookCopy.objects.get(id=copy.id).book
                 expected_url = self.redirect_url_user_book % (user.id, book.id)
-                
+
                 self.assertRedirects(response, expected_url)
-                
+
 
 class ShowLocationTest(TestWithSmallDB):
     def setUp(self):
         self.log_user()
         loc_id = 1
         self.url = '/entelib/locations/%d/' % loc_id
-        
+
     def test_displays(self):
         response = self.client.get(self.url)
         # page displayed correctly
@@ -1351,14 +1352,14 @@ class ShowLocationTest(TestWithSmallDB):
         self.assertContains(response, 'admin')
         self.assertContains(response, 'lib')
         self.assertTemplateUsed(response, 'locations/one.html')
-        
-        
-        
+
+
+
 class ShowLocationsTest(TestWithSmallDB):
     def setUp(self):
         self.log_user()
         self.url = '/entelib/locations/'
-        
+
     def test_displays(self):
         response = self.client.get(self.url)
         # page displayed correctly

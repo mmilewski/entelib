@@ -14,7 +14,7 @@
     </div>
     {% endif %}
 
-    {% if not is_adding %}    
+    {% if not is_adding %}
     <div class="location_info">
       <ul class="details">
         <li><span class="label">Full name:</span> {{loc.building}}: {{loc.details}}</li>
@@ -25,9 +25,9 @@
             {{loc.building}}
           {% endif %}
         </li>
-        <li><span class="label">Maintainers:</span> 
+        <li><span class="label">Maintainers:</span>
           <ul class="maintainers">
-            {% for mt in loc.maintainer.all %}
+            {% for mt in loc.get_all_maintainers %}
             <li>
               {% if perms.baseapp.view_others_profile %}
                 <a href="{% url user_one mt.id %}">{{ mt }}</a>
@@ -57,12 +57,12 @@
     </div>
     {% endif %}
 
-    <!-- EDIT LOCATION -->    
+    <!-- EDIT LOCATION -->
     {% if perms.baseapp.change_location %}
     <div class="form_locationWrapper">
         {% if is_updating %}
           <h2 id="edit_location">Edit location</h2>
-        {% else %}  
+        {% else %}
           <h2 id="add_location">Add location</h2>
         {% endif %}
 
@@ -78,7 +78,7 @@
                 {% for field in form %}
                     <tr>
                         <td>{{ field.label_tag }}: <br /> {{ field }}
-                          
+
                           {%if field.label == 'Maintainer'%}
                               <br>
                               <input type="checkbox" id="no_maintainers" name="no_maintainers" />
@@ -97,10 +97,10 @@
                 </tr>
             </table>
         </form>
-        <script type="text/javascript"> 
+        <script type="text/javascript">
             document.Flocation.building.focus();
-        </script> 
+        </script>
     </div>
     {% endif %}
-    
+
 {% endblock %}

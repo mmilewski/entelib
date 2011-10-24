@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # TODO we need some consequence: either we write a full path in imports starting with entelib or we don't  - mbr
-from entelib.baseapp.models import Reservation, Rental, BookCopy, Book, User, Location
+from entelib.baseapp.models import Reservation, Rental, BookCopy, Book, User, Location, TemporaryLocationMaintainer
 from django.core.exceptions import PermissionDenied
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
@@ -22,6 +22,14 @@ today = date.today
 now = datetime.now
 
 
+def is_on_leave(user):
+    '''
+    True if user added some temporary maintainers to any of his libraries.
+    '''
+    assert isinstance(user, User)
+    return TemporaryLocationMaintainer.objects.filter(adder=user).count() > 0
+
+
 def render_response(request, template, context={}):
     user = request.user
     if user.is_anonymous():
@@ -30,7 +38,7 @@ def render_response(request, template, context={}):
             context,
             context_instance=RequestContext(request)
             )
-    
+
     config = Config(user)
     application_ip = 8080
     context.update( {'go_back_link' : '<a href="javascript: history.go(-1)">Back</a>',
@@ -41,6 +49,7 @@ def render_response(request, template, context={}):
                      'application_ip' : application_ip,
                      'application_url' : Config(request.user).get_str('application_url'),
                      'is_dev' : settings.IS_DEV,
+                     'is_on_leave' : is_on_leave(request.user)
                      })
     # as far as we use perms with following convention, we can pass perms to templates easily:
     # if in-code perm's name is list_book, then template gets can_list_books variable
@@ -81,7 +90,7 @@ def render_not_implemented(request):
 
 
 def render_not_found(request, **kwargs):
-    ''' 
+    '''
     Args:
         msg        -- displays msg.
         item_name  -- displays: item_name not found.
@@ -133,7 +142,7 @@ def get_users_details_list(first_name, last_name, username, email, building_id, 
         building_filter = Q(userprofile__building__id=building_id)
 
     users = User.objects.select_related('userprofile')
-    
+
     if inactive_only:
         users = users.filter(is_active=False)
     if active_only:
@@ -147,7 +156,7 @@ def get_users_details_list(first_name, last_name, username, email, building_id, 
                          'email'      : u.email,
                          'userprofile': u.userprofile,
                          # 'url'        : "%d/" % u.id,  # relative path to user profile
-                         'id'         : u.id, 
+                         'id'         : u.id,
                          }      for u in users.filter(first_name__icontains=first_name)
                                               .filter(last_name__icontains=last_name)
                                               .filter(username__icontains=username)
@@ -191,6 +200,90 @@ def get_book_details(book_copy):
         'toc_url'        : book_copy.toc_url,
     }
     return book_desc
+
+
+class CannotManageMaintainers(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return repr(self.msg)
+
+
+def add_temporary_maintainer_for_location(tmplocation, maintainer, who_adds):
+    '''
+    Desc:
+        Add temporary maintainer for location. First, chceks if one can do that (is 'real' maintainer of location).
+    Args:
+        tmplocation - instance of Location
+        maintainer - instance of User
+        who_adds - instance of User, who adds temporary maintainer
+    '''
+    assert isinstance(tmplocation, TemporaryLocationMaintainer)
+    assert isinstance(maintainer, User)
+    assert isinstance(who_adds, User)
+
+    # check
+    adder_locations = Location.objects.filter(maintainer=who_adds)
+    if tmplocation.location not in adder_locations:
+        raise CannotManageMaintainers('Forbidden to add maintainers: not location maintainer')
+
+    # add
+    record = tmplocation
+    record.maintainer.add(maintainer)
+    record.save()
+
+
+def remove_temporary_maintainer_from_location(tmplocation, maintainer, who_removes):
+    '''
+    Desc:
+        Removes maintainer from location. First, checks if one can do that (is 'real' maintainer of location).
+    Args:
+        tmplocation - instance of TemporaryLocationMaintainer
+        maintainer - instance of User, which will be removed from location
+        who_removes - instance of User, which removes maintainer from location
+    '''
+    assert isinstance(tmplocation, TemporaryLocationMaintainer)
+    assert isinstance(maintainer, User)
+    assert isinstance(who_removes, User)
+    # check
+    remover_locations = Location.objects.filter(maintainer=who_removes)
+    if tmplocation.location not in remover_locations:
+        raise CannotManageMaintainers('Forbidden to remove maintainers: not location maintainer')
+
+    # remove
+    tmplocation.maintainer.remove(maintainer)
+
+
+def get_maintainers_description_for_location(location):
+    '''
+    Desc:
+        Return list of maintainers for given location, this is 'real' maintainers  + temporary maintainers
+    Args:
+        location - instance of Location
+    Return:
+        list of dicts {user, temporary}. user - User instance, temporary - bool (does maintainer do sb's else duties)
+    '''
+    if not (isinstance(location, Location)):
+        assert location is Location
+    mts = [ {'user': u, 'temporary': False} for u in location.maintainer.all() ]
+    tmplocs = TemporaryLocationMaintainer.objects.filter(location=location)
+    for tmploc in tmplocs:
+        for u in tmploc.maintainer.all():
+            ud = {'user': u, 'temporary': True}
+            if ud not in mts:
+                mts.append(ud)
+    return mts
+
+
+def get_maintainers_for_location(location):
+    '''
+    Desc:
+        Almost same as get_maintainers_description_for_location, but returns list of Users
+    Return:
+        List of User instances, who maintain given location.
+    '''
+    return [ d['user'] for d in get_maintainers_description_for_location(location) ]
 
 
 def get_locations_for_book(book_id):
@@ -305,7 +398,7 @@ class BookCopyStatus(object):
         if explanation is not None:
             self.explanation = explanation
         return self
-    
+
     def __unicode__(self):
         if self.is_available():
             return u'Available'
@@ -329,9 +422,9 @@ def book_copy_status(book_copy):
 
 
 def get_active_rentals_for_copies(copies_ids, only=[], related=[]):
-    ''' 
+    '''
     Collects and returns list of Rental objects for specified book copies.
-    
+
     Args:
         copies_ids -- ids of copies for which you want to get rentals.
         only -- fields one need to use. List of strings. As default 'reservation__book_copy__id' is used.
@@ -347,11 +440,11 @@ def get_active_rentals_for_copies(copies_ids, only=[], related=[]):
 
 
 def get_reservations_for_copies(copies_ids, only=[], related=[]):
-    ''' 
+    '''
     Collects and returns list of Reservation objects for given book copies.
-    
+
     Args:
-        copies_ids -- ids of copies for which you want to get reservations. List of ints. 
+        copies_ids -- ids of copies for which you want to get reservations. List of ints.
         only -- model fields one need to use. List of strings. As default 'book_copy__id' is used.
     '''
     only_fields = only + ['book_copy__id']
@@ -366,10 +459,10 @@ def book_copies_status(copies):
     '''
     Desc:
         Returns statuses of given copies.
-        
+
     Args:
         copies -- list of BookCopy instances
-        
+
     Returns:
         dict like { copy_id : {'copy' : given_copy_instance,
                                'status' : BookCopyStatus instance
@@ -385,19 +478,19 @@ def book_copies_status(copies):
         result[kopy.id]['copy'] = kopy
         result[kopy.id]['status'] = None
         if not kopy.state.is_available:
-            result[kopy.id]['status'] = BookCopyStatus(available=False, explanation=u'Unavailable: ' + kopy.state.name) 
-    
+            result[kopy.id]['status'] = BookCopyStatus(available=False, explanation=u'Unavailable: ' + kopy.state.name)
+
     # find rented copies
     rentals = get_active_rentals_for_copies(copies_ids)
     for rental in rentals:
-        copy_id = rental.reservation.book_copy.id 
+        copy_id = rental.reservation.book_copy.id
         if not result[copy_id]['status']:
             user = rental.reservation.for_whom
             result[copy_id]['status'] = BookCopyStatus(available=False,
                     explanation=u'Rented until {0} by {1}'.format(
                                         rental.reservation.end_date.isoformat(),
                                                     u'<a href="mailto:{0}">{0}</a>'.format(user.email)))
-    
+
     # find reserved copies, that can already be rented
     reservations = get_reservations_for_copies(copies_ids)
     for reservation in reservations:
@@ -405,7 +498,7 @@ def book_copies_status(copies):
         if not result[copy_id]['status']:
             result[copy_id]['status'] = BookCopyStatus(available=False, explanation=u'Reserved')
 
-    
+
     max_allowed = config.get_int('rental_duration')
     rsvs = Reservation.objects.filter(book_copy__id__in=copies_ids)\
                               .filter(Q_reservation_active)\
@@ -423,11 +516,11 @@ def book_copies_status(copies):
         except ValueError:
             max_possible = max_allowed
         result[copy]['status'] = BookCopyStatus(available=True, nr_of_days=min(max_allowed, max_possible))
-    
+
     for key in result.keys():
         if not result[key]['status']:
             result[key]['status'] = BookCopyStatus(available=True, nr_of_days=max_allowed)
-    
+
     return result
 
 
@@ -451,6 +544,7 @@ def request_shipment(reservation):
         return False
     reservation.shipment_requested = True
     reservation.save()
+    mail.shipment_requested(reservation)
     return True
 
 
@@ -474,7 +568,7 @@ def rent(reservation, librarian):
     '''
     if not librarian.has_perm('baseapp.add_rental'):
         raise PermissionDenied
-    if not librarian in reservation.book_copy.location.maintainer.all():
+    if not librarian in reservation.book_copy.location.get_all_maintainers():
         raise PermissionDenied('One can only rent from location one maintains')
     if not is_reservation_rentable(reservation):
         raise PermissionDenied('Reservation not rentable.')
@@ -486,7 +580,7 @@ def rent(reservation, librarian):
     rental.save()
     mail.made_rental(rental)
     return reservation.end_date
-    
+
 
 def return_rental(librarian, rental_id):
     '''
@@ -502,13 +596,13 @@ def return_rental(librarian, rental_id):
     # not everyone can return book
     if not librarian.has_perm('baseapp.change_rental'):
         raise PermissionDenied
-    if not librarian in returned_rental.reservation.book_copy.location.maintainer.all():
+    if not librarian in returned_rental.reservation.book_copy.location.get_all_maintainers():
         raise PermissionDenied('One can only rent/return from location one maintains')
 
     # can't return a rental twice
     if returned_rental.end_date is not None:
         raise Rental.DoesNotExist('Rental already returned')
-        
+
     # actual returning
     returned_rental.who_received = librarian
     returned_rental.end_date = datetime.now()
@@ -550,7 +644,7 @@ def show_user_rentals(request, user_id=False):
             return render_not_found(request, item_name='Rental')
         except PermissionDenied:  # this might happen if user doesn't have 'change_rental' permission
             return render_forbidden
-        
+
     # find user's rentals
     user_rentals = Rental.objects.filter(reservation__for_whom=user.id).filter(end_date__isnull=True)
     # and put them in a dict:
@@ -560,7 +654,7 @@ def show_user_rentals(request, user_id=False):
                    'authors'    : [a.name for a in r.reservation.book_copy.book.author.all()],
                    'from_date'  : r.start_date.date(),
                    'to_date'    : r.reservation.end_date,
-                   'returnable' : request.user in r.reservation.book_copy.location.maintainer.all(),
+                   'returnable' : request.user in r.reservation.book_copy.location.get_all_maintainers(),
                    'rental'     : r,
                   }
                   for r in user_rentals ]
@@ -667,14 +761,14 @@ def show_user_reservations(request, user_id=False):
                           # 'url' : unicode(r.id) + u'/',
                           'book_copy_id' : r.book_copy.id,
                           'shelf_mark' : r.book_copy.shelf_mark,
-                          'rental_impossible' : '' if is_reservation_rentable(r) and r.book_copy.location.maintainer.count() > 0 else reservation_status(r),
+                          'rental_impossible' : '' if is_reservation_rentable(r) and len(r.book_copy.location.get_all_maintainers()) > 0 else reservation_status(r),
                           'title' : r.book_copy.book.title,
                           'authors' : [a.name for a in r.book_copy.book.author.all()],
                           'from_date' : r.start_date,
                           'to_date' : r.end_date,
                           'location' : unicode(r.book_copy.location),
                           'can_rent' : request.user.has_perm('baseapp.add_rental') and \
-                                       request.user in r.book_copy.location.maintainer.all(),
+                                       request.user in r.book_copy.location.get_all_maintainers(),
                           'shipment_requested' : r.shipment_requested,
                           'reservation' : r,
                          } for r in user_reservations]
@@ -701,7 +795,7 @@ def show_user_reservation_archive(request, user_id=None):
             rented = reservation.rental_set.all()[0].start_date.date()
             if reservation.rental_set.all()[0].end_date:
                 returned = reservation.rental_set.all()[0].end_date.date()
-            
+
         if reservation.who_cancelled:
             cancelled = 'Cancelled %s (%s)' % (reservation.when_cancelled.date().isoformat(), reservation.who_cancelled.first_name +\
                                                                                        ' ' + \
@@ -716,7 +810,7 @@ def show_user_reservation_archive(request, user_id=None):
             'reserved' : reservation.start_date,
             'reservation_end' : reservation.end_date,
             'rented' : rented,
-            'returned' : returned, 
+            'returned' : returned,
             'cancelled' : cancelled,
             })
     context = {'rows' : reservation_list,
@@ -851,7 +945,7 @@ def when_copy_reserved(book_copy):
 def can_edit_global_config(user):
     '''
     Returns True iff user can edit global values.
-    
+
     Args:
         user -- instance of User
     '''
@@ -859,7 +953,7 @@ def can_edit_global_config(user):
 
 
 def internal_post_send_possible(reservation):
-    return 'True' if reservation.book_copy.location.maintainer.count() > 0 else False
+    return 'True' if len(reservation.book_copy.location.get_all_maintainers()) > 0 else False
 
 
 def show_reservations(request, shipment_requested=False, only_rentable=True, all_locations=False):
@@ -900,7 +994,7 @@ def show_reservations(request, shipment_requested=False, only_rentable=True, all
         context.update({ 'header' : 'Shipment requests',
                          'shipments' : True, })
     elif not only_rentable:
-        context.update({ 'header' : 'All active reservations', 
+        context.update({ 'header' : 'All active reservations',
                          'show_all' : True, })
     else:
         context.update({ 'header' : 'Current reservations'})

@@ -26,12 +26,12 @@
           <li><span class="label">Location details</span>: {{ reader.userprofile.location_remarks|default_if_none:"Not defined" }}  </li>
         </ul>
     {% endif %}
-    
+
     <div class='content_form'> {# Przydala by sie klasa dla tego czegos, jakies menu albo co #}
       <!--
         <b> {% comment %} Przydaloby sie zeby do bylo wieksze, latwiejsze do trafienia i bardziej sie rzucalo w oczy {% endcomment %}
         | <a href='reservations/new/'>Rent something</a>
-        | <a href='reservations/'>Reservations</a> 
+        | <a href='reservations/'>Reservations</a>
         | <a href='rentals/'>Rentals</a>
         {% if user.id == user_id %}
         | <a href='config/'>Configuration</a>
@@ -45,7 +45,7 @@
             <li><a href='reservations/new/'>Rent something</a></li>
             <li><a href='reservations/'>Reservations</a> </li>
             <li><a href='rentals/'>Rentals</a></li>
-            {% if perms.auth.change_user %} 
+            {% if perms.auth.change_user %}
                 {% if not reader.is_active %}
                     <li><a href='{% url activate_user user_id %}'>Activate this user</a></li>
                 {% else %}
@@ -54,6 +54,9 @@
             {% endif %}
             {% if user.id == user_id %}
                 <li><a href='config/'>Configuration</a></li>
+            {% endif %}
+            {% if user.get_profile.is_librarian %}
+            <li><a {%if is_on_leave %}class="turned_on" {%endif%} href="onleave/">On leave</a></li>
             {% endif %}
           </ul>
         </div>

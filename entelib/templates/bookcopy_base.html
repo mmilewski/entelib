@@ -7,11 +7,11 @@
 {% block content %}
 <div class="copy_contentWrapper">
     <h2 id="title"><span>Title: <a href="{% url book_one copy.book.id%}">{{ copy.title }}</a></span></h2>
-    
+
     {% if perms.baseapp.change_bookcopy %}
     <div class="edit_copy"><a href="{% url copy_edit copy.id %}" title="Edit this book copy"><span>edit</span></a></div>
     {% endif %}
-    
+
     <div class="copy_info">
         <ul class="spaces">
             <li class="book_authors">
@@ -21,7 +21,7 @@
                     No authors.
                 {% endif %}
             </li>
-            <li class="book_shelf_mark"><span class="label">ID:</span> {{ copy.shelf_mark }} {% block rent_return %}{% endblock rent_return %}</li>            
+            <li class="book_shelf_mark"><span class="label">ID:</span> {{ copy.shelf_mark }} {% block rent_return %}{% endblock rent_return %}</li>
               <li class="costcenter">
                 <span class="label">Cost Center</span>:
                 {% if perms.baseapp.view_costcenter %}
@@ -30,7 +30,7 @@
                   {{ copy.cost_center }}
                 {% endif %}
                 <ul class="maintainers">
-                  {% for mt in copy.cost_center.maintainer.all %}
+                  {% for mt in copy.cost_center.get_all_maintainers %}
                   <li>{{ mt }}
                     <ul class="phones">
                       {% for p in mt.userprofile.phone.all %}

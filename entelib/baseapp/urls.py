@@ -65,6 +65,7 @@ urlpatterns = patterns(
     url(r'^profile/rentals/$',                  view.show_my_rentals),
     url(r'^profile/rentals/new/$',              view.my_new_reservation),
     url(r'^profile/rentals/archive/$',          view.show_my_rental_archive),
+    url(r'^profile/onleave/$',                  view.onleave),
 
     # authors, categories, publishers, cost centers, states
     url(r'^authors/$',             view.show_authors,     name="author_all"),

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User         # for reregistering User with modified UserAdmin
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AdminPasswordChangeForm     # for MyUserAdmin
-from entelib.baseapp.models import EmailLog, Building, Location, Configuration, UserConfiguration, State, Publisher, Author, Book, BookCopy, BookRequest, Reservation, Rental, Phone, PhoneType, CostCenter, Category, UserProfile, Feedback
+from entelib.baseapp.models import EmailLog, Building, Location, Configuration, UserConfiguration, State, Publisher, Author, Book, BookCopy, BookRequest, Reservation, Rental, Phone, PhoneType, CostCenter, Category, UserProfile, Feedback, TemporaryLocationMaintainer
 
 admin.site.disable_action('delete_selected')
 
@@ -31,9 +31,10 @@ class MyUserAdmin(UserAdmin):
 
     def ever_logged(self,s):
         return s.last_login != s.date_joined
-    
+
     def profile(self, s):
-        profile_url = '/entelib/admin/baseapp/userprofile/%d/' % s.id
+        profile_id = UserProfile.objects.get(user=s).id
+        profile_url = '/entelib/admin/baseapp/userprofile/%d/' % profile_id
         return '<a href="%s">%s</a>' % (profile_url, 'View profile')
     profile.short_description = "User's profile"
     profile.allow_tags = True
@@ -67,5 +68,5 @@ admin.site.register(User, MyUserAdmin)
 
 
 # register models in admin's site
-for model in [EmailLog, Building, Location, Configuration, UserConfiguration, State, Publisher, Author, Book, BookCopy, BookRequest, Reservation, Rental, Phone, PhoneType, CostCenter, Category, UserProfile, Feedback]:
+for model in [TemporaryLocationMaintainer, EmailLog, Building, Location, Configuration, UserConfiguration, State, Publisher, Author, Book, BookCopy, BookRequest, Reservation, Rental, Phone, PhoneType, CostCenter, Category, UserProfile, Feedback]:
     admin.site.register(model)

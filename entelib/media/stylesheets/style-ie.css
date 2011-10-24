@@ -1,0 +1,7 @@
+
+form.book_search .book_location  select {
+    width: 20em;
+}
+form.book_search .book_category  select {
+    width: 15em;
+}
