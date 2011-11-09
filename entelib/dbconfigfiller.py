@@ -1,5 +1,6 @@
 from baseapp.models import ConfigurationValueType
 
+
 def _svd(config, type, can_override, key, value, desc):
     ''' SVD ~~> set value description. '''
     config.insert_or_update_global(key, value, type=type, description=desc, can_override=can_override)
