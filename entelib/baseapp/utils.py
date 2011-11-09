@@ -20,6 +20,10 @@ def str_to_date(str, default=None):
     return default
 
 
+def now():
+    datetime.datetime.now()
+
+
 def today():
     return datetime.date.today()
 

@@ -17,7 +17,6 @@ import random
 import utils
 
 config = Config()
-now = datetime.now
 
 
 def is_on_leave(user):
@@ -39,15 +38,15 @@ def render_response(request, template, context={}):
 
     config = Config(user)
     application_ip = 8080
-    context.update( {'go_back_link' : '<a href="javascript: history.go(-1)">Back</a>',
-                     'can_access_admin_panel' : user.is_staff or user.is_superuser,
-                     'display_tips' : config.get_bool('display_tips'),
+    context.update( {'go_back_link'                         : '<a href="javascript: history.go(-1)">Back</a>',
+                     'can_access_admin_panel'               : user.is_staff or user.is_superuser,
+                     'display_tips'                         : config.get_bool('display_tips'),
                      'display_only_editable_config_options' : config.get_bool('display_only_editable_config_options'),
-                     'unique_num' : random.randint(0,9999999999999),
-                     'application_ip' : application_ip,
-                     'application_url' : Config(request.user).get_str('application_url'),
-                     'is_dev' : settings.IS_DEV,
-                     'is_on_leave' : is_on_leave(request.user)
+                     'unique_num'                           : random.randint(0,9999999999999),
+                     'application_ip'                       : application_ip,
+                     'application_url'                      : Config(request.user).get_str('application_url'),
+                     'is_dev'                               : settings.IS_DEV,
+                     'is_on_leave'                          : is_on_leave(request.user)
                      })
     # as far as we use perms with following convention, we can pass perms to templates easily:
     # if in-code perm's name is list_book, then template gets can_list_books variable
@@ -376,7 +375,7 @@ def cancel_reservation(reservation, canceller):
     '''
     assert isinstance(reservation, Reservation)
     assert isinstance(canceller, User)
-    reservation.when_cancelled = now()
+    reservation.when_cancelled = utils.now()
     reservation.who_cancelled = request.user
     reservation.save()
 
@@ -595,7 +594,7 @@ def rent(reservation, librarian):
     if max_end_date < reservation.end_date:
         reservation.end_date = max_end_date
         reservation.save()
-    rental = Rental(reservation=reservation, who_handed_out=librarian, start_date=datetime.now())
+    rental = Rental(reservation=reservation, who_handed_out=librarian, start_date=utils.now())
     rental.save()
     mail.made_rental(rental)
     return reservation.end_date
@@ -624,7 +623,7 @@ def return_rental(librarian, rental_id):
 
     # actual returning
     returned_rental.who_received = librarian
-    returned_rental.end_date = datetime.now()
+    returned_rental.end_date = utils.now()
     returned_rental.save()
     mark_available(returned_rental.reservation.book_copy)   # someone might be waiting for that book
 
@@ -1033,7 +1032,7 @@ def cancel_reservation(reservation, user):
         raise PermissionDenied('The reservation has already been purchased!')
 
     reservation.who_cancelled = user
-    reservation.when_cancelled = now()
+    reservation.when_cancelled = utils.now()
     reservation.save()
 
 
@@ -1245,7 +1244,7 @@ class ForgotPasswordHandler(object):
         '''
         from datetime import datetime
         from hashlib import md5
-        value_to_hash = repr(datetime.now()) + self.user.email
+        value_to_hash = repr(utils.now()) + self.user.email
         new_password = md5(value_to_hash).hexdigest()
         return new_password
 
