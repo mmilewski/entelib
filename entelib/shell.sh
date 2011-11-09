@@ -1,2 +1,2 @@
-#!/bin/bash
-python manage.py shell_plus
+#!/bin/sh
+python manage.py shell
