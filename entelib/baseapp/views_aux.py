@@ -16,8 +16,6 @@ from datetime import date, datetime, timedelta
 import random
 import utils
 
-config = Config()
-
 
 def is_on_leave(user):
     '''
@@ -42,9 +40,9 @@ def render_response(request, template, context={}):
                      'can_access_admin_panel'               : user.is_staff or user.is_superuser,
                      'display_tips'                         : config.get_bool('display_tips'),
                      'display_only_editable_config_options' : config.get_bool('display_only_editable_config_options'),
-                     'unique_num'                           : random.randint(0,9999999999999),
+                     'unique_num'                           : random.randint(0, 9999999999999),
                      'application_ip'                       : application_ip,
-                     'application_url'                      : Config(request.user).get_str('application_url'),
+                     'application_url'                      : config.get_str('application_url'),
                      'is_dev'                               : settings.IS_DEV,
                      'is_on_leave'                          : is_on_leave(request.user)
                      })
@@ -64,7 +62,6 @@ def render_response(request, template, context={}):
 
     # special cases
     context['can_display_costcenter'] = config.get_bool('is_cost_center_visible_to_anyone') or user.has_perm('baseapp.list_costcenters')
-
 
     for key, value in context.items():
         context[key] = value() if callable(value) else value
@@ -357,6 +354,7 @@ def reservation_status(reservation):
     if all.filter(id__lt=reservation.id).filter(start_date__lte=utils.today()).filter(Q_reservation_active).count() > 0:
         # WARNING/NOTE: this might need modification if additional conditions are added to definition of active reservation
         return 'Reservation in queue'
+    config = Config()
     max_allowed = config.get_int('rental_duration')
     try:
         max_possible = (min([r.start_date for r in all.filter(id__lt=reservation.id).filter(start_date__gt=utils.today())]) - utils.today()).days
@@ -501,10 +499,9 @@ def book_copies_status(copies):
         copy_id = rental.reservation.book_copy.id
         if not result[copy_id]['status']:
             user = rental.reservation.for_whom
-            result[copy_id]['status'] = BookCopyStatus(available=False,
-                    explanation=u'Rented until {0} by {1}'.format(
-                                        rental.reservation.end_date.isoformat(),
-                                                    u'<a href="mailto:{0}">{0}</a>'.format(user.email)))
+            explanation = u'Rented until {0} by {1}'.format(rental.reservation.end_date.isoformat(),
+                                                            u'<a href="mailto:{0}">{0}</a>'.format(user.email))
+            result[copy_id]['status'] = BookCopyStatus(available=False, explanation=explanation)
 
     # find reserved copies, that can already be rented
     reservations = get_reservations_for_copies(copies_ids)
@@ -521,6 +518,7 @@ def book_copies_status(copies):
 
     # update statuses for copies unstatused in code above -- copies are rentable, but we don't know for how long, yet.
     # rsvs contains information about nearest (but in future) reservation.
+    config = Config()
     max_allowed = config.get_int('rental_duration')
     for rsv in rsvs:
         copy = rsv['book_copy__id']
@@ -638,13 +636,14 @@ def max_prolongation_period(rental):
     assert isinstance(rental, Rental)
     reservation = rental.reservation
 
-    days_left_to_enable_prolongation = Config().get_int('min_days_left_to_enable_prolongation')
+    config = Config()
+    days_left_to_enable_prolongation = config.get_int('min_days_left_to_enable_prolongation')
     days_left_to_rend    = (reservation.end_date - utils.today()).days
     enabled_prolongation = days_left_to_rend <= days_left_to_enable_prolongation
     if not enabled_prolongation:
         return 0
 
-    max_period = Config().get_int('max_prolongation_days')
+    max_period = config.get_int('max_prolongation_days')
     kopy       = reservation.book_copy
     for rsv in kopy.reservation_set.exclude(for_whom=reservation.for_whom):
         if rsv.start_date <= reservation.end_date < rsv.end_date:         # someone else reserved -> prolongation impossible
