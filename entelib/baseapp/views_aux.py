@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-# TODO we need some consequence: either we write a full path in imports starting with entelib or we don't  - mbr
-from entelib.baseapp.models import Reservation, Rental, BookCopy, Book, User, Location, TemporaryLocationMaintainer
 from django.core.exceptions import PermissionDenied
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect
-from datetime import date, datetime, timedelta
-from config import Config
 from django.db import transaction
 from django.db.models import Q
+from django.db.models.aggregates import Min
 from django.contrib import messages
+from config import Config
 from entelib import settings
+from baseapp.models import Reservation, Rental, BookCopy, Book, User, Location, TemporaryLocationMaintainer
 from baseapp.exceptions import *
 import baseapp.emails as mail
-from django.db.models.aggregates import Min
+from datetime import date, datetime, timedelta
 import random
 import utils
 
 config = Config()
-today = date.today
 now = datetime.now
 
 
@@ -128,7 +126,10 @@ def filter_query(class_name, Q_none, constraints):
                 result = result.filter(Q_fun(keyword))
     return result.distinct()
 
-def get_users_details_list(first_name, last_name, username, email, building_id, active_only=False, inactive_only=False, awaiting_activation_only=False):
+def get_users_details_list(first_name, last_name, username, email, building_id,
+                           active_only=False,
+                           inactive_only=False,
+                           awaiting_activation_only=False):
     '''
     Args:
         building_id is an int,
