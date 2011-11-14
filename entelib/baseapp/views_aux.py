@@ -14,7 +14,7 @@ from baseapp.exceptions import *
 import baseapp.emails as mail
 from datetime import date, datetime, timedelta
 import random
-import utils
+import baseapp.utils as utils
 
 
 def is_on_leave(user):

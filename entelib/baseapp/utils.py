@@ -21,7 +21,7 @@ def str_to_date(str, default=None):
 
 
 def now():
-    datetime.datetime.now()
+    return datetime.datetime.now()
 
 
 def today():
