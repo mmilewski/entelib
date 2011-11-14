@@ -23,9 +23,9 @@
 {% block order %} [[5,0]] {% endblock %}
 
 {% block item_row %}
-    <td> 
+    <td>
         <form action='.' method='post'>
-            {% if row.can_rent %} 
+            {% if row.can_rent %}
                 <input type='hidden' name='rent' value='{{ row.id }}'>
                 <input type='submit' name='action' value='Rent' {% if row.rental_impossible %} disabled='disabled' {% endif %}>
             {% else %}
@@ -35,7 +35,7 @@
                     <input type='hidden' name='send' value='{{ row.id }}'>
                     <input type='submit' name='action' value='Send me'> {# {% if row.rental_impossible %} disabled='disabled' {% endif %}> #}
                 {% endif %}
-            {% endif %} 
+            {% endif %}
         </form>
     </td>
     <td>
@@ -43,7 +43,7 @@
     </td> <td>
         {% firstof row.rental_impossible "Ready" %}
     </td> <td>
-        <a href="{% url book_one row.reservation.book_copy.book.id %}">{{ row.title }}</a>
+        <a href="{% url copy_one row.kopy.id %}">{{ row.title }}</a>
     </td> <td>
         {{ row.authors|join:', ' }}
     </td> <td>

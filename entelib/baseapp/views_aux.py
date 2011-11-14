@@ -845,14 +845,18 @@ def show_user_rentals(request, user_id=False):
         # msg('days_left_to_enable_prolongation: %d' % days_left_to_enable_prolongation)
         # msg('max_period: %d' % max_period)
 
+        kopy = r.reservation.book_copy
+        book = kopy.book
         rent_list.append({
                 'id'                         : r.id,
-                'shelf_mark'                 : r.reservation.book_copy.shelf_mark,
-                'title'                      : r.reservation.book_copy.book.title,
-                'authors'                    : [a.name for a in r.reservation.book_copy.book.author.all()],
+                'shelf_mark'                 : kopy.shelf_mark,
+                'title'                      : book.title,
+                'kopy'                       : kopy,
+                'book'                       : book,
+                'authors'                    : list(sorted([a.name for a in book.author.all()])),
                 'from_date'                  : r.start_date.date(),
                 'to_date'                    : r.reservation.end_date,
-                'returnable'                 : request.user in r.reservation.book_copy.location.get_all_maintainers(),
+                'returnable'                 : request.user in kopy.location.get_all_maintainers(),
                 'rental'                     : r,
                 'can_request_prolongation'   : can_request_prolongation,
                 'can_prolong'                : can_prolong,
@@ -877,12 +881,15 @@ def show_user_rental_archive(request, user_id=False):
 
     rentals = Rental.objects.filter(reservation__for_whom=user)
 
-    rent_list = []
-    for rental in rentals:
+     rent_list = []
+     for rental in rentals:
+        kopy = rental.reservation.book_copy
+        book = kopy.book
         rent_list.append({
-            'id'       : rental.reservation.book_copy.shelf_mark,
-            'title'    : rental.reservation.book_copy.book.title,
-            'authors'  : [a.name for a in rental.reservation.book_copy.book.author.all()],
+            'id'       : kopy.shelf_mark,
+            'kopy'     : kopy,
+            'title'    : book.title,
+            'authors'  : list(sorted([a.name for a in book.author.all()])),
             'rented'   : rental.start_date.date(),
             'returned' : rental.end_date.date() if rental.end_date else None,
             })
@@ -958,20 +965,20 @@ def show_user_reservations(request, user_id=False):
     user_reservations = Reservation.objects.filter(for_whom=user)\
                                            .filter(Q_reservation_active)
     # prepare user reservations
-    reservation_list = [ {'id' : r.id,
-                          # 'url' : unicode(r.id) + u'/',
-                          'book_copy_id' : r.book_copy.id,
-                          'shelf_mark' : r.book_copy.shelf_mark,
-                          'rental_impossible' : '' if is_reservation_rentable(r) and len(r.book_copy.location.get_all_maintainers()) > 0 else reservation_status(r),
-                          'title' : r.book_copy.book.title,
-                          'authors' : [a.name for a in r.book_copy.book.author.all()],
-                          'from_date' : r.start_date,
-                          'to_date' : r.end_date,
-                          'location' : unicode(r.book_copy.location),
-                          'can_rent' : request.user.has_perm('baseapp.add_rental') and \
-                                       request.user in r.book_copy.location.get_all_maintainers(),
-                          'shipment_requested' : r.shipment_requested,
-                          'reservation' : r,
+    reservation_list = [{'id'                 : r.id,
+                         'book_copy_id'       : r.book_copy.id,
+                         'shelf_mark'         : r.book_copy.shelf_mark,
+                         'rental_impossible'  : '' if is_reservation_rentable(r) and len(r.book_copy.location.get_all_maintainers()) > 0 else reservation_status(r),
+                         'kopy'               : r.book_copy,
+                         'book'               : r.book_copy.book,
+                         'title'              : r.book_copy.book.title,
+                         'authors'            : list(sorted([a.name for a in r.book_copy.book.author.all()])),
+                         'from_date'          : r.start_date,
+                         'to_date'            : r.end_date,
+                         'location'           : unicode(r.book_copy.location),
+                         'can_rent'           : request.user.has_perm('baseapp.add_rental') and (request.user in r.book_copy.location.get_all_maintainers()),
+                         'shipment_requested' : r.shipment_requested,
+                         'reservation'        : r,
                          } for r in user_reservations]
     context.update({'rows' : reservation_list})
 
@@ -1004,15 +1011,18 @@ def show_user_reservation_archive(request, user_id=None):
         elif reservation.when_cancelled:
             cancelled = 'Expired %s' % reservation.end_date.isoformat()
 
+        kopy = reservation.book_copy
+        book = kopy.book
         reservation_list.append({
-            'id' : reservation.book_copy.shelf_mark,
-            'title' : reservation.book_copy.book.title,
-            'authors' : [a.name for a in reservation.book_copy.book.author.all()],
-            'reserved' : reservation.start_date,
+            'id'              : kopy.shelf_mark,
+            'kopy'            : kopy,
+            'title'           : book.title,
+            'authors'         : list(sorted([a.name for a in book.author.all()])),
+            'reserved'        : reservation.start_date,
             'reservation_end' : reservation.end_date,
-            'rented' : rented,
-            'returned' : returned,
-            'cancelled' : cancelled,
+            'rented'          : rented,
+            'returned'        : returned,
+            'cancelled'       : cancelled,
             })
     context = {'rows' : reservation_list,
                'for_whom' : user.first_name + ' ' + user.last_name if user_id else None,

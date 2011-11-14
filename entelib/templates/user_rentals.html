@@ -29,7 +29,7 @@
     <td>
         <b>{{ row.shelf_mark }}</b>
     </td> <td>
-        {{ row.title }}
+        <a href="{% url copy_one row.kopy.id %}">{{ row.title }}</a>
     </td> <td>
         {{ row.authors|join:', ' }}
     </td> <td>
