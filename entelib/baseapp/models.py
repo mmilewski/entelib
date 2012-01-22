@@ -481,7 +481,7 @@ class BookCopy(models.Model):
         super(BookCopy, self).save()
 
     def __unicode__(self):
-        return u'%s [%d, copy]' % (self.book.title, self.id, )
+        return u'%s [%d, copy] [smark: %s]' % (self.book.title, self.id, repr(self.shelf_mark))
 
     class Meta:
         verbose_name_plural = 'Book copies'

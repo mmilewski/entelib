@@ -6,15 +6,25 @@ python manage.py test baseapp
 
 git diff HEAD~1 HEAD  -w
 
+
+## PostgreSQL related
 /usr/lib/postgresql/8.4/bin/pg_ctl -D /home/mamilews/library/pg_database start
+/usr/lib/postgresql/8.4/bin/pg_ctl -D /home/mamilews/library/pg_database -o "-F -p 5555" start
+sysctl -a  | grep -i shm
+sudo sysctl -w kernel.shmmax=65123456
+
+
+## Database migration (when instance is not under migration system - first migration is a fake)
 ./manage.py syncdb
 ./manage.py migrate baseapp 0001 --fake
 ./manage.py schemamigration baseapp --auto
 ./manage.py runserver
 
 
-## patching
+## Patching
+# creating
 git diff --no-prefix HEAD~1 HEAD  >  patch_file
+# applying
 patch --dry-run -p0  < patch
-# if you want to save backup, then
+# applying + backup
 patch --dry-run -b -p0  < patch

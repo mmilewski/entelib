@@ -23,8 +23,10 @@ def str_to_date(str, default=None):
 def today():
     return datetime.date.today()
 
+
 def tomorrow():
     return today() + datetime.timedelta(1)
+
 
 def after_days(n, since=None):
     """ Returns date n days after since. If since is not given, today is used."""
@@ -58,7 +60,8 @@ def remove_non_ints(items):
 
 def create_days_between(start, end, include_start=True, include_end=True):
     """
-    Returns list of days between start and end. Ends are included respectively to include_start and include_end.
+    Returns list of days between start and end.
+    Ends are included respectively to include_start and include_end.
     If start==end, then start will be included iff at least one of include_* is True.
 
     Args:
@@ -82,14 +85,14 @@ def create_days_between(start, end, include_start=True, include_end=True):
         elif start < curr_date < end:
             result.append(curr_date)
         else:
-            pass # start or end but corresponding include is False
+            pass  # start or end but corresponding include is False
         curr_date += one_day
     return result
 
 
 def week_for_day(day):
     """ Returns year and number of week for given day."""
-    year, week_nr, weekday = day.isocalendar()  #@UnusedVariable
+    year, week_nr, weekday = day.isocalendar()
     return (year, week_nr)
 
 
@@ -99,10 +102,11 @@ def month_for_day(day):
 
 
 def order_asc_by_key(key):
-    return lambda a,b: -1 if a[key] < b[key] else ( 1 if a[key] > b[key] else 0)
+    return lambda a, b: -1 if a[key] < b[key] else (1 if a[key] > b[key] else 0)
+
 
 def order_desc_by_key(key):
-    return lambda a,b:  1 if a[key] < b[key] else (-1 if a[key] > b[key] else 0)
+    return lambda a, b: 1 if a[key] < b[key] else (-1 if a[key] > b[key] else 0)
 
 
 def get_admins():
@@ -111,11 +115,11 @@ def get_admins():
     return admins
 
 
-logger_names = ['view.forgot_password', 'config', 'config.option', 'view.show_book_copy', 'prolong', ]
-
 def get_logger(name):
+    logger_names = ['view.forgot_password', 'config', 'config.option', 'view.show_book_copy',
+                    'prolong', ]
     if name not in logger_names:
-        propositions = LevenshteinDistance( name, logger_names).most_accurate(2)
+        propositions = LevenshteinDistance(name, logger_names).most_accurate(2)
         raise ValueError("Logger name wasn't found. Did you mean %s" % ' or '.join(propositions))
     logger = logging.getLogger(name)
     # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -131,7 +135,8 @@ class LevenshteinDistance(object):
         Args:
             s - always a string
             t - string or a list of strings. Depends on function you will use later.
-            sort - 'lowersort'  - characters of s and t will be lowercased, then sorted before comparison.
+            sort - 'lowersort'  - characters of s and t will be lowercased,
+                                  then sorted before comparison.
                    'sort'       - characters of s and t sorted before comparison.
                    'lower'      - strings will be lowercased befor comparison.
                    'mixed'      - uses few methods, and selects most accurate results. May be slow.
@@ -145,10 +150,14 @@ class LevenshteinDistance(object):
         if self.mode == 'mixed':
             self.mode = 'lowersort'
         transform = lambda x: x
-        if self.mode == 'lowersort':  transform = lambda x: ''.join(sorted(x.lower()))
-        elif self.mode == 'sort':     transform = lambda x: ''.join(sorted(x))
-        elif self.mode == 'lower':    transform = lambda x: x.lower()
-        elif self.mode == 'id':       transform = lambda x: x
+        if self.mode == 'lowersort':
+            transform = lambda x: ''.join(sorted(x.lower()))
+        elif self.mode == 'sort':
+            transform = lambda x: ''.join(sorted(x))
+        elif self.mode == 'lower':
+            transform = lambda x: x.lower()
+        elif self.mode == 'id':
+            transform = lambda x: x
         self.transform = transform
 
     def distance(self):
@@ -162,10 +171,10 @@ class LevenshteinDistance(object):
         d = {}
         for i in range(S):
             d[i, 0] = i
-        for j in range (T):
+        for j in range(T):
             d[0, j] = j
-        for j in range(1,T):
-            for i in range(1,S):
+        for j in range(1, T):
+            for i in range(1, S):
                 if s[i] == t[j]:
                     d[i, j] = d[i-1, j-1]
                 else:
@@ -214,10 +223,10 @@ class AutocompleteHelper(object):
 
     def from_str(self, sep=","):
         """
-        In constructor 'str' should be given.
+        In constructor 'string' should be given.
         """
         names = self.string
-        names = names.replace("u'", '').replace('u"', '')    # naive method of parsing. How to do it better?
+        names = names.replace("u'", '').replace('u"', '')
         names = names.replace('"', '')
 #         names = names..replace("'", '')                    # single quote may be usefull in names
         names = names.replace('[', '').replace("]", '')

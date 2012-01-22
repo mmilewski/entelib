@@ -1,35 +1,27 @@
 # -*- coding: utf-8 -*-
 
-from datetime import date, datetime, timedelta
-from django.contrib.admin.views.decorators import staff_member_required
+from datetime import date, timedelta
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib import auth
 from django.contrib import messages
-from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404
 from baseapp.config import Config
 from baseapp.exceptions import EntelibWarning, NotEnoughIDs
 import baseapp.forms as forms
 from baseapp.models import *
 from baseapp.reports import get_report_data, generate_csv
-from baseapp.utils import pprint
 import baseapp.utils as utils
-from baseapp.time_bar import get_time_bar_code_for_copy, TimeBarRequestProcessor
-from baseapp.views_aux import render_forbidden, render_response, get_phones_for_user, reservation_status, is_reservation_rentable, rent, mark_available, render_not_implemented, render_not_found, get_locations_for_book, Q_reservation_active, cancel_reservation, filter_query
+from baseapp.time_bar import TimeBarRequestProcessor
 import baseapp.views_aux as aux
 import baseapp.emails as mail
 import settings
 from itertools import chain
 
-
-today = date.today
-now = datetime.datetime.now  # this seems like an error, but it stopped working as "now = datetime.now"
 
 @permission_required('baseapp.load_default_config')
 def load_default_config(request, do_it=False):
@@ -42,7 +34,7 @@ def load_default_config(request, do_it=False):
         fill_config()
         context['confirmation'] = 'Default configuration loaded'
         messages.info(request, 'Default config loaded.')
-    return render_response(request, 'load_default_config.html', context)
+    return aux.render_response(request, 'load_default_config.html', context)
 
 
 @permission_required('baseapp.list_config_options')
@@ -60,7 +52,7 @@ def show_config_options_per_user(request):
         'can_edit_global_config' : can_edit_global,
         'options'                : opts,
         }
-    return render_response(request, template, context)
+    return aux.render_response(request, template, context)
 
 
 @permission_required('baseapp.list_config_options')
@@ -78,7 +70,7 @@ def show_config_options(request):
         'can_edit_global_config' : can_edit_global,
         'options'                : opts,
         }
-    return render_response(request, template, context)
+    return aux.render_response(request, template, context)
 
 
 @permission_required('baseapp.edit_option')
@@ -101,7 +93,7 @@ def edit_config_option(request, option_key, is_global=False, edit_form=forms.Con
         return redirect_response_here
 
     if option_key not in config:
-        return render_not_found(request, item_name='Config option')
+        return aux.render_not_found(request, item_name='Config option')
 
     option = { 'can_override'  : config.can_override(option_key),
                'description'   : config.get_description(option_key),
@@ -137,7 +129,7 @@ def edit_config_option(request, option_key, is_global=False, edit_form=forms.Con
     form.description = config.get_description(option_key)
     form.can_override = config.can_override(option_key)
     context['form'] = form
-    return render_response(request, tpl_edit_option, context)
+    return aux.render_response(request, tpl_edit_option, context)
 
 
 @permission_required('baseapp.list_emaillog')
@@ -160,7 +152,7 @@ def show_email_log(request, latest_count=200, show_all=False):
         'emails' : emails,
         }
 
-    return render_response(request, template, context)
+    return aux.render_response(request, template, context)
 
 
 def show_forgot_password(request):
@@ -195,7 +187,7 @@ def show_forgot_password(request):
     else:
         pass
 
-    return render_response(request, 'registration/forgot_password.html', context)
+    return aux.render_response(request, 'registration/forgot_password.html', context)
 
 
 @transaction.commit_on_success
@@ -215,7 +207,7 @@ def register(request, action, registration_form=forms.RegistrationForm, extra_co
         if action == 'newactiveuser':
             # commit
             if not request.user.has_perms(['auth.change_user', 'auth.add_user']):
-                return render_forbidden(request)
+                return aux.render_forbidden(request)
             if request.method == 'POST':
                 form = registration_form(data=request.POST, files=request.FILES)
                 if form.is_valid():
@@ -238,9 +230,9 @@ def register(request, action, registration_form=forms.RegistrationForm, extra_co
                 'is_adding_active_user' : True,
                 }
             result_context.update(extra_context)
-            return render_response(request, tpl_registration_form, result_context)
+            return aux.render_response(request, tpl_registration_form, result_context)
         else:
-            return render_response(request, tpl_logout_first)
+            return aux.render_response(request, tpl_logout_first)
     else:   # not authenticated
         if action == 'newuser':
             # commit new user
@@ -258,9 +250,9 @@ def register(request, action, registration_form=forms.RegistrationForm, extra_co
             # prepare response
             result_context = { 'form_content' : form }
             result_context.update(extra_context)
-            return render_response(request, tpl_registration_form, result_context)
+            return aux.render_response(request, tpl_registration_form, result_context)
         else:  # action other than newuser
-            return render_not_found(request, item='Action')
+            return aux.render_not_found(request, item='Action')
 
 
 def logout(request):
@@ -271,7 +263,7 @@ def logout(request):
 
 @login_required
 def default(request):
-    return render_response(request, 'entelib.html')
+    return aux.render_response(request, 'entelib.html')
 
 
 @login_required
@@ -412,7 +404,7 @@ def show_books(request, non_standard_user_id=False):
         'can_add_book' : request.user.has_perm('baseapp.add_book'),
         'none_found' : not len(books) and not bookcopies and request.method == 'POST'
         }
-    return render_response(request, 'books.html', context)
+    return aux.render_response(request, 'books.html', context)
 
 
 @login_required
@@ -423,22 +415,6 @@ def show_book(request, book_id, non_standard_user_id=False):
     config = Config(request.user)
     book = get_object_or_404(Book,id=book_id)
     context = {}
-
-    # if we have a non_standard_user we treat him special
-    # url_for_non_standard_users = u'/entelib/users/%d/bookcopy/%s/' % (int(non_standard_user_id), u'%d')
-    # show_url = u'/entelib/bookcopy/%d/' if non_standard_user_id == False else url_for_non_standard_users
-    # if non_standard_user_id == False:
-    #     if request.user.has_perm('baseapp.add_rental'):
-    #         reserve_url = u'/entelib/bookcopy/%d/user/'
-    #     else:
-    #         reserve_url = u'/entelib/bookcopy/%d/reserve/'
-    # else:
-    #     reserve_url = url_for_non_standard_users
-    # do we have such book?
-    ## try:
-    ##     book = Book.objects.get(id=book_id)
-    ## except Book.DoesNotExist:
-    ##     return render_not_found(request, item_name='Book')
 
     # find all visible copies of given book
     book_copies = BookCopy.objects.filter(book=book_id).filter(state__is_visible=True)
@@ -489,7 +465,7 @@ def show_book(request, book_id, non_standard_user_id=False):
         'items'       : curr_copies,
         'categories'  : [c.name for c in book.category.all()],
         }
-    locations_for_book = get_locations_for_book(book.id)
+    locations_for_book = aux.get_locations_for_book(book.id)
     search_locations = []
     if locations_for_book:
         search_locations += [{'name' : '-- Any --',
@@ -505,7 +481,7 @@ def show_book(request, book_id, non_standard_user_id=False):
         }
 
     for_whom = aux.user_full_name(non_standard_user_id)
-    last_date = date.today() + timedelta(config.get_int('when_reserved_period'))
+    last_date = utils.today() + timedelta(config.get_int('when_reserved_period'))
 
     context.update({ 'book'                   : book_desc,
                      'last_date'              : last_date,
@@ -514,7 +490,7 @@ def show_book(request, book_id, non_standard_user_id=False):
                      'can_add_bookcopy'       : request.user.has_perm('baseapp.add_bookcopy'),
                      'only_available_checked' : 'yes' if 'available' in request.POST else '',
                      })
-    return render_response(request, 'bookcopies.html', context)
+    return aux.render_response(request, 'bookcopies.html', context)
 
 
 @login_required
@@ -560,7 +536,7 @@ def show_book_copy(request, bookcopy_id):
     context.update({
         'copy' : book_desc, })
 
-    return render_response(request, 'bookcopy.html', context)
+    return aux.render_response(request, 'bookcopy.html', context)
 
 
 @login_required
@@ -599,7 +575,7 @@ def show_add_book(request, edit_form=forms.BookForm):
         'ac_authors'  : book_authors,
         'all_authors' : all_authors,
         }
-    return render_response(request, 'books/one.html', context)
+    return aux.render_response(request, 'books/one.html', context)
 
 @permission_required('baseapp.change_book')
 def show_edit_book(request, book_id, edit_form=forms.BookForm):
@@ -623,7 +599,7 @@ def show_edit_book(request, book_id, edit_form=forms.BookForm):
         'all_authors' : all_authors,
         'is_updating' : True,        # editing existing book
         }
-    return render_response(request, 'books/one.html', context)
+    return aux.render_response(request, 'books/one.html', context)
 
 
 @permission_required('baseapp.add_bookcopy')
@@ -638,7 +614,7 @@ def show_add_bookcopy(request, book_id, edit_form=forms.BookCopyForm):
             try:
                 new_copy = form.save()
             except NotEnoughIDs:
-                return render_forbidden(request, 'Too many copies of this book (999!). Please add new book for more copies')
+                return aux.render_forbidden(request, 'Too many copies of this book (999!). Please add new book for more copies')
             messages.info(request, 'Book copy successfully added.')
             return HttpResponseRedirect(reverse('copy_one', args=(new_copy.id,)))
     else:
@@ -649,7 +625,7 @@ def show_add_bookcopy(request, book_id, edit_form=forms.BookCopyForm):
         'book'       : book,
         'is_adding'  : True,    # adding new copy
         }
-    return render_response(request, 'copies/one.html', context)
+    return aux.render_response(request, 'copies/one.html', context)
 
 @permission_required('baseapp.change_bookcopy')
 def show_edit_bookcopy(request, copy_id, edit_form=forms.BookCopyForm):
@@ -669,7 +645,7 @@ def show_edit_bookcopy(request, copy_id, edit_form=forms.BookCopyForm):
         'copy'        : copy,
         'is_updating' : True,    # editing existing copy
         }
-    return render_response(request, 'copies/one.html', context)
+    return aux.render_response(request, 'copies/one.html', context)
 
 
 
@@ -728,7 +704,7 @@ def show_users(request):
             'non_found'        : not len(user_list),  # if no users was found were pass True
             'from_my_building' : request_from_my_building,
             })
-    return render_response(request, template, context)
+    return aux.render_response(request, template, context)
 
 
 @permission_required('auth.add_user')
@@ -771,7 +747,7 @@ def _do_edit_user_profile(request, edited_user, redirect_on_success_url='/enteli
     context = profile_edit_form.build_default_context_for_user(edited_user)
     context['form_content'] = form
     context['reader'] = edited_user
-    return render_response(request, 'profile.html', context)
+    return aux.render_response(request, 'profile.html', context)
 
 
 @login_required
@@ -866,7 +842,7 @@ def show_reports(request, name=''):
                 context['error'] = report_data['error']
                 context['report'] = report_data['report']
                 context['ordering'] = report_data['ordering']
-                return render_response(request, template_for_report[report_name], context)
+                return aux.render_response(request, template_for_report[report_name], context)
             elif 'btn_generate_csv' in post:
                 order_by = []
                 if 'ordering' in post:
@@ -878,13 +854,13 @@ def show_reports(request, name=''):
                 # :-2  is used because <input type="image"...> is sent as "btn_sort_location.x" :/
                 order_by = [ k[len(btn_sort_prefix):-2] for k in post.keys() if k.startswith(btn_sort_prefix)]
                 if not order_by:
-                    return render_not_found(request, msg='Action not recognized')
+                    return aux.render_not_found(request, msg='Action not recognized')
 
                 report_data = get_report_data(report_name, unicode(from_date), unicode(to_date), order_by=order_by)
                 context['error'] = report_data['error']
                 context['report'] = report_data['report']
                 context['ordering'] = report_data['ordering']
-                return render_response(request, template_for_report[report_name], context)
+                return aux.render_response(request, template_for_report[report_name], context)
         else:
             order_by = []
             if 'ordering' in post:
@@ -893,9 +869,9 @@ def show_reports(request, name=''):
             context['report'] = report_data['report']
             context['error']  = report_data['error']
             context['ordering'] = report_data['ordering']
-            return render_response(request, template_for_report[report_name], context)
+            return aux.render_response(request, template_for_report[report_name], context)
     else:
-        return render_response(request, 'reports.html', context)
+        return aux.render_response(request, 'reports.html', context)
 
 
 @permission_required('baseapp.list_users')
@@ -913,7 +889,7 @@ def reserve_for_user(request, user_id, book_copy_id):
 
 @login_required
 def show_user_reservation(request, user_id, reservation_id):
-    return render_not_implemented(request)
+    return aux.render_not_implemented(request)
 
 
 @permission_required('baseapp.add_reservation')
@@ -921,8 +897,8 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
     book_copy = get_object_or_404(BookCopy, id=copy_id)
     config = Config(user=request.user)
     reserved = {}   # info on reservation
-    context = {'reserve_from' : today(),
-               'reserve_to'   : today() + timedelta(Config(user=request.user).get_int('reservation_duration')),
+    context = {'reserve_from' : utils.today(),
+               'reserve_to'   : utils.today() + timedelta(Config(user=request.user).get_int('reservation_duration')),
                }
 #    rented = {}     # info on rental
     if non_standard_user_id:
@@ -953,7 +929,7 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
                     try:
                         [y, m, d] = map(int,post['to'].split('-'))
                         r.end_date = date(y, m, d)
-                        if r.start_date < today():
+                        if r.start_date < utils.today():
                             raise EntelibWarning('Reservation cannot begin in the past.')
                         if r.end_date < r.start_date:
                             raise EntelibWarning('"From" date cannot be later than "To" date.')
@@ -966,7 +942,7 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
                 else:
                     assert False  # flow should never get here: if there is from was incorrect it raised entelib warning
                 overlapping_user_reservations = Reservation.objects \
-                                                           .filter(Q_reservation_active) \
+                                                           .filter(aux.Q_reservation_active) \
                                                            .filter(book_copy=book_copy) \
                                                            .filter(for_whom=user) \
                                                            .filter(Q(end_date__gte  =r.start_date)&Q(end_date__lte  =r.end_date) |  # other reservations ends during requested one
@@ -996,9 +972,9 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
                 raise PermissionDenied('User not allowed to rent book from this location')
             if not aux.is_book_copy_rentable(book_copy):
                 return aux.render_forbidden(request, 'Book copy not rentable')
-            r.start_date = date.today()  # always rent from now
+            r.start_date = utils.today()  # always rent from now
             # for how long rental is possible
-            max_end_date = date.today() + timedelta(aux.book_copy_status(book_copy).rental_possible_for_days())
+            max_end_date = utils.today() + timedelta(aux.book_copy_status(book_copy).rental_possible_for_days())
             try:
                 if 'to' in post and post['to'] != '':
                     [y, m, d] = map(int,post['to'].split('-'))
@@ -1008,17 +984,11 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
                         r.end_date = desired_end_date
                     else:
                         raise EntelibWarning("Rental must end before %s." % max_end_date.isoformat())
-                    if r.end_date < today():
+                    if r.end_date < utils.today():
                         raise EntelibWarning("Reservation can't end before today.")
                 else:
                     raise EntelibWarning('You need to specify reservation end date')
                 r.save()
-
-                # reservation done, rent:
-                # don't rent like this:
-                #  rental = Rental(reservation=r, start_date=date.today(), who_handed_out=request.user)
-                #  rental.save()
-                #  mail.made_rental(rental)  # notifications
                 aux.rent(r, request.user)
                 reserved.update({'msg' : config.get_str('message_book_rented') % r.end_date.isoformat()})
                 messages.info(request, config.get_str('message_book_rented') % r.end_date.isoformat())
@@ -1062,14 +1032,12 @@ def reserve(request, copy_id, non_standard_user_id=False):  # when non_standard_
     tb_context = tb_processor.get_context(book_copy)
     context.update(tb_context)
 
-    return render_response(request, 'reserve.html', context)
+    return aux.render_response(request, 'reserve.html', context)
 
 
 @permission_required('baseapp.change_own_reservation')
 def cancel_all_my_reserevations(request):
     return aux.cancel_all_user_reservations(request, request.user)
-    # aux.cancel_user_reservations(user=request.user, canceller=request.user)
-    # return render_response(request, 'reservations_cancelled.html', {})
 
 @permission_required('baseapp.list_users')
 @permission_required('baseapp.change_reservation')
@@ -1084,7 +1052,7 @@ def show_locations(request):
     locs = Location.objects.select_related().all()
     context = {'rows' : locs,
                }
-    return render_response(request, 'locations/list.html', context)
+    return aux.render_response(request, 'locations/list.html', context)
 
 @permission_required('baseapp.view_location')
 def show_location(request, loc_id, edit_form=forms.LocationForm):
@@ -1117,7 +1085,7 @@ def show_location(request, loc_id, edit_form=forms.LocationForm):
         'is_updating'  : True,
         }
 
-    return render_response(request, 'locations/one.html', context)
+    return aux.render_response(request, 'locations/one.html', context)
 
 @permission_required('baseapp.change_location')
 def show_add_location(request, edit_form=forms.LocationForm):
@@ -1139,7 +1107,7 @@ def show_add_location(request, edit_form=forms.LocationForm):
         'form'        : form,
         'is_adding'   : True,
         }
-    return render_response(request, 'locations/one.html', context)
+    return aux.render_response(request, 'locations/one.html', context)
 
 
 @permission_required('auth.change_user')
@@ -1150,9 +1118,9 @@ def activate_user(request, user_id):
         # print 'user not active!'
         # print user.id
         aux.activate_user(request.user, user)
-        return render_response(request, 'registration/user_activated.html', context)
+        return aux.render_response(request, 'registration/user_activated.html', context)
     else:
-        return render_response(request, 'registration/user_already_active.html', context)
+        return aux.render_response(request, 'registration/user_already_active.html', context)
 
 
 @permission_required('auth.change_user')
@@ -1160,7 +1128,7 @@ def deactivate_user(request, user_id):
     user = get_object_or_404(User, id=user_id)
     context = {'deactivated_user' : user}
     aux.deactivate_user(request.user, user)
-    return render_response(request, 'registration/user_deactivated.html', context)
+    return aux.render_response(request, 'registration/user_deactivated.html', context)
 
 
 @permission_required('baseapp.add_rental')
@@ -1206,7 +1174,7 @@ def show_current_rentals(request, all_locations=False):
                           'authors'           : [a.name for a in r.reservation.book_copy.book.author.all()],
                         } for r in rentals ]
     context.update({ 'rows' : rental_list })
-    return render_response(request, 'current_rentals.html', context)
+    return aux.render_response(request, 'current_rentals.html', context)
 
 
 @permission_required('auth.change_user')
@@ -1227,7 +1195,7 @@ def activate_many_users(request, all_inactive=False):
         users = users.filter(userprofile__awaits_activation=True)
     context = {'rows' : users}
 
-    return render_response(request, 'users_awaiting_activation.html', context)
+    return aux.render_response(request, 'users_awaiting_activation.html', context)
 
 
 def generic_items(request, name_single, name_plural, query, extra_context={}):
@@ -1237,7 +1205,7 @@ def generic_items(request, name_single, name_plural, query, extra_context={}):
         'name_plural'  : name_plural,
         }
     context.update(extra_context)
-    return render_response(request, '%s/list.html' % name_plural, context)
+    return aux.render_response(request, '%s/list.html' % name_plural, context)
 
 def generic_item(request, name_single, name_plural, item_id, model_name, extra_context={}):
     item = get_object_or_404(model_name, id=item_id)
@@ -1249,7 +1217,7 @@ def generic_item(request, name_single, name_plural, item_id, model_name, extra_c
         'name_plural'    : name_plural,
         }
     context.update(extra_context)
-    return render_response(request, '%s/one.html' % name_plural, context)
+    return aux.render_response(request, '%s/one.html' % name_plural, context)
 
 def generic_add_item(request, name_single, name_plural, edit_form, model_name, field_name='name', extra_context={}):
     context = {}
@@ -1274,7 +1242,7 @@ def generic_add_item(request, name_single, name_plural, edit_form, model_name, f
         'name_plural'  : name_plural,
         })
     context.update(extra_context)
-    return render_response(request, '%s/one.html' % name_plural, context)
+    return aux.render_response(request, '%s/one.html' % name_plural, context)
 
 def generic_edit_item(request, name_single, name_plural, item_id, edit_form, model_name, field_name='name', extra_context={}):
     item = get_object_or_404(model_name, id=item_id)
@@ -1302,7 +1270,7 @@ def generic_edit_item(request, name_single, name_plural, item_id, edit_form, mod
         'name_plural'  : name_plural,
         })
     context.update(extra_context)
-    return render_response(request, '%s/one.html' % name_plural, context)
+    return aux.render_response(request, '%s/one.html' % name_plural, context)
 
 @permission_required('baseapp.list_authors')
 def show_authors(request):
@@ -1446,7 +1414,7 @@ def show_add_bookrequest(request, book_id=0, request_form=forms.BookRequestAddFo
         if form.is_valid():
             form.save()
             context['show_confirmation_msg'] = True
-            return render_response(request, template, context)
+            return aux.render_response(request, template, context)
         else:
             messages.error(request, 'Invalid form input! If you are unable to correct it, please contact library maintainer or administrator.')
     # display fresh new form
@@ -1460,7 +1428,7 @@ def show_add_bookrequest(request, book_id=0, request_form=forms.BookRequestAddFo
             'requesting_book' : not requesting_copy,
             })
     context.update(extra_context)
-    return render_response(request, template, context)
+    return aux.render_response(request, template, context)
 
 
 def onleave(request):
@@ -1498,7 +1466,7 @@ def onleave(request):
                         try:
                             add_temporary_maintainer_for_location(tmploc, mtr, adder)
                         except CannotManageMaintainers, ex:
-                            return render_forbidden(request, ex)
+                            return aux.render_forbidden(request, ex)
                     ctx['msg'] = 'Update successful'
         else:
             ctx['msg'] = 'Form is invalid'
@@ -1508,14 +1476,14 @@ def onleave(request):
     if 'msg' in ctx:
         from django.contrib import messages
         messages.add_message(request, messages.INFO, ctx['msg'])
-    return render_response(request, template, ctx)
+    return aux.render_response(request, template, ctx)
 
 
 def howto(request):
-    return render_response(request, 'howto.html')
+    return aux.render_response(request, 'howto.html')
 
 def feedback(request):
-    return render_response(request, 'feedback.html')
+    return aux.render_response(request, 'feedback.html')
 
 def changelog(request):
-    return render_response(request, 'changelog.html')
+    return aux.render_response(request, 'changelog.html')

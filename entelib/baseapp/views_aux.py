@@ -4,14 +4,13 @@ from entelib.baseapp.models import Reservation, Rental, BookCopy, Book, User, Lo
 from django.core.exceptions import PermissionDenied
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from datetime import date, datetime, timedelta
 from config import Config
 from django.db import transaction
 from django.db.models import Q
 from django.contrib import messages
 from entelib import settings
-from baseapp.utils import pprint
 from baseapp.exceptions import *
 import baseapp.emails as mail
 from django.db.models.aggregates import Min
@@ -326,7 +325,7 @@ def is_reservation_rentable(reservation):
 
 
 # Q object filtering Reservation objects to be only active (which means not rented or cancelled or expired)
-Q_reservation_active = Q(when_cancelled=None) & Q(rental=None) & Q(end_date__gte=today())
+Q_reservation_active = Q(when_cancelled=None) & Q(rental=None) & Q(end_date__gte=utils.today())
 
 
 def reservation_status(reservation):
@@ -339,7 +338,7 @@ def reservation_status(reservation):
     all = Reservation.objects.filter(book_copy=reservation.book_copy)\
                              .filter(rental=None)\
                              .filter(when_cancelled=None)\
-                             .filter(end_date__gte=today())
+                             .filter(end_date__gte=utils.today())
     if reservation not in all:
         return 'Incorrect reservation'
     # book rented:
@@ -349,18 +348,18 @@ def reservation_status(reservation):
     if reservation.book_copy.state.is_available == False:
         return 'Copy not available (' + reservation.book_copy.state.name + ').'
     # too early
-    if reservation.start_date > today():
+    if reservation.start_date > utils.today():
         return 'Reservation is not yet active'
     # reservation cannot be purchased for there are some reservation before this one starts
-    if reservation.start_date > today() and all.filter(start_date__lt=reservation.start_date).count() > 0:
+    if reservation.start_date > utils.today() and all.filter(start_date__lt=reservation.start_date).count() > 0:
         return 'There are reservations before this one starts.'
     # some older reservation is active
-    if all.filter(id__lt=reservation.id).filter(start_date__lte=today()).filter(Q_reservation_active).count() > 0:
+    if all.filter(id__lt=reservation.id).filter(start_date__lte=utils.today()).filter(Q_reservation_active).count() > 0:
         # WARNING/NOTE: this might need modification if additional conditions are added to definition of active reservation
         return 'Reservation in queue'
     max_allowed = config.get_int('rental_duration')
     try:
-        max_possible = (min([r.start_date for r in all.filter(id__lt=reservation.id).filter(start_date__gt=today())]) - today()).days
+        max_possible = (min([r.start_date for r in all.filter(id__lt=reservation.id).filter(start_date__gt=utils.today())]) - utils.today()).days
     except ValueError:
         max_possible = max_allowed
     return min(max_allowed, max_possible)
@@ -466,7 +465,7 @@ def get_reservations_for_copies(copies_ids, only=[], related=[]):
     only_fields = only + ['book_copy__id']
     reservations = Reservation.objects.only(*only_fields) \
                                       .filter(book_copy__id__in=copies_ids) \
-                                      .filter(start_date__lte=today()) \
+                                      .filter(start_date__lte=utils.today()) \
                                       .filter(Q_reservation_active)
     return reservations
 
@@ -529,7 +528,7 @@ def book_copies_status(copies):
             continue
         try:
             min_start_date = rsv['min_start_date']
-            max_possible = (min_start_date - today()).days - 1
+            max_possible = (min_start_date - utils.today()).days - 1
             if max_possible < 0:
                 raise EntelibError('book_copy_status error: copy reserved') # this should not happen since all active reservations should already have status
         except ValueError:
@@ -572,9 +571,9 @@ def confirm_reservation(reservation):
     Check if reservation can be immediately rented and send appropriate email.
     '''
     preceding_reservations = Reservation.objects.filter(Q_reservation_active|Q(rental__isnull=False, rental__end_date__isnull=True), book_copy=reservation.book_copy, id__lt=reservation.id)
-    if not preceding_reservations and reservation.start_date <= date.today():
+    if not preceding_reservations and reservation.start_date <= utils.today():
         mail.reservation_active(reservation)
-        reservation.active_since = date.today()
+        reservation.active_since = utils.today()
         reservation.save()
     else:
         mail.made_reservation(reservation)
@@ -591,7 +590,7 @@ def rent(reservation, librarian):
         raise PermissionDenied('One can only rent from location one maintains')
     if not is_reservation_rentable(reservation):
         raise PermissionDenied('Reservation not rentable.')
-    max_end_date = date.today() + timedelta(reservation_status(reservation)-1) # return one day before it's reserved
+    max_end_date = utils.today() + timedelta(reservation_status(reservation)-1) # return one day before it's reserved
     if max_end_date < reservation.end_date:
         reservation.end_date = max_end_date
         reservation.save()
@@ -640,7 +639,7 @@ def max_prolongation_period(rental):
     reservation = rental.reservation
 
     days_left_to_enable_prolongation = Config().get_int('min_days_left_to_enable_prolongation')
-    days_left_to_rend    = (reservation.end_date - today()).days
+    days_left_to_rend    = (reservation.end_date - utils.today()).days
     enabled_prolongation = days_left_to_rend <= days_left_to_enable_prolongation
     if not enabled_prolongation:
         return 0
@@ -713,7 +712,7 @@ def prolong_rental(request, rental_id, requester, prolongator):
     prol_logger.info("prolong_rental() preconditions valid, rental present.")
 
     days_left_to_enable_prolongation = Config().get_int('min_days_left_to_enable_prolongation')
-    days_left_to_rend    = (r.reservation.end_date - today()).days
+    days_left_to_rend    = (r.reservation.end_date - utils.today()).days
     enabled_prolongation = days_left_to_rend <= days_left_to_enable_prolongation
     max_period           = max_prolongation_period(r)
     can_prolong          = enabled_prolongation and max_period > 0 and prolongator.has_perm('baseapp.change_rental')
@@ -833,7 +832,7 @@ def show_user_rentals(request, user_id=False):
     rent_list = []
     for r in user_rentals:
         max_period               = max_prolongation_period(r)
-        days_left_to_rend        = (r.reservation.end_date - today()).days
+        days_left_to_rend        = (r.reservation.end_date - utils.today()).days
         enabled_prolongation     = days_left_to_rend <= days_left_to_enable_prolongation
         can_request_prolongation = enabled_prolongation and (request.user==r.reservation.for_whom)           # owner of reservation
         can_prolong              = enabled_prolongation \
@@ -882,16 +881,16 @@ def show_user_rental_archive(request, user_id=False):
     rent_list = []
     for rental in rentals:
         rent_list.append({
-            'id' : rental.reservation.book_copy.shelf_mark,
-            'title' : rental.reservation.book_copy.book.title,
-            'authors' : [a.name for a in rental.reservation.book_copy.book.author.all()],
-            'rented' : rental.start_date.date(),
+            'id'       : rental.reservation.book_copy.shelf_mark,
+            'title'    : rental.reservation.book_copy.book.title,
+            'authors'  : [a.name for a in rental.reservation.book_copy.book.author.all()],
+            'rented'   : rental.start_date.date(),
             'returned' : rental.end_date.date() if rental.end_date else None,
             })
 
-    context = { 'rows' : rent_list,
+    context = { 'rows'     : rent_list,
                 'for_whom' : user.first_name + ' ' + user.last_name if user_id else None,
-                'reader' : user,
+                'reader'   : user,
               }
     return render_response(request, 'rental_archive.html', context)
 
@@ -901,10 +900,10 @@ def mark_available(book_copy):
     Desc:
         If there is an active reservation awaiting for this copy, let it know.
     '''
-    reservations = Reservation.objects.filter(Q_reservation_active, book_copy=book_copy).filter(start_date__lte=date.today)
+    reservations = Reservation.objects.filter(Q_reservation_active, book_copy=book_copy).filter(start_date__lte=utils.today())
     if reservations.count() > 0:  # TODO: this probably can be done more effectively
         first_reservation = reservations[0]
-        first_reservation.active_since = today()
+        first_reservation.active_since = utils.today()
         first_reservation.save()
         mail.reservation_active(first_reservation)
 
@@ -916,14 +915,14 @@ def show_user_reservations(request, user_id=False):
         user = get_object_or_404(User, id=user_id)
 
     # prepare some data
-    context = { 'first_name'     : user.first_name, #
-                'last_name'      : user.last_name, #
-                'email'          : user.email, #
+    context = { 'first_name'     : user.first_name,
+                'last_name'      : user.last_name,
+                'email'          : user.email,
                 'reader'         : user,
                 'cancel_all_url' : 'cancel-all/',
-                'can_cancel'     : (request.user == user and user.has_perm('baseapp.change_own_reservation'))\
-                                   or\
-                                   request.user.has_perm('baseapp.change_reservation'),
+                'can_cancel'     : request.user.has_perm('baseapp.change_reservation') \
+                                   or (request.user == user \
+                                       and user.has_perm('baseapp.change_own_reservation'))
                 }
 
     if request.method == 'POST':
@@ -1096,20 +1095,20 @@ def when_copy_reserved(book_copy):
     """
     config = Config()
 
-    last_date = today() + timedelta(config.get_int('when_reserved_period'))
+    last_date = utils.today() + timedelta(config.get_int('when_reserved_period'))
     if book_copy.state.is_available == False:
-        return [{'from': today(), 'to': last_date}]
+        return [{'from': utils.today(), 'to': last_date}]
 
     reservations = Reservation.objects.filter(book_copy=book_copy) \
                                       .filter(Q_reservation_active) \
-                                      .filter(start_date__lte=today() + timedelta(config.get_int('when_reserved_period')))
+                                      .filter(start_date__lte=utils.today() + timedelta(config.get_int('when_reserved_period')))
     active_rentals = Rental.objects.filter(reservation__book_copy=book_copy) \
                                    .filter(end_date__isnull=True)
 
     list = [(r.start_date, r.end_date) for r in reservations]
     if active_rentals:
         active_rental = active_rentals[0]
-        list.append((today(), active_rental.reservation.end_date))
+        list.append((utils.today(), active_rental.reservation.end_date))
 
     list.sort()
     new_list = []
@@ -1179,7 +1178,7 @@ def show_reservations(request, shipment_requested=False, only_rentable=True, all
     if not all_locations:
         reservations = reservations.filter(book_copy__location__in=locations)
     if only_rentable:
-        reservations = [r for r in reservations.filter(start_date__lte=today()) if is_reservation_rentable(r)]
+        reservations = [r for r in reservations.filter(start_date__lte=utils.today()) if is_reservation_rentable(r)]
 
     reservation_list = [
                         { 'id'                : r.id,
