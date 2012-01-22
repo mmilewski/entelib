@@ -881,8 +881,8 @@ def show_user_rental_archive(request, user_id=False):
 
     rentals = Rental.objects.filter(reservation__for_whom=user)
 
-     rent_list = []
-     for rental in rentals:
+    rent_list = []
+    for rental in rentals:
         kopy = rental.reservation.book_copy
         book = kopy.book
         rent_list.append({
@@ -981,7 +981,6 @@ def show_user_reservations(request, user_id=False):
                          'reservation'        : r,
                          } for r in user_reservations]
     context.update({'rows' : reservation_list})
-
     return render_response(request, 'user_reservations.html', context)
 
 
